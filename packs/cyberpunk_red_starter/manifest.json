@@ -1,0 +1,20 @@
+{
+  "id": "cyberpunk_red_starter",
+  "name": "Cyberpunk RED: 25 Archetypes Starter Pack",
+  "system_id": "cyberpunk_red",
+  "edition": "Core Rulebook System",
+  "version": "1.0.0",
+  "author": "R. Talsorian Games / Night City Community Archetypes",
+  "description": "25 каноничных боевых архетипов Night City: Соло, Нетраннеры, Техники, Номады, Полиция, Мальстрём, Киберпсихопат, МаксТак, Арасака и Травма Тим со статистикой REF, броней SP головы/тела и арсеналом оружия.",
+  "count": 25,
+  "format": "ait-content-pack-v1",
+  "created_at": "2026-10-18T23:06:58.094Z",
+  "tags": [
+    "cyberpunk",
+    "cyberpunk_red",
+    "starter",
+    "archetypes",
+    "night_city"
+  ],
+  "license": "Fan Content / Core Reference"
+}

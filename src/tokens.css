@@ -1,0 +1,398 @@
+/* ==========================================================================
+   D&D AIT 2.0 DESIGN TOKENS & MULTI-SYSTEM THEME ENGINE
+   Unified Design Tokens: Warm Fantasy (D&D 5e), Neon Cyber (Cyberpunk RED),
+   and Stately Slate (Pathfinder 2e).
+   All fonts run strictly offline via @fontsource (Inter, JetBrains Mono, Manrope).
+   Invariant semantic colors: Damage (#e5484d), Heal (#3dd68c), Save (#4f9cf9).
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* ========================================================================
+     INVARIANT SEMANTIC COLORS (MUST NEVER CHANGE ACROSS ANY THEME!)
+     ======================================================================== */
+  --semantic-damage: #e5484d;
+  --semantic-damage-dark: #c5282d;
+  --semantic-damage-subtle: rgba(229, 72, 77, 0.15);
+  --semantic-damage-border: rgba(229, 72, 77, 0.45);
+  --semantic-damage-glow: 0 0 18px rgba(229, 72, 77, 0.35);
+
+  --semantic-heal: #3dd68c;
+  --semantic-heal-dark: #23a066;
+  --semantic-heal-subtle: rgba(61, 214, 140, 0.15);
+  --semantic-heal-border: rgba(61, 214, 140, 0.45);
+  --semantic-heal-glow: 0 0 18px rgba(61, 214, 140, 0.35);
+
+  --semantic-save: #4f9cf9;
+  --semantic-save-dark: #2b7ce5;
+  --semantic-save-subtle: rgba(79, 156, 249, 0.15);
+  --semantic-save-border: rgba(79, 156, 249, 0.45);
+  --semantic-save-glow: 0 0 18px rgba(79, 156, 249, 0.35);
+
+  --semantic-magic: #8b5cf6;
+  --semantic-magic-subtle: rgba(139, 92, 246, 0.15);
+  --semantic-magic-border: rgba(139, 92, 246, 0.45);
+
+  /* ========================================================================
+     DEFAULT BASE TOKENS (D&D 5e / 2024 WARM FANTASY)
+     ======================================================================== */
+  --theme-id: 'dnd5e';
+
+  /* Base Canvas & Surfaces */
+  --bg-canvas: #090b10;
+  --bg-canvas-subtle: #0d1017;
+  --bg-surface: rgba(18, 22, 30, 0.78);
+  --bg-surface-solid: #12161e;
+  --bg-card: rgba(24, 29, 40, 0.65);
+  --bg-card-hover: rgba(33, 40, 56, 0.85);
+  --bg-card-active: rgba(41, 50, 70, 0.95);
+  --bg-overlay: rgba(5, 7, 10, 0.82);
+
+  /* Glassmorphism & Borders */
+  --glass-bg: var(--bg-surface);
+  --glass-bg-elevated: rgba(24, 30, 42, 0.82);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.16);
+  --glass-border-accent: rgba(245, 185, 32, 0.35);
+  --glass-border-gold: var(--glass-border-accent);
+  --glass-blur: blur(16px);
+  --glass-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.65), 0 4px 12px -2px rgba(0, 0, 0, 0.45);
+
+  /* Primary Accent: Warm Gold (#f5b920) */
+  --accent: #f5b920;
+  --accent-hover: #fac742;
+  --accent-active: #e0a312;
+  --accent-text: #0c0d12;
+  --accent-subtle: rgba(245, 185, 32, 0.12);
+  --accent-glow: 0 0 20px rgba(245, 185, 32, 0.32);
+  --accent-glow-intense: 0 0 28px rgba(245, 185, 32, 0.55);
+
+  /* Aliases for backwards compatibility */
+  --accent-gold: var(--accent);
+  --accent-gold-hover: var(--accent-hover);
+  --accent-gold-active: var(--accent-active);
+  --accent-gold-text: var(--accent-text);
+  --accent-gold-subtle: var(--accent-subtle);
+  --accent-gold-glow: var(--accent-glow);
+  --accent-gold-glow-intense: var(--accent-glow-intense);
+
+  /* Typography (Offline Local Fonts via @fontsource) */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+  --font-heading: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Typography & Readability Constraints (>= 12px, Targets >= 32px) */
+  --min-font-size: 12px;
+  --min-click-size: 32px;
+
+  /* Text Palette */
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-dim: #6b7280;
+  --text-gold: var(--accent);
+  --text-gold-light: #fce79f;
+
+  /* Radii (Warm Fantasy: 14-20px, card = 16px) */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-card: 16px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-pill: 9999px;
+
+  /* Atmospheric Background Glows */
+  --canvas-glow-1: rgba(245, 185, 32, 0.04);
+  --canvas-glow-2: rgba(229, 72, 77, 0.04);
+}
+
+/* ==========================================================================
+   THEME 1: D&D 5e / 2024 (WARM FANTASY)
+   `<html data-system="dnd5e">` or `<html data-system="dnd5e_2024">`
+   ========================================================================== */
+html[data-system="dnd5e"],
+html[data-system="dnd5e_2024"],
+[data-system="dnd5e"],
+[data-system="dnd5e_2024"] {
+  --theme-id: 'dnd5e';
+
+  --bg-canvas: #090b10;
+  --bg-canvas-subtle: #0d1017;
+  --bg-surface: rgba(18, 22, 30, 0.78);
+  --bg-surface-solid: #12161e;
+  --bg-card: rgba(24, 29, 40, 0.65);
+  --bg-card-hover: rgba(33, 40, 56, 0.85);
+  --bg-card-active: rgba(41, 50, 70, 0.95);
+  --bg-overlay: rgba(5, 7, 10, 0.82);
+
+  --glass-bg: var(--bg-surface);
+  --glass-bg-elevated: rgba(24, 30, 42, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.16);
+  --glass-border-accent: rgba(245, 185, 32, 0.35);
+  --glass-border-gold: var(--glass-border-accent);
+  --glass-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.65), 0 4px 12px -2px rgba(0, 0, 0, 0.45);
+
+  --accent: #f5b920;
+  --accent-hover: #fac742;
+  --accent-active: #e0a312;
+  --accent-text: #0c0d12;
+  --accent-subtle: rgba(245, 185, 32, 0.12);
+  --accent-glow: 0 0 20px rgba(245, 185, 32, 0.32);
+  --accent-glow-intense: 0 0 28px rgba(245, 185, 32, 0.55);
+
+  --text-gold: var(--accent);
+  --text-gold-light: #fce79f;
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-card: 16px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-pill: 9999px;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+  --font-heading: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --canvas-glow-1: rgba(245, 185, 32, 0.04);
+  --canvas-glow-2: rgba(229, 72, 77, 0.04);
+}
+
+/* ==========================================================================
+   THEME 2: CYBERPUNK RED (NEON CYBER)
+   `<html data-system="cyberpunk-red">`
+   Electric yellow (#fcee0a), cyan (#00f0ff), magenta (#ff2a6d),
+   sharp corners / clipped edges (--radius-card: 4px), techno/monospace heading.
+   ========================================================================== */
+html[data-system="cyberpunk-red"],
+[data-system="cyberpunk-red"] {
+  --theme-id: 'cyberpunk-red';
+
+  /* Deep High-Tech Canvas & Surfaces */
+  --bg-canvas: #07070a;
+  --bg-canvas-subtle: #0d0e15;
+  --bg-surface: rgba(14, 16, 25, 0.85);
+  --bg-surface-solid: #0e1019;
+  --bg-card: rgba(19, 23, 36, 0.75);
+  --bg-card-hover: rgba(28, 34, 52, 0.9);
+  --bg-card-active: rgba(36, 44, 68, 0.98);
+  --bg-overlay: rgba(5, 5, 8, 0.88);
+
+  /* Neon Cyan & Electric Borders */
+  --glass-bg: var(--bg-surface);
+  --glass-bg-elevated: rgba(22, 26, 40, 0.9);
+  --glass-border: rgba(0, 240, 255, 0.18);
+  --glass-border-hover: rgba(0, 240, 255, 0.42);
+  --glass-border-accent: rgba(252, 238, 10, 0.45);
+  --glass-border-gold: var(--glass-border-accent);
+  --glass-shadow: 0 8px 30px -2px rgba(0, 240, 255, 0.12), 0 4px 16px -2px rgba(0, 0, 0, 0.85);
+
+  /* Electric Yellow Primary Accent */
+  --accent: #fcee0a;
+  --accent-hover: #fff34d;
+  --accent-active: #d6ca00;
+  --accent-text: #050508;
+  --accent-subtle: rgba(252, 238, 10, 0.15);
+  --accent-glow: 0 0 16px rgba(252, 238, 10, 0.45), 0 0 32px rgba(252, 238, 10, 0.2);
+  --accent-glow-intense: 0 0 24px rgba(0, 240, 255, 0.6), 0 0 44px rgba(252, 238, 10, 0.45);
+
+  /* Secondary Cyber Accents */
+  --accent-cyan: #00f0ff;
+  --accent-magenta: #ff2a6d;
+
+  --text-primary: #fbfbfe;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --text-gold: var(--accent);
+  --text-gold-light: #fff8a5;
+
+  /* Sharp Corners / Clipped Edges */
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-card: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
+  --radius-pill: 4px;
+
+  /* Techno & Monospace Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+  --font-heading: 'JetBrains Mono', 'Consolas', monospace;
+
+  /* Atmospheric Cyan & Magenta Scanline Glows */
+  --canvas-glow-1: rgba(0, 240, 255, 0.07);
+  --canvas-glow-2: rgba(255, 42, 109, 0.07);
+}
+
+/* Subtle CRT Scanline overlay for Cyberpunk RED */
+html[data-system="cyberpunk-red"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(18, 16, 26, 0) 50%,
+    rgba(0, 0, 0, 0.22) 50%
+  );
+  background-size: 100% 4px;
+  opacity: 0.16;
+  z-index: 9999;
+}
+
+/* ==========================================================================
+   THEME 3: PATHFINDER 2e (STATELY FANTASY)
+   `<html data-system="pathfinder2e">`
+   Bronze (#c28f47), dark teal/slate (#122a2f), rich burgundy,
+   stately parchment accents, radii 12-16px (--radius-card: 14px).
+   ========================================================================== */
+html[data-system="pathfinder2e"],
+[data-system="pathfinder2e"] {
+  --theme-id: 'pathfinder2e';
+
+  /* Dark Teal / Slate Canvas & Surfaces */
+  --bg-canvas: #0b1214;
+  --bg-canvas-subtle: #101a1c;
+  --bg-surface: rgba(18, 38, 43, 0.82);
+  --bg-surface-solid: #12262b;
+  --bg-card: rgba(22, 46, 52, 0.7);
+  --bg-card-hover: rgba(30, 60, 68, 0.88);
+  --bg-card-active: rgba(38, 74, 84, 0.95);
+  --bg-overlay: rgba(7, 14, 16, 0.84);
+
+  /* Bronze & Stately Parchment Borders */
+  --glass-bg: var(--bg-surface);
+  --glass-bg-elevated: rgba(26, 54, 61, 0.88);
+  --glass-border: rgba(194, 143, 71, 0.2);
+  --glass-border-hover: rgba(194, 143, 71, 0.36);
+  --glass-border-accent: rgba(194, 143, 71, 0.45);
+  --glass-border-gold: var(--glass-border-accent);
+  --glass-shadow: 0 12px 32px -4px rgba(11, 18, 20, 0.75), 0 4px 12px -2px rgba(0, 0, 0, 0.5);
+
+  /* Bronze Accent (#c28f47) */
+  --accent: #c28f47;
+  --accent-hover: #d4a35b;
+  --accent-active: #a67633;
+  --accent-text: #0d1214;
+  --accent-subtle: rgba(194, 143, 71, 0.14);
+  --accent-glow: 0 0 20px rgba(194, 143, 71, 0.32);
+  --accent-glow-intense: 0 0 28px rgba(194, 143, 71, 0.52);
+
+  /* Stately Burgundy & Parchment Secondary Accents */
+  --accent-burgundy: #852233;
+  --accent-parchment: #e8dcc4;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --text-gold: var(--accent);
+  --text-gold-light: #fae4be;
+
+  /* Stately Radii (12–16px, card = 14px) */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-card: 14px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
+  --radius-pill: 9999px;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+  --font-heading: 'Manrope', 'Inter', -apple-system, serif;
+
+  /* Atmospheric Bronze & Burgundy Glows */
+  --canvas-glow-1: rgba(194, 143, 71, 0.05);
+  --canvas-glow-2: rgba(133, 34, 51, 0.05);
+}
+
+/* ==========================================================================
+   SMOOTH TRANSITIONS ON THEME SWITCHING (150ms - 250ms)
+   ========================================================================== */
+html,
+body,
+.glass-panel,
+.glass-panel-elevated,
+header,
+main,
+aside,
+footer,
+nav,
+div[class*="rounded-glass"],
+button[class*="rounded-glass"],
+input[class*="rounded-glass"] {
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+/* ==========================================================================
+   REUSABLE GLASS & GLOW UTILITY CLASSES
+   ========================================================================== */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-panel-elevated {
+  background: var(--glass-bg-elevated);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border-hover);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.75);
+}
+
+.glass-pill {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+}
+
+.glass-pill-active {
+  background: var(--accent-subtle);
+  border: 1px solid var(--glass-border-accent);
+  color: var(--accent);
+  box-shadow: 0 0 14px var(--accent-subtle);
+}
+
+/* Accent Glows */
+.gold-glow {
+  box-shadow: var(--accent-glow);
+}
+
+.gold-glow-intense {
+  box-shadow: var(--accent-glow-intense);
+}
+
+.damage-glow {
+  box-shadow: var(--semantic-damage-glow);
+}
+
+.heal-glow {
+  box-shadow: var(--semantic-heal-glow);
+}
+
+.save-glow {
+  box-shadow: var(--semantic-save-glow);
+}

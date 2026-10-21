@@ -1,0 +1,11 @@
+id = "srd_5_2_1"
+name = "SRD 5.2.1 Monsters Bestiary"
+system_id = "srd_5_2_1"
+edition = "5.2.1 (CC-BY)"
+version = "1.0.0"
+author = "Wizards of the Coast / Open Gaming Foundation"
+count = 336
+description = "Официальный открытый свод из 336 существ SRD 5.2.1 под свободной лицензией Creative Commons Attribution 4.0 International (CC-BY-4.0)."
+created_at = "2026-10-18T23:06:58.118Z"
+license = "CC-BY-4.0"
+tags = ["dnd5e", "srd", "cc-by", "srd_5_2_1", "official"]

@@ -1,0 +1,787 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import clsx from 'clsx';
+import {
+  Swords,
+  Heart,
+  Zap,
+  Check,
+  Crosshair,
+  ChevronRight,
+  Sparkles,
+  BookOpen,
+} from 'lucide-react';
+import { useCombatStore } from '../../store/combatStore';
+import { Combatant } from '../../types/combat';
+import { DamageType, ConditionType } from '../../types/dnd5e';
+import { CONDITIONS_2024_DATA } from '../../engine/conditions';
+import {
+  cleanRussianText,
+  localizeDamageType,
+  DAMAGE_NAMES_RU,
+} from '../../utils/textUtils';
+import { computeDamageWithDefenses } from '../../utils/attackParser';
+import { broadcastService } from '../../services/broadcastService';
+import { resolveTokenUrl } from '../../services/tokenResolver';
+
+interface PlayerActionResultPanelProps {
+  player: Combatant;
+}
+
+const COMMON_DAMAGE_TYPES: DamageType[] = [
+  'slashing',
+  'piercing',
+  'bludgeoning',
+  'fire',
+  'radiant',
+  'force',
+  'lightning',
+  'necrotic',
+  'cold',
+  'poison',
+  'acid',
+  'psychic',
+  'thunder',
+];
+
+export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps) {
+  const {
+    combatants,
+    currentTargetId,
+    setCurrentTargetId,
+    applyDamage,
+    applyHealing,
+    addCondition,
+    addDiceLog,
+    nextTurn,
+  } = useCombatStore();
+
+  const [activeTab, setActiveTab] = useState<'damage' | 'heal' | 'condition'>('damage');
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  // Living enemies (non-players)
+  const livingEnemies = useMemo(() => {
+    return combatants.filter((c) => !c.isPlayer && !c.isDead && c.hp > 0);
+  }, [combatants]);
+
+  // Living allies (including self)
+  const livingAllies = useMemo(() => {
+    return combatants.filter((c) => c.isPlayer && !c.isDead);
+  }, [combatants]);
+
+  // Target for damage
+  const [selectedTargetId, setSelectedTargetId] = useState<string>(() => {
+    if (currentTargetId && livingEnemies.some((e) => e.id === currentTargetId)) {
+      return currentTargetId;
+    }
+    return livingEnemies[0]?.id || '';
+  });
+
+  // Keep target in sync if currentTargetId changes from map or roster
+  useEffect(() => {
+    if (currentTargetId && livingEnemies.some((e) => e.id === currentTargetId)) {
+      setSelectedTargetId(currentTargetId);
+    } else if (!selectedTargetId && livingEnemies.length > 0) {
+      setSelectedTargetId(livingEnemies[0].id);
+    }
+  }, [currentTargetId, livingEnemies, selectedTargetId]);
+
+  // Damage form state
+  const [damageInput, setDamageInput] = useState<string>('0');
+  const [damageType, setDamageType] = useState<DamageType>('slashing');
+  const [isCrit, setIsCrit] = useState<boolean>(false);
+  const [attackRollNote, setAttackRollNote] = useState<string>('');
+
+  // Heal form state
+  const [healingTargetId, setHealingTargetId] = useState<string>(() => player.id);
+  const [healInput, setHealInput] = useState<string>('8');
+
+  // Condition form state
+  const [conditionTargetId, setConditionTargetId] = useState<string>(() => {
+    return selectedTargetId || livingEnemies[0]?.id || '';
+  });
+  const [selectedCondition, setSelectedCondition] = useState<ConditionType>('Prone');
+
+  // Expandable character reference sheet
+  const [isRefExpanded, setIsRefExpanded] = useState<boolean>(false);
+
+  const selectedTarget = combatants.find((c) => c.id === selectedTargetId);
+  const selectedAlly = combatants.find((c) => c.id === healingTargetId);
+
+  // Quick increment helper
+  const addDamageDelta = (delta: number) => {
+    const current = parseInt(damageInput, 10) || 0;
+    const next = Math.max(0, current + delta);
+    setDamageInput(String(next));
+  };
+
+  const halveDamage = () => {
+    const current = parseInt(damageInput, 10) || 0;
+    setDamageInput(String(Math.floor(current / 2)));
+  };
+
+  // 1. Submit Damage
+  const handleApplyDamage = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!selectedTarget) {
+      setFeedback('⚠️ Выберите цель (монстра) для нанесения урона');
+      return;
+    }
+
+    const dmgAmount = parseInt(damageInput, 10);
+    if (isNaN(dmgAmount) || dmgAmount <= 0) {
+      setFeedback('⚠️ Введите количество нанесённого урона (больше 0)');
+      return;
+    }
+
+    // Check target defenses (resistance/immunity/vulnerability)
+    const defense = computeDamageWithDefenses(dmgAmount, damageType, selectedTarget);
+    const effectiveDmg = defense.finalDmg;
+
+    // Apply damage to target
+    applyDamage(selectedTarget.id, [{ amount: effectiveDmg, type: damageType }], isCrit, true);
+
+    // Concentration check prompt if target was concentrating
+    let concPrompt: any = undefined;
+    if (selectedTarget.isConcentrating) {
+      const dc = Math.max(10, Math.floor(effectiveDmg / 2));
+      concPrompt = {
+        targetId: selectedTarget.id,
+        targetName: cleanRussianText(selectedTarget.nameRu || selectedTarget.name),
+        dc,
+      };
+    }
+
+    const playerName = cleanRussianText(player.nameRu || player.name);
+    const targetName = cleanRussianText(selectedTarget.nameRu || selectedTarget.name);
+    const dmgTypeRu = localizeDamageType(damageType);
+
+    // Log action
+    addDiceLog({
+      id: crypto.randomUUID(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      combatantName: playerName,
+      actionName: isCrit ? 'Критический удар игрока (за столом)' : 'Атака игрока (за столом)',
+      targetName: targetName,
+      targetId: selectedTarget.id,
+      isHit: true,
+      effectiveDamage: effectiveDmg,
+      attackRoll: attackRollNote.trim() ? {
+        d20: isCrit ? 20 : 10,
+        modifier: 0,
+        total: parseInt(attackRollNote, 10) || 20,
+        isNat20: isCrit,
+        isNat1: false,
+      } : undefined,
+      damageRoll: {
+        formula: `${dmgAmount} (ввод со стола)`,
+        total: effectiveDmg,
+        damageType: dmgTypeRu,
+        details: `${effectiveDmg} ${dmgTypeRu} урона`,
+      },
+      note: defense.notice || (isCrit ? 'КРИТ ЗА СТОЛОМ!' : undefined),
+      concentrationPrompt: concPrompt,
+    });
+
+    // Broadcast to players screen
+    broadcastService.send({
+      type: 'BROADCAST_ROLL',
+      payload: {
+        id: crypto.randomUUID(),
+        title: `${playerName}: Удар за столом`,
+        formula: `${effectiveDmg} ${dmgTypeRu}`,
+        total: effectiveDmg,
+        resultDisplay: `⚔️ ${playerName} наносит ${effectiveDmg} ${dmgTypeRu} урона по ${targetName}!${isCrit ? ' 💥 КРИТ!' : ''}`,
+        isCritical: isCrit,
+        timestamp: Date.now(),
+      },
+    });
+
+    setFeedback(`✅ Нанесено ${effectiveDmg} ${dmgTypeRu} урона по ${targetName}!`);
+    setDamageInput('0');
+    setIsCrit(false);
+    setAttackRollNote('');
+
+    setTimeout(() => setFeedback(null), 3500);
+  };
+
+  // 2. Submit Healing
+  const handleApplyHealing = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!selectedAlly) {
+      setFeedback('⚠️ Выберите получателя лечения');
+      return;
+    }
+
+    const amount = parseInt(healInput, 10);
+    if (isNaN(amount) || amount <= 0) {
+      setFeedback('⚠️ Введите значение лечения');
+      return;
+    }
+
+    applyHealing(selectedAlly.id, amount);
+
+    const playerName = cleanRussianText(player.nameRu || player.name);
+    const allyName = cleanRussianText(selectedAlly.nameRu || selectedAlly.name);
+
+    addDiceLog({
+      id: crypto.randomUUID(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      combatantName: playerName,
+      actionName: 'Лечение (за столом)',
+      targetName: allyName,
+      targetId: selectedAlly.id,
+      isHit: true,
+      effectiveDamage: -amount,
+      damageRoll: {
+        formula: `${amount} ОЗ`,
+        total: amount,
+        damageType: 'Лечение',
+        details: `Восстановлено ${amount} ОЗ`,
+      },
+    });
+
+    broadcastService.send({
+      type: 'BROADCAST_ROLL',
+      payload: {
+        id: crypto.randomUUID(),
+        title: `${playerName}: Лечение`,
+        formula: `+${amount} ОЗ`,
+        total: amount,
+        resultDisplay: `💚 ${playerName} восстанавливает ${amount} ОЗ для ${allyName}!`,
+        timestamp: Date.now(),
+      },
+    });
+
+    setFeedback(`✅ Восстановлено ${amount} ОЗ для ${allyName}!`);
+    setTimeout(() => setFeedback(null), 3500);
+  };
+
+  // 3. Submit Condition
+  const handleApplyCondition = () => {
+    const tgt = combatants.find((c) => c.id === conditionTargetId);
+    if (!tgt) {
+      setFeedback('⚠️ Выберите цель для наложения эффекта');
+      return;
+    }
+
+    addCondition(tgt.id, { type: selectedCondition });
+
+    const playerName = cleanRussianText(player.nameRu || player.name);
+    const tgtName = cleanRussianText(tgt.nameRu || tgt.name);
+    const condRu = CONDITIONS_2024_DATA[selectedCondition]?.nameRu || selectedCondition;
+
+    addDiceLog({
+      id: crypto.randomUUID(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      combatantName: playerName,
+      actionName: 'Наложение эффекта (за столом)',
+      targetName: tgtName,
+      targetId: tgt.id,
+      isHit: true,
+      effectiveDamage: 0,
+      note: `Наложено состояние: ${condRu}`,
+    });
+
+    broadcastService.send({
+      type: 'BROADCAST_ROLL',
+      payload: {
+        id: crypto.randomUUID(),
+        title: `${playerName}: Наложение эффекта`,
+        formula: condRu,
+        total: 0,
+        resultDisplay: `⚡ ${playerName} накладывает [${condRu}] на ${tgtName}!`,
+        timestamp: Date.now(),
+      },
+    });
+
+    setFeedback(`✅ Состояние «${condRu}» наложено на ${tgtName}!`);
+    setTimeout(() => setFeedback(null), 3500);
+  };
+
+  return (
+    <div className="flex flex-col space-y-4 pt-3">
+      {/* Informative Header Banner */}
+      <div className="bg-emerald-950/30 border border-emerald-700/40 rounded-sm p-3 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between gap-1.5 min-w-0">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <span className="p-1 rounded bg-emerald-500/20 text-emerald-300 flex-shrink-0">
+              <Sparkles className="h-4 w-4" />
+            </span>
+            <span
+              className="text-xs font-bold text-emerald-200 truncate min-w-0"
+              title={`Ход игрока: ${cleanRussianText(player.nameRu || player.name)}`}
+            >
+              Ход игрока: {cleanRussianText(player.nameRu || player.name)}
+            </span>
+          </div>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 flex-shrink-0 whitespace-nowrap">
+            Броски за столом
+          </span>
+        </div>
+        <p className="text-[11px] text-gray-300 leading-snug break-words [overflow-wrap:anywhere]">
+          Игрок совершает броски самостоятельно. Внесите нанесённый им урон, лечение или наложите состояние на цель.
+        </p>
+      </div>
+
+      {/* Success / Warning Feedback Alert */}
+      {feedback && (
+        <div className="p-2.5 rounded-sm bg-emerald-900/40 border border-emerald-500 text-emerald-200 text-xs flex items-center gap-2 animate-in fade-in duration-150">
+          <Check className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+          <span className="break-words [overflow-wrap:anywhere]">{feedback}</span>
+        </div>
+      )}
+
+      {/* Action Sub-Tabs - Equal 3-Column Grid for Zero Overflow */}
+      <div className="grid grid-cols-3 border-b border-border-subtle gap-1 text-xs">
+        <button
+          type="button"
+          onClick={() => setActiveTab('damage')}
+          className={clsx(
+            'flex items-center justify-center gap-1.5 px-1 py-1.5 font-bold transition-all border-b-2 text-center min-w-0',
+            activeTab === 'damage'
+              ? 'border-gold text-gold-light bg-card'
+              : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-card/50'
+          )}
+          title="Нанести урон цели"
+        >
+          <Swords className="h-3.5 w-3.5 text-crimson flex-shrink-0" />
+          <span className="truncate">Урон</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('heal')}
+          className={clsx(
+            'flex items-center justify-center gap-1.5 px-1 py-1.5 font-bold transition-all border-b-2 text-center min-w-0',
+            activeTab === 'heal'
+              ? 'border-emerald-500 text-emerald-300 bg-card'
+              : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-card/50'
+          )}
+          title="Восстановить здоровье союзнику"
+        >
+          <Heart className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
+          <span className="truncate">Лечение</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('condition')}
+          className={clsx(
+            'flex items-center justify-center gap-1.5 px-1 py-1.5 font-bold transition-all border-b-2 text-center min-w-0',
+            activeTab === 'condition'
+              ? 'border-sapphire text-blue-300 bg-card'
+              : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-card/50'
+          )}
+          title="Наложить состояние D&D 2024"
+        >
+          <Zap className="h-3.5 w-3.5 text-sapphire flex-shrink-0" />
+          <span className="truncate">Состояние</span>
+        </button>
+      </div>
+
+      {/* TAB 1: DAMAGE ENTRY */}
+      {activeTab === 'damage' && (
+        <form onSubmit={handleApplyDamage} className="space-y-3.5">
+          {/* 1. Target Selector */}
+          <div>
+            <label className="block text-[11px] font-semibold text-gray-300 mb-1.5 flex items-center justify-between gap-1 min-w-0">
+              <span className="flex items-center gap-1 min-w-0 truncate">
+                <Crosshair className="h-3.5 w-3.5 text-gold flex-shrink-0" />
+                <span className="truncate">1. Выберите цель (монстра):</span>
+              </span>
+              {selectedTarget && (
+                <span className="text-[10px] font-mono text-gold-light flex-shrink-0 whitespace-nowrap">
+                  КД {selectedTarget.ac} • {selectedTarget.hp}/{selectedTarget.maxHp} ОЗ
+                </span>
+              )}
+            </label>
+
+            {livingEnemies.length === 0 ? (
+              <div className="p-3 text-center text-xs text-gray-500 border border-dashed border-border-subtle rounded-sm">
+                В бою нет активных противников
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-36 overflow-y-auto p-1 bg-canvas/60 rounded border border-border-subtle">
+                {livingEnemies.map((enemy) => {
+                  const isSelected = enemy.id === selectedTargetId;
+                  const token = resolveTokenUrl(enemy.name, enemy.nameRu, enemy.tokenUrl);
+
+                  return (
+                    <button
+                      key={enemy.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedTargetId(enemy.id);
+                        setCurrentTargetId(enemy.id);
+                      }}
+                      className={clsx(
+                        'flex items-center gap-2 p-1.5 rounded text-left transition-all border select-none min-w-0',
+                        isSelected
+                          ? 'bg-red-950/60 border-red-500 text-white shadow-sm ring-1 ring-red-500/40'
+                          : 'bg-card border-border-subtle/80 text-gray-300 hover:border-gold/50'
+                      )}
+                      title={cleanRussianText(enemy.nameRu || enemy.name)}
+                    >
+                      <div className="w-5 h-5 rounded-full overflow-hidden bg-surface flex-shrink-0 flex items-center justify-center border border-border-subtle">
+                        {token ? (
+                          <img src={token} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-[9px] font-bold">
+                            {(enemy.nameRu || enemy.name).slice(0, 2).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div
+                          className="text-xs font-semibold truncate leading-tight"
+                          title={cleanRussianText(enemy.nameRu || enemy.name)}
+                        >
+                          {cleanRussianText(enemy.nameRu || enemy.name)}
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-mono truncate">
+                          КД {enemy.ac} • {enemy.hp} ОЗ
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* 2. Damage Value & Quick Modifiers */}
+          <div className="bg-card p-3 rounded-sm border border-border-subtle space-y-2.5">
+            <div className="flex items-center justify-between gap-1">
+              <label className="text-xs font-semibold text-gray-200 truncate">
+                2. Нанесённый урон со слов игрока:
+              </label>
+              <label className="flex items-center gap-1.5 text-xs text-amber-300 cursor-pointer font-bold select-none flex-shrink-0 whitespace-nowrap">
+                <input
+                  type="checkbox"
+                  checked={isCrit}
+                  onChange={(e) => setIsCrit(e.target.checked)}
+                  className="rounded border-border-subtle text-amber-500 focus:ring-0 bg-surface"
+                />
+                <span>💥 Нат. 20 (Крит)</span>
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="relative flex-1 min-w-0">
+                <input
+                  type="number"
+                  min="0"
+                  value={damageInput}
+                  onChange={(e) => setDamageInput(e.target.value)}
+                  placeholder="0"
+                  className="w-full bg-surface border-2 border-gold/40 focus:border-gold text-lg font-bold font-mono px-3 pr-9 py-1.5 rounded-sm text-gold-light outline-none"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold font-mono text-gray-400 pointer-events-none">
+                  ОЗ
+                </span>
+              </div>
+
+              {/* Quick increment buttons */}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => addDamageDelta(1)}
+                  className="min-w-[28px] px-2 py-1.5 bg-surface border border-border-subtle hover:border-gold rounded font-mono text-xs text-gray-200 font-bold text-center"
+                  title="+1 к урону"
+                >
+                  +1
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addDamageDelta(5)}
+                  className="min-w-[28px] px-2 py-1.5 bg-surface border border-border-subtle hover:border-gold rounded font-mono text-xs text-gray-200 font-bold text-center"
+                  title="+5 к урону"
+                >
+                  +5
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addDamageDelta(10)}
+                  className="min-w-[28px] px-2 py-1.5 bg-surface border border-border-subtle hover:border-gold rounded font-mono text-xs text-gray-200 font-bold text-center"
+                  title="+10 к урону"
+                >
+                  +10
+                </button>
+                <button
+                  type="button"
+                  onClick={halveDamage}
+                  className="min-w-[28px] px-2 py-1.5 bg-surface border border-border-subtle hover:border-amber rounded font-mono text-xs text-amber-300 font-bold text-center"
+                  title="Половина урона (при успешном спасброске)"
+                >
+                  ½
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDamageInput('0')}
+                  className="min-w-[28px] px-2 py-1.5 bg-surface border border-border-subtle hover:border-red-500 rounded font-mono text-xs text-gray-400 hover:text-red-300 text-center"
+                  title="Сбросить урон в 0"
+                >
+                  C
+                </button>
+              </div>
+            </div>
+
+            {/* Damage Type & Optional Roll Note */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <div>
+                <span className="text-[10px] text-gray-400 block mb-1 leading-none">Тип урона:</span>
+                <select
+                  value={damageType}
+                  onChange={(e) => setDamageType(e.target.value as DamageType)}
+                  className="w-full bg-surface border border-border-subtle text-xs rounded-sm px-2 py-1 text-gray-200 outline-none truncate"
+                >
+                  {COMMON_DAMAGE_TYPES.map((dt) => (
+                    <option key={dt} value={dt}>
+                      {DAMAGE_NAMES_RU[dt] || dt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <span className="text-[10px] text-gray-400 block mb-1 leading-none">Итог атаки (для лога):</span>
+                <input
+                  type="text"
+                  value={attackRollNote}
+                  onChange={(e) => setAttackRollNote(e.target.value)}
+                  placeholder="напр. 21"
+                  className="w-full bg-surface border border-border-subtle text-xs rounded-sm px-2 py-1 text-gray-200 outline-none font-mono"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Action CTA Button */}
+          <button
+            type="submit"
+            disabled={!selectedTarget || (parseInt(damageInput, 10) || 0) <= 0}
+            className="w-full py-2.5 px-3 rounded-sm bg-crimson hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 group min-w-0"
+            title={
+              selectedTarget
+                ? `Списать ${damageInput} урона с ${cleanRussianText(selectedTarget.nameRu || selectedTarget.name)}`
+                : 'Выберите цель и введите урон'
+            }
+          >
+            <Crosshair className="h-4 w-4 group-hover:scale-110 transition-transform flex-shrink-0" />
+            <span className="truncate min-w-0">
+              {selectedTarget
+                ? `💥 Списать ${damageInput} урона с ${cleanRussianText(selectedTarget.nameRu || selectedTarget.name)}`
+                : 'Выберите цель и введите урон'}
+            </span>
+          </button>
+        </form>
+      )}
+
+      {/* TAB 2: HEALING ENTRY */}
+      {activeTab === 'heal' && (
+        <form onSubmit={handleApplyHealing} className="space-y-3.5">
+          <div>
+            <label className="block text-[11px] font-semibold text-gray-300 mb-1.5 flex items-center justify-between gap-1 min-w-0">
+              <span className="truncate">Получатель лечения (Союзник):</span>
+              {selectedAlly && (
+                <span className="text-[10px] font-mono text-emerald-400 flex-shrink-0 whitespace-nowrap">
+                  {selectedAlly.hp}/{selectedAlly.maxHp} ОЗ
+                </span>
+              )}
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-36 overflow-y-auto p-1 bg-canvas/60 rounded border border-border-subtle">
+              {livingAllies.map((ally) => {
+                const isSelected = ally.id === healingTargetId;
+                return (
+                  <button
+                    key={ally.id}
+                    type="button"
+                    onClick={() => setHealingTargetId(ally.id)}
+                    className={clsx(
+                      'flex items-center justify-between p-1.5 rounded text-left transition-all border select-none min-w-0',
+                      isSelected
+                        ? 'bg-emerald-950/70 border-emerald-500 text-emerald-200 font-bold shadow-sm'
+                        : 'bg-card border-border-subtle text-gray-300 hover:border-emerald-700/50'
+                    )}
+                    title={cleanRussianText(ally.nameRu || ally.name)}
+                  >
+                    <span className="text-xs truncate min-w-0 flex-1">{cleanRussianText(ally.nameRu || ally.name)}</span>
+                    <span className="text-[10px] font-mono text-gray-400 flex-shrink-0 whitespace-nowrap ml-1">{ally.hp}/{ally.maxHp}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="bg-card p-3 rounded-sm border border-border-subtle space-y-2">
+            <label className="text-xs font-semibold text-gray-200 block truncate">
+              Восстанавливаемое здоровье:
+            </label>
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="relative flex-1 min-w-0">
+                <input
+                  type="number"
+                  min="1"
+                  value={healInput}
+                  onChange={(e) => setHealInput(e.target.value)}
+                  className="w-full bg-surface border-2 border-emerald-600/50 focus:border-emerald-500 text-lg font-bold font-mono px-3 pr-9 py-1.5 rounded-sm text-emerald-300 outline-none"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold font-mono text-gray-400 pointer-events-none">
+                  ОЗ
+                </span>
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setHealInput(String((parseInt(healInput, 10) || 0) + 5))}
+                  className="min-w-[28px] px-2.5 py-1.5 bg-surface border border-border-subtle hover:border-emerald-500 rounded font-mono text-xs text-emerald-300 font-bold flex-shrink-0 whitespace-nowrap text-center"
+                  title="+5 ОЗ"
+                >
+                  +5
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHealInput(String((parseInt(healInput, 10) || 0) + 10))}
+                  className="min-w-[28px] px-2.5 py-1.5 bg-surface border border-border-subtle hover:border-emerald-500 rounded font-mono text-xs text-emerald-300 font-bold flex-shrink-0 whitespace-nowrap text-center"
+                  title="+10 ОЗ"
+                >
+                  +10
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={!selectedAlly || (parseInt(healInput, 10) || 0) <= 0}
+            className="w-full py-2.5 px-3 rounded-sm bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 min-w-0"
+            title={selectedAlly ? `Восстановить ${healInput} ОЗ для ${cleanRussianText(selectedAlly.nameRu || selectedAlly.name)}` : `Восстановить ${healInput} ОЗ`}
+          >
+            <Heart className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate min-w-0">
+              {selectedAlly
+                ? `Восстановить ${healInput} ОЗ для ${cleanRussianText(selectedAlly.nameRu || selectedAlly.name)}`
+                : `Восстановить ${healInput} ОЗ`}
+            </span>
+          </button>
+        </form>
+      )}
+
+      {/* TAB 3: CONDITION ENTRY */}
+      {activeTab === 'condition' && (
+        <div className="space-y-3.5">
+          <div>
+            <label className="block text-[11px] font-semibold text-gray-300 mb-1.5 truncate">
+              Цель для наложения эффекта:
+            </label>
+            <select
+              value={conditionTargetId}
+              onChange={(e) => setConditionTargetId(e.target.value)}
+              className="w-full bg-surface border border-border-subtle text-xs rounded-sm px-2.5 py-1.5 text-gray-100 outline-none truncate"
+            >
+              <optgroup label="Монстры / Противники">
+                {livingEnemies.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {cleanRussianText(e.nameRu || e.name)} (КД {e.ac})
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Персонажи игроков">
+                {livingAllies.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {cleanRussianText(a.nameRu || a.name)}
+                  </option>
+                ))}
+              </optgroup>
+            </select>
+          </div>
+
+          <div className="bg-card p-3 rounded-sm border border-border-subtle space-y-2">
+            <label className="text-xs font-semibold text-gray-200 block truncate">
+              Состояние D&D 2024:
+            </label>
+            <select
+              value={selectedCondition}
+              onChange={(e) => setSelectedCondition(e.target.value as ConditionType)}
+              className="w-full bg-surface border border-border-subtle text-xs rounded-sm px-2.5 py-1.5 text-gray-100 outline-none truncate"
+            >
+              {Object.entries(CONDITIONS_2024_DATA).map(([key, info]) => (
+                <option key={key} value={key}>
+                  {info.nameRu} ({info.nameEn})
+                </option>
+              ))}
+            </select>
+            <p className="text-[11px] text-gray-400 mt-1 leading-relaxed break-words [overflow-wrap:anywhere]">
+              {CONDITIONS_2024_DATA[selectedCondition]?.descriptionRu}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleApplyCondition}
+            className="w-full py-2.5 px-3 rounded-sm bg-sapphire hover:bg-blue-600 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 min-w-0"
+            title={`Наложить «${CONDITIONS_2024_DATA[selectedCondition]?.nameRu}»`}
+          >
+            <Zap className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate min-w-0">Наложить «{CONDITIONS_2024_DATA[selectedCondition]?.nameRu}»</span>
+          </button>
+        </div>
+      )}
+
+      {/* End Player Turn Button */}
+      <div className="pt-2 border-t border-border-subtle flex items-center justify-between gap-2">
+        <span className="text-[11px] text-gray-400 truncate">
+          Закончил действие?
+        </span>
+        <button
+          type="button"
+          onClick={() => nextTurn()}
+          className="px-3.5 py-1.5 rounded-sm bg-gold/15 hover:bg-gold hover:text-black border border-gold/40 text-gold-light text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap"
+          title="Завершить ход текущего игрока и передать очередь следующему (Space)"
+        >
+          <span>Завершить ход игрока</span>
+          <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
+        </button>
+      </div>
+
+      {/* Expandable Character Reference Sheet (Read-Only) */}
+      {(player.statblock?.traits || player.statblock?.actions) && (
+        <div className="pt-2 border-t border-border-subtle/50">
+          <button
+            type="button"
+            onClick={() => setIsRefExpanded(!isRefExpanded)}
+            className="w-full flex items-center justify-between text-[11px] text-gray-400 hover:text-gray-200 py-1"
+          >
+            <span className="flex items-center gap-1 font-semibold truncate min-w-0">
+              <BookOpen className="h-3.5 w-3.5 text-gold/70 flex-shrink-0" />
+              <span className="truncate">Справочник способностей (броски выполняет игрок)</span>
+            </span>
+            <span className="flex-shrink-0 ml-1">{isRefExpanded ? '▲' : '▼'}</span>
+          </button>
+
+          {isRefExpanded && (
+            <div className="space-y-2 mt-2 p-2 bg-canvas/40 rounded border border-border-subtle/60 text-xs">
+              {player.statblock?.actions?.map((act: any, i: number) => (
+                <div key={i} className="text-gray-300 border-b border-border-subtle/30 pb-1.5 last:border-b-0">
+                  <div className="font-bold text-gray-100 flex items-center justify-between gap-1.5 min-w-0">
+                    <span className="truncate min-w-0 flex-1" title={cleanRussianText(act.name)}>{cleanRussianText(act.name)}</span>
+                    {act.damage_type && (
+                      <span className="text-[10px] font-mono text-gray-400 flex-shrink-0 whitespace-nowrap">
+                        {localizeDamageType(act.damage_type)}
+                      </span>
+                    )}
+                  </div>
+                  {act.desc && (
+                    <div className="text-[11px] text-gray-400 mt-0.5 leading-relaxed break-words [overflow-wrap:anywhere]">
+                      {cleanRussianText(act.desc)}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

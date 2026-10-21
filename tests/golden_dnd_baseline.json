@@ -1,0 +1,81 @@
+{
+  "suite": "D&D 2024 / 5e Golden Regression Test Baseline",
+  "timestamp": "2026-10-21T01:07:02.988Z",
+  "tests": {
+    "Test1_Calculations": {
+      "standardCase": 14.12,
+      "highDexCase": 18.13,
+      "negativeDexCase": 7.09
+    },
+    "Test1_TieBreaking": {
+      "fighterInit": 14.12,
+      "rogueInit": 14.15,
+      "winner": "rogue"
+    },
+    "Test2_CriticalHit": {
+      "nat20HitsImpossiblyHighAc": true,
+      "doubledFormula": "2d8 + 4",
+      "multiDiceDoubling": "4d6 + 3"
+    },
+    "Test2_CriticalMiss": {
+      "nat1AutoFailsHighBonus": true,
+      "isCriticalMiss": true
+    },
+    "Test3_Resistance": {
+      "rawOdd": 15,
+      "effectiveOdd": 7,
+      "rawEven": 16,
+      "effectiveEven": 8
+    },
+    "Test3_Vulnerability": {
+      "raw": 12,
+      "effective": 24
+    },
+    "Test3_Immunity": {
+      "raw": 50,
+      "effective": 0
+    },
+    "Test3_TempHpBuffer": {
+      "absorbedMinor": 10,
+      "newHpMinor": 40,
+      "absorbedMajor": 15,
+      "newHpMajor": 30
+    },
+    "Test4_Exhaustion": {
+      "level1": {
+        "d20Penalty": -2,
+        "speedReductionFt": 5,
+        "isDead": false
+      },
+      "level3": {
+        "d20Penalty": -6,
+        "speedReductionFt": 15,
+        "isDead": false
+      },
+      "level6": {
+        "d20Penalty": -12,
+        "speedReductionFt": 30,
+        "isDead": true
+      }
+    },
+    "Test5_ShortRest": {
+      "remainingHitDice": 3,
+      "restoredHp": 32,
+      "shortRestResourceRestored": 1,
+      "pactSlotsUsedAfterRest": 0
+    },
+    "Test5_LongRest": {
+      "hp": 50,
+      "tempHp": 0,
+      "hitDiceCurrent": 4,
+      "spellSlotsLevel1Used": 0,
+      "exhaustion": 1,
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      }
+    }
+  },
+  "completedAt": "2026-10-21T01:07:03.017Z",
+  "status": "ALL_TESTS_PASSING"
+}

@@ -1,0 +1,148 @@
+import { CharacterStats } from '../types/party';
+
+export interface Background2024 {
+  id: string;
+  nameRu: string;
+  nameEn: string;
+  suggestedStats: Array<keyof CharacterStats>;
+  skills: string[];
+  tool: string;
+  featNameRu: string;
+  featNameEn?: string;
+  descriptionRu: string;
+}
+
+export const BACKGROUNDS_2024_DATA: Background2024[] = [
+  {
+    id: 'acolyte',
+    nameRu: 'Аколит',
+    nameEn: 'Acolyte',
+    suggestedStats: ['int', 'wis', 'cha'],
+    skills: ['Insight', 'Religion'],
+    tool: 'Принадлежности для каллиграфии',
+    featNameRu: 'Посвященный в магию (Жрец)',
+    featNameEn: 'Magic Initiate (Cleric)',
+    descriptionRu: 'Служитель в храме, познавший божественную волю, молитвы и религиозные обряды.',
+  },
+  {
+    id: 'artisan',
+    nameRu: 'Ремесленник',
+    nameEn: 'Artisan',
+    suggestedStats: ['str', 'dex', 'int'],
+    skills: ['Investigation', 'Persuasion'],
+    tool: 'Ремесленные инструменты на выбор',
+    featNameRu: 'Ремесленник',
+    featNameEn: 'Crafter',
+    descriptionRu: 'Мастер своего дела, способный создавать и оценивать снаряжение и предметы быта.',
+  },
+  {
+    id: 'criminal',
+    nameRu: 'Преступник',
+    nameEn: 'Criminal',
+    suggestedStats: ['dex', 'con', 'int'],
+    skills: ['Sleight of Hand', 'Stealth'],
+    tool: 'Воровские инструменты',
+    featNameRu: 'Бдительный',
+    featNameEn: 'Alert',
+    descriptionRu: 'Бывалый вор или контрабандист, умеющий ходить неслышно и обходить стражу.',
+  },
+  {
+    id: 'guard',
+    nameRu: 'Стражник',
+    nameEn: 'Guard',
+    suggestedStats: ['str', 'int', 'wis'],
+    skills: ['Athletics', 'Perception'],
+    tool: 'Игровой набор',
+    featNameRu: 'Бдительный',
+    featNameEn: 'Alert',
+    descriptionRu: 'Защитник городских врат или личный страж, привыкший замечать любую опасность.',
+  },
+  {
+    id: 'guide',
+    nameRu: 'Проводник',
+    nameEn: 'Guide',
+    suggestedStats: ['dex', 'con', 'wis'],
+    skills: ['Perception', 'Survival'],
+    tool: 'Инструменты картографа',
+    featNameRu: 'Магия стихий (Друид)',
+    featNameEn: 'Magic Initiate (Druid)',
+    descriptionRu: 'Знаток диких земель, троп и природных укрытий в дремучих чащах.',
+  },
+  {
+    id: 'hermit',
+    nameRu: 'Отшельник',
+    nameEn: 'Hermit',
+    suggestedStats: ['con', 'wis', 'cha'],
+    skills: ['Medicine', 'Religion'],
+    tool: 'Набор травника',
+    featNameRu: 'Лекарь',
+    featNameEn: 'Healer',
+    descriptionRu: 'Искатель уединения, проведший годы вдали от цивилизации в поисках высшей истины.',
+  },
+  {
+    id: 'noble',
+    nameRu: 'Дворянин',
+    nameEn: 'Noble',
+    suggestedStats: ['str', 'int', 'cha'],
+    skills: ['History', 'Persuasion'],
+    tool: 'Игровой набор (Шахматы)',
+    featNameRu: 'Одаренный',
+    featNameEn: 'Skilled',
+    descriptionRu: 'Представитель благородного рода, обученный этикету, родословным и власти убеждения.',
+  },
+  {
+    id: 'sage',
+    nameRu: 'Мудрец',
+    nameEn: 'Sage',
+    suggestedStats: ['con', 'int', 'wis'],
+    skills: ['Arcana', 'History'],
+    tool: 'Принадлежности для каллиграфии',
+    featNameRu: 'Посвященный в магию (Волшебник)',
+    featNameEn: 'Magic Initiate (Wizard)',
+    descriptionRu: 'Ученый и исследователь древних манускриптов, библиотек и магических трактатов.',
+  },
+  {
+    id: 'sailor',
+    nameRu: 'Моряк',
+    nameEn: 'Sailor',
+    suggestedStats: ['str', 'dex', 'wis'],
+    skills: ['Athletics', 'Perception'],
+    tool: 'Инструменты навигатора',
+    featNameRu: 'Кабатчик',
+    featNameEn: 'Tavern Brawler',
+    descriptionRu: 'Морской волк, закаленный штормами, морскими ветрами и трактирными потасовками.',
+  },
+  {
+    id: 'soldier',
+    nameRu: 'Солдат',
+    nameEn: 'Soldier',
+    suggestedStats: ['str', 'dex', 'con'],
+    skills: ['Athletics', 'Intimidation'],
+    tool: 'Игровой набор',
+    featNameRu: 'Дикарь-атакующий',
+    featNameEn: 'Savage Attacker',
+    descriptionRu: 'Ветеран боевых действий, знающий воинскую дисциплину и цену победы в строю.',
+  },
+  {
+    id: 'urchin',
+    nameRu: 'Бродяга',
+    nameEn: 'Urchin',
+    suggestedStats: ['dex', 'con', 'wis'],
+    skills: ['Sleight of Hand', 'Stealth'],
+    tool: 'Воровские инструменты',
+    featNameRu: 'Счастливчик',
+    featNameEn: 'Lucky',
+    descriptionRu: 'Дитя улиц, выжившее в городских трущобах благодаря чуткости и ловкости пальцев.',
+  },
+  {
+    id: 'custom',
+    nameRu: 'Своя предыстория',
+    nameEn: 'Custom Background',
+    suggestedStats: ['str', 'dex', 'con'],
+    skills: [],
+    tool: 'Любой инструмент',
+    featNameRu: 'Черта происхождения на выбор',
+    featNameEn: 'Origin Feat of Choice',
+    descriptionRu: 'Индивидуальная предыстория: свободный выбор двух навыков, инструмента и черты 1-го уровня.',
+  },
+];

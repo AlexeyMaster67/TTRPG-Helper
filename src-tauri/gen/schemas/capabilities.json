@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Default capabilities for TTRPG Helper desktop window","local":true,"windows":["main","player-display"],"permissions":["core:default","core:path:default","fs:default","sql:default","sql:allow-load","sql:allow-execute","sql:allow-select"]}}

@@ -1,0 +1,2037 @@
+{
+  "manifest": {
+    "id": "pathfinder2e_starter",
+    "name": "Pathfinder 2e (PF2e) Starter Bestiary",
+    "system_id": "pathfinder2e",
+    "edition": "Remastered (ORC License)",
+    "version": "1.0.0",
+    "author": "Paizo Inc. / Open RPG Creative License (ORC)",
+    "description": "25 базовых существ тактической системы Pathfinder 2e с трехдейственной экономикой ([1-Действие], [2-Действия], [3-Действия], [Реакция]): Гоблины, Орки, Скелеты, Зомби, Лютоволки, Тролли, Драконы и Гаргульи.",
+    "count": 25,
+    "format": "ait-content-pack-v1",
+    "created_at": "2026-10-18T23:06:58.099Z",
+    "tags": [
+      "pathfinder",
+      "pf2e",
+      "starter",
+      "three_actions",
+      "orc_license"
+    ],
+    "license": "ORC License"
+  },
+  "creatures": [
+    {
+      "id": "pf2e-goblin-warrior",
+      "name": "Гоблин-воин (Goblin Warrior)",
+      "name_en": "Goblin Warrior",
+      "name_ru": "Гоблин-воин",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": -1,
+      "cr_or_level": "-1",
+      "creature_type": "Humanoid",
+      "creature_type_ru": "Гуманоид (Гоблин)",
+      "size": "Small",
+      "size_ru": "Маленький",
+      "stats": {
+        "str": 0,
+        "dex": 3,
+        "con": 1,
+        "int": 0,
+        "wis": -1,
+        "cha": -1,
+        "ac": 16,
+        "level": -1,
+        "perception": 3,
+        "fortitude": 5,
+        "reflex": 7,
+        "will": 3,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 16,
+          "max": 16
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-dogslicer",
+          "name": "[1-Действие] Удар Собакорезом (Dogslicer)",
+          "actionType": "action",
+          "attackBonus": 8,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6",
+          "damageType": "slashing",
+          "description": "Фехтовальное, Быстрое (Agile, Finesse). Наносит дополнительно 1d6 режущего при критическом ударе."
+        },
+        {
+          "id": "act-shortbow",
+          "name": "[1-Действие] Выстрел из короткого лука (Shortbow)",
+          "actionType": "action",
+          "attackBonus": 8,
+          "reachRange": "60 фт.",
+          "damageDice": "1d6",
+          "damageType": "piercing",
+          "description": "Дальнобойное оружие, смертельное d10."
+        },
+        {
+          "id": "act-goblin-scuttle",
+          "name": "[Реакция] Гоблинская увёртка (Goblin Scuttle)",
+          "actionType": "reaction",
+          "description": "Триггер: союзник заканчивает движение рядом с гоблином. Гоблин совершает Шаг (Step) на 5 фт без провокации атак."
+        }
+      ],
+      "notes": "Классический гоблин из Pathfinder 2e. Верткий и трусливый в одиночку, опасный в стае.",
+      "customFields": {
+        "traits": [
+          "goblin",
+          "humanoid"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 16,
+      "cr": "-1"
+    },
+    {
+      "id": "pf2e-goblin-pyro",
+      "name": "Гоблин-пироман (Goblin Pyro)",
+      "name_en": "Goblin Pyro",
+      "name_ru": "Гоблин-пироман",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 1,
+      "cr_or_level": "1",
+      "creature_type": "Humanoid",
+      "creature_type_ru": "Гуманоид (Гоблин)",
+      "size": "Small",
+      "size_ru": "Маленький",
+      "stats": {
+        "str": -1,
+        "dex": 3,
+        "con": 1,
+        "int": 1,
+        "wis": 0,
+        "cha": 3,
+        "ac": 17,
+        "level": 1,
+        "perception": 5,
+        "fortitude": 4,
+        "reflex": 8,
+        "will": 5,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 15,
+          "max": 15
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [
+          "fire 3"
+        ],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-torch",
+          "name": "[1-Действие] Удар факелом (Torch Strike)",
+          "actionType": "action",
+          "attackBonus": 6,
+          "reachRange": "5 фт.",
+          "damageDice": "1d4-1",
+          "damageType": "bludgeoning",
+          "description": "+1 урон огнем. Цель может загореться."
+        },
+        {
+          "id": "act-produce-flame",
+          "name": "[2-Действия] Сотворение пламени (Produce Flame)",
+          "actionType": "action",
+          "attackBonus": 8,
+          "reachRange": "30 фт.",
+          "damageDice": "1d4+3",
+          "damageType": "fire",
+          "description": "Заклинание огня. Критический успех наносит 1d4 периодического огненного урона."
+        },
+        {
+          "id": "act-burning-hands",
+          "name": "[2-Действия] Огненные ладони (Burning Hands)",
+          "actionType": "action",
+          "hitDc": 17,
+          "saveStat": "reflex",
+          "reachRange": "Конус 15 фт.",
+          "damageDice": "2d6",
+          "damageType": "fire",
+          "description": "Спасбросок Рефлексов DC 17. Базовый спасбросок."
+        }
+      ],
+      "notes": "Одержимый огнем гоблин-колдун, обожающий поджигать всё вокруг.",
+      "customFields": {
+        "traits": [
+          "goblin",
+          "humanoid"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 15,
+      "cr": "1"
+    },
+    {
+      "id": "pf2e-orc-brute",
+      "name": "Орк-громила (Orc Brute)",
+      "name_en": "Orc Brute",
+      "name_ru": "Орк-громила",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 0,
+      "cr_or_level": "0",
+      "creature_type": "Humanoid",
+      "creature_type_ru": "Гуманоид (Орк)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 3,
+        "dex": 2,
+        "con": 2,
+        "int": -1,
+        "wis": 0,
+        "cha": -1,
+        "ac": 15,
+        "level": 0,
+        "perception": 4,
+        "fortitude": 6,
+        "reflex": 4,
+        "will": 2,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 15,
+          "max": 15
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-greataxe",
+          "name": "[1-Действие] Взмах секирой (Greataxe Strike)",
+          "actionType": "action",
+          "attackBonus": 7,
+          "reachRange": "5 фт.",
+          "damageDice": "1d12+3",
+          "damageType": "slashing",
+          "description": "Свирепый удар двуручной секирой (Разверзший удар, Sweep)."
+        },
+        {
+          "id": "act-javelin",
+          "name": "[1-Действие] Бросок дротика (Javelin)",
+          "actionType": "action",
+          "attackBonus": 5,
+          "reachRange": "30 фт.",
+          "damageDice": "1d6+3",
+          "damageType": "piercing",
+          "description": "Метательное оружие."
+        },
+        {
+          "id": "act-orc-ferocity",
+          "name": "[Реакция] Орочья свирепость (Orc Ferocity)",
+          "actionType": "reaction",
+          "description": "Триггер: здоровье падает до 0 HP. Орк остается на 1 HP и получает статус Wounded 1."
+        }
+      ],
+      "notes": "Мускулистый свирепый орк, отказывающийся умирать от первой же смертельной раны.",
+      "customFields": {
+        "traits": [
+          "orc",
+          "humanoid"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 15,
+      "cr": "0"
+    },
+    {
+      "id": "pf2e-orc-warrior",
+      "name": "Орк-воитель (Orc Warrior)",
+      "name_en": "Orc Warrior",
+      "name_ru": "Орк-воитель",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 1,
+      "cr_or_level": "1",
+      "creature_type": "Humanoid",
+      "creature_type_ru": "Гуманоид (Орк)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 4,
+        "dex": 2,
+        "con": 3,
+        "int": -1,
+        "wis": 1,
+        "cha": 0,
+        "ac": 18,
+        "level": 1,
+        "perception": 6,
+        "fortitude": 8,
+        "reflex": 5,
+        "will": 4,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 23,
+          "max": 23
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-necksplitter",
+          "name": "[1-Действие] Удар шейным колуном (Orc Necksplitter)",
+          "actionType": "action",
+          "attackBonus": 9,
+          "reachRange": "5 фт.",
+          "damageDice": "1d8+4",
+          "damageType": "slashing",
+          "description": "Смертельное d12, Силовой удар."
+        },
+        {
+          "id": "act-shield-block",
+          "name": "[Реакция] Блок щитом (Shield Block)",
+          "actionType": "reaction",
+          "description": "Поглощает до 5 физического урона щитом (Hardness 5, HP 20)."
+        },
+        {
+          "id": "act-raise-shield",
+          "name": "[1-Действие] Поднять щит (Raise a Shield)",
+          "actionType": "action",
+          "description": "+2 к КБ обстоятельственный бонус до начала следующего хода."
+        }
+      ],
+      "notes": "Опытный боец клана с тяжелым топором и железным щитом.",
+      "customFields": {
+        "traits": [
+          "orc",
+          "humanoid"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 23,
+      "cr": "1"
+    },
+    {
+      "id": "pf2e-skeleton-guard",
+      "name": "Скелет-страж (Skeleton Guard)",
+      "name_en": "Skeleton Guard",
+      "name_ru": "Скелет-страж",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": -1,
+      "cr_or_level": "-1",
+      "creature_type": "Undead",
+      "creature_type_ru": "Нежить (Скелет)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 2,
+        "dex": 3,
+        "con": 0,
+        "int": -5,
+        "wis": 0,
+        "cha": 0,
+        "ac": 16,
+        "level": -1,
+        "perception": 2,
+        "fortitude": 2,
+        "reflex": 5,
+        "will": 2,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 9,
+          "max": 9
+        }
+      },
+      "defenses": {
+        "damageImmunities": [
+          "bleed",
+          "death effects",
+          "disease",
+          "paralyzed",
+          "poison"
+        ],
+        "damageResistances": [
+          "cold 5",
+          "electricity 5",
+          "fire 5",
+          "piercing 5",
+          "slashing 5"
+        ],
+        "damageVulnerabilities": [
+          "bludgeoning 5"
+        ],
+        "conditionImmunities": [
+          "unconscious"
+        ],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-scimitar",
+          "name": "[1-Действие] Удар скимитаром (Scimitar)",
+          "actionType": "action",
+          "attackBonus": 6,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6+2",
+          "damageType": "slashing",
+          "description": "Фехтовальное, Широкий замах (Forceful, Sweep)."
+        },
+        {
+          "id": "act-claw",
+          "name": "[1-Действие] Коготь (Claw Strike)",
+          "actionType": "action",
+          "attackBonus": 6,
+          "reachRange": "5 фт.",
+          "damageDice": "1d4+2",
+          "damageType": "slashing",
+          "description": "Быстрое (Agile)."
+        }
+      ],
+      "notes": "Ожившие кости древнего воина. Уязвимы к дробящему оружию (молоты и булавы).",
+      "customFields": {
+        "traits": [
+          "mindless",
+          "skeleton",
+          "undead"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 9,
+      "cr": "-1"
+    },
+    {
+      "id": "pf2e-zombie-shambler",
+      "name": "Зомби-шаркун (Zombie Shambler)",
+      "name_en": "Zombie Shambler",
+      "name_ru": "Зомби-шаркун",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": -1,
+      "cr_or_level": "-1",
+      "creature_type": "Undead",
+      "creature_type_ru": "Нежить (Зомби)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 3,
+        "dex": -2,
+        "con": 2,
+        "int": -5,
+        "wis": 0,
+        "cha": -2,
+        "ac": 12,
+        "level": -1,
+        "perception": 0,
+        "fortitude": 6,
+        "reflex": 0,
+        "will": 2,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 20,
+          "max": 20
+        }
+      },
+      "defenses": {
+        "damageImmunities": [
+          "bleed",
+          "death effects",
+          "disease",
+          "mental",
+          "paralyzed",
+          "poison"
+        ],
+        "damageResistances": [],
+        "damageVulnerabilities": [
+          "slashing 5"
+        ],
+        "conditionImmunities": [
+          "unconscious"
+        ],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-slam",
+          "name": "[1-Действие] Тяжелый удар (Slam)",
+          "actionType": "action",
+          "attackBonus": 7,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6+3",
+          "damageType": "bludgeoning",
+          "description": "При успехе зомби может выполнить Захват (Grab) за 1 действие."
+        },
+        {
+          "id": "act-jaws",
+          "name": "[1-Действие] Укус челюстями (Jaws)",
+          "actionType": "action",
+          "attackBonus": 7,
+          "reachRange": "5 фт.",
+          "damageDice": "1d8+3",
+          "damageType": "piercing",
+          "description": "Может применяться против схваченной цели."
+        },
+        {
+          "id": "act-slow",
+          "name": "[Пассивное] Замедленный (Permanently Slowed 1)",
+          "actionType": "passive",
+          "description": "Зомби постоянно находится под эффектом Slowed 1 — у него только 2 действия за раунд вместо 3!"
+        }
+      ],
+      "notes": "Гниющее ходячее тело. Постоянно замедлен, но обладает запасом живучести.",
+      "customFields": {
+        "traits": [
+          "mindless",
+          "undead",
+          "zombie"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 20,
+      "cr": "-1"
+    },
+    {
+      "id": "pf2e-animated-armor",
+      "name": "Оживленный доспех (Animated Armor)",
+      "name_en": "Animated Armor",
+      "name_ru": "Оживленный доспех",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 2,
+      "cr_or_level": "2",
+      "creature_type": "Construct",
+      "creature_type_ru": "Конструкт",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 3,
+        "dex": -1,
+        "con": 3,
+        "int": -5,
+        "wis": 0,
+        "cha": -5,
+        "ac": 17,
+        "level": 2,
+        "perception": 6,
+        "fortitude": 9,
+        "reflex": 3,
+        "will": 4,
+        "speed": 20
+      },
+      "resources": {
+        "hp": {
+          "current": 20,
+          "max": 20
+        }
+      },
+      "defenses": {
+        "damageImmunities": [
+          "bleed",
+          "death effects",
+          "disease",
+          "healing",
+          "mental",
+          "poison"
+        ],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [
+          "fatigued",
+          "paralyzed",
+          "unconscious"
+        ],
+        "damageReductions": {
+          "hardness": 6
+        }
+      },
+      "actions": [
+        {
+          "id": "act-greatsword",
+          "name": "[1-Действие] Удар двуручным мечом (Greatsword)",
+          "actionType": "action",
+          "attackBonus": 11,
+          "reachRange": "5 фт.",
+          "damageDice": "1d12+4",
+          "damageType": "slashing",
+          "description": "Широкий рубящий удар конструктного стража."
+        }
+      ],
+      "notes": "Магический латный доспех, оживленный волей чародея для охраны сокровищницы. Твердость 6 (Hardness 6).",
+      "customFields": {
+        "traits": [
+          "construct",
+          "mindless"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 20,
+      "cr": "2"
+    },
+    {
+      "id": "pf2e-wolf",
+      "name": "Волк (Wolf)",
+      "name_en": "Wolf",
+      "name_ru": "Волк",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 1,
+      "cr_or_level": "1",
+      "creature_type": "Beast",
+      "creature_type_ru": "Зверь",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 2,
+        "dex": 4,
+        "con": 2,
+        "int": -4,
+        "wis": 2,
+        "cha": -2,
+        "ac": 15,
+        "level": 1,
+        "perception": 7,
+        "fortitude": 7,
+        "reflex": 9,
+        "will": 5,
+        "speed": 35
+      },
+      "resources": {
+        "hp": {
+          "current": 24,
+          "max": 24
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-jaws",
+          "name": "[1-Действие] Укус челюстями (Jaws)",
+          "actionType": "action",
+          "attackBonus": 7,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6+2",
+          "damageType": "piercing",
+          "description": "Сбивание с ног (Knockdown): при попадании волк может потратить 1 действие на сбивание цели с ног."
+        },
+        {
+          "id": "act-pack-attack",
+          "name": "[Пассивное] Стайная атака (Pack Attack)",
+          "actionType": "passive",
+          "description": "Волк наносит дополнительно 1d4 урона целям, находящимся в зоне досягаемости как минимум двух его союзников."
+        }
+      ],
+      "notes": "Хищник леса, охотящийся слаженными стаями.",
+      "customFields": {
+        "traits": [
+          "animal"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 24,
+      "cr": "1"
+    },
+    {
+      "id": "pf2e-dire-wolf",
+      "name": "Лютоволк (Dire Wolf)",
+      "name_en": "Dire Wolf",
+      "name_ru": "Лютоволк",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 3,
+      "cr_or_level": "3",
+      "creature_type": "Beast",
+      "creature_type_ru": "Зверь (Лютый)",
+      "size": "Large",
+      "size_ru": "Крупный",
+      "stats": {
+        "str": 4,
+        "dex": 3,
+        "con": 3,
+        "int": -4,
+        "wis": 2,
+        "cha": -2,
+        "ac": 18,
+        "level": 3,
+        "perception": 9,
+        "fortitude": 10,
+        "reflex": 10,
+        "will": 7,
+        "speed": 35
+      },
+      "resources": {
+        "hp": {
+          "current": 50,
+          "max": 50
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-jaws-dire",
+          "name": "[1-Действие] Сокрушающий укус (Jaws)",
+          "actionType": "action",
+          "attackBonus": 11,
+          "reachRange": "10 фт.",
+          "damageDice": "1d10+4",
+          "damageType": "piercing",
+          "description": "Knockdown: свободная попытка сбить с ног при успешном попадании."
+        }
+      ],
+      "notes": "Гигантский доисторический волк размером с боевого коня.",
+      "customFields": {
+        "traits": [
+          "animal"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 50,
+      "cr": "3"
+    },
+    {
+      "id": "pf2e-ogre-warrior",
+      "name": "Огр-воин (Ogre Warrior)",
+      "name_en": "Ogre Warrior",
+      "name_ru": "Огр-воин",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 3,
+      "cr_or_level": "3",
+      "creature_type": "Giant",
+      "creature_type_ru": "Великан (Огр)",
+      "size": "Large",
+      "size_ru": "Крупный",
+      "stats": {
+        "str": 5,
+        "dex": -1,
+        "con": 4,
+        "int": -2,
+        "wis": 0,
+        "cha": -2,
+        "ac": 17,
+        "level": 3,
+        "perception": 5,
+        "fortitude": 11,
+        "reflex": 6,
+        "will": 5,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 50,
+          "max": 50
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-greatclub",
+          "name": "[1-Действие] Удар дубиной огра (Ogre Hook / Greatclub)",
+          "actionType": "action",
+          "attackBonus": 12,
+          "reachRange": "10 фт.",
+          "damageDice": "1d10+7",
+          "damageType": "bludgeoning",
+          "description": "Досягаемость 10 фт. Откидывает противников назад при крите."
+        },
+        {
+          "id": "act-javelin-rock",
+          "name": "[1-Действие] Бросок валуна или копья",
+          "actionType": "action",
+          "attackBonus": 8,
+          "reachRange": "30 фт.",
+          "damageDice": "1d6+7",
+          "damageType": "bludgeoning",
+          "description": "Дальнобойный бросок тяжелого камня."
+        }
+      ],
+      "notes": "Грубый и жестокий великан-людоед с ужасающей физической силой.",
+      "customFields": {
+        "traits": [
+          "giant",
+          "humanoid"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 50,
+      "cr": "3"
+    },
+    {
+      "id": "pf2e-troll",
+      "name": "Тролль (Troll)",
+      "name_en": "Troll",
+      "name_ru": "Тролль",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 5,
+      "cr_or_level": "5",
+      "creature_type": "Giant",
+      "creature_type_ru": "Великан (Тролль)",
+      "size": "Large",
+      "size_ru": "Крупный",
+      "stats": {
+        "str": 5,
+        "dex": 2,
+        "con": 5,
+        "int": -2,
+        "wis": 0,
+        "cha": -2,
+        "ac": 20,
+        "level": 5,
+        "perception": 11,
+        "fortitude": 14,
+        "reflex": 11,
+        "will": 7,
+        "speed": 30
+      },
+      "resources": {
+        "hp": {
+          "current": 85,
+          "max": 85
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [
+          "fire 10",
+          "acid 10"
+        ],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-jaws-troll",
+          "name": "[1-Действие] Укус челюстями (Jaws)",
+          "actionType": "action",
+          "attackBonus": 14,
+          "reachRange": "10 фт.",
+          "damageDice": "2d10+5",
+          "damageType": "piercing",
+          "description": "Разрывает плоть жертвы."
+        },
+        {
+          "id": "act-claw-troll",
+          "name": "[1-Действие] Коготь тролля (Claw)",
+          "actionType": "action",
+          "attackBonus": 14,
+          "reachRange": "10 фт.",
+          "damageDice": "2d8+5",
+          "damageType": "slashing",
+          "description": "Быстрое (Agile). Позволяет совершить Растерзание (Rend)."
+        },
+        {
+          "id": "act-rend",
+          "name": "[1-Действие] Растерзание (Rend)",
+          "actionType": "action",
+          "damageDice": "2d8+7",
+          "damageType": "slashing",
+          "description": "Требование: тролль попал обоими когтями в этом ходу. Наносит автоматический урон."
+        },
+        {
+          "id": "act-regeneration",
+          "name": "[Пассивное] Регенерация 10 (Regeneration 10)",
+          "actionType": "passive",
+          "description": "Восстанавливает 10 HP в начале каждого хода. Отключается на 1 раунд уроном от огня или кислоты."
+        }
+      ],
+      "notes": "Жадный до свежего мяса тролль. Регенерирует любые раны, кроме ожогов и кислоты.",
+      "customFields": {
+        "traits": [
+          "giant",
+          "troll"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 85,
+      "cr": "5"
+    },
+    {
+      "id": "pf2e-ghoul",
+      "name": "Гуль (Ghoul)",
+      "name_en": "Ghoul",
+      "name_ru": "Гуль",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 1,
+      "cr_or_level": "1",
+      "creature_type": "Undead",
+      "creature_type_ru": "Нежить (Гуль)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 1,
+        "dex": 4,
+        "con": 1,
+        "int": 1,
+        "wis": 2,
+        "cha": 2,
+        "ac": 16,
+        "level": 1,
+        "perception": 7,
+        "fortitude": 4,
+        "reflex": 9,
+        "will": 5,
+        "speed": 30
+      },
+      "resources": {
+        "hp": {
+          "current": 20,
+          "max": 20
+        }
+      },
+      "defenses": {
+        "damageImmunities": [
+          "bleed",
+          "death effects",
+          "disease",
+          "paralyzed",
+          "poison"
+        ],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [
+          "unconscious"
+        ],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-ghoul-jaws",
+          "name": "[1-Действие] Укус с лихорадкой (Jaws)",
+          "actionType": "action",
+          "attackBonus": 7,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6+1",
+          "damageType": "piercing",
+          "description": "Цель делает спасбросок Стойкости DC 15 против Лихорадки гуля (Ghoul Fever) и Паралича."
+        },
+        {
+          "id": "act-ghoul-claw",
+          "name": "[1-Действие] Коготь паралича (Claw)",
+          "actionType": "action",
+          "attackBonus": 9,
+          "reachRange": "5 фт.",
+          "damageDice": "1d4+1",
+          "damageType": "slashing",
+          "description": "Agile, Finesse. Спасбросок Стойкости DC 15 против Паралича (на 1d4 раундов)."
+        }
+      ],
+      "notes": "Пожиратель трупов с кладбищ, способный обездвижить жертву одним касанием когтей.",
+      "customFields": {
+        "traits": [
+          "ghoul",
+          "undead"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 20,
+      "cr": "1"
+    },
+    {
+      "id": "pf2e-wight",
+      "name": "Вайт (Wight)",
+      "name_en": "Wight",
+      "name_ru": "Вайт",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 3,
+      "cr_or_level": "3",
+      "creature_type": "Undead",
+      "creature_type_ru": "Нежить (Вайт)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 4,
+        "dex": 2,
+        "con": 2,
+        "int": 0,
+        "wis": 2,
+        "cha": 3,
+        "ac": 18,
+        "level": 3,
+        "perception": 10,
+        "fortitude": 9,
+        "reflex": 7,
+        "will": 10,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 40,
+          "max": 40
+        }
+      },
+      "defenses": {
+        "damageImmunities": [
+          "bleed",
+          "death effects",
+          "disease",
+          "paralyzed",
+          "poison"
+        ],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [
+          "unconscious"
+        ],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-claw-drain",
+          "name": "[1-Действие] Коготь вытягивания жизни (Claw Strike)",
+          "actionType": "action",
+          "attackBonus": 11,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6+4",
+          "damageType": "slashing",
+          "description": "Вытягивание жизни: цель делает спасбросок Стойкости DC 17 или получает статус Drained 1."
+        }
+      ],
+      "notes": "Зловещий неживой страж гробниц. Убитые им существа восстают как зомби под его контролем.",
+      "customFields": {
+        "traits": [
+          "undead",
+          "wight"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 40,
+      "cr": "3"
+    },
+    {
+      "id": "pf2e-wraith",
+      "name": "Призрак / Рейф (Wraith)",
+      "name_en": "Wraith",
+      "name_ru": "Призрак / Рейф",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 6,
+      "cr_or_level": "6",
+      "creature_type": "Undead",
+      "creature_type_ru": "Нежить (Бестелесный)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": -5,
+        "dex": 5,
+        "con": 2,
+        "int": 2,
+        "wis": 3,
+        "cha": 4,
+        "ac": 23,
+        "level": 6,
+        "perception": 14,
+        "fortitude": 11,
+        "reflex": 15,
+        "will": 14,
+        "speed": 40
+      },
+      "resources": {
+        "hp": {
+          "current": 80,
+          "max": 80
+        }
+      },
+      "defenses": {
+        "damageImmunities": [
+          "bleed",
+          "death effects",
+          "disease",
+          "paralyzed",
+          "poison",
+          "precision"
+        ],
+        "damageResistances": [
+          "all damage 5 (except force, ghost touch)"
+        ],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [
+          "grabbed",
+          "prone",
+          "unconscious"
+        ],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-shadow-syphon",
+          "name": "[1-Действие] Касание тени (Spectral Hand)",
+          "actionType": "action",
+          "attackBonus": 15,
+          "reachRange": "5 фт.",
+          "damageDice": "2d8+6",
+          "damageType": "void",
+          "description": "Бестелесная атака Пустотой (Void). Спасбросок Стойкости DC 22 или статус Drained 1."
+        }
+      ],
+      "notes": "Бестелесный дух ненависти и тьмы. Летает сквозь стены со скоростью 40 фт.",
+      "customFields": {
+        "traits": [
+          "incorporeal",
+          "undead",
+          "wraith"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 80,
+      "cr": "6"
+    },
+    {
+      "id": "pf2e-bugbear-thug",
+      "name": "Багбер-головорез (Bugbear Thug)",
+      "name_en": "Bugbear Thug",
+      "name_ru": "Багбер-головорез",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 2,
+      "cr_or_level": "2",
+      "creature_type": "Humanoid",
+      "creature_type_ru": "Гуманоид (Гоблиноид)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 4,
+        "dex": 2,
+        "con": 2,
+        "int": -1,
+        "wis": 1,
+        "cha": -1,
+        "ac": 17,
+        "level": 2,
+        "perception": 7,
+        "fortitude": 8,
+        "reflex": 8,
+        "will": 5,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 34,
+          "max": 34
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-morningstar",
+          "name": "[1-Действие] Моргенштерн (Morningstar)",
+          "actionType": "action",
+          "attackBonus": 10,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6+4",
+          "damageType": "bludgeoning",
+          "description": "Шипастая булава. Дополнительно 1d6 скрытой атаки (Sneak Attack)."
+        }
+      ],
+      "notes": "Огромный гоблиноид, обожающий засады и запугивание слабых.",
+      "customFields": {
+        "traits": [
+          "goblin",
+          "humanoid"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 34,
+      "cr": "2"
+    },
+    {
+      "id": "pf2e-kobold-warrior",
+      "name": "Кобольд-воин (Kobold Warrior)",
+      "name_en": "Kobold Warrior",
+      "name_ru": "Кобольд-воин",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": -1,
+      "cr_or_level": "-1",
+      "creature_type": "Humanoid",
+      "creature_type_ru": "Гуманоид (Кобольд)",
+      "size": "Small",
+      "size_ru": "Маленький",
+      "stats": {
+        "str": -1,
+        "dex": 3,
+        "con": 0,
+        "int": 0,
+        "wis": 1,
+        "cha": -1,
+        "ac": 16,
+        "level": -1,
+        "perception": 4,
+        "fortitude": 2,
+        "reflex": 7,
+        "will": 3,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 8,
+          "max": 8
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-spear",
+          "name": "[1-Действие] Копье (Spear)",
+          "actionType": "action",
+          "attackBonus": 5,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6-1",
+          "damageType": "piercing",
+          "description": "Колющий удар из-за баррикады."
+        },
+        {
+          "id": "act-hurried-retreat",
+          "name": "[1-Действие] Поспешное отступление (Hurried Retreat)",
+          "actionType": "action",
+          "description": "Кобольд делает два Шага (Step) подряд, уходя из опасной зоны."
+        }
+      ],
+      "notes": "Мелкий чешуйчатый обитатель подземелий, полагающийся на ловушки и численный перевес.",
+      "customFields": {
+        "traits": [
+          "humanoid",
+          "kobold"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 8,
+      "cr": "-1"
+    },
+    {
+      "id": "pf2e-kobold-mage",
+      "name": "Кобольд-драконий маг (Dragon Mage)",
+      "name_en": "Kobold Dragon Mage",
+      "name_ru": "Кобольд-драконий маг",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 2,
+      "cr_or_level": "2",
+      "creature_type": "Humanoid",
+      "creature_type_ru": "Гуманоид (Кобольд)",
+      "size": "Small",
+      "size_ru": "Маленький",
+      "stats": {
+        "str": -1,
+        "dex": 3,
+        "con": 1,
+        "int": 0,
+        "wis": 1,
+        "cha": 4,
+        "ac": 17,
+        "level": 2,
+        "perception": 7,
+        "fortitude": 5,
+        "reflex": 8,
+        "will": 7,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 26,
+          "max": 26
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [
+          "fire 5"
+        ],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-dragon-breath",
+          "name": "[2-Действия] Драконье дыхание (Dragon Breath)",
+          "actionType": "action",
+          "hitDc": 18,
+          "saveStat": "reflex",
+          "reachRange": "Конус 15 фт.",
+          "damageDice": "3d6",
+          "damageType": "fire",
+          "description": "Спасбросок Рефлексов DC 18. Перезарядка 1d4 раунда."
+        },
+        {
+          "id": "act-magic-missile",
+          "name": "[1-3 Действия] Волшебная стрела (Force Barrage)",
+          "actionType": "action",
+          "reachRange": "120 фт.",
+          "damageDice": "1d4+1",
+          "damageType": "force",
+          "description": "Каждое потраченное действие выпускает 1 неуязвимую силовую стрелу."
+        }
+      ],
+      "notes": "Гордый носитель частицы драконьей крови среди кобольдов.",
+      "customFields": {
+        "traits": [
+          "humanoid",
+          "kobold"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 26,
+      "cr": "2"
+    },
+    {
+      "id": "pf2e-bandit-brigand",
+      "name": "Разбойник с большой дороги (Bandit Brigand)",
+      "name_en": "Bandit / Brigand",
+      "name_ru": "Разбойник с большой дороги",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 1,
+      "cr_or_level": "1",
+      "creature_type": "Humanoid",
+      "creature_type_ru": "Гуманоид (Человек)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 2,
+        "dex": 3,
+        "con": 1,
+        "int": 0,
+        "wis": 1,
+        "cha": 0,
+        "ac": 17,
+        "level": 1,
+        "perception": 6,
+        "fortitude": 6,
+        "reflex": 8,
+        "will": 4,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 20,
+          "max": 20
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-shortsword",
+          "name": "[1-Действие] Короткий меч (Shortsword)",
+          "actionType": "action",
+          "attackBonus": 8,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6+2",
+          "damageType": "piercing",
+          "description": "Agile, Finesse. Дополнительно 1d6 при атаке из засады."
+        },
+        {
+          "id": "act-shortbow-bandit",
+          "name": "[1-Действие] Выстрел из засады (Shortbow)",
+          "actionType": "action",
+          "attackBonus": 8,
+          "reachRange": "60 фт.",
+          "damageDice": "1d6",
+          "damageType": "piercing",
+          "description": "Смертельное d10."
+        }
+      ],
+      "notes": "Грабят торговые караваны на проселочных трактах.",
+      "customFields": {
+        "traits": [
+          "humanoid"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 20,
+      "cr": "1"
+    },
+    {
+      "id": "pf2e-city-guard",
+      "name": "Городской стражник (City Guard)",
+      "name_en": "City Guard",
+      "name_ru": "Городской стражник",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 1,
+      "cr_or_level": "1",
+      "creature_type": "Humanoid",
+      "creature_type_ru": "Гуманоид (Человек)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 3,
+        "dex": 1,
+        "con": 2,
+        "int": 0,
+        "wis": 2,
+        "cha": 0,
+        "ac": 17,
+        "level": 1,
+        "perception": 7,
+        "fortitude": 7,
+        "reflex": 4,
+        "will": 5,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 20,
+          "max": 20
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-halberd",
+          "name": "[1-Действие] Удар алебардой (Halberd Strike)",
+          "actionType": "action",
+          "attackBonus": 8,
+          "reachRange": "10 фт.",
+          "damageDice": "1d10+3",
+          "damageType": "piercing",
+          "description": "Досягаемость 10 фт. Опрокидывающее свойство."
+        },
+        {
+          "id": "act-attack-of-opportunity",
+          "name": "[Реакция] Атака по возможности (Attack of Opportunity)",
+          "actionType": "reaction",
+          "description": "Триггер: враг выходит из зоны досягаемости стражника или использует действие с дескриптором Manipulate/Ranged."
+        }
+      ],
+      "notes": "Дисциплинированный страж городских ворот и патруля.",
+      "customFields": {
+        "traits": [
+          "humanoid"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 20,
+      "cr": "1"
+    },
+    {
+      "id": "pf2e-giant-spider",
+      "name": "Гигантский паук (Giant Spider)",
+      "name_en": "Giant Spider",
+      "name_ru": "Гигантский паук",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 1,
+      "cr_or_level": "1",
+      "creature_type": "Beast",
+      "creature_type_ru": "Зверь (Членистоногое)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 2,
+        "dex": 4,
+        "con": 1,
+        "int": -5,
+        "wis": 1,
+        "cha": -4,
+        "ac": 15,
+        "level": 1,
+        "perception": 7,
+        "fortitude": 6,
+        "reflex": 9,
+        "will": 4,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 16,
+          "max": 16
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-spider-fangs",
+          "name": "[1-Действие] Ядовитые жвалы (Fangs)",
+          "actionType": "action",
+          "attackBonus": 7,
+          "reachRange": "5 фт.",
+          "damageDice": "1d6+2",
+          "damageType": "piercing",
+          "description": "+ Яд паука (Стойкость DC 16 или статус Enfeebled 1)."
+        },
+        {
+          "id": "act-web-trap",
+          "name": "[1-Действие] Выстрел паутиной (Web)",
+          "actionType": "action",
+          "attackBonus": 7,
+          "reachRange": "30 фт.",
+          "description": "Приковывает цель к месту (Immobilized, DC 17 Escape)."
+        }
+      ],
+      "notes": "Плетет паутину в темных пещерах и на потолках склепов. Лазает по стенам 25 фт.",
+      "customFields": {
+        "traits": [
+          "animal"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 16,
+      "cr": "1"
+    },
+    {
+      "id": "pf2e-manticore",
+      "name": "Мантикора (Manticore)",
+      "name_en": "Manticore",
+      "name_ru": "Мантикора",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 6,
+      "cr_or_level": "6",
+      "creature_type": "Beast",
+      "creature_type_ru": "Зверь (Монстр)",
+      "size": "Large",
+      "size_ru": "Крупный",
+      "stats": {
+        "str": 5,
+        "dex": 3,
+        "con": 4,
+        "int": -2,
+        "wis": 2,
+        "cha": -1,
+        "ac": 24,
+        "level": 6,
+        "perception": 14,
+        "fortitude": 16,
+        "reflex": 13,
+        "will": 12,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 90,
+          "max": 90
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-manticore-jaws",
+          "name": "[1-Действие] Челюсти (Jaws)",
+          "actionType": "action",
+          "attackBonus": 16,
+          "reachRange": "10 фт.",
+          "damageDice": "2d10+6",
+          "damageType": "piercing",
+          "description": "Смертельный укус львиной пасти."
+        },
+        {
+          "id": "act-tail-spikes",
+          "name": "[1-Действие] Залп шипами из хвоста (Spike Volley)",
+          "actionType": "action",
+          "attackBonus": 16,
+          "reachRange": "100 фт.",
+          "damageDice": "1d10+4",
+          "damageType": "piercing",
+          "description": "Дальнобойная атака острыми костяными шипами."
+        }
+      ],
+      "notes": "Крылатый хищник с телом льва, крыльями летучей мыши и хвостом скорпиона. Скорость полета 40 фт.",
+      "customFields": {
+        "traits": [
+          "beast"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 90,
+      "cr": "6"
+    },
+    {
+      "id": "pf2e-owlbear",
+      "name": "Совомедведь (Owlbear)",
+      "name_en": "Owlbear",
+      "name_ru": "Совомедведь",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 4,
+      "cr_or_level": "4",
+      "creature_type": "Beast",
+      "creature_type_ru": "Зверь",
+      "size": "Large",
+      "size_ru": "Крупный",
+      "stats": {
+        "str": 5,
+        "dex": 2,
+        "con": 4,
+        "int": -4,
+        "wis": 2,
+        "cha": 0,
+        "ac": 21,
+        "level": 4,
+        "perception": 13,
+        "fortitude": 14,
+        "reflex": 10,
+        "will": 10,
+        "speed": 30
+      },
+      "resources": {
+        "hp": {
+          "current": 70,
+          "max": 70
+        }
+      },
+      "defenses": {
+        "damageImmunities": [],
+        "damageResistances": [],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-talons",
+          "name": "[1-Действие] Когти (Talons)",
+          "actionType": "action",
+          "attackBonus": 13,
+          "reachRange": "5 фт.",
+          "damageDice": "2d8+5",
+          "damageType": "slashing",
+          "description": "Захват (Grab): при успешном ударе может совершить бесплатный захват цели."
+        },
+        {
+          "id": "act-beak",
+          "name": "[1-Действие] Клюв (Beak)",
+          "actionType": "action",
+          "attackBonus": 13,
+          "reachRange": "5 фт.",
+          "damageDice": "2d10+5",
+          "damageType": "piercing",
+          "description": "Сокрушительный укус костяного клюва."
+        },
+        {
+          "id": "act-blood-curdling-screech",
+          "name": "[2-Действия] Леденящий вопль (Blood-Curdling Screech)",
+          "actionType": "action",
+          "hitDc": 20,
+          "saveStat": "will",
+          "reachRange": "30 фт.",
+          "description": "Все враги делают спасбросок Воли DC 20 или получают статус Frightened 2."
+        }
+      ],
+      "notes": "Свирепый лесной монстр, сочетающий мощь бурого медведя и зрение филина.",
+      "customFields": {
+        "traits": [
+          "animal"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 70,
+      "cr": "4"
+    },
+    {
+      "id": "pf2e-gargoyle",
+      "name": "Гаргулья (Gargoyle)",
+      "name_en": "Gargoyle",
+      "name_ru": "Гаргулья",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 4,
+      "cr_or_level": "4",
+      "creature_type": "Monstrosity",
+      "creature_type_ru": "Чудовище (Каменное)",
+      "size": "Medium",
+      "size_ru": "Средний",
+      "stats": {
+        "str": 4,
+        "dex": 2,
+        "con": 4,
+        "int": -2,
+        "wis": 1,
+        "cha": -2,
+        "ac": 21,
+        "level": 4,
+        "perception": 10,
+        "fortitude": 14,
+        "reflex": 10,
+        "will": 9,
+        "speed": 25
+      },
+      "resources": {
+        "hp": {
+          "current": 40,
+          "max": 40
+        }
+      },
+      "defenses": {
+        "damageImmunities": [
+          "bleed",
+          "paralyzed",
+          "poison",
+          "sleep"
+        ],
+        "damageResistances": [
+          "physical 5 (except bludgeoning)"
+        ],
+        "damageVulnerabilities": [],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-gargoyle-jaws",
+          "name": "[1-Действие] Каменные челюсти (Jaws)",
+          "actionType": "action",
+          "attackBonus": 13,
+          "reachRange": "5 фт.",
+          "damageDice": "2d8+4",
+          "damageType": "piercing",
+          "description": "Дробит кости врагов."
+        },
+        {
+          "id": "act-gargoyle-claw",
+          "name": "[1-Действие] Коготь (Claw)",
+          "actionType": "action",
+          "attackBonus": 13,
+          "reachRange": "5 фт.",
+          "damageDice": "2d6+4",
+          "damageType": "slashing",
+          "description": "Agile."
+        }
+      ],
+      "notes": "Живая каменная статуя, неподвижно замирающая на крышах готических замков. Скорость полета 40 фт.",
+      "customFields": {
+        "traits": [
+          "earth",
+          "monstrosity"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 40,
+      "cr": "4"
+    },
+    {
+      "id": "pf2e-young-white-dragon",
+      "name": "Молодой белый дракон (Young White Dragon)",
+      "name_en": "Young White Dragon",
+      "name_ru": "Молодой белый дракон",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 6,
+      "cr_or_level": "6",
+      "creature_type": "Dragon",
+      "creature_type_ru": "Дракон (Ледяной)",
+      "size": "Large",
+      "size_ru": "Крупный",
+      "stats": {
+        "str": 5,
+        "dex": 1,
+        "con": 4,
+        "int": 0,
+        "wis": 2,
+        "cha": 1,
+        "ac": 23,
+        "level": 6,
+        "perception": 14,
+        "fortitude": 17,
+        "reflex": 11,
+        "will": 12,
+        "speed": 30
+      },
+      "resources": {
+        "hp": {
+          "current": 115,
+          "max": 115
+        }
+      },
+      "defenses": {
+        "damageImmunities": [
+          "cold",
+          "paralyzed",
+          "sleep"
+        ],
+        "damageResistances": [],
+        "damageVulnerabilities": [
+          "fire 10"
+        ],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-frost-breath",
+          "name": "[2-Действия] Ледяное дыхание (Frost Breath)",
+          "actionType": "action",
+          "hitDc": 24,
+          "saveStat": "reflex",
+          "reachRange": "Конус 30 фт.",
+          "damageDice": "7d6",
+          "damageType": "cold",
+          "description": "Спасбросок Рефлексов DC 24. Перезарядка 1d4 раунда."
+        },
+        {
+          "id": "act-dragon-jaws",
+          "name": "[1-Действие] Челюсти (Jaws)",
+          "actionType": "action",
+          "attackBonus": 17,
+          "reachRange": "10 фт.",
+          "damageDice": "2d10+7",
+          "damageType": "piercing",
+          "description": "+ 1d6 дополнительного урона холодом."
+        },
+        {
+          "id": "act-dragon-claws",
+          "name": "[1-Действие] Когти (Claws)",
+          "actionType": "action",
+          "attackBonus": 17,
+          "reachRange": "5 фт.",
+          "damageDice": "2d8+7",
+          "damageType": "slashing",
+          "description": "Agile."
+        }
+      ],
+      "notes": "Хищный зверь с ледяных пиков. Скорость полета 80 фт, рытье сквозь лед 25 фт.",
+      "customFields": {
+        "traits": [
+          "cold",
+          "dragon"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 115,
+      "cr": "6"
+    },
+    {
+      "id": "pf2e-young-red-dragon",
+      "name": "Молодой красный дракон (Young Red Dragon)",
+      "name_en": "Young Red Dragon",
+      "name_ru": "Молодой красный дракон",
+      "system_id": "pathfinder2e",
+      "systemId": "pathfinder2e",
+      "systemVersion": "1.0.0",
+      "level": 10,
+      "cr_or_level": "10",
+      "creature_type": "Dragon",
+      "creature_type_ru": "Дракон (Огненный)",
+      "size": "Large",
+      "size_ru": "Крупный",
+      "stats": {
+        "str": 7,
+        "dex": 2,
+        "con": 6,
+        "int": 3,
+        "wis": 3,
+        "cha": 3,
+        "ac": 30,
+        "level": 10,
+        "perception": 20,
+        "fortitude": 22,
+        "reflex": 18,
+        "will": 19,
+        "speed": 40
+      },
+      "resources": {
+        "hp": {
+          "current": 210,
+          "max": 210
+        }
+      },
+      "defenses": {
+        "damageImmunities": [
+          "fire",
+          "paralyzed",
+          "sleep"
+        ],
+        "damageResistances": [],
+        "damageVulnerabilities": [
+          "cold 15"
+        ],
+        "conditionImmunities": [],
+        "damageReductions": {}
+      },
+      "actions": [
+        {
+          "id": "act-fire-breath",
+          "name": "[2-Действия] Огненное дыхание (Fire Breath)",
+          "actionType": "action",
+          "hitDc": 30,
+          "saveStat": "reflex",
+          "reachRange": "Конус 40 фт.",
+          "damageDice": "11d6",
+          "damageType": "fire",
+          "description": "Спасбросок Рефлексов DC 30. Испепеляющий жар. Перезарядка 1d4 раунда."
+        },
+        {
+          "id": "act-red-dragon-jaws",
+          "name": "[1-Действие] Огненные челюсти (Jaws)",
+          "actionType": "action",
+          "attackBonus": 23,
+          "reachRange": "10 фт.",
+          "damageDice": "2d12+9",
+          "damageType": "piercing",
+          "description": "+ 2d6 урона огнем."
+        },
+        {
+          "id": "act-red-dragon-claws",
+          "name": "[1-Действие] Когти (Claws)",
+          "actionType": "action",
+          "attackBonus": 23,
+          "reachRange": "5 фт.",
+          "damageDice": "2d10+9",
+          "damageType": "slashing",
+          "description": "Agile."
+        },
+        {
+          "id": "act-dragon-tail",
+          "name": "[1-Действие] Удар хвостом (Tail)",
+          "actionType": "action",
+          "attackBonus": 21,
+          "reachRange": "15 фт.",
+          "damageDice": "2d10+9",
+          "damageType": "bludgeoning",
+          "description": "Досягаемость 15 фт."
+        }
+      ],
+      "notes": "Высокомерный и свирепый владыка пламени. Полет 100 фт.",
+      "customFields": {
+        "traits": [
+          "dragon",
+          "fire"
+        ],
+        "economy": "three_action"
+      },
+      "ac": 10,
+      "hp_average": 210,
+      "cr": "10"
+    }
+  ]
+}

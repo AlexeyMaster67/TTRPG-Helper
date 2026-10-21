@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-10-18T23:06:58.180Z",
+  "packs": [
+    {
+      "id": "cyberpunk_red_starter",
+      "fileName": "cyberpunk_red_starter.pack.json",
+      "creatureCount": 25,
+      "sizeBytes": 77747
+    },
+    {
+      "id": "pathfinder2e_starter",
+      "fileName": "pathfinder2e_starter.pack.json",
+      "creatureCount": 25,
+      "sizeBytes": 60807
+    },
+    {
+      "id": "srd_5_2_1",
+      "fileName": "srd_5_2_1.pack.json",
+      "creatureCount": 336,
+      "sizeBytes": 883905
+    },
+    {
+      "id": "dnd5e_2024",
+      "fileName": "dnd5e_2024.pack.json",
+      "creatureCount": 525,
+      "sizeBytes": 1508747
+    }
+  ]
+}

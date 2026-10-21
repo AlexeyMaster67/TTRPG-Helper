@@ -1,0 +1,30 @@
+node_modules/
+dist/
+src-tauri/target/
+*.exe
+*.zip
+*.pdb
+*.apk
+releases/
+_legacy_wpf/
+.env*
+crash_log.txt
+*.pdf
+КИБЕРПАНК/
+
+# Scratch & temporary logs
+err.txt
+out.txt
+__pycache__/
+*.pyc
+
+# Android build outputs & cache
+src-tauri/gen/android/.gradle/
+src-tauri/gen/android/build/
+src-tauri/gen/android/app/build/
+src-tauri/gen/android/buildSrc/build/
+src-tauri/gen/android/buildSrc/.gradle/
+src-tauri/gen/android/app/src/main/jniLibs/
+src-tauri/gen/android/app/src/main/assets/
+src-tauri/gen/android/.tauri/
+src-tauri/gen/android/local.properties
