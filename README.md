@@ -11,6 +11,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-2.0.3-gold.svg?style=flat-square" alt="Version 2.0.3" />
+  <a href="https://discord.gg/seESktTbXF"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2.svg?style=flat-square&logo=discord&logoColor=white" alt="Discord Community" /></a>
   <img src="https://img.shields.io/badge/license-MIT%20%2F%20CC--BY--4.0-blue.svg?style=flat-square" alt="License MIT / CC-BY" />
   <img src="https://img.shields.io/badge/offline--first-100%25%20Local-emerald.svg?style=flat-square" alt="100% Offline" />
   <img src="https://img.shields.io/badge/platform-Windows%20x64-indigo.svg?style=flat-square" alt="Platform" />
@@ -342,3 +343,16 @@ flowchart TD
 
 ### Контакты для правообладателей (DMCA / Copyright Inquiries)
 Если вы являетесь правообладателем каких-либо материалов и считаете, что их использование нарушает ваши права или выходит за рамки Fan Content Policy / Creative Commons, пожалуйста, создайте обращение в разделе [Issues](https://github.com/AlexeyMaster67/TTRPG-Helper/issues). Запрос будет рассмотрен в приоритетном порядке с немедленным удалением спорных ассетов.
+
+---
+
+## Сообщество и поддержка
+
+Присоединяйтесь к официальному Discord-сообществу **TTRPG Helper** для общения, поиска партий, обсуждения систем (D&D 2024, Pathfinder 2e, Cyberpunk RED) и связи с разработчиком:
+
+<p align="center">
+  <a href="https://discord.gg/seESktTbXF">
+    <img src="https://img.shields.io/badge/Discord-Присоединиться%20к%20сообществу-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Присоединиться к Discord" height="42" />
+  </a>
+</p>
+
