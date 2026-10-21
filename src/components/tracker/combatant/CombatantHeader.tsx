@@ -53,12 +53,12 @@ export function CombatantHeader({
     <>
       {/* ⚡ Верхняя плашка текущего хода с золотым сиянием */}
       {isActiveTurn && (
-        <div className="flex items-center justify-between px-3 py-1 bg-gradient-to-r from-[#f5b920] via-yellow-400 to-[#f5b920] text-[#0c0d12] text-xs font-black uppercase tracking-wider shadow-md rounded-t-glass-lg -mx-3 -mt-2 mb-2 border-b border-yellow-300 select-none">
+        <div className="flex items-center justify-between px-3 py-1 bg-gradient-to-r from-amber-500/25 via-gold/35 to-amber-500/25 text-gold-light text-xs font-black uppercase tracking-wider shadow-sm rounded-t-glass-lg -mx-3 -mt-2 mb-2 border-b border-gold/40 select-none">
           <span className="flex items-center gap-1.5">
-            <Zap className="h-3.5 w-3.5 fill-[#0c0d12] text-[#0c0d12] animate-pulse flex-shrink-0" />
-            <span className="font-extrabold tracking-widest leading-none">⚡ ТЕКУЩИЙ ХОД</span>
+            <Zap className="h-3.5 w-3.5 fill-gold text-gold animate-pulse flex-shrink-0" />
+            <span className="font-extrabold tracking-widest leading-none text-white drop-shadow-sm">⚡ ТЕКУЩИЙ ХОД</span>
           </span>
-          <span className="text-[10px] font-mono font-bold opacity-90 hidden sm:inline leading-none">
+          <span className="text-[10px] font-mono font-bold text-amber-200/90 hidden sm:inline leading-none">
             Горячая клавиша: Пробел
           </span>
         </div>
@@ -94,10 +94,10 @@ export function CombatantHeader({
               }}
               title="Нажмите, чтобы ввести инициативу"
               className={clsx(
-                'flex flex-col items-center justify-center w-7 h-7 rounded-full border-2 font-mono tabular-nums flex-shrink-0 cursor-pointer transition-all shadow-sm active:scale-95 group/init',
+                'flex flex-col items-center justify-center w-7 h-7 rounded-full border font-mono tabular-nums flex-shrink-0 cursor-pointer transition-all active:scale-95 group/init',
                 isActiveTurn
-                  ? 'border-red-500 bg-gradient-to-b from-[#3a1414] to-[#200b0b] text-red-100 ring-2 ring-red-500/40 font-black shadow-[0_0_8px_rgba(239,68,68,0.3)]'
-                  : 'border-[#3f4e5a] bg-[#161e24] text-gray-200 hover:border-gold hover:text-gold-light'
+                  ? 'border-yellow-300 bg-gradient-to-b from-[#f5b920] to-[#d49912] text-black font-black shadow-[0_0_12px_rgba(245,185,32,0.4)]'
+                  : 'border-white/10 bg-[#12161f] text-gray-200 hover:border-gold/60 hover:text-gold-light'
               )}
             >
               <span className="text-xs font-black leading-none">
@@ -142,8 +142,8 @@ export function CombatantHeader({
               className={clsx(
                 'w-7 h-7 rounded-full overflow-hidden border-2 flex items-center justify-center bg-canvas shadow-sm transition-transform group-hover/avatar:scale-105 group-hover/avatar:border-amber-400',
                 combatant.isPlayer
-                  ? 'border-[#c5a059] shadow-[0_0_8px_rgba(197,160,89,0.3)] ring-1 ring-[#c5a059]/40'
-                  : 'border-[#8c251a] shadow-[0_0_8px_rgba(140,37,26,0.3)] ring-1 ring-red-700/40'
+                  ? 'border-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.25)]'
+                  : 'border-rose-500/80 shadow-[0_0_8px_rgba(244,63,94,0.25)]'
               )}
             >
               {tokenUrl ? (

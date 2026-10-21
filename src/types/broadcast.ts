@@ -27,6 +27,30 @@ export interface PublicRollNotification {
     sides: number;
     result: number;
   }>;
+  dice2d?: {
+    id?: string;
+    sides?: number;
+    r1?: number;
+    r2?: number;
+    kept?: number;
+    dice?: Array<{
+      id?: string;
+      sides: number;
+      value: number;
+      isDiscarded?: boolean;
+      isHighlighted?: boolean;
+    }>;
+    modifier?: number;
+    total: number;
+    mode?: 'normal' | 'advantage' | 'disadvantage';
+    isNat20?: boolean;
+    isNat1?: boolean;
+    title?: string;
+    rollerName?: string;
+    targetName?: string;
+    damageType?: string;
+    subtitle?: string;
+  };
 }
 
 export interface NpcShowcaseData {

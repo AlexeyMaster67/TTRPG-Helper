@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useCombatStore } from '../../store/combatStore';
 import { usePartyStore } from '../../store/partyStore';
 import { useDice3dStore } from '../../store/dice3dStore';
+import { useDiceAnimationStore } from '../../store/diceAnimationStore';
 import { DamageType, RollMode } from '../../types/dnd5e';
 import { rollD20, rollDiceFormula } from '../../engine/rolls';
 import { broadcastService } from '../../services/broadcastService';
@@ -372,9 +373,13 @@ export function TargetedAttackModal() {
     const hit = !isNat1 && (isNat20 || attackTotal >= targetAc);
     setIsHit(hit);
     setIsCrit(isNat20);
-    const diceToRoll: Array<{ sides: number; result: number }> = [
-      { sides: 20, result: d20.keptRoll },
-    ];
+    const diceToRoll: Array<{ sides: number; result: number }> =
+      d20.d20_2 !== undefined
+        ? [
+            { sides: 20, result: d20.d20_1 },
+            { sides: 20, result: d20.d20_2 },
+          ]
+        : [{ sides: 20, result: d20.keptRoll }];
 
     if (!hit) {
       setHitOutcomeText(
@@ -385,12 +390,29 @@ export function TargetedAttackModal() {
       setFinalCalculatedDamage(0);
       setConcentrationCheckDc(null);
 
+      useDiceAnimationStore.getState().triggerRoll({
+        title: `${attacker?.nameRu || attacker?.name}: ${actName} (Промах)`,
+        subtitle: `Промах по ${target?.nameRu || target?.name} [${attackTotal} против КД ${targetAc}]`,
+        sides: 20,
+        r1: d20.d20_1,
+        r2: d20.d20_2,
+        kept: d20.keptRoll,
+        modifier: toHitMod,
+        total: attackTotal,
+        mode: advMode,
+        isNat1: d20.isNatural1,
+        isNat20: false,
+        rollerName: attacker?.nameRu || attacker?.name,
+        targetName: target?.nameRu || target?.name,
+      });
+
       if (useDice3dStore.getState().is3dEnabled) {
         useDice3dStore.getState().rollDice3d({
           dice: diceToRoll,
           title: `${attacker?.nameRu || attacker?.name}: ${actName} (Промах)`,
           total: attackTotal,
           isSecret: useDice3dStore.getState().isSecretRoll,
+          rollMode: advMode,
         });
       }
       return;
@@ -409,14 +431,29 @@ export function TargetedAttackModal() {
     const { finalDmg, notice } = computeDamageWithDefenses(rawDamage, dmgType, target);
     const breakdown = formatFormulaBreakdown(dmgRoll);
 
-    // Collect damage dice for 3D animation
+    // Collect damage dice for 2D/3D animation
+    const poolDice: Array<{ id: string; sides: number; value: number }> = [];
     if (dmgRoll.rolls) {
+      let dIdx = 0;
       for (const r of dmgRoll.rolls) {
         for (const val of r.values) {
           diceToRoll.push({ sides: r.sides, result: val });
+          poolDice.push({ id: `dmg-${r.sides}-${dIdx++}`, sides: r.sides, value: val });
         }
       }
     }
+
+    useDiceAnimationStore.getState().triggerRoll({
+      title: `${attacker?.nameRu || attacker?.name}: ${actName} (${isNat20 ? 'КРИТ!' : 'Хит!'})`,
+      subtitle: `По цели: ${target?.nameRu || target?.name} [КД ${targetAc}]`,
+      dice: poolDice.length > 0 ? poolDice : [{ id: 'dmg-static', sides: 6, value: finalDmg }],
+      modifier: dmgRoll.modifier || 0,
+      total: rawDamage,
+      damageType: localizeDamageType(dmgType),
+      isNat20,
+      rollerName: attacker?.nameRu || attacker?.name,
+      targetName: target?.nameRu || target?.name,
+    });
 
     if (useDice3dStore.getState().is3dEnabled) {
       useDice3dStore.getState().rollDice3d({
@@ -424,6 +461,7 @@ export function TargetedAttackModal() {
         title: `${attacker?.nameRu || attacker?.name}: ${actName}`,
         total: rawDamage,
         isSecret: useDice3dStore.getState().isSecretRoll,
+        rollMode: advMode,
       });
     }
 
@@ -457,6 +495,7 @@ export function TargetedAttackModal() {
     const logs: MultiattackStepLog[] = [];
     let totalDmg = 0;
     let highestDmg = 0;
+    const multiDice: Array<{ id: string; sides: number; value: number }> = [];
 
     for (const act of attacks) {
       const parsed = parseActionDetails(act);
@@ -489,6 +528,17 @@ export function TargetedAttackModal() {
       }
 
       const dmgResult = rollDiceFormula(rollFormula);
+      if (dmgResult.rolls) {
+        for (const r of dmgResult.rolls) {
+          for (const v of r.values) {
+            multiDice.push({
+              id: `m-${r.sides}-${multiDice.length}`,
+              sides: r.sides,
+              value: v,
+            });
+          }
+        }
+      }
       const { finalDmg, notice } = computeDamageWithDefenses(dmgResult.total, dmgType, target);
       totalDmg += finalDmg;
       if (finalDmg > highestDmg) highestDmg = finalDmg;
@@ -512,6 +562,29 @@ export function TargetedAttackModal() {
     setHitOutcomeText(`⚔️ Серия из ${attacks.length} атак по «${target.nameRu || target.name}»!`);
     setDamageDetailText(`Суммарно нанесено: ${totalDmg} урона.`);
     setDefenseNoticeText(`Удары: ${logs.filter((l) => l.isHit).length} попало, ${logs.filter((l) => !l.isHit).length} промахов.`);
+
+    if (totalDmg > 0) {
+      useDiceAnimationStore.getState().triggerRoll({
+        title: `${attacker?.nameRu || attacker?.name}: Мультиатака (${logs.filter((l) => l.isHit).length}/${attacks.length} хитов)`,
+        subtitle: `По цели: ${target.nameRu || target.name} • Нанесено ${totalDmg} урона`,
+        dice: multiDice.length > 0 ? multiDice : [{ id: 'm-static', sides: 6, value: totalDmg }],
+        total: totalDmg,
+        isNat20: logs.some((l) => l.isCrit),
+        rollerName: attacker?.nameRu || attacker?.name,
+        targetName: target.nameRu || target.name,
+      });
+    } else {
+      useDiceAnimationStore.getState().triggerRoll({
+        title: `${attacker?.nameRu || attacker?.name}: Мультиатака (Все мимо)`,
+        subtitle: `Серия по цели: ${target.nameRu || target.name} [0/${attacks.length} попаданий]`,
+        sides: 20,
+        kept: 0,
+        modifier: 0,
+        total: 0,
+        rollerName: attacker?.nameRu || attacker?.name,
+        targetName: target.nameRu || target.name,
+      });
+    }
 
     if (totalDmg > 0 && target.isConcentrating) {
       setConcentrationCheckDc(Math.max(10, Math.floor(highestDmg / 2)));
@@ -593,6 +666,25 @@ export function TargetedAttackModal() {
     const formulaBreakdown = formatFormulaBreakdown(dmgRoll);
     const abilityInfo = ABILITY_LABELS[saveAbility];
     const partyMembers = usePartyStore.getState().members;
+
+    const savePoolDice: Array<{ id: string; sides: number; value: number }> = [];
+    if (dmgRoll.rolls) {
+      let sIdx = 0;
+      for (const r of dmgRoll.rolls) {
+        for (const val of r.values) {
+          savePoolDice.push({ id: `save-dmg-${r.sides}-${sIdx++}`, sides: r.sides, value: val });
+        }
+      }
+    }
+    useDiceAnimationStore.getState().triggerRoll({
+      title: `${attacker?.nameRu || attacker?.name}: Урон (Спасбросок ${abilityInfo.ru} Сл ${saveDc})`,
+      subtitle: `Бросок урона: ${formulaBreakdown}`,
+      dice: savePoolDice.length > 0 ? savePoolDice : [{ id: 'save-static', sides: 6, value: baseDamage }],
+      modifier: dmgRoll.modifier || 0,
+      total: baseDamage,
+      damageType: localizeDamageType(saveDamageType),
+      rollerName: attacker?.nameRu || attacker?.name,
+    });
 
     if (useDice3dStore.getState().is3dEnabled) {
       const diceToRoll: Array<{ sides: number; result: number }> = [];

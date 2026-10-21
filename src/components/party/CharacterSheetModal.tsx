@@ -29,7 +29,6 @@ import {
   Moon,
   Check,
   FileDown,
-  QrCode,
 } from 'lucide-react';
 import { dbService } from '../../services/dbService';
 import { ParsedSpell } from '../../types/database';
@@ -51,7 +50,6 @@ export function CharacterSheetModal() {
     closeCharacterSheet,
     updateMember,
     openShortRestModal,
-    openQrModal,
     longRest,
     showToast,
   } = usePartyStore();
@@ -521,16 +519,6 @@ export function CharacterSheetModal() {
               >
                 <FileDown className="w-3.5 h-3.5 text-emerald-400" />
                 <span className="hidden sm:inline">Экспорт .ttrpgh</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openQrModal(member.id)}
-                className="px-2.5 py-1 min-h-[30px] rounded-glass bg-emerald-950/50 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-600/70 text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap flex-shrink-0 cursor-pointer shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)]"
-                title="Показать оффлайн QR-код персонажа для сканирования смартфоном"
-              >
-                <QrCode className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="hidden sm:inline">QR-код</span>
               </button>
 
               <button

@@ -29,7 +29,7 @@ export function CombatantHealthControls({
   setIsHpPopoverOpen,
 }: CombatantHealthControlsProps) {
   const [customHpVal, setCustomHpVal] = useState('');
-  const [popoverPlacement, setPopoverPlacement] = useState<'top' | 'bottom'>('top');
+  const [popoverPlacement, setPopoverPlacement] = useState<'top' | 'bottom'>('bottom');
   const [popoverAlign, setPopoverAlign] = useState<'right' | 'left'>('right');
   const popoverRef = useRef<HTMLDivElement>(null);
   const healthContainerRef = useRef<HTMLDivElement>(null);
@@ -38,23 +38,30 @@ export function CombatantHealthControls({
   useEffect(() => {
     if (!isHpPopoverOpen) return;
 
-    if (healthContainerRef.current) {
-      const rect = healthContainerRef.current.getBoundingClientRect();
-      const spaceAbove = rect.top;
-      const spaceBelow = window.innerHeight - rect.bottom;
-      if (spaceAbove < 220 && spaceBelow > spaceAbove) {
-        setPopoverPlacement('bottom');
-      } else {
-        setPopoverPlacement('top');
-      }
+    const updatePosition = () => {
+      if (healthContainerRef.current) {
+        const rect = healthContainerRef.current.getBoundingClientRect();
+        const spaceAbove = rect.top;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        // Strictly flip to top only when near bottom of viewport (< 220px below AND > 220px above)
+        if (spaceBelow < 220 && spaceAbove > 220) {
+          setPopoverPlacement('top');
+        } else {
+          setPopoverPlacement('bottom');
+        }
 
-      // If health bar is too close to the left edge of viewport (< 300px), align left to prevent clipping
-      if (rect.right < 300) {
-        setPopoverAlign('left');
-      } else {
-        setPopoverAlign('right');
+        // Align left if health bar is too close to the left viewport boundary (< 150px) to prevent clipping
+        if (rect.left < 150) {
+          setPopoverAlign('left');
+        } else {
+          setPopoverAlign('right');
+        }
       }
-    }
+    };
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
 
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -76,6 +83,8 @@ export function CombatantHealthControls({
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
     return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
@@ -94,21 +103,23 @@ export function CombatantHealthControls({
         setIsHpPopoverOpen((prev) => !prev);
       }}
       title="Кликните для быстрых дельт, урона и лечения"
-      className={clsx("relative w-[120px] sm:w-[130px] flex-shrink-0 cursor-pointer rounded p-0.5 hover:ring-1 hover:ring-gold/40 transition-all", isHpPopoverOpen && "z-50")}
+      className={clsx("relative w-[124px] sm:w-[136px] flex-shrink-0 cursor-pointer rounded p-0.5 hover:bg-white/[0.04] transition-all", isHpPopoverOpen && "z-50")}
     >
       {isDying ? (
-        <div className="flex items-center justify-between gap-1 p-1 rounded bg-crimson/15 border border-crimson/40 text-[10px]">
-          <span className="font-bold text-red-400 flex items-center gap-0.5">
-            <Skull className="h-3 w-3" />
-            0
+        <div className="flex items-center justify-between gap-1 px-1.5 py-1 rounded bg-red-950/50 border border-red-500/50 text-[10px] shadow-sm">
+          <span className="font-extrabold text-rose-400 flex items-center gap-1">
+            <Skull className="h-3 w-3 animate-pulse" />
+            <span>0</span>
           </span>
-          <span className="text-[9px] font-mono text-gray-300">
-            {deathSaves.successes}✓ / {deathSaves.failures}✗
+          <span className="text-[9px] font-mono font-bold text-gray-200">
+            <span className="text-emerald-400">{deathSaves.successes}✓</span>
+            <span className="text-gray-500 mx-0.5">/</span>
+            <span className="text-rose-400">{deathSaves.failures}✗</span>
           </span>
           <button
             onClick={onRollDeathSave}
             title="Бросок спасброска от смерти"
-            className="px-1.5 py-0.2 bg-crimson text-white hover:bg-red-600 rounded text-[9px] font-bold"
+            className="px-1.5 py-0.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded text-[9px] font-black uppercase tracking-wider shadow-sm active:scale-95"
           >
             d20
           </button>
@@ -128,15 +139,15 @@ export function CombatantHealthControls({
           ref={popoverRef}
           onClick={(e) => e.stopPropagation()}
           className={clsx(
-            'absolute z-50 w-72 max-w-[calc(100vw-2rem)] rounded-md border border-gold/50 bg-[#141b21] shadow-2xl p-3 animate-in fade-in duration-100 flex flex-col gap-2.5 ring-1 ring-black/50',
-            popoverPlacement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2',
+            'absolute z-50 w-72 max-w-[calc(100vw-2rem)] rounded-glass-lg border border-gold/40 bg-[#0d1219]/98 backdrop-blur-xl shadow-glass-xl p-3 animate-in fade-in duration-100 flex flex-col gap-2.5',
+            popoverPlacement === 'top' ? 'bottom-full mb-2' : 'top-full mt-1.5',
             popoverAlign === 'left' ? 'left-0' : 'right-0'
           )}
         >
           {/* Popover Header */}
-          <div className="flex items-center justify-between border-b border-[#2e3b46] pb-1.5 gap-2">
+          <div className="flex items-center justify-between border-b border-white/10 pb-1.5 gap-2">
             <div className="flex items-center gap-1.5 text-xs font-bold text-gray-100 min-w-0">
-              <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500/20 flex-shrink-0" />
+              <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500/20 flex-shrink-0" />
               <span className="truncate max-w-[120px]" title={cleanRussianText(combatant.nameRu || combatant.name)}>
                 {cleanRussianText(combatant.nameRu || combatant.name)}
               </span>
@@ -150,7 +161,7 @@ export function CombatantHealthControls({
                   e.stopPropagation();
                   setIsHpPopoverOpen(false);
                 }}
-                className="text-gray-400 hover:text-white p-0.5 rounded hover:bg-[#202a32]"
+                className="text-gray-400 hover:text-white p-0.5 rounded hover:bg-white/10"
                 title="Закрыть"
               >
                 <X className="h-3.5 w-3.5" />
@@ -161,50 +172,50 @@ export function CombatantHealthControls({
           {/* Quick Deltas: DDB Encounter Tracker layout */}
           <div className="grid grid-cols-2 gap-2">
             {/* Damage: -10, -5, -1 */}
-            <div className="flex items-center justify-between gap-1 bg-[#1a1112] p-1 rounded border border-red-950/60">
+            <div className="flex items-center justify-between gap-1 bg-red-950/20 p-1 rounded-glass-sm border border-red-500/20">
               <button
                 onClick={(e) => onDamage(e, 10)}
                 title="Нанести 10 урона"
-                className="flex-1 py-1.5 px-0.5 text-center font-mono font-black text-xs text-red-100 bg-gradient-to-b from-[#8c251a] to-[#7a2016] hover:from-[#a82e21] hover:to-[#8c251a] border border-[#b8382b]/80 rounded shadow-sm transition-all active:scale-95 leading-tight whitespace-nowrap"
+                className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-rose-100 bg-red-900/60 hover:bg-red-800 border border-red-500/40 hover:border-red-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 -10
               </button>
               <button
                 onClick={(e) => onDamage(e, 5)}
                 title="Нанести 5 урона"
-                className="flex-1 py-1.5 px-0.5 text-center font-mono font-black text-xs text-red-100 bg-gradient-to-b from-[#8c251a] to-[#7a2016] hover:from-[#a82e21] hover:to-[#8c251a] border border-[#b8382b]/80 rounded shadow-sm transition-all active:scale-95 leading-tight whitespace-nowrap"
+                className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-rose-100 bg-red-900/60 hover:bg-red-800 border border-red-500/40 hover:border-red-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 -5
               </button>
               <button
                 onClick={(e) => onDamage(e, 1)}
                 title="Нанести 1 урон"
-                className="flex-1 py-1.5 px-0.5 text-center font-mono font-black text-xs text-red-100 bg-gradient-to-b from-[#8c251a] to-[#7a2016] hover:from-[#a82e21] hover:to-[#8c251a] border border-[#b8382b]/80 rounded shadow-sm transition-all active:scale-95 leading-tight whitespace-nowrap"
+                className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-rose-100 bg-red-900/60 hover:bg-red-800 border border-red-500/40 hover:border-red-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 -1
               </button>
             </div>
 
             {/* Heal: +1, +5, +10 */}
-            <div className="flex items-center justify-between gap-1 bg-[#0d1c15] p-1 rounded border border-emerald-950/60">
+            <div className="flex items-center justify-between gap-1 bg-emerald-950/20 p-1 rounded-glass-sm border border-emerald-500/20">
               <button
                 onClick={(e) => onHeal(e, 1)}
                 title="Восстановить 1 ОЗ"
-                className="flex-1 py-1.5 px-0.5 text-center font-mono font-black text-xs text-emerald-100 bg-gradient-to-b from-[#0f5436] to-[#0a3d27] hover:from-[#136b45] hover:to-[#0f5436] border border-emerald-500/70 rounded shadow-sm transition-all active:scale-95 leading-tight whitespace-nowrap"
+                className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-emerald-100 bg-emerald-900/60 hover:bg-emerald-800 border border-emerald-500/40 hover:border-emerald-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 +1
               </button>
               <button
                 onClick={(e) => onHeal(e, 5)}
                 title="Восстановить 5 ОЗ"
-                className="flex-1 py-1.5 px-0.5 text-center font-mono font-black text-xs text-emerald-100 bg-gradient-to-b from-[#0f5436] to-[#0a3d27] hover:from-[#136b45] hover:to-[#0f5436] border border-emerald-500/70 rounded shadow-sm transition-all active:scale-95 leading-tight whitespace-nowrap"
+                className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-emerald-100 bg-emerald-900/60 hover:bg-emerald-800 border border-emerald-500/40 hover:border-emerald-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 +5
               </button>
               <button
                 onClick={(e) => onHeal(e, 10)}
                 title="Восстановить 10 ОЗ"
-                className="flex-1 py-1.5 px-0.5 text-center font-mono font-black text-xs text-emerald-100 bg-gradient-to-b from-[#0f5436] to-[#0a3d27] hover:from-[#136b45] hover:to-[#0f5436] border border-emerald-500/70 rounded shadow-sm transition-all active:scale-95 leading-tight whitespace-nowrap"
+                className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-emerald-100 bg-emerald-900/60 hover:bg-emerald-800 border border-emerald-500/40 hover:border-emerald-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 +10
               </button>
@@ -216,7 +227,7 @@ export function CombatantHealthControls({
             <input
               type="number"
               min="1"
-              placeholder="Урон / Лечение..."
+              placeholder="Количество..."
               value={customHpVal}
               autoFocus
               onChange={(e) => setCustomHpVal(e.target.value)}
@@ -224,19 +235,19 @@ export function CombatantHealthControls({
                 if (e.key === 'Enter') handleCustomSubmit();
                 if (e.key === 'Escape') setIsHpPopoverOpen(false);
               }}
-              className="flex-1 min-w-0 h-7 px-2 bg-[#10151a] border border-[#2e3b46] rounded text-xs font-mono text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-gold"
+              className="flex-1 min-w-0 h-7 px-2 bg-black/60 border border-white/10 rounded text-xs font-mono text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-gold/70"
             />
             <button
               onClick={() => handleCustomSubmit('damage')}
               disabled={!customHpVal || parseInt(customHpVal, 10) <= 0}
-              className="px-2.5 py-1 bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 disabled:opacity-40 text-white rounded text-[11px] font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 flex-shrink-0 whitespace-nowrap leading-none"
+              className="h-7 px-2.5 bg-red-800 hover:bg-red-700 disabled:opacity-40 text-white rounded text-[11px] font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 flex-shrink-0 whitespace-nowrap leading-none cursor-pointer inline-flex items-center justify-center"
             >
               Урон
             </button>
             <button
               onClick={() => handleCustomSubmit('heal')}
               disabled={!customHpVal || parseInt(customHpVal, 10) <= 0}
-              className="px-2.5 py-1 bg-gradient-to-r from-emerald-700 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 disabled:opacity-40 text-white rounded text-[11px] font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 flex-shrink-0 whitespace-nowrap leading-none"
+              className="h-7 px-2.5 bg-emerald-800 hover:bg-emerald-700 disabled:opacity-40 text-white rounded text-[11px] font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 flex-shrink-0 whitespace-nowrap leading-none cursor-pointer inline-flex items-center justify-center"
             >
               Лечение
             </button>

@@ -3,7 +3,6 @@ import { useCombatStore } from './store/combatStore';
 import { useSpaceHotkey } from './hooks/useSpaceHotkey';
 import { BestiaryLibrary, CombatRoster, StatblockInspector, ConcentrationAlertModal } from './components/tracker';
 import { QuickDiceBar } from './components/dice/QuickDiceBar';
-import { Dice3dOverlay } from './components/dice/Dice3dOverlay';
 import { MasteryBadge, HealthBar, ToastNotification } from './components/ui';
 import { TargetedAttackModal } from './components/combat/TargetedAttackModal';
 import { TacticalBattleMap } from './components/map/TacticalBattleMap';
@@ -14,11 +13,9 @@ import { EncounterManagerModal } from './components/encounters/EncounterManagerM
 import { CharacterSheetModal } from './components/party/CharacterSheetModal';
 import { CharacterBuilderModal } from './components/party/CharacterBuilderModal';
 import { ShortRestModal } from './components/party/ShortRestModal';
-import { QrCharacterModal } from './components/party/QrCharacterModal';
 import { SoundboardDrawer } from './components/audio/SoundboardDrawer';
 import { SpotlightSearchModal } from './components/search/SpotlightSearchModal';
 import { HandoutsModal } from './components/handouts/HandoutsModal';
-import { audioService } from './services/audioService';
 import { usePartyStore } from './store/partyStore';
 import { useEncounterStore } from './store/encounterStore';
 import { useMapStore } from './store/mapStore';
@@ -35,10 +32,10 @@ import { useTokenForgeStore } from './store/tokenForgeStore';
 import { useSettingsStore, resolveEffectiveTheme } from './store/settingsStore';
 import { backupService } from './services/backupService';
 import { BrandLogo } from './components/brand/BrandLogo';
+import { MasterToolsDropdown } from './components/navigation/MasterToolsDropdown';
 import { runAppDataMigration } from './services/appMigrationService';
 import { runSaveMigration } from './services/saveMigrationService';
 import { importCharacterFromTtrpgh } from './services/ttrpghFormat';
-import { MobileCompanionView } from './components/mobile/MobileCompanionView';
 
 // Early synchronization of system theme attribute before first paint
 if (typeof document !== 'undefined') {
@@ -47,23 +44,14 @@ if (typeof document !== 'undefined') {
 }
 import {
   Sword,
-  Swords,
   Layers,
   Map,
   Radio,
-  AlertTriangle,
   Users,
-  Dices,
-  Download,
-  Upload,
   Layout,
-  Volume2,
   Search,
-  Scroll,
-  BookOpen,
-  User,
   Settings,
-  Sparkles,
+  AlertTriangle,
 } from 'lucide-react';
 
 function MainApp() {
@@ -93,7 +81,6 @@ function MainApp() {
   const [activeTab, setActiveTab] = useState<'combat' | 'map' | 'split' | 'tokens'>('combat');
   const [isLootOpen, setIsLootOpen] = useState(false);
   const [isSoundboardOpen, setIsSoundboardOpen] = useState(false);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
   const [isHandoutsOpen, setIsHandoutsOpen] = useState(false);
 
@@ -147,13 +134,6 @@ function MainApp() {
       window.removeEventListener('dragover', handleDragOver);
       window.removeEventListener('drop', handleDrop);
     };
-  }, []);
-
-  useEffect(() => {
-    const unsub = audioService.subscribe(() => {
-      setIsAudioPlaying(audioService.isPlaying());
-    });
-    return unsub;
   }, []);
 
   const openPartyModal = usePartyStore((s) => s.openModal);
@@ -357,150 +337,51 @@ function MainApp() {
         </div>
 
         {/* ПРАВАЯ ЧАСТЬ: Набор инструментов мастера и статус */}
-        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-2.5 flex-shrink-0">
-          {/* Группа кнопок мастера */}
-          <div className="flex items-center p-0.5 rounded-full bg-[rgba(14,18,25,0.7)] border border-[rgba(255,255,255,0.08)] shadow-inner gap-0.5">
-            {/* Партия */}
-            <button
-              onClick={openPartyModal}
-              title="Постоянный отряд героев (статы, высадка в бой)"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-gray-300 hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all group cursor-pointer"
-            >
-              <Users className="h-3.5 w-3.5 text-emerald-400 group-hover:scale-105 transition-transform" />
-              <span className="hidden xl:inline font-medium">Отряд</span>
-              {partyMembers.length > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-emerald-950/80 text-emerald-300 font-mono text-[10px] border border-emerald-600/50 shadow-sm">
-                  {partyMembers.length}
-                </span>
-              )}
-            </button>
+        <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+          {/* Отряд героев */}
+          <button
+            onClick={openPartyModal}
+            title="Постоянный отряд героев (статы, высадка в бой)"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-gray-200 hover:text-white bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
+          >
+            <Users className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="font-medium hidden sm:inline">Отряд</span>
+            {partyMembers.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-emerald-950/80 text-emerald-300 font-mono text-[10px] border border-emerald-600/50 shadow-sm">
+                {partyMembers.length}
+              </span>
+            )}
+          </button>
 
-            {/* Добыча d100 */}
-            <button
-              onClick={() => setIsLootOpen(true)}
-              title="Генератор добычи и бросок сокровищ d100"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-amber-300/90 hover:text-amber-200 hover:bg-[rgba(255,255,255,0.08)] transition-all group cursor-pointer"
-            >
-              <Dices className="h-3.5 w-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
-              <span className="hidden xl:inline font-medium">Добыча</span>
-            </button>
+          {/* Единое меню инструментов мастера */}
+          <MasterToolsDropdown
+            onOpenLoot={() => setIsLootOpen(true)}
+            onOpenHandouts={() => setIsHandoutsOpen(true)}
+            onOpenEncounters={openEncounterModal}
+            onOpenSoundboard={() => setIsSoundboardOpen(true)}
+            onOpenTokenForge={() => useTokenForgeStore.getState().openForge()}
+            onOpenProceduralMap={() => useMapStore.getState().openProceduralModal()}
+            onOpenNpcGenerator={() => setIsNpcModalOpen(true)}
+            onOpenRules={() => setIsRulesModalOpen(true)}
+            onExportSession={handleExportSession}
+            onImportSession={() => sessionFileRef.current?.click()}
+          />
+          <input
+            ref={sessionFileRef}
+            type="file"
+            accept=".json"
+            onChange={handleImportSession}
+            className="hidden"
+          />
 
-            {/* Раздаточные материалы */}
-            <button
-              onClick={() => setIsHandoutsOpen(true)}
-              title="Трансляция писем, свитков и тайн на экран игроков"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-[#fce79f] hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all group cursor-pointer"
-            >
-              <Scroll className="h-3.5 w-3.5 text-[#f5b920] group-hover:scale-105 transition-transform" />
-              <span className="hidden 2xl:inline font-medium">Раздатки</span>
-            </button>
-
-            {/* Сражения (Энкаунтеры) */}
-            <button
-              onClick={openEncounterModal}
-              title="Менеджер готовых сражений и расчет сложности опыта"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-purple-300/90 hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all group cursor-pointer"
-            >
-              <Swords className="h-3.5 w-3.5 text-purple-400 group-hover:scale-105 transition-transform" />
-              <span className="hidden xl:inline font-medium">Сражения</span>
-            </button>
-
-            {/* Аудио и эмбиенты */}
-            <button
-              onClick={() => setIsSoundboardOpen(true)}
-              title="Звуки и фоновые эмбиенты: таверна, подземелье, гроза, эффекты"
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs transition-all duration-200 group cursor-pointer ${
-                isAudioPlaying
-                  ? 'bg-purple-950/70 border border-purple-500/60 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.35)] animate-pulse'
-                  : 'text-gray-300 hover:text-white hover:bg-[rgba(255,255,255,0.08)]'
-              }`}
-            >
-              <Volume2 className={`h-3.5 w-3.5 ${isAudioPlaying ? 'text-purple-300' : 'text-purple-400'} group-hover:scale-105 transition-transform`} />
-              <span className="hidden xl:inline font-medium">Аудио</span>
-              {isAudioPlaying && (
-                <span className="flex items-end gap-[2px] h-3 ml-0.5">
-                  <span className="w-[3px] bg-purple-400 rounded-full animate-pulse h-2" />
-                  <span className="w-[3px] bg-purple-300 rounded-full animate-pulse h-3" style={{ animationDelay: '150ms' }} />
-                  <span className="w-[3px] bg-purple-400 rounded-full animate-pulse h-1.5" style={{ animationDelay: '300ms' }} />
-                </span>
-              )}
-            </button>
-
-            {/* Шпаргалка правил D&D 2024 */}
-            <button
-              onClick={() => setIsRulesModalOpen(true)}
-              title="Шпаргалка правил D&D 2024 в один клик (состояния, укрытия, прыжки, среда, отдых)"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-amber-300/90 hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all group cursor-pointer"
-            >
-              <BookOpen className="h-3.5 w-3.5 text-amber-400 group-hover:scale-105 transition-transform" />
-              <span className="hidden xl:inline font-medium">Правила</span>
-            </button>
-
-            {/* Генератор случайных NPC */}
-            <button
-              onClick={() => setIsNpcModalOpen(true)}
-              title="Оффлайн-генератор случайных NPC «на лету»"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-blue-300/90 hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all group cursor-pointer"
-            >
-              <User className="h-3.5 w-3.5 text-blue-400 group-hover:scale-105 transition-transform" />
-              <span className="hidden 2xl:inline font-medium">NPC</span>
-            </button>
-
-            {/* Атака толпы / Орда по DMG */}
-            <button
-              onClick={() => useCombatStore.getState().setMobModalOpen(true)}
-              title="Движок атак орд и толп по правилам DMG"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-rose-300/90 hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all group cursor-pointer"
-            >
-              <Users className="h-3.5 w-3.5 text-rose-400 group-hover:scale-105 transition-transform" />
-              <span className="hidden 2xl:inline font-medium">Орда</span>
-            </button>
-
-            {/* Кузница токенов (Token Forge) */}
-            <button
-              onClick={() => useTokenForgeStore.getState().openForge()}
-              title="Кузница токенов: создание и кадрирование круглых токенов с окантовками и свечением"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-amber-300/90 hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all group cursor-pointer"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-amber-400 group-hover:scale-105 transition-transform" />
-              <span className="hidden 2xl:inline font-medium">Кузница</span>
-            </button>
-
-            {/* Настройки, Бэкапы и Экспорт кампании */}
-            <button
-              onClick={openSettingsModal}
-              title="Настройки: масштаб UI, экспорт/импорт кампании (.ait-pack), авто-бэкапы"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-gray-300 hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all group cursor-pointer"
-            >
-              <Settings className="h-3.5 w-3.5 text-gray-400 group-hover:rotate-45 transition-transform" />
-              <span className="hidden 2xl:inline font-medium">Настройки</span>
-            </button>
-          </div>
-
-          {/* Экспорт и импорт сессии */}
-          <div className="flex items-center rounded-full bg-[rgba(14,18,25,0.7)] p-0.5 border border-[rgba(255,255,255,0.08)] shadow-inner gap-0.5">
-            <button
-              onClick={handleExportSession}
-              title="Сохранить сессию боя в файл (резервная копия)"
-              className="p-1.5 rounded-full hover:bg-[rgba(255,255,255,0.08)] text-gray-400 hover:text-emerald-400 transition-colors cursor-pointer"
-            >
-              <Download className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => sessionFileRef.current?.click()}
-              title="Загрузить бой из файла сессии"
-              className="p-1.5 rounded-full hover:bg-[rgba(255,255,255,0.08)] text-gray-400 hover:text-blue-400 transition-colors cursor-pointer"
-            >
-              <Upload className="h-3.5 w-3.5" />
-            </button>
-            <input
-              ref={sessionFileRef}
-              type="file"
-              accept=".json"
-              onChange={handleImportSession}
-              className="hidden"
-            />
-          </div>
+          {/* Настройки */}
+          <button
+            onClick={openSettingsModal}
+            title="Настройки: темы, масштаб UI, авто-бэкапы"
+            className="flex items-center justify-center h-8 w-8 rounded-full text-gray-300 hover:text-white bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-gold/50 transition-all cursor-pointer shadow-sm"
+          >
+            <Settings className="h-3.5 w-3.5 text-gray-400 hover:text-gold transition-colors" />
+          </button>
 
           {/* Статус экрана игроков */}
           <button
@@ -722,9 +603,6 @@ function MainApp() {
       {/* Short Rest Automation Modal */}
       <ShortRestModal />
 
-      {/* Offline QR Exchange Modal */}
-      <QrCharacterModal />
-
       {/* Procedural Ambient & SFX Soundboard Drawer */}
       <SoundboardDrawer
         isOpen={isSoundboardOpen}
@@ -752,11 +630,8 @@ function MainApp() {
       {/* D&D 5e / 2024 Concentration Check Automation Alert Modal */}
       <ConcentrationAlertModal />
 
-      {/* Floating Quick Dice Roller Bar */}
+      {/* Floating Quick Dice Roller Bar with 2D Animated Dice */}
       <QuickDiceBar />
-
-      {/* Fullscreen 3D Dice Overlay */}
-      <Dice3dOverlay />
 
       {/* Global In-App Visual Toast Notification */}
       <ToastNotification />
@@ -796,29 +671,6 @@ export function App() {
   const themeBySystem = useSettingsStore((s) => s.themeBySystem);
   const fallbackTheme = useSettingsStore((s) => s.fallbackTheme);
 
-  const [viewModeOverride] = useState<'desktop' | 'mobile' | null>(() => {
-    if (typeof window !== 'undefined') {
-      if (window.location.search.includes('view=mobile')) return 'mobile';
-      if (window.location.search.includes('view=desktop')) return 'desktop';
-    }
-    return null;
-  });
-
-  const [isMobileScreen, setIsMobileScreen] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768;
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobileScreen(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   useEffect(() => {
     const effectiveTheme = resolveEffectiveTheme(currentSystemId, themeBySystem, fallbackTheme);
     document.documentElement.setAttribute('data-system', effectiveTheme);
@@ -831,14 +683,7 @@ export function App() {
     return <PlayerDisplayView />;
   }
 
-  const isMobileView = viewModeOverride ? viewModeOverride === 'mobile' : isMobileScreen;
-
-  if (isMobileView) {
-    return (
-      <MobileCompanionView />
-    );
-  }
-
+  // Desktop DM Cockpit application (mobile companion temporarily disabled)
   return <MainApp />;
 }
 

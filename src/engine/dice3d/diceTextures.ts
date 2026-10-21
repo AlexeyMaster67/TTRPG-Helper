@@ -21,6 +21,15 @@ export const THEME_VISUALS: Record<DiceTheme, ThemeVisuals> = {
     roughness: 0.25,
     metalness: 0.35,
   },
+  obsidian: {
+    bgBase: '#090a0f',
+    bgGradInner: '#181e2b',
+    borderColor: '#f5b920',
+    textColor: '#fce79f',
+    textShadow: 'rgba(245, 185, 32, 0.4)',
+    roughness: 0.12,
+    metalness: 0.65,
+  },
   ruby: {
     bgBase: '#7f1d1d',
     bgGradInner: '#991b1b',
@@ -77,32 +86,43 @@ export function createFaceTexture(
   const ctx = canvas.getContext('2d');
 
   if (!ctx) {
-    const fallbackTexture = new THREE.CanvasTexture(canvas);
-    textureCache.set(cacheKey, fallbackTexture);
-    return fallbackTexture;
+    const dummy = new THREE.CanvasTexture(canvas);
+    return dummy;
   }
 
   const visuals = THEME_VISUALS[theme] || THEME_VISUALS.classic;
 
-  // 1. Draw Background with radial gradient
-  const grad = ctx.createRadialGradient(128, 128, 20, 128, 128, 128);
+  // 1. Background Radial Gradient
+  const grad = ctx.createRadialGradient(128, 128, 10, 128, 128, 140);
   grad.addColorStop(0, visuals.bgGradInner);
   grad.addColorStop(1, visuals.bgBase);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 256, 256);
 
-  // 2. Shape-specific border outline
+  // Subtle marble / obsidian reflection lines if obsidian
+  if (theme === 'obsidian') {
+    ctx.strokeStyle = 'rgba(245, 185, 32, 0.12)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(20, 40);
+    ctx.bezierCurveTo(80, 110, 140, 70, 230, 220);
+    ctx.stroke();
+  }
+
+  // 2. Beveled Inset Geometric Border
   ctx.strokeStyle = visuals.borderColor;
-  ctx.lineWidth = 10;
+  ctx.lineWidth = 6;
   ctx.beginPath();
 
   if (shape === 'triangle') {
-    ctx.moveTo(128, 24);
+    // Equilateral triangle pointing up
+    ctx.moveTo(128, 20);
     ctx.lineTo(236, 226);
     ctx.lineTo(20, 226);
     ctx.closePath();
   } else if (shape === 'pentagon') {
-    const r = 110;
+    // Regular pentagon
+    const r = 106;
     for (let i = 0; i < 5; i++) {
       const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
       const x = 128 + r * Math.cos(angle);

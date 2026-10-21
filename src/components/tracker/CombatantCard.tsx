@@ -10,6 +10,7 @@ import { cleanRussianText } from '../../utils/textUtils';
 import { parseActionDetails } from '../../utils/attackParser';
 import { usePartyStore } from '../../store/partyStore';
 import { useDice3dStore } from '../../store/dice3dStore';
+import { useDiceAnimationStore } from '../../store/diceAnimationStore';
 import { calculateEffectiveStats } from '../../engine/effectStackEngine';
 import {
   CombatantHeader,
@@ -146,6 +147,20 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
     const res = rollDeathSave(combatant.id);
     if (res) {
       const isSecret = useDice3dStore.getState().isSecretRoll;
+      useDiceAnimationStore.getState().triggerRoll({
+        title: `${cleanRussianText(combatant.nameRu || combatant.name)}: Спасбросок от смерти`,
+        subtitle: res.revived ? 'Встал с 1 ОЗ!' : res.isDead ? 'Смерть персонажа' : res.successesAdded > 0 ? 'Успех' : 'Провал',
+        sides: 20,
+        r1: res.roll,
+        kept: res.roll,
+        modifier: 0,
+        total: res.roll,
+        mode: 'normal',
+        isNat20: res.roll === 20,
+        isNat1: res.roll === 1,
+        rollerName: cleanRussianText(combatant.nameRu || combatant.name),
+      });
+
       if (useDice3dStore.getState().is3dEnabled) {
         useDice3dStore.getState().rollDice3d({
           dice: [{ sides: 20, result: res.roll }],
@@ -194,6 +209,20 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
         isNat1: d20 === 1,
       },
       note: `Спасбросок ${nameRu}: d20(${d20}) ${bonus >= 0 ? `+${bonus}` : bonus} = ${total}`,
+    });
+
+    useDiceAnimationStore.getState().triggerRoll({
+      title: `${cleanRussianText(combatant.nameRu || combatant.name)}: Спасбросок ${nameRu}`,
+      subtitle: `Спасбросок (${nameRu})`,
+      sides: 20,
+      r1: d20,
+      kept: d20,
+      modifier: bonus,
+      total,
+      mode: 'normal',
+      isNat20: d20 === 20,
+      isNat1: d20 === 1,
+      rollerName: cleanRussianText(combatant.nameRu || combatant.name),
     });
 
     if (useDice3dStore.getState().is3dEnabled) {
@@ -271,7 +300,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
       }}
       className={clsx(
         'group relative flex flex-col justify-center rounded-glass-lg border transition-all select-none cursor-pointer mb-2 px-3 py-2 min-h-[50px]',
-        isHpPopoverOpen && 'z-30 relative',
+        isHpPopoverOpen && 'z-50 relative',
         isActiveTurn
           ? 'border-[#f5b920] bg-[rgba(26,32,45,0.95)] ring-2 ring-[#f5b920]/70 shadow-[0_0_24px_rgba(245,185,32,0.35)] animate-cinematic-gold-pulse'
           : isTarget

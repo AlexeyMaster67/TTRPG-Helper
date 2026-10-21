@@ -14,9 +14,11 @@ import {
 import { DicePhysicsWorld } from '../engine/dice3d/dicePhysicsWorld';
 import { isCanvasSupported, createFaceTexture } from '../engine/dice3d/diceTextures';
 import { isWebGLSupported } from '../components/dice/Dice3dOverlay';
+import { DiceTrayDock } from '../components/dice/DiceTrayDock';
 import { useDice3dStore } from '../store/dice3dStore';
 import { useCombatStore } from '../store/combatStore';
 import { broadcastService } from '../services/broadcastService';
+import { rollDie } from '../engine/rolls';
 
 describe('3D Dice Engine - Geometries and Face Definitions', () => {
   it('initializes d4 tetrahedron geometry and cannon shape', () => {
@@ -313,5 +315,101 @@ describe('3D Dice Engine - Headless Environment Compatibility', () => {
     expect(() => createFaceTexture('20', 'classic', 'triangle')).not.toThrow();
     const texture = createFaceTexture('20', 'classic', 'triangle');
     expect(texture).toBeDefined();
+  });
+});
+
+
+describe('3D Dice Engine - Advantage/Disadvantage, Tray Mode and Force Settle', () => {
+  it('correctly tags advantage roll dice with isHighlighted and isDiscarded', () => {
+    const batch = useDice3dStore.getState().rollDice3d({
+      dice: [
+        { sides: 20, result: 8 },
+        { sides: 20, result: 17 },
+      ],
+      rollMode: 'advantage',
+      title: 'Атака с преимуществом',
+    });
+
+    expect(batch).not.toBeNull();
+    expect(batch?.dice.length).toBe(2);
+    const low = batch?.dice.find((d) => d.targetValue === 8);
+    const high = batch?.dice.find((d) => d.targetValue === 17);
+
+    expect(high?.isHighlighted).toBe(true);
+    expect(high?.isDiscarded).toBeFalsy();
+    expect(low?.isDiscarded).toBe(true);
+    expect(low?.isHighlighted).toBeFalsy();
+  });
+
+  it('correctly tags disadvantage roll dice with isHighlighted and isDiscarded', () => {
+    const batch = useDice3dStore.getState().rollDice3d({
+      dice: [
+        { sides: 20, result: 19 },
+        { sides: 20, result: 4 },
+      ],
+      rollMode: 'disadvantage',
+      title: 'Атака с помехой',
+    });
+
+    expect(batch).not.toBeNull();
+    const low = batch?.dice.find((d) => d.targetValue === 4);
+    const high = batch?.dice.find((d) => d.targetValue === 19);
+
+    expect(low?.isHighlighted).toBe(true);
+    expect(low?.isDiscarded).toBeFalsy();
+    expect(high?.isDiscarded).toBe(true);
+    expect(high?.isHighlighted).toBeFalsy();
+  });
+
+  it('manages displayMode between tray and fullscreen', () => {
+    useDice3dStore.getState().setDisplayMode('tray');
+    expect(useDice3dStore.getState().displayMode).toBe('tray');
+
+    useDice3dStore.getState().toggleDisplayMode();
+    expect(useDice3dStore.getState().displayMode).toBe('fullscreen');
+
+    useDice3dStore.getState().toggleDisplayMode();
+    expect(useDice3dStore.getState().displayMode).toBe('tray');
+  });
+
+  it('supports obsidian theme and force settles dice in physics world', () => {
+    const scene = new THREE.Scene();
+    const physics = new DicePhysicsWorld(scene, { width: 18, depth: 13, height: 16 });
+
+    physics.spawnDie('die-1', 'd20', 20, 'obsidian', 0, 1);
+    expect(physics.activeDice.length).toBe(1);
+    expect(physics.isAllSettled()).toBe(false);
+
+    physics.forceSettle();
+    expect(physics.isAllSettled()).toBe(true);
+    expect(physics.activeDice[0].currentValue).toBe(20);
+
+    physics.destroy();
+  });
+
+  it('exports DiceTrayDock component safely', () => {
+    expect(DiceTrayDock).toBeDefined();
+    expect(typeof DiceTrayDock).toBe('function');
+  });
+
+  it('guarantees rollDie(100) only yields tens (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)', () => {
+    const validTens = new Set([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+    for (let i = 0; i < 200; i++) {
+      const roll = rollDie(100);
+      expect(validTens.has(roll)).toBe(true);
+      expect(roll % 10).toBe(0);
+      expect(roll).toBeGreaterThanOrEqual(10);
+      expect(roll).toBeLessThanOrEqual(100);
+    }
+  });
+
+  it('rotates d100 accurately to target tens value', () => {
+    const d100 = createD10Data(1.25, true);
+    for (const tens of [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]) {
+      const quat = getRotationForTargetValue(tens, d100.faces, 0);
+      expect(quat).toBeDefined();
+      const top = determineTopFace(quat, d100.faces);
+      expect([tens, tens === 100 ? 0 : tens]).toContain(top.value);
+    }
   });
 });

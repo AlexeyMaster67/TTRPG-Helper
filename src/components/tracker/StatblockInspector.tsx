@@ -13,6 +13,7 @@ import { MASTERY_SPECS } from '../ui/MasteryBadge';
 import { broadcastService } from '../../services/broadcastService';
 import { audioService } from '../../services/audioService';
 import { useDice3dStore } from '../../store/dice3dStore';
+import { useDiceAnimationStore } from '../../store/diceAnimationStore';
 import { cleanRussianText } from '../../utils/textUtils';
 import { PlayerActionResultPanel } from './PlayerActionResultPanel';
 import { dbService } from '../../services/dbService';
@@ -250,6 +251,20 @@ export function StatblockInspector() {
       note: `Проверка: ${st.fullRu} — d20(${d20}) ${mod >= 0 ? `+${mod}` : mod} = ${total}${isNat20 ? ' (КРИТ 20!)' : isNat1 ? ' (ПРОВАЛ 1!)' : ''}`,
     });
 
+    useDiceAnimationStore.getState().triggerRoll({
+      title: `${rollerName}: Проверка ${st.fullRu}`,
+      subtitle: `Характеристика ${st.label}`,
+      sides: 20,
+      r1: d20,
+      kept: d20,
+      modifier: mod,
+      total,
+      mode: 'normal',
+      isNat20,
+      isNat1,
+      rollerName,
+    });
+
     if (is3d) {
       useDice3dStore.getState().rollDice3d({
         dice: [{ sides: 20, result: d20 }],
@@ -313,6 +328,20 @@ export function StatblockInspector() {
         isNat1,
       },
       note: `Спасбросок: ${fullName} — d20(${d20}) ${saveBonus >= 0 ? `+${saveBonus}` : saveBonus} = ${total}${isNat20 ? ' (КРИТ 20!)' : isNat1 ? ' (ПРОВАЛ 1!)' : ''}`,
+    });
+
+    useDiceAnimationStore.getState().triggerRoll({
+      title: `${rollerName}: Спасбросок ${fullName}`,
+      subtitle: `Спасбросок (${saveNameRu})`,
+      sides: 20,
+      r1: d20,
+      kept: d20,
+      modifier: saveBonus,
+      total,
+      mode: 'normal',
+      isNat20,
+      isNat1,
+      rollerName,
     });
 
     if (is3d) {

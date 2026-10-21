@@ -5,11 +5,10 @@ import { useMapStore } from '../../store/mapStore';
 import { broadcastService } from '../../services/broadcastService';
 import { PublicRollNotification, NpcShowcaseData, HandoutData } from '../../types/broadcast';
 import { TacticalBattleMap } from '../map/TacticalBattleMap';
-import { Maximize2, Minimize2, Dices, Eye } from 'lucide-react';
-import { cleanRussianText, DAMAGE_NAMES_RU } from '../../utils/textUtils';
+import { Maximize2, Minimize2, Eye } from 'lucide-react';
+import { cleanRussianText } from '../../utils/textUtils';
 import { resolveTokenUrl } from '../../services/tokenResolver';
-import { Dice3dOverlay } from '../dice/Dice3dOverlay';
-import { useDice3dStore } from '../../store/dice3dStore';
+import { Dice2dRollCard } from '../dice/Dice2dRollCard';
 
 function sanitizePlayerVisibleName(name?: string | null): string {
   if (!name) return 'Существо';
@@ -94,22 +93,6 @@ export function PlayerDisplayView() {
         });
       } else if (msg.type === 'BROADCAST_ROLL') {
         setActiveRoll(msg.payload);
-        if (msg.payload.dice3d && msg.payload.dice3d.length > 0) {
-          useDice3dStore.getState().rollDice3d({
-            dice: msg.payload.dice3d,
-            title: msg.payload.title,
-            total: msg.payload.total,
-            isSecret: false,
-          });
-        }
-      } else if (msg.type === 'DICE_3D_ROLL') {
-        useDice3dStore.getState().rollDice3d({
-          dice: msg.payload.dice,
-          title: msg.payload.title,
-          total: msg.payload.total,
-          isSecret: false,
-          theme: msg.payload.theme,
-        });
       } else if (msg.type === 'BROADCAST_NPC_SHOWCASE') {
         setActiveShowcase(msg.payload);
       } else if (msg.type === 'DISMISS_NPC_SHOWCASE') {
@@ -323,44 +306,35 @@ export function PlayerDisplayView() {
       <main className={clsx("flex-1 relative overflow-hidden", isWhiteBackground ? "bg-[#f8fafc]" : "bg-canvas")}>
         <TacticalBattleMap isMasterView={false} />
 
-        {/* ================= 3. FLOATING DICE ROLL NOTIFICATION ================= */}
+        {/* ================= 3. FLOATING 2D ANIMATED DICE ROLL ================= */}
         {activeRoll && (
-          <div className="absolute top-4 right-4 z-40 w-[calc(100vw-2rem)] sm:w-auto sm:min-w-[340px] max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto bg-[#141b21]/95 border border-gold/70 rounded shadow-[0_8px_30px_rgba(0,0,0,0.85)] p-4 animate-in slide-in-from-top-4 fade-in duration-300 ring-1 ring-gold/30">
-            <div className="flex items-center justify-between border-b border-[#303e4b] pb-2 mb-2 gap-2">
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <Dices className="h-5 w-5 text-gold animate-bounce flex-shrink-0" />
-                <h3 className="text-sm font-bold font-serif tracking-wide text-gold-light truncate" title={cleanRussianText(activeRoll.title)}>
-                  {cleanRussianText(activeRoll.title)}
-                </h3>
-              </div>
-              <button
-                onClick={() => setActiveRoll(null)}
-                className="text-gray-300 hover:text-white text-xs p-1 flex-shrink-0 rounded hover:bg-[#1f2933]"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-1.5 min-w-0 flex-1">
-                <div className="text-xs font-mono text-gray-200 truncate" title={cleanRussianText(activeRoll.formula)}>
-                  {cleanRussianText(activeRoll.formula)}
-                </div>
-                <div className="text-[11px] text-gray-300 break-words leading-relaxed max-h-24 overflow-y-auto">
-                  {cleanRussianText(activeRoll.resultDisplay)}
-                </div>
-                {activeRoll.damageType && (
-                  <span className="inline-flex items-center text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-red-950/80 text-red-300 border border-red-800 whitespace-nowrap leading-none">
-                    {DAMAGE_NAMES_RU[activeRoll.damageType.toLowerCase()] || activeRoll.damageType}
-                  </span>
-                )}
-              </div>
-
-              <div className="p-2.5 sm:p-3 bg-gradient-to-b from-[#261f14] to-[#16120b] border border-gold rounded min-w-[56px] text-center shadow-gold-glow flex-shrink-0 self-center">
-                <span className="text-2xl font-black font-serif text-gold leading-tight drop-shadow px-1">
-                  {activeRoll.total}
-                </span>
-              </div>
+          <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center p-4">
+            <div className="pointer-events-auto">
+              <Dice2dRollCard
+                data={
+                  activeRoll.dice2d || {
+                    dice: activeRoll.dice3d && activeRoll.dice3d.length > 0
+                      ? activeRoll.dice3d.map((d, idx) => ({
+                          id: `${d.sides}-${d.result}-${idx}`,
+                          sides: d.sides,
+                          value: d.result,
+                        }))
+                      : undefined,
+                    sides: activeRoll.dice3d?.[0]?.sides || 20,
+                    r1: activeRoll.total,
+                    kept: activeRoll.total,
+                    modifier: 0,
+                    total: activeRoll.total,
+                    mode: 'normal',
+                    isNat20: !!activeRoll.isCritical,
+                    isNat1: !!activeRoll.isCriticalMiss,
+                    title: cleanRussianText(activeRoll.title),
+                    damageType: activeRoll.damageType,
+                  }
+                }
+                onClose={() => setActiveRoll(null)}
+                isPlayerView={true}
+              />
             </div>
           </div>
         )}
@@ -506,9 +480,6 @@ export function PlayerDisplayView() {
           <span>{isFullscreen ? 'Выйти (F11)' : 'Полный экран (F11)'}</span>
         </button>
       </footer>
-
-      {/* 3D Dice Simulation Overlay for Players */}
-      <Dice3dOverlay isPlayerDisplay={true} />
     </div>
   );
 }

@@ -8,12 +8,12 @@ import {
   computeDamageWithDefenses,
   formatDamageFormula,
 } from '../../utils/attackParser';
-import { broadcastService } from '../../services/broadcastService';
 import { DiceRollLogEntry } from '../../types/combat';
 import { DamageType } from '../../types/dnd5e';
 import { CombatState, TargetingSlice } from './types';
 import { getCombatantConMod } from './sliceUtils';
 import { useDice3dStore } from '../dice3dStore';
+import { useDiceAnimationStore } from '../diceAnimationStore';
 
 export const createTargetingSlice: StateCreator<
   CombatState,
@@ -124,6 +124,7 @@ export const createTargetingSlice: StateCreator<
     let concPrompt: { dc: number; targetId: string } | undefined;
     let topplePrompt: { dc: number; targetId: string } | undefined;
     let note = '';
+    let dmgRollResult: ReturnType<typeof rollDiceFormula> | undefined;
 
     if (!isHit) {
       // MISS
@@ -152,6 +153,7 @@ export const createTargetingSlice: StateCreator<
     } else {
       // HIT
       const dmgRoll = rollDiceFormula(dmgFormula);
+      dmgRollResult = dmgRoll;
       let rawAmount = dmgRoll.total;
       let dmgDetails = `${dmgRoll.formula} = ${dmgRoll.total}`;
       if (isNat20) {
@@ -249,10 +251,61 @@ export const createTargetingSlice: StateCreator<
     };
     addDiceLog(logEntry);
 
-    // Collect 3D dice to animate
-    const diceToAnimate: Array<{ sides: number; result: number }> = [
-      { sides: 20, result: d20Result.keptRoll },
-    ];
+    // Collect dice to animate (d20 attack + damage dice pool if hit)
+    const diceToAnimate: Array<{ sides: number; result: number }> = [];
+    if (d20Result.d20_2 !== undefined) {
+      diceToAnimate.push({ sides: 20, result: d20Result.d20_1 });
+      diceToAnimate.push({ sides: 20, result: d20Result.d20_2 });
+    } else {
+      diceToAnimate.push({ sides: 20, result: d20Result.keptRoll });
+    }
+
+    const damagePoolDice: Array<{ id: string; sides: number; value: number }> = [];
+    if (isHit && dmgRollResult && dmgRollResult.rolls) {
+      let dIdx = 0;
+      for (const r of dmgRollResult.rolls) {
+        for (const v of r.values) {
+          diceToAnimate.push({ sides: r.sides, result: v });
+          damagePoolDice.push({ id: `dmg-${r.sides}-${dIdx++}`, sides: r.sides, value: v });
+        }
+      }
+    }
+
+    // 6. Trigger 2D Animated Dice for DM & Players (with multi-dice pool on hit!)
+    if (isHit) {
+      if (damagePoolDice.length === 0) {
+        damagePoolDice.push({ id: 'dmg-static', sides: 6, value: effectiveDamage });
+      }
+      useDiceAnimationStore.getState().triggerRoll({
+        id: crypto.randomUUID(),
+        title: `${attackerName}: ${actionName} (${isNat20 ? 'КРИТ!' : 'Попадание!'})`,
+        subtitle: `По цели: ${targetName} [КД ${target.ac}]`,
+        dice: damagePoolDice,
+        modifier: dmgRollResult?.modifier || 0,
+        total: effectiveDamage,
+        damageType: localizeDamageType(dmgType),
+        isNat20,
+        rollerName: attackerName,
+        targetName,
+      });
+    } else {
+      useDiceAnimationStore.getState().triggerRoll({
+        id: crypto.randomUUID(),
+        title: `${attackerName}: ${actionName} (Промах)`,
+        subtitle: `Промах по ${targetName} [${d20Result.total} против КД ${target.ac}]`,
+        sides: 20,
+        r1: d20Result.d20_1,
+        r2: d20Result.d20_2,
+        kept: d20Result.keptRoll,
+        modifier: d20Result.modifier,
+        total: d20Result.total,
+        mode: advMode,
+        isNat1,
+        isNat20: false,
+        rollerName: attackerName,
+        targetName,
+      });
+    }
 
     if (is3d) {
       useDice3dStore.getState().rollDice3d({
@@ -260,26 +313,7 @@ export const createTargetingSlice: StateCreator<
         title: `${attackerName}: ${actionName}`,
         total: isHit ? effectiveDamage : d20Result.total,
         isSecret,
-      });
-    }
-
-    // 6. Broadcast roll to players if not secret
-    if (!isSecret) {
-      broadcastService.send({
-        type: 'BROADCAST_ROLL',
-        payload: {
-          id: crypto.randomUUID(),
-          title: `${attackerName}: ${actionName}`,
-          formula: isHit ? `${dmgFormula} (${localizeDamageType(dmgType)})` : `Атака против КД ${target.ac}`,
-          resultDisplay: isHit
-            ? `Попадание [${d20Result.total} против КД ${target.ac}]! ${effectiveDamage} ${localizeDamageType(dmgType)} урона по ${targetName}`
-            : `Промах [${d20Result.total} против КД ${target.ac}] по ${targetName}`,
-          total: effectiveDamage,
-          damageType: localizeDamageType(dmgType),
-          isCritical: isNat20,
-          timestamp: Date.now(),
-          dice3d: diceToAnimate,
-        },
+        rollMode: advMode,
       });
     }
 
@@ -318,6 +352,7 @@ export const createTargetingSlice: StateCreator<
     let topplePrompt: { dc: number; targetId: string } | undefined;
     const stepLogs: string[] = [];
     let primaryDamageType: DamageType = 'slashing';
+    const seriesDice: Array<{ id: string; sides: number; value: number }> = [];
 
     for (let i = 0; i < attackSeries.length; i++) {
       const act = attackSeries[i];
@@ -356,6 +391,17 @@ export const createTargetingSlice: StateCreator<
       }
 
       const dmgRoll = rollDiceFormula(rollFormula);
+      if (dmgRoll.rolls) {
+        for (const r of dmgRoll.rolls) {
+          for (const v of r.values) {
+            seriesDice.push({
+              id: `m-${r.sides}-${seriesDice.length}`,
+              sides: r.sides,
+              value: v,
+            });
+          }
+        }
+      }
       const { finalDmg, notice } = computeDamageWithDefenses(dmgRoll.total, dmgType, target);
       totalEffectiveDamage += finalDmg;
       if (finalDmg > highestHitDamage) highestHitDamage = finalDmg;
@@ -418,22 +464,30 @@ export const createTargetingSlice: StateCreator<
       topplePrompt,
     });
 
-    // Broadcast to Players screen only if NOT secret
-    if (!isSecret) {
-      broadcastService.send({
-        type: 'BROADCAST_ROLL',
-        payload: {
-          id: crypto.randomUUID(),
-          title: cleanRussianText(`${attackerName}: Мультиатака (${attackSeries.length} атак)`),
-          formula: `Серия по ${targetName}`,
-          resultDisplay: cleanRussianText(
-            `Мультиатака: ${hitsCount}/${attackSeries.length} попаданий! ${totalEffectiveDamage > 0 ? `Нанесено ${totalEffectiveDamage} ${localizeDamageType(primaryDamageType)} урона по ${targetName}` : `Все атаки мимо цели (${targetName})`}`
-          ),
-          total: totalEffectiveDamage,
-          damageType: localizeDamageType(primaryDamageType),
-          isCritical: anyCrit,
-          timestamp: Date.now(),
-        },
+    // Trigger 2D Animated Dice for DM & Players (multi-dice damage pool)
+    if (hitsCount > 0) {
+      useDiceAnimationStore.getState().triggerRoll({
+        id: crypto.randomUUID(),
+        title: cleanRussianText(`${attackerName}: Мультиатака (${hitsCount}/${attackSeries.length} хитов)`),
+        subtitle: `По цели: ${targetName} • Нанесено ${totalEffectiveDamage} урона`,
+        dice: seriesDice.length > 0 ? seriesDice : [{ id: 'm-dmg-static', sides: 6, value: totalEffectiveDamage }],
+        total: totalEffectiveDamage,
+        damageType: localizeDamageType(primaryDamageType),
+        isNat20: anyCrit,
+        rollerName: attackerName,
+        targetName,
+      });
+    } else {
+      useDiceAnimationStore.getState().triggerRoll({
+        id: crypto.randomUUID(),
+        title: cleanRussianText(`${attackerName}: Мультиатака (Все мимо)`),
+        subtitle: `Серия по цели: ${targetName} [0/${attackSeries.length} попаданий]`,
+        sides: 20,
+        kept: 0,
+        modifier: 0,
+        total: 0,
+        rollerName: attackerName,
+        targetName,
       });
     }
 

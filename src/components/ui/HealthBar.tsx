@@ -173,15 +173,15 @@ export function HealthBar({
   const getBarColor = (pct: number) => {
     if (pct <= 0) return 'bg-gradient-to-r from-red-950 via-rose-950 to-red-900 border-r border-red-700/60 shadow-[0_0_8px_rgba(153,27,27,0.5)]';
     if (pct <= 25)
-      return 'bg-gradient-to-r from-red-600 to-rose-600 shadow-[0_0_8px_rgba(239,68,68,0.45)]';
+      return 'bg-gradient-to-r from-rose-600 via-red-500 to-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)] animate-pulse';
     if (pct <= 50)
-      return 'bg-gradient-to-r from-[#f5b920] to-yellow-500 shadow-[0_0_8px_rgba(245,185,32,0.35)]';
-    return 'bg-gradient-to-r from-emerald-600 to-green-500 shadow-[0_0_8px_rgba(16,185,129,0.35)]';
+      return 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-400 shadow-[0_0_8px_rgba(245,185,32,0.4)]';
+    return 'bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 shadow-[0_0_8px_rgba(16,185,129,0.4)]';
   };
 
   const heightClasses = {
-    sm: 'h-2',
-    md: 'h-2.5',
+    sm: 'h-2.5',
+    md: 'h-3',
     lg: 'h-4',
   };
 
@@ -189,7 +189,7 @@ export function HealthBar({
     <div className={clsx('w-full flex flex-col gap-1 select-none', className)}>
       {showNumbers && (
         <div className="flex items-center justify-between leading-none text-xs min-w-0">
-          <div className="flex items-center gap-1 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0">
             {clampedCurrent <= 0 ? (
               <Skull className={clsx(size === 'sm' ? 'h-3 w-3' : 'h-3.5 w-3.5', 'text-rose-500 flex-shrink-0 animate-pulse')} />
             ) : (
@@ -197,25 +197,26 @@ export function HealthBar({
                 className={clsx(
                   size === 'sm' ? 'h-3 w-3' : 'h-3.5 w-3.5',
                   'flex-shrink-0 transition-colors duration-300',
-                  isHealing ? 'text-emerald-400' : 'text-rose-500'
+                  isHealing ? 'text-emerald-400' : clampedCurrent / safeMax <= 0.25 ? 'text-rose-400 animate-pulse' : clampedCurrent / safeMax <= 0.5 ? 'text-amber-400' : 'text-rose-500'
                 )}
               />
             )}
             <span
               className={clsx(
-                'font-mono tabular-nums font-bold tracking-tight text-gray-100 whitespace-nowrap leading-none',
-                size === 'sm' ? 'text-[11px]' : 'text-xs'
+                'font-mono tabular-nums font-extrabold tracking-tight whitespace-nowrap leading-none',
+                size === 'sm' ? 'text-[11px]' : 'text-xs',
+                clampedCurrent <= 0 ? 'text-rose-400' : clampedCurrent / safeMax <= 0.25 ? 'text-rose-300' : clampedCurrent / safeMax <= 0.5 ? 'text-amber-300' : 'text-emerald-200'
               )}
             >
               {current}<span className="text-gray-500 font-normal mx-0.5">/</span>{max}
-              <span className={clsx('text-gray-400 font-sans ml-1', size === 'sm' ? 'text-[10px]' : 'text-xs')}>
+              <span className={clsx('text-gray-400 font-sans ml-1 font-normal', size === 'sm' ? 'text-[9.5px]' : 'text-[10px]')}>
                 ОЗ
               </span>
             </span>
           </div>
 
           {temp > 0 && (
-            <div className="flex items-center gap-0.5 font-mono tabular-nums text-[10px] text-blue-300 bg-blue-950/60 border border-blue-600/50 px-1 py-0.2 rounded-full shadow-[0_0_6px_rgba(59,130,246,0.25)] shrink-0">
+            <div className="flex items-center gap-0.5 font-mono tabular-nums text-[10px] font-bold text-cyan-200 bg-cyan-950/70 border border-cyan-500/50 px-1.5 py-0.2 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.3)] shrink-0">
               <Shield className="h-2.5 w-2.5 text-cyan-300" />
               <span>+{temp}</span>
             </div>
@@ -227,14 +228,14 @@ export function HealthBar({
       <div
         ref={containerRef}
         className={clsx(
-          'w-full rounded-full bg-[rgba(10,14,20,0.8)] border border-[rgba(255,255,255,0.08)] overflow-hidden relative flex transition-all duration-300 shadow-[inset_0_1px_3px_rgba(0,0,0,0.7)]',
+          'w-full rounded-full bg-[#0a0e14] border border-white/10 overflow-hidden relative flex transition-all duration-300 shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.85)]',
           heightClasses[size],
-          isHealing && 'shadow-[0_0_12px_rgba(16,185,129,0.5)] border-emerald-500/70 ring-1 ring-emerald-500/40',
-          clampedCurrent <= 0 && 'border-red-800/80 bg-red-950/40'
+          isHealing && 'shadow-[0_0_12px_rgba(16,185,129,0.5)] border-emerald-500/70',
+          clampedCurrent <= 0 && 'border-rose-900/80 bg-red-950/40'
         )}
       >
         {/* Subtle glossy top highlight line */}
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-white/10 pointer-events-none z-40" />
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-white/15 pointer-events-none z-40" />
 
         {/* Incapacitated 0% skull indicator watermark */}
         {hpPercent <= 0 && (

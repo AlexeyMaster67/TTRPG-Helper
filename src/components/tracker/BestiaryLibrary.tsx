@@ -727,12 +727,12 @@ export function BestiaryLibrary() {
                         className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 shrink-0 whitespace-nowrap"
                         title={`Папки: ${assignedFolders.map((fId) => FOLDERS.find((f) => f.id === fId)?.label || fId).join(', ')}`}
                       >
-                        📁 ${assignedFolders.length}
+                        📁 {assignedFolders.length}
                       </span>
                     )}
                     {monster.cr && (
                       <span className="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-black/50 border border-[#f5b920]/30 text-amber-300 shrink-0 whitespace-nowrap leading-none">
-                        КО ${monster.cr}
+                        КО {monster.cr}
                       </span>
                     )}
                   </div>

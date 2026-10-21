@@ -230,7 +230,7 @@ export function createD10Data(radius = 1.25, isD100 = false): DieGeometryResult 
   // Values sequence
   const d10Values = [1, 10, 2, 9, 3, 8, 4, 7, 5, 6];
   const d100Labels = ['00', '90', '10', '80', '20', '70', '30', '60', '40', '50'];
-  const d100Values = [0, 90, 10, 80, 20, 70, 30, 60, 40, 50];
+  const d100Values = [100, 90, 10, 80, 20, 70, 30, 60, 40, 50];
 
   // Top 5 kites (indices 0..4)
   for (let i = 0; i < 5; i++) {
@@ -514,7 +514,13 @@ export function getRotationForTargetValue(
   faces: DieFaceDef[],
   randomYaw = Math.random() * Math.PI * 2
 ): THREE.Quaternion {
-  const targetFace = faces.find((f) => f.value === targetValue) || faces[0];
+  const targetFace =
+    faces.find(
+      (f) =>
+        f.value === targetValue ||
+        (targetValue === 100 && (f.value === 100 || f.value === 0 || f.label === '00')) ||
+        (targetValue === 0 && (f.value === 100 || f.value === 0 || f.label === '00'))
+    ) || faces[0];
   const UP = new THREE.Vector3(0, 1, 0);
 
   const qAlign = new THREE.Quaternion().setFromUnitVectors(targetFace.normal, UP);

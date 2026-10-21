@@ -297,10 +297,10 @@ export function CombatantConditions({
         return (
           <span
             key={cond.type}
-            className="group/cond relative inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#231b14] border border-[#a87f32]/80 text-[#dfc185] ring-1 ring-[#a87f32]/30 hover:border-red-500 hover:ring-red-500/50 hover:bg-red-950/40 transition-all cursor-pointer shadow-sm max-w-full leading-none flex-shrink-0"
+            className="group/cond relative inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-950/40 border border-amber-500/40 text-amber-200 hover:border-rose-500 hover:bg-rose-950/40 hover:text-rose-200 transition-all cursor-pointer shadow-sm max-w-full leading-none flex-shrink-0"
             title={`${condMeta?.nameRu || cond.type}${cond.expiryRound ? ` (до раунда ${cond.expiryRound})` : ' (Бессрочно)'} • Кликните [✕] для снятия`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-gold group-hover/cond:bg-red-400 transition-colors flex-shrink-0" />
+            <span className="w-1.5 h-1.5 rounded-full bg-gold group-hover/cond:bg-rose-400 transition-colors flex-shrink-0" />
             <span className="truncate max-w-[130px] sm:max-w-[160px] leading-tight">
               {condMeta?.nameRu || cond.type}
             </span>
@@ -310,7 +310,7 @@ export function CombatantConditions({
               </span>
             )}
             {durationLabel && (
-              <span className="font-mono text-[9px] font-bold px-1 rounded bg-black/40 text-gold-light border border-gold/30 flex-shrink-0 whitespace-nowrap">
+              <span className="font-mono text-[9px] font-bold px-1 rounded bg-black/50 text-gold-light border border-gold/30 flex-shrink-0 whitespace-nowrap">
                 ⏳ {durationLabel}
               </span>
             )}
@@ -321,7 +321,7 @@ export function CombatantConditions({
                 onRemoveCondition(cond.type);
               }}
               title="Снять состояние"
-              className="ml-0.5 p-0.5 rounded-full hover:bg-red-600 hover:text-white text-gray-400 opacity-70 group-hover/cond:opacity-100 transition-all flex items-center justify-center cursor-pointer"
+              className="ml-0.5 p-0.5 rounded-full hover:bg-rose-600 hover:text-white text-gray-400 opacity-70 group-hover/cond:opacity-100 transition-all flex items-center justify-center cursor-pointer"
             >
               <X className="h-2.5 w-2.5" />
             </button>

@@ -21,7 +21,6 @@ import {
   Sparkles,
   FileDown,
   Download,
-  QrCode,
 } from 'lucide-react';
 import { lssImportService } from '../../services/lssImportService';
 import { importCharacterFromTtrpgh, downloadTtrpghFile } from '../../services/ttrpghFormat';
@@ -81,7 +80,6 @@ export function PartyManagerModal() {
     openCharacterSheet,
     openShortRestModal,
     openCharacterBuilder,
-    openQrModal,
     longRest,
   } = usePartyStore();
 
@@ -411,15 +409,6 @@ export function PartyManagerModal() {
             </button>
 
             <button
-              onClick={() => openQrModal()}
-              className="px-3 py-2 rounded-glass bg-emerald-950/40 border border-emerald-600/70 hover:border-emerald-400 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
-              title="Оффлайн QR-код генератор и сканер для обмена с мобильным приложением"
-            >
-              <QrCode className="h-3.5 w-3.5 text-emerald-400" />
-              <span>QR-обмен</span>
-            </button>
-
-            <button
               onClick={openCharacterBuilder}
               className="px-3 py-2 rounded-glass bg-gold/20 border border-gold hover:bg-gold/30 text-gold-light text-xs font-bold flex items-center gap-1.5 transition-all shadow-[0_0_12px_rgba(245,185,32,0.25)] cursor-pointer"
               title="Пошаговый конструктор персонажей по правилам D&D 2024 (19 видов)"
@@ -661,13 +650,6 @@ export function PartyManagerModal() {
                     className="p-1 rounded-glass hover:bg-gold/20 text-gold hover:text-gold-light transition-colors cursor-pointer"
                   >
                     <FileDown className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={() => openQrModal(m.id)}
-                    title="Показать оффлайн QR-код персонажа для смартфона"
-                    className="p-1 rounded-glass hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
-                  >
-                    <QrCode className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => startEdit(m)}

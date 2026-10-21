@@ -3,7 +3,9 @@ import * as CANNON from 'cannon-es';
 
 export type DiceType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | 'd100';
 
-export type DiceTheme = 'classic' | 'ruby' | 'bone';
+export type DiceTheme = 'classic' | 'ruby' | 'bone' | 'obsidian';
+
+export type DiceDisplayMode = 'tray' | 'fullscreen';
 
 export interface DieFaceDef {
   index: number;
@@ -25,6 +27,8 @@ export interface RollSingleDieRequest {
   id: string;
   sides: number;
   targetValue?: number;
+  isDiscarded?: boolean;
+  isHighlighted?: boolean;
 }
 
 export interface RollBatchRequest {
@@ -35,6 +39,8 @@ export interface RollBatchRequest {
   isSecret?: boolean;
   theme?: DiceTheme;
   timestamp: number;
+  rollMode?: 'normal' | 'advantage' | 'disadvantage';
+  displayMode?: DiceDisplayMode;
 }
 
 export interface ActivePhysicsDie {
@@ -49,4 +55,7 @@ export interface ActivePhysicsDie {
   settleTime: number;
   initialThrowDuration: number;
   elapsedTime: number;
+  isDiscarded?: boolean;
+  isHighlighted?: boolean;
+  haloMesh?: THREE.Mesh | null;
 }

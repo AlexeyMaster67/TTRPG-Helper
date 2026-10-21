@@ -2,8 +2,12 @@ import { RollMode, RollResult } from '../types/dnd5e';
 
 /**
  * Generates a random integer in range [1, sides].
+ * For d100, produces the standard tabletop percentile tens die (10, 20, 30, 40, 50, 60, 70, 80, 90, 100).
  */
 export function rollDie(sides: number): number {
+  if (sides === 100) {
+    return (Math.floor(Math.random() * 10) + 1) * 10;
+  }
   return Math.floor(Math.random() * sides) + 1;
 }
 

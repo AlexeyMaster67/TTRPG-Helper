@@ -19,6 +19,13 @@ export interface TrayDimensions {
   height: number; // Y axis wall height
 }
 
+interface ParticleEffect {
+  points: THREE.Points;
+  velocities: THREE.Vector3[];
+  life: number;
+  maxLife: number;
+}
+
 export class DicePhysicsWorld {
   public world: CANNON.World;
   public diceMaterial: CANNON.Material;
@@ -27,8 +34,12 @@ export class DicePhysicsWorld {
   public scene: THREE.Scene;
 
   private trayBodies: CANNON.Body[] = [];
+  private particles: ParticleEffect[] = [];
 
-  constructor(scene: THREE.Scene, dimensions: TrayDimensions = { width: 26, depth: 18, height: 20 }) {
+  constructor(
+    scene: THREE.Scene,
+    dimensions: TrayDimensions = { width: 26, depth: 18, height: 20 }
+  ) {
     this.scene = scene;
 
     // 1. Initialize Cannon World with realistic dice physics
@@ -55,8 +66,16 @@ export class DicePhysicsWorld {
     this.world.addContactMaterial(diceTableContact);
     this.world.addContactMaterial(diceDiceContact);
 
-    // 3. Build Invisible Tray Boundaries (Floor + 4 Walls + Ceiling)
+    // 3. Build Tray Boundaries
     this.setupTray(dimensions);
+  }
+
+  public reconfigureTray(dim: TrayDimensions) {
+    for (const b of this.trayBodies) {
+      this.world.removeBody(b);
+    }
+    this.trayBodies = [];
+    this.setupTray(dim);
   }
 
   private setupTray(dim: TrayDimensions) {
@@ -65,7 +84,7 @@ export class DicePhysicsWorld {
     const halfH = dim.height / 2;
     const wallThick = 2;
 
-    // Floor at y = 0 (top surface)
+    // Floor at y = 0
     const floorBody = new CANNON.Body({
       mass: 0,
       material: this.tableMaterial,
@@ -132,11 +151,21 @@ export class DicePhysicsWorld {
     targetValue?: number,
     theme: DiceTheme = 'classic',
     index = 0,
-    totalDice = 1
+    totalDice = 1,
+    isDiscarded: boolean | { isDiscarded?: boolean; isHighlighted?: boolean } = false,
+    isHighlighted = false
   ): ActivePhysicsDie {
+    const effectiveDiscarded =
+      typeof isDiscarded === 'object' && isDiscarded !== null
+        ? !!isDiscarded.isDiscarded
+        : !!isDiscarded;
+    const effectiveHighlighted =
+      typeof isDiscarded === 'object' && isDiscarded !== null
+        ? !!isDiscarded.isHighlighted
+        : !!isHighlighted;
+
     const data: DieGeometryResult = getDieGeometryData(type);
 
-    // Prepare face materials based on shape
     const shapeType =
       type === 'd6'
         ? 'square'
@@ -165,8 +194,8 @@ export class DicePhysicsWorld {
 
     // Spread spawn positions across tray
     const offsetX = (index - (totalDice - 1) / 2) * 2.8 + (Math.random() - 0.5) * 1.5;
-    const startY = 9 + Math.random() * 3 + index * 0.4;
-    const startZ = -5 + (Math.random() - 0.5) * 3;
+    const startY = 8 + Math.random() * 3 + index * 0.4;
+    const startZ = -4 + (Math.random() - 0.5) * 3;
 
     body.position.set(offsetX, startY, startZ);
 
@@ -207,6 +236,8 @@ export class DicePhysicsWorld {
       settleTime: 0,
       initialThrowDuration: 0.85 + Math.random() * 0.35,
       elapsedTime: 0,
+      isDiscarded: effectiveDiscarded,
+      isHighlighted: effectiveHighlighted,
     };
 
     this.activeDice.push(activeDie);
@@ -214,9 +245,34 @@ export class DicePhysicsWorld {
   }
 
   public step(dt: number) {
-    // Standard physics step
     const clampedDt = Math.min(dt, 0.033);
     this.world.step(1 / 60, clampedDt, 3);
+
+    // Update particles if any
+    for (let pIdx = this.particles.length - 1; pIdx >= 0; pIdx--) {
+      const p = this.particles[pIdx];
+      p.life += clampedDt;
+      const geom = p.points.geometry;
+      const positions = geom.attributes.position.array as Float32Array;
+
+      for (let i = 0; i < p.velocities.length; i++) {
+        positions[i * 3 + 0] += p.velocities[i].x * clampedDt;
+        positions[i * 3 + 1] += p.velocities[i].y * clampedDt;
+        positions[i * 3 + 2] += p.velocities[i].z * clampedDt;
+        p.velocities[i].y -= 9.8 * clampedDt; // slight gravity on sparks
+      }
+      geom.attributes.position.needsUpdate = true;
+
+      const mat = p.points.material as THREE.PointsMaterial;
+      mat.opacity = Math.max(0, 1 - p.life / p.maxLife);
+
+      if (p.life >= p.maxLife) {
+        this.scene.remove(p.points);
+        geom.dispose();
+        mat.dispose();
+        this.particles.splice(pIdx, 1);
+      }
+    }
 
     for (let i = 0; i < this.activeDice.length; i++) {
       const die = this.activeDice[i];
@@ -225,12 +281,10 @@ export class DicePhysicsWorld {
       const body = die.body;
       const mesh = die.mesh;
 
-      // Check speeds
       const linearSpeed = body.velocity.length();
       const angularSpeed = body.angularVelocity.length();
 
-      // If targetValue is provided: after initial throw physics (bouncing off walls/floor),
-      // seamlessly stabilize orientation to the target face as kinetic energy drops
+      // Smooth target alignment after throw
       if (die.targetValue !== undefined && die.elapsedTime > die.initialThrowDuration) {
         if (linearSpeed < 3.5 || die.elapsedTime > 1.6) {
           const targetQuat = getRotationForTargetValue(die.targetValue, die.faces);
@@ -241,7 +295,6 @@ export class DicePhysicsWorld {
             body.quaternion.w
           );
 
-          // Smooth slerp towards guaranteed target orientation
           const slerpFactor = Math.min(clampedDt * 8.0, 0.4);
           currentThreeQuat.slerp(targetQuat, slerpFactor);
 
@@ -252,7 +305,6 @@ export class DicePhysicsWorld {
             currentThreeQuat.w
           );
 
-          // Damp remaining velocities
           body.angularVelocity.scale(0.85, body.angularVelocity);
           if (linearSpeed < 1.0) {
             body.velocity.scale(0.85, body.velocity);
@@ -260,21 +312,23 @@ export class DicePhysicsWorld {
         }
       }
 
-      // Sync Three.js Mesh with Cannon body
+      // Sync Mesh
       mesh.position.set(body.position.x, body.position.y, body.position.z);
       mesh.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
 
-      // Check if settled
+      // Check settled
       const isSlow = linearSpeed < 0.25 && angularSpeed < 0.35;
       const isNearFloor = body.position.y < 3.0;
 
-      if ((isSlow && isNearFloor) || die.elapsedTime > 3.0) {
+      if ((isSlow && isNearFloor) || die.elapsedTime > 2.8) {
         die.settleTime += clampedDt;
-        if (die.settleTime > 0.25 || die.elapsedTime > 3.2) {
-          die.isSettled = true;
-          // Determine final face result
-          const topFace = determineTopFace(mesh.quaternion, die.faces);
-          die.currentValue = die.targetValue ?? topFace.value;
+        if (die.settleTime > 0.2 || die.elapsedTime > 3.0) {
+          if (!die.isSettled) {
+            die.isSettled = true;
+            const topFace = determineTopFace(mesh.quaternion, die.faces);
+            die.currentValue = die.targetValue ?? topFace.value;
+            this.applySettleVisuals(die);
+          }
         }
       } else {
         die.settleTime = 0;
@@ -282,16 +336,122 @@ export class DicePhysicsWorld {
     }
   }
 
+  public forceSettle() {
+    for (let i = 0; i < this.activeDice.length; i++) {
+      const die = this.activeDice[i];
+      if (die.isSettled) continue;
+
+      die.body.velocity.set(0, 0, 0);
+      die.body.angularVelocity.set(0, 0, 0);
+      die.body.position.y = 1.0;
+
+      if (die.targetValue !== undefined) {
+        const targetQuat = getRotationForTargetValue(die.targetValue, die.faces);
+        die.body.quaternion.set(targetQuat.x, targetQuat.y, targetQuat.z, targetQuat.w);
+        die.mesh.quaternion.copy(targetQuat);
+        die.currentValue = die.targetValue;
+      } else {
+        const topFace = determineTopFace(die.mesh.quaternion, die.faces);
+        die.currentValue = topFace.value;
+      }
+
+      die.mesh.position.set(die.body.position.x, die.body.position.y, die.body.position.z);
+      die.isSettled = true;
+      this.applySettleVisuals(die);
+    }
+  }
+
+  private applySettleVisuals(die: ActivePhysicsDie) {
+    const materials = Array.isArray(die.mesh.material) ? die.mesh.material : [die.mesh.material];
+
+    if (die.isDiscarded) {
+      materials.forEach((m) => {
+        if ('opacity' in m && 'transparent' in m) {
+          m.transparent = true;
+          m.opacity = 0.32;
+          m.needsUpdate = true;
+        }
+      });
+    } else if (die.isHighlighted) {
+      materials.forEach((m) => {
+        if ('emissive' in m) {
+          (m as THREE.MeshStandardMaterial).emissive = new THREE.Color(0xf5b920);
+          (m as THREE.MeshStandardMaterial).emissiveIntensity = 0.55;
+          m.needsUpdate = true;
+        }
+      });
+      this.spawnCritParticles(die.mesh.position, 'crit');
+    }
+
+    // Nat 20 particles
+    if (die.type === 'd20' && die.currentValue === 20 && !die.isDiscarded) {
+      this.spawnCritParticles(die.mesh.position, 'crit');
+    } else if (die.type === 'd20' && die.currentValue === 1 && !die.isDiscarded) {
+      this.spawnCritParticles(die.mesh.position, 'fail');
+    }
+  }
+
+  public spawnCritParticles(origin: THREE.Vector3, type: 'crit' | 'fail') {
+    if (typeof document === 'undefined') return;
+
+    const count = type === 'crit' ? 36 : 20;
+    const geom = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    const velocities: THREE.Vector3[] = [];
+
+    const color = type === 'crit' ? 0xf5b920 : 0xe5484d;
+
+    for (let i = 0; i < count; i++) {
+      positions[i * 3 + 0] = origin.x;
+      positions[i * 3 + 1] = origin.y + 0.5;
+      positions[i * 3 + 2] = origin.z;
+
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 4 + Math.random() * 8;
+      const upSpeed = 4 + Math.random() * 6;
+
+      velocities.push(
+        new THREE.Vector3(
+          Math.cos(angle) * speed,
+          upSpeed,
+          Math.sin(angle) * speed
+        )
+      );
+    }
+
+    geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const mat = new THREE.PointsMaterial({
+      color,
+      size: type === 'crit' ? 0.35 : 0.25,
+      transparent: true,
+      opacity: 1,
+      blending: THREE.AdditiveBlending,
+    });
+
+    const points = new THREE.Points(geom, mat);
+    this.scene.add(points);
+
+    this.particles.push({
+      points,
+      velocities,
+      life: 0,
+      maxLife: 0.85,
+    });
+  }
+
   public isAllSettled(): boolean {
     if (this.activeDice.length === 0) return true;
     return this.activeDice.every((d) => d.isSettled);
   }
 
-  public getResults(): Array<{ id: string; type: DiceType; value: number }> {
+  public getResults(): Array<{ id: string; type: DiceType; value: number; isDiscarded?: boolean; isHighlighted?: boolean }> {
     return this.activeDice.map((d) => ({
       id: d.id,
       type: d.type,
       value: d.currentValue,
+      isDiscarded: d.isDiscarded,
+      isHighlighted: d.isHighlighted,
     }));
   }
 
@@ -308,6 +468,13 @@ export class DicePhysicsWorld {
       }
     }
     this.activeDice = [];
+
+    for (const p of this.particles) {
+      this.scene.remove(p.points);
+      p.points.geometry.dispose();
+      (p.points.material as THREE.Material).dispose();
+    }
+    this.particles = [];
   }
 
   public destroy() {
