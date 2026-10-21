@@ -312,10 +312,10 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
   };
 
   return (
-    <div className="flex flex-col w-full flex-shrink-0 relative z-30">
-      <div className="flex items-center justify-between gap-1.5 px-2 sm:px-2.5 py-1.5 bg-surface/85 border-b border-[rgba(255,255,255,0.08)] backdrop-blur-md text-xs select-none overflow-x-auto no-scrollbar w-full min-w-0 shadow-glass">
+    <div className={`flex flex-col w-full flex-shrink-0 relative ${isAoeOpen || isWeatherOpen || isLightOpen ? 'z-50' : 'z-30'}`}>
+      <div className="flex items-center justify-between gap-1.5 px-2 sm:px-2.5 py-1.5 bg-surface/85 border-b border-[rgba(255,255,255,0.08)] backdrop-blur-md text-xs select-none overflow-visible w-full min-w-0 shadow-glass">
         {/* Left Side: Groups 1, 2, 3 */}
-        <div className={`flex items-center gap-1.5 flex-shrink-0 relative ${isAoeOpen ? 'z-40' : 'z-30'}`}>
+        <div className={`flex items-center gap-1.5 flex-shrink-0 relative ${isAoeOpen || isLightOpen ? 'z-40' : 'z-30'}`}>
           {!isMasterView && (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold-light text-xs font-semibold select-none shadow-sm">
               <Hand className="h-3.5 w-3.5 text-gold animate-pulse flex-shrink-0" />
@@ -325,7 +325,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
           {isMasterView && (
             <>
               {/* Group 1: Navigation & Mode */}
-              <div className="flex items-center gap-0.5 bg-surface/85 border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/40 shadow-md backdrop-blur-md rounded-glass-lg p-0.5 sm:p-1 flex-shrink-0 transition-all">
+              <div className={`flex items-center gap-0.5 bg-surface/85 border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/40 shadow-md backdrop-blur-md rounded-glass-lg p-0.5 sm:p-1 flex-shrink-0 transition-all relative ${isAoeOpen ? 'z-50' : 'z-10'}`}>
                 {/* [ Выбор ] */}
                 <button
                   type="button"
@@ -447,7 +447,10 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
 
                   {/* AoE Dropdown Menu */}
                   {isAoeOpen && (
-                    <div className="absolute left-0 top-full mt-2 bg-[rgba(18,22,30,0.96)] border border-[#f5b920]/50 backdrop-blur-xl rounded-glass-xl shadow-2xl p-3 z-[100] w-[350px] max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto space-y-3 font-sans ring-1 ring-[#f5b920]/20">
+                    <div
+                      className="absolute left-0 top-full mt-2 bg-[rgba(18,22,30,0.96)] border border-[#f5b920]/50 backdrop-blur-xl rounded-glass-xl shadow-2xl p-3 z-[100] w-[350px] max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto space-y-3 font-sans ring-1 ring-[#f5b920]/20 animate-in fade-in zoom-in-95 duration-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {/* Tabs Header */}
                       <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
                         <span className="text-xs font-serif font-bold text-gold-light uppercase tracking-wider flex items-center gap-1">
@@ -984,7 +987,10 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
 
                   {/* Dropdown Popover */}
                   {isLightOpen && (
-                    <div className="absolute left-0 top-full mt-2 bg-[rgba(18,22,30,0.96)] border border-amber-500/50 backdrop-blur-xl rounded-glass-xl shadow-2xl p-3 z-[100] w-[320px] max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto space-y-3 font-sans ring-1 ring-amber-500/20">
+                    <div
+                      className="absolute left-0 top-full mt-2 bg-[rgba(18,22,30,0.96)] border border-amber-500/50 backdrop-blur-xl rounded-glass-xl shadow-2xl p-3 z-[100] w-[320px] max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto space-y-3 font-sans ring-1 ring-amber-500/20 animate-in fade-in zoom-in-95 duration-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {/* Header */}
                       <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
                         <span className="text-xs font-serif font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">

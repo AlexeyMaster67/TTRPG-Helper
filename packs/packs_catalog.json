@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-10-18T23:06:58.180Z",
+  "generatedAt": "2026-10-21T07:09:33.765Z",
   "packs": [
     {
       "id": "cyberpunk_red_starter",
@@ -18,13 +18,13 @@
       "id": "srd_5_2_1",
       "fileName": "srd_5_2_1.pack.json",
       "creatureCount": 336,
-      "sizeBytes": 883905
+      "sizeBytes": 1126850
     },
     {
       "id": "dnd5e_2024",
       "fileName": "dnd5e_2024.pack.json",
       "creatureCount": 525,
-      "sizeBytes": 1508747
+      "sizeBytes": 1855358
     }
   ]
 }

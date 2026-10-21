@@ -74,7 +74,7 @@ describe('DatabaseService Web Fallback Tests', () => {
 
   describe('Items Web Fallback', () => {
     it('searches items and preserves parsed properties array', async () => {
-      const results = await service.searchItems('adamantine', undefined, 10);
+      const results = await service.searchItems('adamantine', undefined, 50);
       expect(results.length).toBeGreaterThan(0);
       const battleaxe = results.find((i) => i.id === 'adamantine-battleaxe');
       expect(battleaxe).toBeDefined();
