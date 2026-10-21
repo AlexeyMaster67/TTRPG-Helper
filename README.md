@@ -320,6 +320,26 @@ flowchart TD
 ## Лицензии и авторские права
 
 - **Программный код** TTRPG Helper лицензирован на условиях **[MIT License](LICENSE)**.
-- **D&D 5e SRD 5.2.1** используется в соответствии с лицензией **[Creative Commons Attribution 4.0 International (CC-BY-4.0)](https://creativecommons.org/licenses/by/4.0/legalcode)** от Wizards of the Coast LLC.
+- **D&D 5e SRD 5.1 / 5.2.1** используется в соответствии с лицензией **[Creative Commons Attribution 4.0 International (CC-BY-4.0)](https://creativecommons.org/licenses/by/4.0/legalcode)** от Wizards of the Coast LLC.
 - **Pathfinder 2e Remastered** используется в соответствии с открытой игровой лицензией **[Open RPG Creative License (ORC)](https://paizo.com/orclicense)** от Paizo Inc.
 - **Cyberpunk RED** базируется на открытых материалах R. Talsorian Games.
+
+---
+
+## Правовая информация и политика фанатского контента (Legal & Fan Content)
+
+### Wizards of the Coast Fan Content Policy
+> **Wizards of the Coast Notice:**  
+> TTRPG Helper is unofficial Fan Content permitted under the Wizards of the Coast Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast LLC. ©Wizards of the Coast LLC.
+
+Настоящее приложение является независимым некоммерческим фанатским проектом с открытым исходным кодом, созданным сообществом для игроков и Мастеров настольных ролевых игр.
+
+### Товарные знаки и добросовестное использование (Nominative Fair Use)
+* **Dungeons & Dragons**, **D&D**, соответствующие логотипы и связанные названия являются зарегистрированными товарными знаками **Wizards of the Coast LLC** (дочерней компании Hasbro, Inc.).
+* **Pathfinder** и сопутствующие логотипы являются зарегистрированными товарными знаками **Paizo Inc.**.
+* **Cyberpunk RED** является товарным знаком **R. Talsorian Games, Inc.**.
+
+Все упоминания конкретных игровых систем, изданий и торговых марок используются исключительно в описательных целях для идентификации совместимости правил (в рамках добросовестного использования — *nominative fair use*) и не подразумевают официального одобрения, спонсорства или партнерства со стороны правообладателей.
+
+### Контакты для правообладателей (DMCA / Copyright Inquiries)
+Если вы являетесь правообладателем каких-либо материалов и считаете, что их использование нарушает ваши права или выходит за рамки Fan Content Policy / Creative Commons, пожалуйста, создайте обращение в разделе [Issues](https://github.com/AlexeyMaster67/TTRPG-Helper/issues). Запрос будет рассмотрен в приоритетном порядке с немедленным удалением спорных ассетов.
