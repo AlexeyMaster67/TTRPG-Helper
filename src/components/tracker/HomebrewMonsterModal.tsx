@@ -11,6 +11,7 @@ import {
   Swords,
   Image as ImageIcon,
   Footprints,
+  AlertTriangle,
 } from 'lucide-react';
 import { CreatureSize, CREATURE_SIZE_SCALE } from '../../types/dnd5e';
 import { MonsterAction, ParsedMonster } from '../../types/database';
@@ -385,7 +386,7 @@ export function HomebrewMonsterModal({
         <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 font-sans text-xs text-gray-200">
           {errorMessage && (
             <div className="p-3 rounded-glass bg-rose-950/80 border border-rose-500/80 text-rose-200 text-xs font-semibold flex items-center gap-2">
-              <span>⚠️</span>
+              <AlertTriangle className="h-4 w-4 text-rose-300 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
@@ -393,7 +394,10 @@ export function HomebrewMonsterModal({
           {/* Section 1: Names, Size, Type, CR */}
           <div className="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-glass-lg p-3.5 space-y-3 shadow-sm">
             <span className="text-[11px] font-bold text-[#fce79f] uppercase tracking-wider block font-sans">
-              ✦ Основная информация
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3 text-[#f5b920] inline" />
+                <span>Основная информация</span>
+              </span>
             </span>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -498,7 +502,10 @@ export function HomebrewMonsterModal({
           {/* Section 2: AC, HP, Speed, Token URL */}
           <div className="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-glass-lg p-3.5 space-y-3 shadow-sm">
             <span className="text-[11px] font-bold text-[#fce79f] uppercase tracking-wider block font-sans">
-              ✦ Боевые параметры и токен
+              <span className="flex items-center gap-1.5">
+                <Shield className="h-3 w-3 text-[#f5b920] inline" />
+                <span>Боевые параметры и токен</span>
+              </span>
             </span>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -598,7 +605,10 @@ export function HomebrewMonsterModal({
           <div className="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-glass-lg p-3.5 space-y-2.5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-[#fce79f] uppercase tracking-wider font-sans">
-                ✦ Характеристики и модификаторы
+                <span className="flex items-center gap-1.5">
+                  <Zap className="h-3 w-3 text-[#f5b920] inline" />
+                  <span>Характеристики и модификаторы</span>
+                </span>
               </span>
               <span className="text-[11px] font-mono text-gray-300 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
                 Инициатива: <span className="text-[#f5b920] font-bold">{formatMod(dexMod)}</span> • БМ: <span className="text-[#f5b920] font-bold">+{pb}</span>

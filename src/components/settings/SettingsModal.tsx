@@ -400,9 +400,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <button
                       type="button"
                       onClick={() => setImportError(null)}
-                      className="text-rose-400 hover:text-white text-xs font-bold"
+                      className="text-rose-400 hover:text-white text-xs font-bold p-0.5 flex items-center justify-center cursor-pointer"
                     >
-                      ✕
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 )}
@@ -417,9 +417,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <button
                       type="button"
                       onClick={() => setImportSuccess(null)}
-                      className="text-emerald-400 hover:text-white text-xs font-bold"
+                      className="text-emerald-400 hover:text-white text-xs font-bold p-0.5 flex items-center justify-center cursor-pointer"
                     >
-                      ✕
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 )}
@@ -567,9 +567,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <button
                       type="button"
                       onClick={() => setBackupStatusMessage(null)}
-                      className="text-blue-400 hover:text-white text-xs font-bold ml-2 cursor-pointer"
+                      className="text-blue-400 hover:text-white text-xs font-bold ml-2 cursor-pointer p-0.5 flex items-center justify-center"
                     >
-                      ✕
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 )}

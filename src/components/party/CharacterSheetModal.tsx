@@ -932,7 +932,7 @@ export function CharacterSheetModal() {
               {/* 1st to 9th Level Spell Slot Trackers */}
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5">
-                  Ячейки заклинаний (1–9 круг): интерактивные индикаторы [●][○]
+                  Ячейки заклинаний (1–9 круг): интерактивные индикаторы
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((lvl) => {
@@ -996,9 +996,11 @@ export function CharacterSheetModal() {
                                       : 'bg-purple-950/80 border-purple-500 text-purple-300 shadow-[0_0_8px_rgba(168,85,247,0.4)] scale-100 hover:scale-105'
                                   }`}
                                 >
-                                  <span className="text-xs font-bold leading-none">
-                                    {isUsed ? '○' : '●'}
-                                  </span>
+                                  {isUsed ? (
+                                    <span className="w-2 h-2 rounded-full border border-gray-500" />
+                                  ) : (
+                                    <span className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.8)]" />
+                                  )}
                                 </button>
                               );
                             })}
@@ -1151,11 +1153,11 @@ export function CharacterSheetModal() {
                           title="Кликните кружок для смены владения"
                         >
                           <div
-                            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center text-[8px] ${
-                              isProf ? 'bg-gold border-gold text-black font-bold' : 'border-gray-500'
+                            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                              isProf ? 'bg-gold border-gold' : 'border-gray-500'
                             }`}
                           >
-                            {isProf && '●'}
+                            {isProf && <span className="w-1.5 h-1.5 rounded-full bg-black" />}
                           </div>
                           <span className="text-xs font-bold text-gray-200">{s.label}</span>
                         </button>
@@ -1379,13 +1381,11 @@ export function CharacterSheetModal() {
                         }`}
                         title="Кликните для переключения настройки"
                       >
-                        <span
-                          className={`text-xl font-bold leading-none ${
-                            slot.attuned ? 'text-gold' : 'text-gray-600'
+                        <Sparkles
+                          className={`h-4 w-4 shrink-0 ${
+                            slot.attuned ? 'text-gold fill-gold' : 'text-gray-600'
                           }`}
-                        >
-                          {slot.attuned ? '◆' : '◇'}
-                        </span>
+                        />
                         <div className="min-w-0">
                           <h4
                             className={`text-xs font-bold truncate ${

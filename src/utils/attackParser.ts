@@ -375,7 +375,7 @@ export function computeDamageWithDefenses(
   if (hasImmunity) {
     return {
       finalDmg: 0,
-      notice: `🛡 У цели ИММУНИТЕТ к урону (${ruDmgName})! Урон сведён к 0.`,
+      notice: `У цели ИММУНИТЕТ к урону (${ruDmgName})! Урон сведён к 0.`,
       modifierReason: 'immune',
     };
   }
@@ -384,7 +384,7 @@ export function computeDamageWithDefenses(
     const finalDmg = Math.floor(rawDmg / 2);
     return {
       finalDmg,
-      notice: `🛡 У цели СОПРОТИВЛЕНИЕ к урону (${ruDmgName})! Урон уменьшен вдвое (${rawDmg} -> ${finalDmg}).`,
+      notice: `У цели СОПРОТИВЛЕНИЕ к урону (${ruDmgName})! Урон уменьшен вдвое (${rawDmg} -> ${finalDmg}).`,
       modifierReason: 'resistant',
     };
   }
@@ -393,7 +393,7 @@ export function computeDamageWithDefenses(
     const finalDmg = rawDmg * 2;
     return {
       finalDmg,
-      notice: `⚡ У цели УЯЗВИМОСТЬ к урону (${ruDmgName})! Урон удвоен (${rawDmg} -> ${finalDmg}).`,
+      notice: `У цели УЯЗВИМОСТЬ к урону (${ruDmgName})! Урон удвоен (${rawDmg} -> ${finalDmg}).`,
       modifierReason: 'vulnerable',
     };
   }

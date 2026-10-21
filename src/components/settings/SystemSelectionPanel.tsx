@@ -9,6 +9,8 @@ import {
   ShieldAlert,
   Sparkles,
   X,
+  AlertTriangle,
+  Lightbulb,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -198,8 +200,9 @@ export function SystemSelectionPanel({
           <span className="font-mono text-[#f5b920] font-bold text-sm shrink-0 flex items-center justify-center w-5 h-5 rounded-full border border-[#f5b920]/40 bg-[#f5b920]/15">
             i
           </span>
-          <span className="text-[#ececf1]">
-            ⚠️ <strong>Система фиксируется при создании кампании.</strong> Для смены системы в начатой игре используйте «Создать копию кампании в другой системе»: данные разных систем не конвертируются вслепую.
+          <span className="text-[#ececf1] flex items-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 text-[#f5b920] shrink-0 inline" />
+            <span><strong>Система фиксируется при создании кампании.</strong> Для смены системы в начатой игре используйте «Создать копию кампании в другой системе»: данные разных систем не конвертируются вслепую.</span>
           </span>
         </div>
         <button
@@ -232,9 +235,9 @@ export function SystemSelectionPanel({
           <button
             type="button"
             onClick={() => setFeedbackMessage(null)}
-            className="text-gray-400 hover:text-white ml-2 text-xs font-bold"
+            className="text-gray-400 hover:text-white ml-2 text-xs font-bold p-0.5 flex items-center justify-center cursor-pointer"
           >
-            ✕
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
@@ -367,8 +370,9 @@ export function SystemSelectionPanel({
                 : `Система «${pendingConfirmSystem.name}» находится на этапе открытого тестирования (Бета). Основные механики проверены, но отдельные модификаторы и свойства могут обновляться.`}
             </p>
 
-            <div className="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08] text-xs text-[#a0a0b0]">
-              💡 Вы всегда можете переключиться обратно на SRD 5.2.1 или D&D 5e (2014) в настройках.
+            <div className="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08] text-xs text-[#a0a0b0] flex items-center gap-2">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-400 shrink-0 inline" />
+              <span>Вы всегда можете переключиться обратно на SRD 5.2.1 или D&D 5e (2014) в настройках.</span>
             </div>
 
             <div className="flex items-center justify-end gap-2.5 pt-2">

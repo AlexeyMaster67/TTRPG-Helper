@@ -361,7 +361,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
           onRemove={() => removeCombatant(combatant.id)}
         />
 
-        {/* Tier 2 (Bottom Tier): [КО / Игрок] [🛡️ КД] [1×1 Сетка] [Скорость] ... [HealthBar with ОЗ] [🛡️ Реакция] [⚡ Концентрация] [+ Состояние] */}
+        {/* Tier 2 (Bottom Tier): [КО / Игрок] [КД] [1×1 Сетка] [Скорость] ... [HealthBar with ОЗ] [Реакция] [Концентрация] [+ Состояние] */}
         <div className="pt-1 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between gap-2 min-w-0">
           {/* Слева: Защита и параметры (КО/Игрок, КД, Размер, Скорость) */}
           <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-mono min-w-0 flex-1 overflow-hidden">

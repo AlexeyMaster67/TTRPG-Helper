@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Crosshair, Dices, Shield, X, Zap } from 'lucide-react';
+import { Crosshair, Dices, Shield, Sparkles, X, Zap } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { MasteryBadge } from '../../ui/MasteryBadge';
 import { cleanRussianText } from '../../../utils/textUtils';
@@ -168,9 +168,9 @@ export function StatblockActions({
       <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
         <div className="flex items-center justify-between gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-gold">
           <span className="flex items-center gap-1.5">
-            <span className="text-gold text-xs">✦</span>
+            <Sparkles className="h-3.5 w-3.5 text-gold flex-shrink-0" />
             <span>ДЕЙСТВИЯ</span>
-            <span className="text-gold text-xs">✦</span>
+            <Sparkles className="h-3.5 w-3.5 text-gold flex-shrink-0" />
           </span>
 
           {hasMultiattack && (
@@ -272,8 +272,8 @@ export function StatblockActions({
                         onClick={onExecuteMultiattack}
                         title={
                           currentTarget
-                            ? `⚡ Нанести серию (${attackSeriesCount} атак) по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`
-                            : '⚡ Выбрать цель и нанести серию атак'
+                            ? `Нанести серию (${attackSeriesCount} атак) по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`
+                            : 'Выбрать цель и нанести серию атак'
                         }
                         className={clsx(
                           "min-h-[32px] flex items-center gap-1.5 px-3 py-1 rounded-glass-sm text-xs font-mono font-bold transition-all shadow-sm whitespace-nowrap active:scale-95 cursor-pointer",
@@ -367,8 +367,8 @@ export function StatblockActions({
                         onClick={(e) => onPerformAttack(act, actionKey, e)}
                         title={
                           currentTarget
-                            ? `🎯 Нанести удар по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`
-                            : '🎯 Выбрать цель для атаки'
+                            ? `Нанести удар по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`
+                            : 'Выбрать цель для атаки'
                         }
                         className={clsx(
                           "min-h-[32px] flex items-center gap-1.5 px-3 py-1 rounded-glass-sm font-mono text-xs font-bold transition-all shadow-sm flex-shrink-0 whitespace-nowrap cursor-pointer active:scale-95 leading-none",
@@ -416,9 +416,9 @@ export function StatblockActions({
       {sb?.bonus_actions && sb.bonus_actions.length > 0 && (
         <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
           <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-amber-300">
-            <span className="text-gold text-xs">✦</span>
+            <Sparkles className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
             <span>БОНУСНЫЕ ДЕЙСТВИЯ</span>
-            <span className="text-gold text-xs">✦</span>
+            <Sparkles className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
           </div>
           <div className="space-y-2.5">
             {sb.bonus_actions.map((act: any, i: number) => {
@@ -460,9 +460,9 @@ export function StatblockActions({
       {sb?.reactions && sb.reactions.length > 0 && (
         <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
           <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-emerald-300">
-            <span className="text-gold text-xs">✦</span>
+            <Sparkles className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
             <span>РЕАКЦИИ</span>
-            <span className="text-gold text-xs">✦</span>
+            <Sparkles className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
           </div>
           <div className="space-y-2.5">
             {sb.reactions.map((act: any, i: number) => {
@@ -504,9 +504,9 @@ export function StatblockActions({
       {sb?.legendary_actions && sb.legendary_actions.length > 0 && (
         <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
           <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-purple-300">
-            <span className="text-gold text-xs">✦</span>
+            <Sparkles className="h-3.5 w-3.5 text-purple-400 flex-shrink-0" />
             <span>ЛЕГЕНДАРНЫЕ ДЕЙСТВИЯ (3/раунд)</span>
-            <span className="text-gold text-xs">✦</span>
+            <Sparkles className="h-3.5 w-3.5 text-purple-400 flex-shrink-0" />
           </div>
           <div className="space-y-2.5">
             {sb.legendary_actions.map((act: any, i: number) => {

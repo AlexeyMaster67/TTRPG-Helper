@@ -9,6 +9,8 @@ import {
   ChevronRight,
   Sparkles,
   BookOpen,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import { useCombatStore } from '../../store/combatStore';
 import { Combatant } from '../../types/combat';
@@ -123,13 +125,13 @@ export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps
   const handleApplyDamage = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!selectedTarget) {
-      setFeedback('⚠️ Выберите цель (монстра) для нанесения урона');
+      setFeedback('Выберите цель (монстра) для нанесения урона');
       return;
     }
 
     const dmgAmount = parseInt(damageInput, 10);
     if (isNaN(dmgAmount) || dmgAmount <= 0) {
-      setFeedback('⚠️ Введите количество нанесённого урона (больше 0)');
+      setFeedback('Введите количество нанесённого урона (больше 0)');
       return;
     }
 
@@ -190,13 +192,13 @@ export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps
         title: `${playerName}: Удар за столом`,
         formula: `${effectiveDmg} ${dmgTypeRu}`,
         total: effectiveDmg,
-        resultDisplay: `⚔️ ${playerName} наносит ${effectiveDmg} ${dmgTypeRu} урона по ${targetName}!${isCrit ? ' 💥 КРИТ!' : ''}`,
+        resultDisplay: `${playerName} наносит ${effectiveDmg} ${dmgTypeRu} урона по ${targetName}!${isCrit ? ' [КРИТ!]' : ''}`,
         isCritical: isCrit,
         timestamp: Date.now(),
       },
     });
 
-    setFeedback(`✅ Нанесено ${effectiveDmg} ${dmgTypeRu} урона по ${targetName}!`);
+    setFeedback(`Нанесено ${effectiveDmg} ${dmgTypeRu} урона по ${targetName}!`);
     setDamageInput('0');
     setIsCrit(false);
     setAttackRollNote('');
@@ -208,13 +210,13 @@ export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps
   const handleApplyHealing = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!selectedAlly) {
-      setFeedback('⚠️ Выберите получателя лечения');
+      setFeedback('Выберите получателя лечения');
       return;
     }
 
     const amount = parseInt(healInput, 10);
     if (isNaN(amount) || amount <= 0) {
-      setFeedback('⚠️ Введите значение лечения');
+      setFeedback('Введите значение лечения');
       return;
     }
 
@@ -247,12 +249,12 @@ export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps
         title: `${playerName}: Лечение`,
         formula: `+${amount} ОЗ`,
         total: amount,
-        resultDisplay: `💚 ${playerName} восстанавливает ${amount} ОЗ для ${allyName}!`,
+        resultDisplay: `${playerName} восстанавливает ${amount} ОЗ для ${allyName}!`,
         timestamp: Date.now(),
       },
     });
 
-    setFeedback(`✅ Восстановлено ${amount} ОЗ для ${allyName}!`);
+    setFeedback(`Восстановлено ${amount} ОЗ для ${allyName}!`);
     setTimeout(() => setFeedback(null), 3500);
   };
 
@@ -260,7 +262,7 @@ export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps
   const handleApplyCondition = () => {
     const tgt = combatants.find((c) => c.id === conditionTargetId);
     if (!tgt) {
-      setFeedback('⚠️ Выберите цель для наложения эффекта');
+      setFeedback('Выберите цель для наложения эффекта');
       return;
     }
 
@@ -289,12 +291,12 @@ export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps
         title: `${playerName}: Наложение эффекта`,
         formula: condRu,
         total: 0,
-        resultDisplay: `⚡ ${playerName} накладывает [${condRu}] на ${tgtName}!`,
+        resultDisplay: `${playerName} накладывает [${condRu}] на ${tgtName}!`,
         timestamp: Date.now(),
       },
     });
 
-    setFeedback(`✅ Состояние «${condRu}» наложено на ${tgtName}!`);
+    setFeedback(`Состояние «${condRu}» наложено на ${tgtName}!`);
     setTimeout(() => setFeedback(null), 3500);
   };
 
@@ -462,7 +464,10 @@ export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps
                   onChange={(e) => setIsCrit(e.target.checked)}
                   className="rounded border-border-subtle text-amber-500 focus:ring-0 bg-surface"
                 />
-                <span>💥 Нат. 20 (Крит)</span>
+                <span className="inline-flex items-center gap-1">
+                  <Zap className="h-3 w-3 text-amber-400 inline" />
+                  <span>Нат. 20 (Крит)</span>
+                </span>
               </label>
             </div>
 
@@ -570,7 +575,7 @@ export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps
             <Crosshair className="h-4 w-4 group-hover:scale-110 transition-transform flex-shrink-0" />
             <span className="truncate min-w-0">
               {selectedTarget
-                ? `💥 Списать ${damageInput} урона с ${cleanRussianText(selectedTarget.nameRu || selectedTarget.name)}`
+                ? `Списать ${damageInput} урона с ${cleanRussianText(selectedTarget.nameRu || selectedTarget.name)}`
                 : 'Выберите цель и введите урон'}
             </span>
           </button>
@@ -756,7 +761,9 @@ export function PlayerActionResultPanel({ player }: PlayerActionResultPanelProps
               <BookOpen className="h-3.5 w-3.5 text-gold/70 flex-shrink-0" />
               <span className="truncate">Справочник способностей (броски выполняет игрок)</span>
             </span>
-            <span className="flex-shrink-0 ml-1">{isRefExpanded ? '▲' : '▼'}</span>
+            <span className="flex-shrink-0 ml-1 text-gray-400">
+              {isRefExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            </span>
           </button>
 
           {isRefExpanded && (

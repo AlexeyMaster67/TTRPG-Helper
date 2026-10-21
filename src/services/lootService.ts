@@ -783,20 +783,20 @@ export class LootService {
     const lines: string[] = [];
     const modeLabel =
       loot.mode === 'hoard'
-        ? '🏛️ СОКРОВИЩНИЦА'
+        ? '[СОКРОВИЩНИЦА]'
         : loot.mode === 'combat'
-        ? '⚔️ ДОБЫЧА ПОСЛЕ БОЯ'
+        ? '[ДОБЫЧА ПОСЛЕ БОЯ]'
         : loot.mode === 'magic_table'
-        ? '🔮 ТАБЛИЦА МАГИИ DMG'
+        ? '[ТАБЛИЦА МАГИИ DMG]'
         : loot.mode === 'custom_filter'
-        ? '✨ МАГИЧЕСКИЙ ПРЕДМЕТ'
-        : '💰 ИНДИВИДУАЛЬНАЯ ДОБЫЧА';
+        ? '[МАГИЧЕСКИЙ ПРЕДМЕТ]'
+        : '[ИНДИВИДУАЛЬНАЯ ДОБЫЧА]';
 
     lines.push(`### ${modeLabel} (${loot.tierOrCr})`);
     if (loot.d100Roll !== undefined) {
-      lines.push(`🎲 **Бросок кубика d100**: \`${loot.d100Roll}\`${loot.bracketInfo ? ` (${loot.bracketInfo})` : ''}`);
+      lines.push(`**Бросок кубика d100**: \`${loot.d100Roll}\`${loot.bracketInfo ? ` (${loot.bracketInfo})` : ''}`);
     }
-    lines.push(`*Сгенерировано в DnD AI Tracker* • Общая ценность: **~${loot.totalGpEquivalent} зм**\n`);
+    lines.push(`*Сгенерировано в TTRPG Helper* • Общая ценность: **~${loot.totalGpEquivalent} зм**\n`);
 
     const coinParts: string[] = [];
     if (loot.coins.pp > 0) coinParts.push(`${loot.coins.pp} пм`);
@@ -806,12 +806,12 @@ export class LootService {
     if (loot.coins.cp > 0) coinParts.push(`${loot.coins.cp} мм`);
 
     if (coinParts.length > 0) {
-      lines.push(`💰 **Монеты**: ${coinParts.join(', ')}`);
-      lines.push(`👥 **${loot.partySplit.summaryRu}**\n`);
+      lines.push(`**Монеты**: ${coinParts.join(', ')}`);
+      lines.push(`**${loot.partySplit.summaryRu}**\n`);
     }
 
     if (loot.valuables.length > 0) {
-      lines.push(`💎 **Драгоценности и искусство**:`);
+      lines.push(`**Драгоценности и искусство**:`);
       for (const val of loot.valuables) {
         lines.push(`  • ${val.name} (*${val.valueGp} зм*)`);
       }
@@ -819,7 +819,7 @@ export class LootService {
     }
 
     if (loot.magicItems.length > 0) {
-      lines.push(`✨ **Магические предметы**:`);
+      lines.push(`**Магические предметы**:`);
       for (const item of loot.magicItems) {
         const details = [
           localizeRarity(item.rarity),
@@ -832,7 +832,7 @@ export class LootService {
     }
 
     if (loot.trinkets.length > 0) {
-      lines.push(`🎒 **Безделушки и карманные вещи**:`);
+      lines.push(`**Безделушки и карманные вещи**:`);
       for (const t of loot.trinkets) {
         lines.push(`  • ${t}`);
       }

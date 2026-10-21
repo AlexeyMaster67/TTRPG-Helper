@@ -1,5 +1,6 @@
 
 import clsx from 'clsx';
+import { Star } from 'lucide-react';
 import { formatMod } from './statblockUtils';
 
 export interface AbilityStat {
@@ -53,7 +54,7 @@ export function StatblockSavingThrows({
                 : 'bg-blue-950/40 hover:bg-blue-900/50 border-blue-500/40 hover:border-blue-400 text-blue-200 hover:text-white font-medium'
             )}
           >
-            {sv.isProficient && <span className="text-gold text-xs leading-none">★</span>}
+            {sv.isProficient && <Star className="h-3 w-3 text-gold fill-gold inline-block flex-shrink-0" />}
             <span className="font-sans font-semibold text-xs">{sv.nameRu}</span>
             <span className="font-black tabular-nums">{sv.bonus >= 0 ? `+${sv.bonus}` : sv.bonus}</span>
           </button>

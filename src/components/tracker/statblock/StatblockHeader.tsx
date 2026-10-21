@@ -1,6 +1,6 @@
 
 import clsx from 'clsx';
-import { Crosshair, Eye, Sparkles } from 'lucide-react';
+import { Crosshair, Eye, Sparkles, X } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { CreatureSize } from '../../../types/dnd5e';
 import { cleanRussianText } from '../../../utils/textUtils';
@@ -137,7 +137,7 @@ export function StatblockHeader({
             className="min-h-[32px] min-w-[32px] flex items-center justify-center text-xs text-gray-300 hover:text-red-300 font-bold rounded-glass-sm hover:bg-red-950/60 transition-colors flex-shrink-0 cursor-pointer"
             title="Снять выбор цели"
           >
-            ✕
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -176,8 +176,8 @@ export function StatblockHeader({
             <Crosshair className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">
               {currentTarget
-                ? `🎯 Удар по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`
-                : '🎯 Целевая атака'}
+                ? `Удар по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`
+                : 'Целевая атака'}
             </span>
           </button>
         )}

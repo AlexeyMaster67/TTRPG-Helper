@@ -211,7 +211,7 @@ export function StatblockSpells({
                           {isUsed ? (
                             <span className="w-1.5 h-1.5 rounded-full bg-gray-600" />
                           ) : (
-                            <span className="text-xs leading-none drop-shadow-[0_0_4px_rgba(255,255,255,0.9)]">✦</span>
+                            <Sparkles className="h-3 w-3 text-white drop-shadow-[0_0_4px_rgba(255,255,255,0.9)]" />
                           )}
                         </button>
                       );

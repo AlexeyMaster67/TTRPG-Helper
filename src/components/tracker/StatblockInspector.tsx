@@ -6,6 +6,7 @@ import {
   Swords,
   X,
   Zap,
+  Sparkles,
 } from 'lucide-react';
 import { useCombatStore } from '../../store/combatStore';
 import { usePartyStore } from '../../store/partyStore';
@@ -37,7 +38,9 @@ export function TaperedRule({ className }: { className?: string }) {
   return (
     <div className={clsx("relative flex items-center justify-center my-2", className)}>
       <div className="ddb-tapered-rule w-full opacity-90" />
-      <span className="absolute px-1 bg-surface text-gold text-xs select-none">✦</span>
+      <span className="absolute px-1 bg-surface text-gold flex items-center justify-center select-none">
+        <Sparkles className="h-2.5 w-2.5 text-gold inline" />
+      </span>
     </div>
   );
 }
@@ -468,9 +471,9 @@ export function StatblockInspector() {
           <Swords className="h-5 w-5 text-gold absolute" />
         </div>
         <h3 className="tracking-wider uppercase text-sm font-bold text-gray-200 mb-1.5 flex items-center gap-1.5">
-          <span className="text-gold text-xs">✦</span>
+          <Sparkles className="h-2.5 w-2.5 text-gold inline" />
           <span>Инспектор характеристик</span>
-          <span className="text-gold text-xs">✦</span>
+          <Sparkles className="h-2.5 w-2.5 text-gold inline" />
         </h3>
         <p className="text-xs text-gray-400 max-w-xs leading-relaxed font-sans">
           Выберите существо или персонажа в очереди боя, чтобы просмотреть его характеристики, параметры и проводить мгновенные атаки в один клик.
@@ -585,9 +588,9 @@ export function StatblockInspector() {
             {sb?.traits && sb.traits.length > 0 && (
               <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
                 <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-gold-light">
-                  <span className="text-gold text-xs">✦</span>
+                  <Sparkles className="h-2.5 w-2.5 text-gold inline" />
                   <span>ОСОБЕННОСТИ</span>
-                  <span className="text-gold text-xs">✦</span>
+                  <Sparkles className="h-2.5 w-2.5 text-gold inline" />
                 </div>
                 <div className="space-y-2.5">
                   {sb.traits.map((trait: any, i: number) => (
@@ -635,7 +638,7 @@ export function StatblockInspector() {
           <div className="flex items-center gap-1.5">
             <Dices className="h-4 w-4 text-gold" />
             <span className="text-xs font-bold uppercase tracking-wider text-gray-200">
-              ✦ Журнал бросков кубиков ✦
+              Журнал бросков кубиков
             </span>
           </div>
           {diceLog.length > 0 && (

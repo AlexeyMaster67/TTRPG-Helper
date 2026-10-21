@@ -14,6 +14,7 @@ import {
   Skull,
   Shield,
   Users,
+  Lightbulb,
 } from 'lucide-react';
 import { useEncounterStore } from '../../store/encounterStore';
 import { useCombatStore } from '../../store/combatStore';
@@ -613,9 +614,9 @@ export function EncounterManagerModal() {
               <button
                 type="button"
                 onClick={() => setIsBuildingNew(false)}
-                className="text-gray-400 hover:text-white text-xs p-1"
+                className="text-gray-400 hover:text-white text-xs p-1 flex items-center justify-center cursor-pointer"
               >
-                ✕
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
 
@@ -851,9 +852,9 @@ export function EncounterManagerModal() {
               <button
                 type="button"
                 onClick={() => setIsSavingCurrent(false)}
-                className="text-gray-400 hover:text-white text-xs"
+                className="text-gray-400 hover:text-white text-xs p-1 flex items-center justify-center cursor-pointer"
               >
-                ✕
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
 
@@ -1034,8 +1035,9 @@ export function EncounterManagerModal() {
 
         {/* Footer */}
         <div className="border-t border-border-subtle pt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
-          <span className="break-words leading-relaxed flex-1 min-w-[200px]">
-            💡 Подсказка: При загрузке энкаунтера инициатива монстров бросается автоматически!
+          <span className="break-words leading-relaxed flex-1 min-w-[200px] flex items-center gap-1.5">
+            <Lightbulb className="h-3.5 w-3.5 text-amber-400 shrink-0 inline" />
+            <span>Подсказка: При загрузке энкаунтера инициатива монстров бросается автоматически!</span>
           </span>
           <button
             onClick={closeModal}

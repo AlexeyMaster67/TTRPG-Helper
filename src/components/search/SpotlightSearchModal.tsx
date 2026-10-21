@@ -17,6 +17,9 @@ import {
   Check,
   FileText,
   Swords,
+  X,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -346,9 +349,9 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
             <button
               type="button"
               onClick={() => setQuery('')}
-              className="text-xs text-gray-400 hover:text-white px-1.5 py-0.5 rounded-glass hover:bg-white/10 transition-colors cursor-pointer"
+              className="text-xs text-gray-400 hover:text-white px-1.5 py-0.5 rounded-glass hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
             >
-              ✕
+              <X className="h-3.5 w-3.5" />
             </button>
           )}
           <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 border border-[rgba(255,255,255,0.12)] text-[10px] text-gray-400 font-mono">
@@ -566,7 +569,7 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
               <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-gray-500">
                 <Search className="h-12 w-12 stroke-[1.5] mb-2 opacity-50 text-gold" />
                 <p className="text-sm font-serif">Выберите элемент из списка слева для предпросмотра</p>
-                <p className="text-xs text-gray-500 mt-1">Используйте стрелки ↑ и ↓ для навигации</p>
+                <p className="text-xs text-gray-500 mt-1">Используйте стрелки навигации</p>
               </div>
             )}
           </div>
@@ -582,11 +585,11 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
 
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline">Навигация:</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-[#1c262f] border border-[#2e3b46] font-mono text-[10px] text-gray-300">
-              ↑
+            <kbd className="px-1.5 py-0.5 rounded bg-[#1c262f] border border-[#2e3b46] font-mono text-[10px] text-gray-300 inline-flex items-center">
+              <ArrowUp className="h-3 w-3" />
             </kbd>
-            <kbd className="px-1.5 py-0.5 rounded bg-[#1c262f] border border-[#2e3b46] font-mono text-[10px] text-gray-300">
-              ↓
+            <kbd className="px-1.5 py-0.5 rounded bg-[#1c262f] border border-[#2e3b46] font-mono text-[10px] text-gray-300 inline-flex items-center">
+              <ArrowDown className="h-3 w-3" />
             </kbd>
             <kbd className="px-1.5 py-0.5 rounded bg-[#1c262f] border border-[#2e3b46] font-mono text-[10px] text-gray-300">
               ESC

@@ -14,6 +14,7 @@ import {
   Skull,
   RotateCcw,
   Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 
 export function CombatLogDrawer() {
@@ -283,7 +284,7 @@ export function CombatLogDrawer() {
                         </span>
                       )}
                       {entry.targetName && entry.actorName && (
-                        <span className="text-gray-500">➔</span>
+                        <ArrowRight className="h-3 w-3 text-gray-500 inline flex-shrink-0" />
                       )}
                       {entry.targetName && (
                         <span className="font-bold text-gray-200 truncate">

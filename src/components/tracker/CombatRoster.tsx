@@ -4,6 +4,8 @@ import {
   Swords,
   X,
   UserPlus,
+  Edit3,
+  SkipForward,
 } from 'lucide-react';
 import { useCombatStore } from '../../store/combatStore';
 import { CombatantCard } from './CombatantCard';
@@ -86,14 +88,16 @@ export function CombatRoster() {
                 className="min-h-[32px] px-3 py-1 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all whitespace-nowrap cursor-pointer"
                 title="Внести результат действия игрока"
               >
-                <span>✍️ Внести результат</span>
+                <Edit3 className="h-3.5 w-3.5" />
+                <span>Внести результат</span>
               </button>
               <button
                 onClick={nextTurn}
                 className="min-h-[32px] px-3.5 py-1 rounded-full bg-[#f5b920] hover:bg-[#fac742] active:bg-[#e0a312] text-[#0c0d12] font-black text-xs flex items-center gap-1.5 shadow-[0_0_14px_rgba(245,185,32,0.3)] transition-all whitespace-nowrap cursor-pointer"
                 title="Передать ход дальше (Пробел)"
               >
-                <span>След. ход ⏭️</span>
+                <span>След. ход</span>
+                <SkipForward className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>

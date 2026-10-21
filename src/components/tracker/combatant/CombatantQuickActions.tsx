@@ -65,7 +65,7 @@ export function CombatantQuickActions({
       onClick={(e) => e.stopPropagation()}
       className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.08)] grid grid-cols-2 sm:grid-cols-4 gap-2 select-none"
     >
-      {/* [ ⚔️ Атака ] — Ghost */}
+      {/* [ Атака ] — Ghost */}
       <button
         type="button"
         onClick={(e) => {
@@ -79,7 +79,7 @@ export function CombatantQuickActions({
         <span>Атака</span>
       </button>
 
-      {/* [ 🩸 Урон/ОЗ ] — Ghost */}
+      {/* [ Урон/ОЗ ] — Ghost */}
       <button
         type="button"
         onClick={(e) => {
@@ -93,7 +93,7 @@ export function CombatantQuickActions({
         <span>Урон / ОЗ</span>
       </button>
 
-      {/* [ 🛡️ Спасбросок ] — Ghost */}
+      {/* [ Спасбросок ] — Ghost */}
       <div className="relative" ref={savePopoverRef}>
         <button
           type="button"
@@ -154,7 +154,7 @@ export function CombatantQuickActions({
         )}
       </div>
 
-      {/* [ ⏭️ Завершить ход ] — PRIMARY BUTTON с золотым свечением */}
+      {/* [ Завершить ход ] — PRIMARY BUTTON с золотым свечением */}
       <button
         type="button"
         onClick={(e) => {

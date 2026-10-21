@@ -33,6 +33,11 @@ import {
   Clock,
   ShieldAlert,
   SlidersHorizontal,
+  Key,
+  Trees,
+  CloudRain,
+  Lightbulb,
+  Folder,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -48,7 +53,7 @@ interface CategoryOption {
   label: string;
   category: TrackCategory;
   subcategory?: string;
-  icon: string;
+  icon: React.ReactNode;
   color: string;
 }
 
@@ -57,7 +62,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
     id: 'combat',
     label: 'Бой',
     category: 'combat',
-    icon: '⚔️',
+    icon: <Swords className="h-3.5 w-3.5" />,
     color: 'text-red-400 border-red-500/40 bg-red-950/40',
   },
   {
@@ -65,7 +70,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
     label: 'Таверна / Город',
     category: 'music',
     subcategory: 'town',
-    icon: '🍺',
+    icon: <Music className="h-3.5 w-3.5" />,
     color: 'text-amber-300 border-amber-500/40 bg-amber-950/40',
   },
   {
@@ -73,7 +78,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
     label: 'Исследование / Подземелье',
     category: 'ambient',
     subcategory: 'dungeon',
-    icon: '🗝️',
+    icon: <Key className="h-3.5 w-3.5" />,
     color: 'text-cyan-300 border-cyan-500/40 bg-cyan-950/40',
   },
   {
@@ -81,14 +86,14 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
     label: 'Природа / Амбиент',
     category: 'ambient',
     subcategory: 'nature',
-    icon: '🌲',
+    icon: <Trees className="h-3.5 w-3.5" />,
     color: 'text-emerald-300 border-emerald-500/40 bg-emerald-950/40',
   },
   {
     id: 'sfx',
     label: 'Спецэффекты (SFX)',
     category: 'sfx',
-    icon: '⚡',
+    icon: <Zap className="h-3.5 w-3.5" />,
     color: 'text-purple-300 border-purple-500/40 bg-purple-950/40',
   },
 ];
@@ -269,18 +274,18 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
 
   const getTrackBadge = (track: CustomAudioTrack) => {
     if (track.category === 'combat') {
-      return { label: 'Бой', icon: '⚔️', color: 'text-red-400 bg-red-950/60 border-red-800/60' };
+      return { label: 'Бой', icon: <Swords className="h-3.5 w-3.5" />, color: 'text-red-400 bg-red-950/60 border-red-800/60' };
     }
     if (track.category === 'sfx') {
-      return { label: 'SFX', icon: '⚡', color: 'text-purple-300 bg-purple-950/60 border-purple-800/60' };
+      return { label: 'SFX', icon: <Zap className="h-3.5 w-3.5" />, color: 'text-purple-300 bg-purple-950/60 border-purple-800/60' };
     }
     if (track.subcategory === 'dungeon' || /подземелье|dungeon|cave/i.test(track.name)) {
-      return { label: 'Подземелье', icon: '🗝️', color: 'text-cyan-300 bg-cyan-950/60 border-cyan-800/60' };
+      return { label: 'Подземелье', icon: <Key className="h-3.5 w-3.5" />, color: 'text-cyan-300 bg-cyan-950/60 border-cyan-800/60' };
     }
     if (track.category === 'ambient' || track.subcategory === 'nature') {
-      return { label: 'Природа', icon: '🌲', color: 'text-emerald-300 bg-emerald-950/60 border-emerald-800/60' };
+      return { label: 'Природа', icon: <Trees className="h-3.5 w-3.5" />, color: 'text-emerald-300 bg-emerald-950/60 border-emerald-800/60' };
     }
-    return { label: 'Таверна / Город', icon: '🍺', color: 'text-amber-300 bg-amber-950/60 border-amber-800/60' };
+    return { label: 'Таверна / Город', icon: <Music className="h-3.5 w-3.5" />, color: 'text-amber-300 bg-amber-950/60 border-amber-800/60' };
   };
 
   return (
@@ -427,10 +432,10 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
             <div className="mt-2 pt-2 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2 animate-in fade-in duration-150">
               {(
                 [
-                  { id: 'combat', label: '⚔️ Бой' },
-                  { id: 'music', label: '🍺 Таверна' },
-                  { id: 'ambient', label: '🌲 Амбиент' },
-                  { id: 'sfx', label: '⚡ SFX' },
+                  { id: 'combat', label: 'Бой' },
+                  { id: 'music', label: 'Таверна' },
+                  { id: 'ambient', label: 'Амбиент' },
+                  { id: 'sfx', label: 'SFX' },
                 ] as const
               ).map((cat) => (
                 <div key={cat.id} className="p-2 rounded bg-black/40 border border-white/5 space-y-1">
@@ -543,8 +548,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
 
                 {/* Drag hint */}
                 <div className="p-2 rounded bg-black/30 border border-dashed border-white/10 text-center">
-                  <span className="text-[11px] text-gray-400">
-                    💡 Или просто перетащите аудиофайлы мышью прямо в это окно
+                  <span className="text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
+                    <Lightbulb className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
+                    <span>Или просто перетащите аудиофайлы мышью прямо в это окно</span>
                   </span>
                 </div>
               </div>
@@ -565,9 +571,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                     <button
                       type="button"
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs cursor-pointer"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs cursor-pointer flex items-center justify-center"
                     >
-                      ✕
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
@@ -875,7 +881,21 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                         )}
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <span className="text-2xl shrink-0">{t.icon}</span>
+                          <span className="shrink-0">
+                            {t.id === 'tavern' ? (
+                              <Music className="h-6 w-6 text-amber-400" />
+                            ) : t.id === 'dungeon' ? (
+                              <Key className="h-6 w-6 text-cyan-400" />
+                            ) : t.id === 'rain' ? (
+                              <CloudRain className="h-6 w-6 text-sky-400" />
+                            ) : t.id === 'campfire' ? (
+                              <Flame className="h-6 w-6 text-orange-400" />
+                            ) : t.id === 'drums' ? (
+                              <Swords className="h-6 w-6 text-red-400" />
+                            ) : (
+                              <Music className="h-6 w-6 text-gold" />
+                            )}
+                          </span>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <h4
@@ -931,8 +951,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                 <span className="font-bold text-white text-xs truncate block">
                   {currentCustomTrack.name}
                 </span>
-                <span className="text-[10px] text-gray-400">
-                  📁 {getTrackBadge(currentCustomTrack).label}
+                <span className="text-[10px] text-gray-400 flex items-center gap-1">
+                  <Folder className="h-3 w-3 inline text-text-muted" />
+                  <span>{getTrackBadge(currentCustomTrack).label}</span>
                 </span>
               </div>
               <div className="font-mono text-[11px] text-gray-400 shrink-0">
