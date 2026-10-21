@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useCombatStore } from '../../store/combatStore';
 import { useCombatNumpadState } from '../../hooks/useCombatNumpadHotkeys';
 import { cleanRussianText } from '../../utils/textUtils';
-import { Zap, Skull, Check, CornerDownLeft, X, ArrowUpDown } from 'lucide-react';
+import { Zap, Skull, Check, CornerDownLeft, X, ArrowUpDown, Swords, Heart, Shield } from 'lucide-react';
 
 export function CombatQuickInputHud() {
   const { combatants, inspectedCombatantId, currentTurnIndex } = useCombatStore();
@@ -75,10 +75,25 @@ export function CombatQuickInputHud() {
       {/* Центр: Буфер быстрого ввода цифр и знака */}
       {hasActiveInput ? (
         <div className="flex items-center gap-2 bg-black/60 px-3 py-1 rounded-full border border-[#f5b920] shadow-[0_0_16px_rgba(245,185,32,0.35)] animate-pulse">
-          <span className="text-[10px] uppercase font-bold text-gray-400 font-sans">
-            {operation === 'damage' && '⚔️ Урон'}
-            {operation === 'heal' && '💚 Исцеление'}
-            {operation === 'temp_hp' && '🛡️ Врем. ОЗ'}
+          <span className="text-[10px] uppercase font-bold text-gray-400 font-sans inline-flex items-center gap-1">
+            {operation === 'damage' && (
+              <>
+                <Swords className="w-3 h-3 text-red-400 inline" />
+                <span>Урон</span>
+              </>
+            )}
+            {operation === 'heal' && (
+              <>
+                <Heart className="w-3 h-3 text-emerald-400 inline" />
+                <span>Исцеление</span>
+              </>
+            )}
+            {operation === 'temp_hp' && (
+              <>
+                <Shield className="w-3 h-3 text-blue-400 inline" />
+                <span>Врем. ОЗ</span>
+              </>
+            )}
           </span>
           <span
             className={`font-mono text-base font-black tabular-nums tracking-wider px-1 ${
@@ -140,7 +155,7 @@ export function CombatQuickInputHud() {
           <span className="flex items-center gap-1">
             <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 font-mono text-[10px] text-[#fce79f] flex items-center gap-0.5">
               <ArrowUpDown className="w-2.5 h-2.5" />
-              <span>↑/↓</span>
+              <span>Стрелки</span>
             </kbd>
             <span className="text-gray-400">выбор</span>
           </span>

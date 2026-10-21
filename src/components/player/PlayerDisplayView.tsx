@@ -5,7 +5,7 @@ import { useMapStore } from '../../store/mapStore';
 import { broadcastService } from '../../services/broadcastService';
 import { PublicRollNotification, NpcShowcaseData, HandoutData } from '../../types/broadcast';
 import { TacticalBattleMap } from '../map/TacticalBattleMap';
-import { Maximize2, Minimize2, Eye } from 'lucide-react';
+import { Maximize2, Minimize2, Eye, Sparkles, X } from 'lucide-react';
 import { cleanRussianText } from '../../utils/textUtils';
 import { resolveTokenUrl } from '../../services/tokenResolver';
 import { Dice2dRollCard } from '../dice/Dice2dRollCard';
@@ -159,9 +159,9 @@ export function PlayerDisplayView() {
           <div className="flex items-center gap-2 sm:gap-3 bg-gradient-to-b from-[#261f14] to-[#16120b] border border-gold/70 rounded px-3 sm:px-4 py-1 sm:py-1.5 shadow-gold-glow flex-shrink-0">
             <div className="flex flex-col items-center">
               <span className="text-[9px] sm:text-[10px] font-bold text-gray-300 uppercase tracking-wider font-serif flex items-center gap-1 whitespace-nowrap">
-                <span className="text-gold text-[8px]">✦</span>
+                <Sparkles className="h-2 w-2 text-gold inline" />
                 РАУНД
-                <span className="text-gold text-[8px]">✦</span>
+                <Sparkles className="h-2 w-2 text-gold inline" />
               </span>
               <span className="text-xl sm:text-2xl font-black font-serif text-gold leading-none drop-shadow">
                 {roundCounter}
@@ -172,9 +172,9 @@ export function PlayerDisplayView() {
           {/* Active Creature Hero Banner */}
           <div className="flex-1 min-w-0 px-2 flex flex-col items-center justify-center text-center">
             <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider sm:tracking-widest text-gold-light/90 font-serif flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap">
-              <span className="text-gold text-[8px]">✦</span>
+              <Sparkles className="h-2 w-2 text-gold inline" />
               СЕЙЧАС ХОДИТ
-              <span className="text-gold text-[8px]">✦</span>
+              <Sparkles className="h-2 w-2 text-gold inline" />
             </span>
             <h1
               className="text-base sm:text-xl md:text-2xl font-black font-serif tracking-wide text-white truncate max-w-full drop-shadow-md leading-tight mt-0.5"
@@ -345,9 +345,9 @@ export function PlayerDisplayView() {
             <div className="relative max-w-lg w-full max-h-[90vh] overflow-y-auto bg-gradient-to-b from-[#182128] via-[#141b21] to-[#10151a] border-2 border-gold/80 rounded shadow-[0_12px_40px_rgba(0,0,0,0.9)] p-5 sm:p-6 text-center space-y-4 ring-1 ring-gold/30">
               <button
                 onClick={() => setActiveShowcase(null)}
-                className="absolute top-3 right-3 text-gray-300 hover:text-white p-1 rounded hover:bg-[#202b35]"
+                className="absolute top-3 right-3 text-gray-300 hover:text-white p-1 rounded hover:bg-[#202b35] flex items-center justify-center cursor-pointer"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
 
               {/* Portrait */}
@@ -371,8 +371,10 @@ export function PlayerDisplayView() {
                   {cleanRussianText(activeShowcase.nameRu || activeShowcase.name)}
                 </h2>
                 {activeShowcase.creatureType && (
-                  <p className="text-xs text-gray-300 uppercase tracking-widest mt-1 font-serif break-words">
-                    ✦ {cleanRussianText(activeShowcase.creatureType)} ✦
+                  <p className="text-xs text-gray-300 uppercase tracking-widest mt-1 font-serif break-words flex items-center justify-center gap-1.5">
+                    <Sparkles className="h-2.5 w-2.5 text-gold inline" />
+                    <span>{cleanRussianText(activeShowcase.creatureType)}</span>
+                    <Sparkles className="h-2.5 w-2.5 text-gold inline" />
                   </p>
                 )}
               </div>
@@ -409,15 +411,15 @@ export function PlayerDisplayView() {
             >
               <button
                 onClick={() => setActiveHandout(null)}
-                className="absolute top-3 right-3 text-current/60 hover:text-current p-1.5 rounded hover:bg-black/10 transition-colors text-base font-bold"
+                className="absolute top-3 right-3 text-current/60 hover:text-current p-1.5 rounded hover:bg-black/10 transition-colors flex items-center justify-center"
                 title="Закрыть раздатку"
               >
-                ✕
+                <X className="h-5 w-5" />
               </button>
 
               {/* Decorative Top Heraldry */}
               <div className="flex items-center justify-center gap-2 text-center opacity-70">
-                <span>✦</span>
+                <Sparkles className="h-3.5 w-3.5 inline" />
                 <span className="text-xs sm:text-sm font-serif font-black tracking-widest uppercase">
                   {activeHandout.type === 'decree'
                     ? 'КОРОЛЕВСКИЙ УКАЗ'
@@ -429,7 +431,7 @@ export function PlayerDisplayView() {
                     ? 'ДРЕВНЯЯ ЗАГАДКА'
                     : 'СТАРИННОЕ ПОСЛАНИЕ'}
                 </span>
-                <span>✦</span>
+                <Sparkles className="h-3.5 w-3.5 inline" />
               </div>
 
               {/* Title */}
@@ -458,8 +460,11 @@ export function PlayerDisplayView() {
 
               {/* Decorative Bottom Flourish */}
               <div className="pt-4 border-t border-current/20 flex items-center justify-between text-xs opacity-60 font-serif italic">
-                <span>✦ Древние тайны Забытых Королевств</span>
-                <span>Нажмите Esc или ✕, чтобы свернуть</span>
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3 inline" />
+                  <span>Древние тайны Забытых Королевств</span>
+                </span>
+                <span>Нажмите Esc, чтобы свернуть</span>
               </div>
             </div>
           </div>

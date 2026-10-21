@@ -32,6 +32,7 @@ import {
   CloudFog,
   Circle,
   Square,
+  Hexagon,
   Plus,
   Flame,
   Wand2,
@@ -740,7 +741,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <span>Рисовать</span>
                 </button>
 
-                {/* [ ⌫ Ластик ] */}
+                {/* [ Ластик ] */}
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'eraser' ? 'select' : 'eraser')}
@@ -812,7 +813,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
 
                 <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
 
-                {/* [ ↶ Undo ] */}
+                {/* [ Undo ] */}
                 <button
                   type="button"
                   onClick={undoLastDrawing}
@@ -1437,37 +1438,40 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                     type="button"
                     onClick={() => setGridType('square')}
                     title="Квадратная сетка (Square 5 ft)"
-                    className={`px-1 py-0.5 rounded text-[10px] font-semibold transition-colors ${
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-semibold transition-colors inline-flex items-center gap-1 ${
                       gridType === 'square'
                         ? 'bg-gold/25 text-gold-light font-bold border border-gold/60 shadow-xs'
                         : 'text-gray-400 hover:text-gray-200 border border-transparent'
                     }`}
                   >
-                    ■ Квадрат
+                    <Square className="h-2.5 w-2.5 inline" />
+                    <span>Квадрат</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setGridType('hex-pointy')}
                     title="Гексагональная вертикальная сетка (Pointy-topped hex)"
-                    className={`px-1 py-0.5 rounded text-[10px] font-semibold transition-colors ${
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-semibold transition-colors inline-flex items-center gap-1 ${
                       gridType === 'hex-pointy'
                         ? 'bg-gold/25 text-gold-light font-bold border border-gold/60 shadow-xs'
                         : 'text-gray-400 hover:text-gray-200 border border-transparent'
                     }`}
                   >
-                    ⬡ Гекс V
+                    <Hexagon className="h-2.5 w-2.5 inline" />
+                    <span>Гекс V</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setGridType('hex-flat')}
                     title="Гексагональная горизонтальная сетка (Flat-topped hex)"
-                    className={`px-1 py-0.5 rounded text-[10px] font-semibold transition-colors ${
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-semibold transition-colors inline-flex items-center gap-1 ${
                       gridType === 'hex-flat'
                         ? 'bg-gold/25 text-gold-light font-bold border border-gold/60 shadow-xs'
                         : 'text-gray-400 hover:text-gray-200 border border-transparent'
                     }`}
                   >
-                    ⬢ Гекс H
+                    <Hexagon className="h-2.5 w-2.5 inline rotate-90" />
+                    <span>Гекс H</span>
                   </button>
                 </div>
 

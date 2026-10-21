@@ -1,6 +1,6 @@
 
 import clsx from 'clsx';
-import { Eye, X, Zap, Sparkles } from 'lucide-react';
+import { Eye, X, Zap, Sparkles, Crosshair, FileText } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { cleanRussianText } from '../../../utils/textUtils';
 import { resolveTokenUrl } from '../../../services/tokenResolver';
@@ -51,12 +51,12 @@ export function CombatantHeader({
 
   return (
     <>
-      {/* ⚡ Верхняя плашка текущего хода с золотым сиянием */}
+      {/* Верхняя плашка текущего хода с золотым сиянием */}
       {isActiveTurn && (
         <div className="flex items-center justify-between px-3 py-1 bg-gradient-to-r from-amber-500/25 via-gold/35 to-amber-500/25 text-gold-light text-xs font-black uppercase tracking-wider shadow-sm rounded-t-glass-lg -mx-3 -mt-2 mb-2 border-b border-gold/40 select-none">
           <span className="flex items-center gap-1.5">
             <Zap className="h-3.5 w-3.5 fill-gold text-gold animate-pulse flex-shrink-0" />
-            <span className="font-extrabold tracking-widest leading-none text-white drop-shadow-sm">⚡ ТЕКУЩИЙ ХОД</span>
+            <span className="font-extrabold tracking-widest leading-none text-white drop-shadow-sm">ТЕКУЩИЙ ХОД</span>
           </span>
           <span className="text-[10px] font-mono font-bold text-amber-200/90 hidden sm:inline leading-none">
             Горячая клавиша: Пробел
@@ -64,7 +64,7 @@ export function CombatantHeader({
         </div>
       )}
 
-      {/* Tier 1 (Top Tier): [Инициатива] [🎯] [Аватар + Клон] [Имя] [📜 ЛИСТ] [МЁРТВ] ... [👁️ Глаз] [✕ Удалить] */}
+      {/* Tier 1 (Top Tier): [Инициатива] [Цель] [Аватар + Клон] [Имя] [ЛИСТ] [МЁРТВ] ... [Глаз] [Удалить] */}
       <div className="flex items-center justify-between gap-2 min-w-0">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           {/* Initiative */}
@@ -114,13 +114,13 @@ export function CombatantHeader({
             }}
             title={isTarget ? 'Цель захвачена (Кликните для снятия)' : 'ПКМ или клик: выбрать как цель'}
             className={clsx(
-              'p-0.5 rounded-sm text-xs transition-colors flex-shrink-0 cursor-pointer',
+              'p-0.5 rounded-sm text-xs transition-colors flex-shrink-0 cursor-pointer flex items-center justify-center',
               isTarget
                 ? 'text-red-400 bg-red-950/70 border border-red-500/60 shadow-sm animate-pulse'
                 : 'text-gray-500 hover:text-red-300 opacity-0 group-hover:opacity-100'
             )}
           >
-            🎯
+            <Crosshair className="h-3.5 w-3.5" />
           </button>
 
           {/* Avatar Frame with Clone Badge & Token Forge Quick Edit */}
@@ -200,7 +200,7 @@ export function CombatantHeader({
                 title="Открыть интерактивный лист персонажа D&D Beyond"
                 className="text-[9px] px-1 py-0.5 rounded bg-emerald-950/80 border border-emerald-600/70 hover:border-gold hover:text-gold-light text-emerald-300 flex-shrink-0 font-mono leading-none whitespace-nowrap cursor-pointer transition-colors shadow-sm flex items-center gap-0.5"
               >
-                <span>📜</span>
+                <FileText className="h-3 w-3" />
                 <span>ЛИСТ</span>
               </button>
             )}

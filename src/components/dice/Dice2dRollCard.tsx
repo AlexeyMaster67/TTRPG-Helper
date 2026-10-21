@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Animated2dDie } from './Animated2dDie';
-import { Dices, X, Sparkles, AlertCircle } from 'lucide-react';
+import { Dices, X, Sparkles, AlertCircle, Check } from 'lucide-react';
 import { audioService } from '../../services/audioService';
 
 export interface SingleDieResult {
@@ -235,7 +235,15 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
                       : 'text-gray-500 line-through'
                   }`}
                 >
-                  {!r1Discarded ? '✓ Выбран' : '✕ Сброшен'}
+                  {!r1Discarded ? (
+                    <span className="inline-flex items-center gap-0.5">
+                      <Check className="h-2.5 w-2.5" /> Выбран
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-0.5">
+                      <X className="h-2.5 w-2.5" /> Сброшен
+                    </span>
+                  )}
                 </span>
               )}
             </div>
@@ -258,7 +266,15 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
                       : 'text-gray-500 line-through'
                   }`}
                 >
-                  {!r2Discarded ? '✓ Выбран' : '✕ Сброшен'}
+                  {!r2Discarded ? (
+                    <span className="inline-flex items-center gap-0.5">
+                      <Check className="h-2.5 w-2.5" /> Выбран
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-0.5">
+                      <X className="h-2.5 w-2.5" /> Сброшен
+                    </span>
+                  )}
                 </span>
               )}
             </div>

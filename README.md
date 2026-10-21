@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.2-gold.svg?style=flat-square" alt="Version 2.0.2" />
+  <img src="https://img.shields.io/badge/version-2.0.3-gold.svg?style=flat-square" alt="Version 2.0.3" />
   <img src="https://img.shields.io/badge/license-MIT%20%2F%20CC--BY--4.0-blue.svg?style=flat-square" alt="License MIT / CC-BY" />
   <img src="https://img.shields.io/badge/offline--first-100%25%20Local-emerald.svg?style=flat-square" alt="100% Offline" />
   <img src="https://img.shields.io/badge/platform-Windows%20x64-indigo.svg?style=flat-square" alt="Platform" />

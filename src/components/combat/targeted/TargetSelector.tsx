@@ -1,4 +1,4 @@
-import { Shield } from 'lucide-react';
+import { Shield, Swords, Skull } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 
 export interface TargetSelectorProps {
@@ -51,7 +51,7 @@ export function TargetSelector({
           >
             {availableTargets.map((t) => (
               <option key={t.id} value={t.id}>
-                {t.isPlayer ? '🛡️ [Игрок] ' : '👾 [Монстр] '}
+                {t.isPlayer ? '[Игрок] ' : '[Монстр] '}
                 {t.nameRu || t.name} — КД: {t.ac} | ОЗ: {t.hp}/{t.maxHp}
               </option>
             ))}
@@ -75,27 +75,30 @@ export function TargetSelector({
                     .map((t) => t.id)
                 )
               }
-              className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors"
+              className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors inline-flex items-center gap-1"
             >
-              ⚔️ Все враги
+              <Swords className="h-3 w-3" />
+              <span>Все враги</span>
             </button>
             <button
               type="button"
               onClick={() =>
                 onSelectAoETargetIds(availableTargets.filter((t) => t.isPlayer).map((t) => t.id))
               }
-              className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors"
+              className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors inline-flex items-center gap-1"
             >
-              🛡️ Все игроки
+              <Shield className="h-3 w-3" />
+              <span>Все игроки</span>
             </button>
             <button
               type="button"
               onClick={() =>
                 onSelectAoETargetIds(availableTargets.filter((t) => !t.isPlayer).map((t) => t.id))
               }
-              className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors"
+              className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors inline-flex items-center gap-1"
             >
-              👾 Все монстры
+              <Skull className="h-3 w-3" />
+              <span>Все монстры</span>
             </button>
             <button
               type="button"
@@ -139,9 +142,13 @@ export function TargetSelector({
                       }}
                       className="rounded border-border-subtle text-gold focus:ring-0 bg-canvas"
                     />
-                    <span className="truncate">
-                      {t.isPlayer ? '🛡️ ' : '👾 '}
-                      {t.nameRu || t.name}
+                    <span className="truncate flex items-center gap-1.5">
+                      {t.isPlayer ? (
+                        <Shield className="h-3 w-3 text-blue-400 shrink-0 inline" />
+                      ) : (
+                        <Skull className="h-3 w-3 text-red-400 shrink-0 inline" />
+                      )}
+                      <span>{t.nameRu || t.name}</span>
                     </span>
                   </div>
                   <span className="text-[10px] font-mono text-gray-400 shrink-0">

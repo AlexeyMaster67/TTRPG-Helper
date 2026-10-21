@@ -3109,10 +3109,10 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                     />
                   </KonvaGroup>
 
-                  {/* When selected, show small delete [✕] and rotate [⟳] controls */}
+                  {/* When selected, show small delete [X] and rotate [R] controls */}
                   {isSelected && (
                     <KonvaGroup y={-48}>
-                      {/* Rotate Button [⟳] */}
+                      {/* Rotate Button [R] */}
                       <KonvaGroup
                         x={-22}
                         y={0}
@@ -3139,18 +3139,18 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                           shadowOpacity={0.6}
                         />
                         <KonvaText
-                          text="⟳"
-                          fontSize={14}
+                          text="R"
+                          fontSize={13}
                           fontFamily="sans-serif"
                           fontStyle="bold"
                           fill="#F59E0B"
-                          offsetX={6}
-                          offsetY={8}
+                          offsetX={5}
+                          offsetY={7}
                           listening={false}
                         />
                       </KonvaGroup>
 
-                      {/* Delete Button [✕] */}
+                      {/* Delete Button [X] */}
                       <KonvaGroup
                         x={22}
                         y={0}
@@ -3173,7 +3173,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                           shadowOpacity={0.6}
                         />
                         <KonvaText
-                          text="✕"
+                          text="X"
                           fontSize={12}
                           fontFamily="sans-serif"
                           fontStyle="bold"

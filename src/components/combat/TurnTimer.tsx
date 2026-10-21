@@ -9,6 +9,7 @@ import {
   VolumeX,
   Timer,
   ChevronDown,
+  Check,
 } from 'lucide-react';
 
 // Procedural audio warning synthesizer using Web Audio API (100% offline, 0 asset dependencies)
@@ -281,7 +282,7 @@ export function TurnTimer() {
               }`}
             >
               <span>{preset.label}</span>
-              {totalSeconds === preset.sec && <span className="text-[#f5b920]">✓</span>}
+              {totalSeconds === preset.sec && <Check className="h-3.5 w-3.5 text-[#f5b920]" />}
             </button>
           ))}
         </div>

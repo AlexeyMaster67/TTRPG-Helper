@@ -137,7 +137,7 @@ export function MobCombatModal() {
       round: roundCounter || 1,
       actorName: mobName,
       targetName,
-      text: `⚔️ Атака толпы: [${mobName} ×${mobCount}] атаковала [${targetName}] — ${hitsScored} попаданий, нанесено ${totalDmg} ${localizeDamageType(damageType)} урона!`,
+      text: `Атака толпы: [${mobName} ×${mobCount}] атаковала [${targetName}] — ${hitsScored} попаданий, нанесено ${totalDmg} ${localizeDamageType(damageType)} урона!`,
       details: `Правило DMG: КД ${effectiveAc}, бонус +${attackBonus}, нужно d20: ${d20Needed}+ (1 hit / ${attackersNeeded} мобов). ${rollDetails}`,
       value: totalDmg,
     });
@@ -152,7 +152,7 @@ export function MobCombatModal() {
   const handleCopySummary = async () => {
     const targetName = target ? cleanRussianText(target.nameRu || target.name) : `КД ${effectiveAc}`;
     const text = [
-      `⚔️ РАСЧЁТ АТАКИ ОРДЫ (DMG 5e/2024)`,
+      `РАСЧЁТ АТАКИ ОРДЫ (DMG 5e/2024)`,
       `Атакующие: ${mobName} (${mobCount} существ, бонус попадания: +${attackBonus})`,
       `Цель: ${targetName} (КД: ${effectiveAc})`,
       `Режим: ${advantageMode === 'advantage' ? 'Преимущество (+5)' : advantageMode === 'disadvantage' ? 'Помеха (-5)' : 'Обычный'}`,
@@ -339,7 +339,7 @@ export function MobCombatModal() {
                 <option value="">(Ручной ввод КД цели)</option>
                 {combatants.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.isPlayer ? '👤 ' : '👾 '}
+                    {c.isPlayer ? '[Игрок] ' : '[Монстр] '}
                     {cleanRussianText(c.nameRu || c.name)} — КД {c.ac} ({c.hp}/{c.maxHp} ОЗ)
                   </option>
                 ))}

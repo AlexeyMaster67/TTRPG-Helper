@@ -57,7 +57,7 @@ export const ConcentrationAlertModal: React.FC = () => {
         isNat20: d20 === 20,
         isNat1: d20 === 1,
       },
-      note: `⚡ Спасбросок Телосложения против СЛ ${dc}: d20(${d20}) ${sign} = ${total} -> ${resultText}`,
+      note: `Спасбросок Телосложения против СЛ ${dc}: d20(${d20}) ${sign} = ${total} -> ${resultText}`,
     });
 
     // 2. Broadcast roll to players screen
@@ -67,7 +67,7 @@ export const ConcentrationAlertModal: React.FC = () => {
         id: crypto.randomUUID(),
         title: `${combatantName}: Спасбросок концентрации`,
         formula: `1d20 ${sign} против СЛ ${dc}`,
-        resultDisplay: `⚡ ${total} против СЛ ${dc} [d20: ${d20}] -> ${resultText}`,
+        resultDisplay: `${total} против СЛ ${dc} [d20: ${d20}] -> ${resultText}`,
         total,
         isCritical: d20 === 20,
         isCriticalMiss: d20 === 1,
@@ -87,7 +87,7 @@ export const ConcentrationAlertModal: React.FC = () => {
       timestamp: timeStr,
       combatantName,
       actionName: 'Концентрация удержана (вручную)',
-      note: `⚡ ${combatantName} успешно удерживает концентрацию (вручную)`,
+      note: `${combatantName} успешно удерживает концентрацию (вручную)`,
     });
     clearConcentrationAlert();
   };
@@ -99,7 +99,7 @@ export const ConcentrationAlertModal: React.FC = () => {
       timestamp: timeStr,
       combatantName,
       actionName: 'Концентрация потеряна',
-      note: `⚡ ${combatantName} теряет концентрацию`,
+      note: `${combatantName} теряет концентрацию`,
     });
     removeConcentration(combatantId);
     clearConcentrationAlert();

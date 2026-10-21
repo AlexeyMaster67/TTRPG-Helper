@@ -718,16 +718,18 @@ export function BestiaryLibrary() {
                       {monsterNameRu}
                     </span>
                     {monster.is_custom && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-[#f5b920]/60 shrink-0 whitespace-nowrap shadow-sm">
-                        ✦ Своё
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-[#f5b920]/60 shrink-0 whitespace-nowrap shadow-sm inline-flex items-center gap-1">
+                        <Sparkles className="h-2.5 w-2.5 inline" />
+                        <span>Своё</span>
                       </span>
                     )}
                     {assignedFolders.length > 0 && (
                       <span
-                        className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 shrink-0 whitespace-nowrap"
+                        className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 shrink-0 whitespace-nowrap inline-flex items-center gap-1"
                         title={`Папки: ${assignedFolders.map((fId) => FOLDERS.find((f) => f.id === fId)?.label || fId).join(', ')}`}
                       >
-                        📁 {assignedFolders.length}
+                        <Folder className="h-2.5 w-2.5 inline" />
+                        <span>{assignedFolders.length}</span>
                       </span>
                     )}
                     {monster.cr && (

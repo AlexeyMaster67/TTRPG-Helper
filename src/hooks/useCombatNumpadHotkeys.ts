@@ -109,13 +109,13 @@ export function useCombatNumpadHotkeys() {
         if ((e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
           e.preventDefault();
           undoLastAction();
-          showFeedback('↩️ Действие отменено (Ctrl+Z)', 'undo');
+          showFeedback('Действие отменено (Ctrl+Z)', 'undo');
           return;
         }
         if (((e.key === 'z' || e.key === 'Z') && e.shiftKey) || e.key === 'y' || e.key === 'Y') {
           e.preventDefault();
           redoLastAction();
-          showFeedback('↪️ Действие возвращено (Ctrl+Y)', 'redo');
+          showFeedback('Действие возвращено (Ctrl+Y)', 'redo');
           return;
         }
       }
@@ -160,7 +160,7 @@ export function useCombatNumpadHotkeys() {
               isDying: true,
               isDead: false,
             });
-            showFeedback(`💀 ${targetName} без сознания (0 ОЗ)`, 'knockout');
+            showFeedback(`${targetName} без сознания (0 ОЗ)`, 'knockout');
           } else if (!activeTarget.isDead) {
             // Already 0 HP -> Mark Dead
             updateCombatant(activeTarget.id, {
@@ -168,7 +168,7 @@ export function useCombatNumpadHotkeys() {
               isDying: false,
               isDead: true,
             });
-            showFeedback(`☠️ ${targetName} погиб!`, 'knockout');
+            showFeedback(`${targetName} погиб!`, 'knockout');
           } else {
             // Revive with 1 HP
             updateCombatant(activeTarget.id, {
@@ -176,7 +176,7 @@ export function useCombatNumpadHotkeys() {
               isDying: false,
               isDead: false,
             });
-            showFeedback(`✨ ${targetName} возвращён в строй (1 ОЗ)`, 'heal');
+            showFeedback(`${targetName} возвращён в строй (1 ОЗ)`, 'heal');
           }
           return;
         }
@@ -257,13 +257,13 @@ export function useCombatNumpadHotkeys() {
         if (amount > 0) {
           if (op === 'damage') {
             applyDamage(activeTarget.id, amount);
-            showFeedback(`💥 -${amount} ОЗ урона по ${targetName}`, 'damage');
+            showFeedback(`-${amount} ОЗ урона по ${targetName}`, 'damage');
           } else if (op === 'heal') {
             applyHealing(activeTarget.id, amount);
-            showFeedback(`💚 +${amount} ОЗ исцеления для ${targetName}`, 'heal');
+            showFeedback(`+${amount} ОЗ исцеления для ${targetName}`, 'heal');
           } else if (op === 'temp_hp') {
             applyTempHp(activeTarget.id, amount);
-            showFeedback(`🛡️ +${amount} врем. ОЗ для ${targetName}`, 'temp_hp');
+            showFeedback(`+${amount} врем. ОЗ для ${targetName}`, 'temp_hp');
           }
         }
 

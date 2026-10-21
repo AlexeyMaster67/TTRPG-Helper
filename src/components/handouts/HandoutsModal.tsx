@@ -20,6 +20,8 @@ import {
   User,
   Monitor,
   Upload,
+  X,
+  Radio,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -242,7 +244,8 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                 <span>Транслятор раздаток и тайн игрокам</span>
                 {isCurrentBroadcasting && (
                   <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-sans font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/60 animate-pulse">
-                    ● В ЭФИРЕ У ИГРОКОВ
+                    <Radio className="h-2.5 w-2.5 inline" />
+                    <span>В ЭФИРЕ У ИГРОКОВ</span>
                   </span>
                 )}
               </h2>
@@ -254,9 +257,9 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-glass text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-glass text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
           >
-            ✕
+            <X className="h-4 w-4" />
           </button>
         </div>
 
@@ -395,10 +398,10 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                   <button
                     type="button"
                     onClick={() => setActiveHandout({ ...activeHandout, imageUrl: undefined })}
-                    className="px-2 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#1c262f] border border-[#2e3b46] rounded shrink-0"
+                    className="px-2 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#1c262f] border border-[#2e3b46] rounded shrink-0 flex items-center justify-center"
                     title="Удалить ссылку на изображение"
                   >
-                    ✕
+                    <X className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
@@ -465,7 +468,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
               >
                 {/* Decorative Heraldry / Header Symbol */}
                 <div className="flex items-center justify-center gap-2 mb-3 text-center">
-                  <span className="text-sm opacity-60">✦</span>
+                  <Sparkles className="h-3.5 w-3.5 opacity-60 inline" />
                   <span className="text-sm font-serif font-black tracking-widest uppercase opacity-75">
                     {activeHandout.type === 'decree'
                       ? 'КОРОЛЕВСКИЙ УКАЗ'
@@ -483,7 +486,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                       ? 'МАГИЧЕСКИЙ СВИТОК'
                       : 'СТАРИННОЕ ПОСЛАНИЕ'}
                   </span>
-                  <span className="text-sm opacity-60">✦</span>
+                  <Sparkles className="h-3.5 w-3.5 opacity-60 inline" />
                 </div>
 
                 {/* Handout Title */}
@@ -512,7 +515,10 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
 
                 {/* Decorative Bottom Flourish */}
                 <div className="mt-5 pt-3 border-t border-current/20 flex items-center justify-between text-[10px] opacity-70 font-serif italic">
-                  <span>✦ Тайна открыта искателям</span>
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="h-2.5 w-2.5 inline" />
+                    <span>Тайна открыта искателям</span>
+                  </span>
                   <span>D&D 2024</span>
                 </div>
               </div>
@@ -579,7 +585,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                 className="flex items-center gap-1.5 px-5 py-1.5 rounded bg-gradient-to-r from-gold to-gold-light hover:brightness-110 text-canvas font-black text-xs transition-all shadow-gold-glow active:scale-95"
               >
                 <Send className="h-3.5 w-3.5" />
-                <span>📢 Транслировать игрокам</span>
+                <span>Транслировать игрокам</span>
               </button>
             )}
 

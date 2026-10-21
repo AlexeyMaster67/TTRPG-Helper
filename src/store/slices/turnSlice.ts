@@ -222,7 +222,7 @@ export const createTurnSlice: StateCreator<
       round: prevRound,
       type: 'turn',
       actorName: activeName,
-      text: `◀️ Возврат хода к: ${activeName}`,
+      text: `Возврат хода к: ${activeName}`,
     };
 
     const newState = {
@@ -256,7 +256,7 @@ export const createTurnSlice: StateCreator<
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
       round: nextRound,
       type: 'round',
-      text: `🔄 Раунд вручную изменён на ${nextRound}`,
+      text: `Раунд вручную изменён на ${nextRound}`,
     };
     set((state) => ({
       roundCounter: nextRound,
@@ -285,7 +285,7 @@ export const createTurnSlice: StateCreator<
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         round: state.roundCounter,
         type: 'custom',
-        text: `🔃 Очередь боя отсортирована по инициативе`,
+        text: `Очередь боя отсортирована по инициативе`,
       };
       const newState = {
         combatants: sorted,
@@ -309,7 +309,7 @@ export const createTurnSlice: StateCreator<
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
       round: 1,
       type: 'custom',
-      text: `🧹 Очередь боя очищена, раунды сброшены`,
+      text: `Очередь боя очищена, раунды сброшены`,
     };
     const newState = {
       combatants: [],

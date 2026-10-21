@@ -128,7 +128,7 @@ export const createCombatantSlice: StateCreator<
         round: state.roundCounter,
         type: 'custom',
         actorName: cleanRussianText(newCombatant.nameRu || newCombatant.name),
-        text: `➕ Добавлен в бой: ${cleanRussianText(newCombatant.nameRu || newCombatant.name)} (Иниц: ${newCombatant.initiative}, ОЗ: ${newCombatant.hp}/${newCombatant.maxHp})`,
+        text: `Добавлен в бой: ${cleanRussianText(newCombatant.nameRu || newCombatant.name)} (Иниц: ${newCombatant.initiative}, ОЗ: ${newCombatant.hp}/${newCombatant.maxHp})`,
       };
       const newState = {
         combatants,
@@ -275,7 +275,7 @@ export const createCombatantSlice: StateCreator<
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         combatantName: targetName,
         actionName: 'Проверка концентрации',
-        note: `⚡ ${targetName} получает ${dmgAmount} урона! Требуется спасбросок концентрации (Телосложение) СЛ ${dc}!`,
+        note: `${targetName} получает ${dmgAmount} урона! Требуется спасбросок концентрации (Телосложение) СЛ ${dc}!`,
         concentrationPrompt: {
           dc,
           targetId: target.id,
@@ -298,7 +298,7 @@ export const createCombatantSlice: StateCreator<
       round: get().roundCounter,
       type: isCritical ? 'attack' : 'damage',
       targetName,
-      text: `💥 ${targetName} получает ${dmgAmount} урона (ОЗ: ${target.hp} ➔ ${result.newHp}/${target.maxHp})${isCritical ? ' [КРИТ!]' : ''}`,
+      text: `${targetName} получает ${dmgAmount} урона (ОЗ: ${target.hp} -> ${result.newHp}/${target.maxHp})${isCritical ? ' [КРИТ!]' : ''}`,
       value: dmgAmount,
       isCritical,
       details: result.components?.map((c) => `${c.effectiveAmount} ${localizeDamageType(c.type)}`).join(', '),
@@ -312,7 +312,7 @@ export const createCombatantSlice: StateCreator<
         round: get().roundCounter,
         type: 'knockout',
         targetName,
-        text: `💀 ${targetName} теряет сознание (0 ОЗ)!`,
+        text: `${targetName} теряет сознание (0 ОЗ)!`,
       });
     }
     if (result.isDead && !target.isDead) {
@@ -322,7 +322,7 @@ export const createCombatantSlice: StateCreator<
         round: get().roundCounter,
         type: 'death',
         targetName,
-        text: `☠️ ${targetName} погибает!`,
+        text: `${targetName} погибает!`,
       });
     }
 
@@ -376,7 +376,7 @@ export const createCombatantSlice: StateCreator<
       round: get().roundCounter,
       type: 'heal',
       targetName,
-      text: `💚 ${targetName}: исцеление +${amount} ОЗ (ОЗ: ${target.hp} ➔ ${result.newHp}/${target.maxHp})`,
+      text: `${targetName}: исцеление +${amount} ОЗ (ОЗ: ${target.hp} -> ${result.newHp}/${target.maxHp})`,
       value: amount,
     };
 
@@ -418,7 +418,7 @@ export const createCombatantSlice: StateCreator<
       round: get().roundCounter,
       type: 'temp_hp',
       targetName,
-      text: `🛡️ ${targetName}: получено ${amount} временных ОЗ`,
+      text: `${targetName}: получено ${amount} временных ОЗ`,
       value: amount,
     };
 
@@ -515,7 +515,7 @@ export const createCombatantSlice: StateCreator<
       round: get().roundCounter,
       type: 'condition_add',
       targetName,
-      text: `⚡ ${targetName} получает состояние: "${condition.type}"`,
+      text: `${targetName} получает состояние: "${condition.type}"`,
       details: condition.source ? `Источник: ${condition.source}` : undefined,
     };
 

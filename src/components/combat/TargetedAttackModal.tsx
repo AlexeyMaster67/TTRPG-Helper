@@ -6,7 +6,7 @@ import { useDiceAnimationStore } from '../../store/diceAnimationStore';
 import { DamageType, RollMode } from '../../types/dnd5e';
 import { rollD20, rollDiceFormula } from '../../engine/rolls';
 import { broadcastService } from '../../services/broadcastService';
-import { Crosshair, Shield, Sparkles, Send, Swords, Dices } from 'lucide-react';
+import { Crosshair, Shield, Sparkles, Send, Swords, Dices, X, Edit3, Skull, Zap } from 'lucide-react';
 import { cleanRussianText, DAMAGE_NAMES_RU, localizeDamageType } from '../../utils/textUtils';
 import {
   parseActionDetails,
@@ -230,7 +230,7 @@ export function TargetedAttackModal() {
       setHasCalculated(true);
       setIsHit(false);
       setIsCrit(false);
-      setHitOutcomeText('⚠️ Введите значение броска d20 от 1 до 20');
+      setHitOutcomeText('Введите значение броска d20 от 1 до 20');
       setDamageDetailText('');
       setDefenseNoticeText('');
       setFinalCalculatedDamage(0);
@@ -249,14 +249,14 @@ export function TargetedAttackModal() {
       crit = true;
       const sum = 20 + mod;
       setHitOutcomeText(
-        `💥 КРИТИЧЕСКОЕ ПОПАДАНИЕ (КРИТ!) ИТОГ: 20 + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ПОПАДАНИЕ!`
+        `КРИТИЧЕСКОЕ ПОПАДАНИЕ (КРИТ!) ИТОГ: 20 + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ПОПАДАНИЕ!`
       );
     } else if (num === 1) {
       hit = false;
       crit = false;
       const sum = 1 + mod;
       setHitOutcomeText(
-        `❌ АВТОМАТИЧЕСКИЙ ПРОМАХ! ИТОГ: 1 + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ПРОМАХ!`
+        `АВТОМАТИЧЕСКИЙ ПРОМАХ! ИТОГ: 1 + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ПРОМАХ!`
       );
       setDamageDetailText('Бросок 1 на кости d20 — автоматический промах независимо от бонуса к атаке.');
       setDefenseNoticeText('');
@@ -270,7 +270,7 @@ export function TargetedAttackModal() {
       hit = sum >= targetAc;
       crit = false;
       setHitOutcomeText(
-        `${hit ? '🎯 ПОПАДАНИЕ!' : '❌ ПРОМАХ!'} ИТОГ: ${num} + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ${hit ? 'ПОПАДАНИЕ!' : 'ПРОМАХ!'}`
+        `${hit ? 'ПОПАДАНИЕ!' : 'ПРОМАХ!'} ИТОГ: ${num} + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ${hit ? 'ПОПАДАНИЕ!' : 'ПРОМАХ!'}`
       );
     }
 
@@ -559,7 +559,7 @@ export function TargetedAttackModal() {
     setIsHit(totalDmg > 0);
     setIsCrit(logs.some((l) => l.isCrit));
     setHasCalculated(true);
-    setHitOutcomeText(`⚔️ Серия из ${attacks.length} атак по «${target.nameRu || target.name}»!`);
+    setHitOutcomeText(`Серия из ${attacks.length} атак по «${target.nameRu || target.name}»!`);
     setDamageDetailText(`Суммарно нанесено: ${totalDmg} урона.`);
     setDefenseNoticeText(`Удары: ${logs.filter((l) => l.isHit).length} попало, ${logs.filter((l) => !l.isHit).length} промахов.`);
 
@@ -753,7 +753,7 @@ export function TargetedAttackModal() {
     if (targets.length === 1) {
       const singleLog = logs[0];
       setHitOutcomeText(
-        `🛡️ Спасбросок ${abilityInfo.ru} против СЛ ${saveDc}: ${singleLog.d20Log}`
+        `Спасбросок ${abilityInfo.ru} против СЛ ${saveDc}: ${singleLog.d20Log}`
       );
       setDamageDetailText(`Бросок формулы: ${formulaBreakdown} (${localizeDamageType(saveDamageType)}) | Итог: ${singleLog.damage} урона`);
       setDefenseNoticeText(singleLog.notes);
@@ -761,7 +761,7 @@ export function TargetedAttackModal() {
       const successes = logs.filter((l) => l.d20Log.includes('УСПЕХ')).length;
       const fails = logs.filter((l) => l.d20Log.includes('ПРОВАЛ')).length;
       setHitOutcomeText(
-        `🛡️ Спасбросок ${abilityInfo.ru} СЛ ${saveDc} («${actionTitle}») по ${targets.length} целям!`
+        `Спасбросок ${abilityInfo.ru} СЛ ${saveDc} («${actionTitle}») по ${targets.length} целям!`
       );
       setDamageDetailText(
         `Базовый урон: ${formulaBreakdown} (${localizeDamageType(saveDamageType)}) | Суммарно: ${totalAppliedDamage} урона`
@@ -970,9 +970,9 @@ export function TargetedAttackModal() {
           </div>
           <button
             onClick={closeTargetedAttack}
-            className="p-1.5 rounded-glass hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-glass hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center"
           >
-            ✕
+            <X className="h-4 w-4" />
           </button>
         </div>
 
@@ -1009,7 +1009,7 @@ export function TargetedAttackModal() {
               >
                 {availableTargets.map((t) => (
                   <option key={t.id} value={t.id}>
-                    {t.isPlayer ? '🛡️ [Игрок] ' : '👾 [Монстр] '}
+                    {t.isPlayer ? '[Игрок] ' : '[Монстр] '}
                     {t.nameRu || t.name} — КД: {t.ac} | ОЗ: {t.hp}/{t.maxHp}
                   </option>
                 ))}
@@ -1033,27 +1033,30 @@ export function TargetedAttackModal() {
                         .map((t) => t.id)
                     )
                   }
-                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors"
+                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors inline-flex items-center gap-1"
                 >
-                  ⚔️ Все враги
+                  <Swords className="h-3 w-3" />
+                  <span>Все враги</span>
                 </button>
                 <button
                   type="button"
                   onClick={() =>
                     setSelectedAoETargetIds(availableTargets.filter((t) => t.isPlayer).map((t) => t.id))
                   }
-                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors"
+                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors inline-flex items-center gap-1"
                 >
-                  🛡️ Все игроки
+                  <Shield className="h-3 w-3" />
+                  <span>Все игроки</span>
                 </button>
                 <button
                   type="button"
                   onClick={() =>
                     setSelectedAoETargetIds(availableTargets.filter((t) => !t.isPlayer).map((t) => t.id))
                   }
-                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors"
+                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors inline-flex items-center gap-1"
                 >
-                  👾 Все монстры
+                  <Skull className="h-3 w-3" />
+                  <span>Все монстры</span>
                 </button>
                 <button
                   type="button"
@@ -1244,7 +1247,7 @@ export function TargetedAttackModal() {
               onClick={handleRollSave}
               className="w-full py-2.5 px-4 rounded-sm bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)] flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>🎲</span>
+              <Dices className="h-4 w-4" />
               <span>
                 {isAoEMode
                   ? `Бросить спасброски за всех (${selectedAoETargetIds.length} целей)`
@@ -1261,7 +1264,8 @@ export function TargetedAttackModal() {
             </label>
             {attacker?.isPlayer ? (
               <div className="px-2.5 py-1 rounded-sm bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 font-bold text-[11px] flex items-center gap-1.5 shadow-sm">
-                <span>✍️ Игрок ходит за столом — только ручной ввод результата</span>
+                <Edit3 className="h-3.5 w-3.5 text-emerald-400" />
+                <span>Игрок ходит за столом — только ручной ввод результата</span>
               </div>
             ) : (
               <div className="flex items-center gap-1 bg-surface p-0.5 rounded-sm border border-border-subtle text-[11px]">
@@ -1280,7 +1284,7 @@ export function TargetedAttackModal() {
                       : 'text-gray-400 hover:text-gray-200'
                   }`}
                 >
-                  <span>🎲</span>
+                  <Dices className="h-3.5 w-3.5" />
                   <span>Цифровой бросок (d20)</span>
                 </button>
                 <button
@@ -1295,7 +1299,7 @@ export function TargetedAttackModal() {
                       : 'text-gray-400 hover:text-gray-200'
                   }`}
                 >
-                  <span>✍️</span>
+                  <Edit3 className="h-3.5 w-3.5" />
                   <span>Бросок за столом (кости)</span>
                 </button>
               </div>
@@ -1357,7 +1361,7 @@ export function TargetedAttackModal() {
                   onClick={handleAutoRoll}
                   className="flex-1 py-2 px-4 rounded-sm bg-gold text-canvas font-bold text-xs hover:bg-gold-light transition-all shadow-gold-glow flex items-center justify-center gap-2"
                 >
-                  <span>🎲</span>
+                  <Dices className="h-4 w-4" />
                   <span>{isAoEMode ? 'Бросить атаку по площади' : 'Бросить атаку против КД'}</span>
                 </button>
 
@@ -1367,7 +1371,7 @@ export function TargetedAttackModal() {
                     onClick={handleMultiattackSeries}
                     className="py-2 px-4 rounded-sm bg-card border border-gold/50 text-gold-light font-bold text-xs hover:bg-surface transition-all flex items-center gap-1.5"
                   >
-                    <span>⚔️</span>
+                    <Swords className="h-4 w-4" />
                     <span>Серия мультиатак</span>
                   </button>
                 )}
@@ -1488,11 +1492,13 @@ export function TargetedAttackModal() {
                 <div className="p-3 bg-surface rounded-sm border border-border-subtle space-y-3 animate-in fade-in duration-150">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
-                      💥 Расчёт урона ({localizeDamageType(physicalDamageType || currentActionDetails.damageType)}):
+                      <Zap className="h-3.5 w-3.5 text-amber-400" />
+                      <span>Расчёт урона ({localizeDamageType(physicalDamageType || currentActionDetails.damageType)}):</span>
                     </span>
                     {isCrit && (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-600 font-bold">
-                        ⚡ КРИТ: кубы формулы удвоены ({critFormula})
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-600 font-bold flex items-center gap-1">
+                        <Zap className="h-3 w-3 text-emerald-400" />
+                        <span>КРИТ: кубы формулы удвоены ({critFormula})</span>
                       </span>
                     )}
                   </div>
@@ -1508,7 +1514,7 @@ export function TargetedAttackModal() {
                         onClick={handleRollFormulaInPhysicalMode}
                         className="w-full py-1.5 px-2 rounded-sm bg-gold/15 border border-gold/40 hover:bg-gold hover:text-black text-gold-light font-bold text-xs transition-all flex items-center justify-center gap-1 shadow-sm"
                       >
-                        <span>🎲</span>
+                        <Dices className="h-3.5 w-3.5" />
                         <span>Бросить формулу</span>
                       </button>
                     </div>
@@ -1623,9 +1629,14 @@ export function TargetedAttackModal() {
                   : 'bg-white/5 text-gray-600 border border-[rgba(255,255,255,0.08)] cursor-not-allowed'
               }`}
             >
-              💥 {isAoEMode && (attackOrSaveMode === 'save' || multiattackLogs.length > 0)
-                ? 'Применить урон всем целям'
-                : 'Применить урон к цели'}
+              <span className="inline-flex items-center gap-1.5 justify-center">
+                <Zap className="h-3.5 w-3.5" />
+                <span>
+                  {isAoEMode && (attackOrSaveMode === 'save' || multiattackLogs.length > 0)
+                    ? 'Применить урон всем целям'
+                    : 'Применить урон к цели'}
+                </span>
+              </span>
             </button>
           </div>
         </div>

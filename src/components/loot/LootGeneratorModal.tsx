@@ -14,6 +14,7 @@ import {
   Dices,
   BookOpen,
   UserCheck,
+  Target,
 } from 'lucide-react';
 import { GeneratedLoot, LootMagicItem, LootMode } from '../../types/loot';
 import { lootService } from '../../services/lootService';
@@ -462,7 +463,10 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
               {lootResult.bracketInfo && (
                 <div className="px-4 py-2 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-300 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-bold shrink-0">🎯 Результат d100 ({lootResult.d100Roll ?? d100Value}):</span>
+                    <span className="font-bold shrink-0 flex items-center gap-1.5">
+                      <Target className="h-3.5 w-3.5 text-amber-400 inline" />
+                      <span>Результат d100 ({lootResult.d100Roll ?? d100Value}):</span>
+                    </span>
                     <span className="break-words">{lootResult.bracketInfo}</span>
                   </div>
                   <span className="text-[11px] font-mono text-zinc-400 shrink-0">{lootResult.tierOrCr}</span>

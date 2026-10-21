@@ -191,7 +191,7 @@ describe('Decomposed UI Components Suite', () => {
       );
       expect(htmlSaves).toContain('Спасброски');
       expect(htmlSaves).toContain('+4');
-      expect(htmlSaves).toContain('★');
+      expect(htmlSaves).toContain('lucide-star');
     });
 
     it('renders StatblockDefenses with skills, resistances, and senses', () => {
@@ -395,7 +395,7 @@ describe('Decomposed UI Components Suite', () => {
         )
       );
 
-      expect(html).toContain('⚡ ТЕКУЩИЙ ХОД');
+      expect(html).toContain('ТЕКУЩИЙ ХОД');
       expect(html).toContain('14');
       expect(html).toContain('Гоблин');
     });

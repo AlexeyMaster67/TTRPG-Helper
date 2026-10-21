@@ -558,7 +558,7 @@ export function TokenQuickActions({
           </button>
         )}
 
-        {/* 1. Quick Damage / Heal Pill [ 🩸 -/+ ОЗ ] */}
+        {/* 1. Quick Damage / Heal Pill [ -/+ ОЗ ] */}
         {(!isStandalone || standaloneToken?.hp !== undefined) && (
           <button
             type="button"
@@ -641,7 +641,7 @@ export function TokenQuickActions({
           )}
         </button>
 
-        {/* 4. Token Forge Pill [ ✨ Кузница ] */}
+        {/* 4. Token Forge Pill [ Кузница ] */}
         <button
           type="button"
           onClick={() => {
@@ -672,7 +672,7 @@ export function TokenQuickActions({
           <span>Кузница</span>
         </button>
 
-        {/* 5. Delete Token Pill [ ✕ Удалить с карты ] */}
+        {/* 5. Delete Token Pill [ Удалить с карты ] */}
         <button
           type="button"
           onClick={handleDelete}
@@ -682,7 +682,7 @@ export function TokenQuickActions({
           <Trash2 className="h-3 w-3 text-red-400" />
         </button>
 
-        {/* Deselect / Close [ ✕ ] */}
+        {/* Deselect / Close */}
         <button
           type="button"
           onClick={onClose}

@@ -259,7 +259,7 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
 
   const handleCopyText = async () => {
     const text = [
-      `👤 ${npc.name} — ${npc.race}, ${npc.occupation}`,
+      `${npc.name} — ${npc.race}, ${npc.occupation}`,
       `Характер: ${npc.personality}`,
       `Манера речи: ${npc.mannerism}`,
       `Тайна: ${npc.secret}`,
@@ -413,8 +413,8 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
               onClick={handleAddToCombat}
               className="min-h-[34px] px-4 py-1.5 rounded-glass bg-gradient-to-r from-blue-600 to-indigo-600 hover:brightness-110 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
             >
-              <Plus className="h-3.5 w-3.5" />
-              <span>{addedNotice ? '✓ Добавлен в бой!' : 'Добавить в бой как NPC'}</span>
+              {addedNotice ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+              <span>{addedNotice ? 'Добавлен в бой!' : 'Добавить в бой как NPC'}</span>
             </button>
           </div>
         </div>

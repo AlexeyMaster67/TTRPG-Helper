@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
-import { Heart, Skull, X } from 'lucide-react';
+import { Heart, Skull, X, Check } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { HealthBar } from '../../ui';
 import { cleanRussianText } from '../../../utils/textUtils';
@@ -111,10 +111,10 @@ export function CombatantHealthControls({
             <Skull className="h-3 w-3 animate-pulse" />
             <span>0</span>
           </span>
-          <span className="text-[9px] font-mono font-bold text-gray-200">
-            <span className="text-emerald-400">{deathSaves.successes}✓</span>
+          <span className="text-[9px] font-mono font-bold text-gray-200 inline-flex items-center gap-0.5">
+            <span className="text-emerald-400 inline-flex items-center">{deathSaves.successes}<Check className="h-2.5 w-2.5 ml-0.5" /></span>
             <span className="text-gray-500 mx-0.5">/</span>
-            <span className="text-rose-400">{deathSaves.failures}✗</span>
+            <span className="text-rose-400 inline-flex items-center">{deathSaves.failures}<X className="h-2.5 w-2.5 ml-0.5" /></span>
           </span>
           <button
             onClick={onRollDeathSave}

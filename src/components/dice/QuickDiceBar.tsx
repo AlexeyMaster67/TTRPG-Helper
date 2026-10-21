@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCombatStore } from '../../store/combatStore';
 import { useDice3dStore } from '../../store/dice3dStore';
 import { useDiceAnimationStore } from '../../store/diceAnimationStore';
@@ -13,6 +13,7 @@ import {
   Radio,
   EyeOff,
   Eye,
+  GripVertical,
 } from 'lucide-react';
 
 type AdvantageMode = 'normal' | 'advantage' | 'disadvantage';
@@ -33,6 +34,123 @@ export const QuickDiceBar: React.FC = () => {
 
   const isSecretRoll = useDice3dStore((s) => s.isSecretRoll);
   const toggleSecretRoll = useDice3dStore((s) => s.toggleSecretRoll);
+
+  // Position and free-dragging state
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(() => {
+    try {
+      const saved = localStorage.getItem('quick_dice_bar_pos');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
+          return parsed;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  });
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    elemX: number;
+    elemY: number;
+    hasMoved: boolean;
+  } | null>(null);
+
+  // Ensure element stays inside viewport on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setPosition((prev) => {
+        if (!prev || !containerRef.current) return prev;
+        const rect = containerRef.current.getBoundingClientRect();
+        const maxX = Math.max(8, window.innerWidth - rect.width - 8);
+        const maxY = Math.max(8, window.innerHeight - rect.height - 8);
+        const newX = Math.min(Math.max(8, prev.x), maxX);
+        const newY = Math.min(Math.max(8, prev.y), maxY);
+        return { x: newX, y: newY };
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    if (!containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      elemX: rect.left,
+      elemY: rect.top,
+      hasMoved: false,
+    };
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!dragRef.current || !containerRef.current) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+
+    if (!dragRef.current.hasMoved && Math.hypot(dx, dy) > 4) {
+      dragRef.current.hasMoved = true;
+    }
+
+    if (dragRef.current.hasMoved) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const maxX = Math.max(8, window.innerWidth - rect.width - 8);
+      const maxY = Math.max(8, window.innerHeight - rect.height - 8);
+      const newX = Math.min(Math.max(8, dragRef.current.elemX + dx), maxX);
+      const newY = Math.min(Math.max(8, dragRef.current.elemY + dy), maxY);
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!dragRef.current) return;
+    const hadMoved = dragRef.current.hasMoved;
+
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+
+    if (hadMoved && position) {
+      try {
+        localStorage.setItem('quick_dice_bar_pos', JSON.stringify(position));
+      } catch {
+        // ignore
+      }
+    } else if (!hadMoved) {
+      // User tapped or clicked without dragging -> toggle expand
+      if (!isExpanded) {
+        setIsExpanded(true);
+      }
+    }
+
+    dragRef.current = null;
+  };
+
+  const handleResetPosition = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPosition(null);
+    try {
+      localStorage.removeItem('quick_dice_bar_pos');
+    } catch {
+      // ignore
+    }
+  };
 
   const handleRoll = (sides: number) => {
     // 1. Perform roll with advantage / disadvantage logic
@@ -126,11 +244,26 @@ export const QuickDiceBar: React.FC = () => {
     });
   };
 
+  const isNearTop = position ? position.y < 280 : false;
+  const containerStyle: React.CSSProperties = position
+    ? {
+        position: 'fixed',
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        bottom: 'auto',
+        transform: 'none',
+      }
+    : {};
+
   return (
-    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 select-none">
-      {/* 2D Animated Dice Popover Result (Centered directly above bar, no side-window!) */}
+    <div
+      ref={containerRef}
+      style={containerStyle}
+      className={`fixed z-40 select-none ${!position ? 'bottom-3 left-1/2 -translate-x-1/2' : ''}`}
+    >
+      {/* 2D Animated Dice Popover Result (Positioned relative to bar) */}
       {activeRoll && (
-        <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-50">
+        <div className={`absolute left-1/2 -translate-x-1/2 z-50 ${isNearTop ? 'top-full mt-3' : 'bottom-full mb-3'}`}>
           <Dice2dRollCard
             data={activeRoll}
             onClose={clearRoll}
@@ -140,23 +273,39 @@ export const QuickDiceBar: React.FC = () => {
 
       {/* Main Bar */}
       {!isExpanded ? (
-        /* Collapsed Floating Pill */
-        <button
-          onClick={() => setIsExpanded(true)}
-          className="flex items-center gap-2.5 rounded-full border border-gold/50 bg-surface/85 px-4 py-2 min-h-[36px] text-xs font-semibold text-gold-light shadow-glass-panel backdrop-blur-md hover:border-gold hover:bg-surface/95 hover:text-gold hover:shadow-gold-glow transition-all cursor-pointer active:scale-95"
-          title="Развернуть панель быстрых костей"
+        /* Collapsed Floating Pill - freely draggable */
+        <div
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onDoubleClick={handleResetPosition}
+          className="flex items-center gap-2 rounded-full border border-gold/50 bg-surface/85 px-3.5 py-2 min-h-[36px] text-xs font-semibold text-gold-light shadow-glass-panel backdrop-blur-md hover:border-gold hover:bg-surface/95 hover:text-gold hover:shadow-gold-glow transition-all cursor-grab active:cursor-grabbing select-none touch-none active:scale-95"
+          title="Быстрые кости (клик — развернуть, зажмите — переместить, 2 клика — сброс по центру)"
         >
-          <Dices className="h-4 w-4 text-gold animate-pulse" />
+          <GripVertical className="h-3.5 w-3.5 text-text-muted/60 flex-shrink-0" />
+          <Dices className="h-4 w-4 text-gold animate-pulse flex-shrink-0" />
           <span>Быстрые кости</span>
-          <ChevronUp className="h-4 w-4 text-text-muted" />
-        </button>
+          <ChevronUp className="h-4 w-4 text-text-muted flex-shrink-0" />
+        </div>
       ) : (
         /* Expanded Floating Tray */
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 rounded-glass-xl border border-glass-border bg-surface/90 px-3.5 py-2 text-xs text-text-primary shadow-glass-panel backdrop-blur-md">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5 rounded-glass-xl border border-glass-border bg-surface/90 px-2.5 py-2 text-xs text-text-primary shadow-glass-panel backdrop-blur-md">
+          {/* Drag Grip Handle */}
+          <div
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onDoubleClick={handleResetPosition}
+            className="flex h-8 w-6 min-h-[32px] items-center justify-center rounded-lg text-text-muted/70 hover:text-gold hover:bg-white/10 transition-colors cursor-grab active:cursor-grabbing touch-none select-none flex-shrink-0"
+            title="Зажмите для перемещения панели (двойной клик — сброс в центр)"
+          >
+            <GripVertical className="h-4 w-4" />
+          </div>
+
           {/* Collapse Handle */}
           <button
             onClick={() => setIsExpanded(false)}
-            className="flex h-8 w-8 min-h-[32px] min-w-[32px] items-center justify-center rounded-lg text-text-muted hover:bg-white/10 hover:text-text-primary transition-colors cursor-pointer"
+            className="flex h-8 w-8 min-h-[32px] min-w-[32px] items-center justify-center rounded-lg text-text-muted hover:bg-white/10 hover:text-text-primary transition-colors cursor-pointer flex-shrink-0"
             title="Свернуть панель"
           >
             <ChevronDown className="h-4 w-4" />
