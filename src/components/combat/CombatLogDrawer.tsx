@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useCombatStore } from '../../store/combatStore';
 import { useTranslation } from '../../i18n';
+import { localizeMonsterName } from '../../utils/textUtils';
 import {
   ScrollText,
   X,
@@ -17,6 +18,25 @@ import {
   Sparkles,
   ArrowRight,
 } from 'lucide-react';
+
+function localizeCombatLogText(text: string, isEn: boolean): string {
+  if (!isEn) return text;
+  return text
+    .replace(/^Бросок d(\d+)/i, 'd$1 Roll')
+    .replace(/^Бросок кубиков/i, 'Dice Roll')
+    .replace(/Получает (\d+) урона/i, 'Takes $1 damage')
+    .replace(/Восстанавливает (\d+) ОЗ/i, 'Heals $1 HP')
+    .replace(/Получает (\d+) врем\. ОЗ/i, 'Gains $1 Temp HP')
+    .replace(/Убит \/ Без сознания/i, 'Incapacitated / Dead')
+    .replace(/Критическое попадание!/i, 'Critical Hit!')
+    .replace(/Критический промах!/i, 'Critical Miss!')
+    .replace(/Попадание:/i, 'Hit:')
+    .replace(/Промах:/i, 'Miss:')
+    .replace(/Успех/i, 'Success')
+    .replace(/Провал/i, 'Failure')
+    .replace(/Раунд (\d+)/i, 'Round $1')
+    .replace(/Ход:/i, 'Turn:');
+}
 
 export function CombatLogDrawer() {
   const { isCombatLogOpen, setCombatLogOpen, combatLog, clearCombatLog, roundCounter } = useCombatStore();
@@ -299,7 +319,7 @@ export function CombatLogDrawer() {
                       <span className="flex-shrink-0">{icon}</span>
                       {entry.actorName && (
                         <span className="font-bold text-gray-300 truncate">
-                          {entry.actorName}
+                          {isEn ? (localizeMonsterName(entry.actorName, 'en') || entry.actorName) : entry.actorName}
                         </span>
                       )}
                       {entry.targetName && entry.actorName && (
@@ -307,7 +327,7 @@ export function CombatLogDrawer() {
                       )}
                       {entry.targetName && (
                         <span className="font-bold text-gray-200 truncate">
-                          {entry.targetName}
+                          {isEn ? (localizeMonsterName(entry.targetName, 'en') || entry.targetName) : entry.targetName}
                         </span>
                       )}
                     </div>
@@ -322,7 +342,7 @@ export function CombatLogDrawer() {
                   </div>
 
                   <div className="text-xs text-gray-200 font-medium leading-relaxed">
-                    {entry.text}
+                    {localizeCombatLogText(entry.text, isEn)}
                   </div>
 
                   {entry.details && (

@@ -4298,12 +4298,12 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
             {/* Metrics: Bright & Dim radius */}
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <div className="bg-surface/80 p-1.5 rounded border border-white/5">
-                <span className="text-gray-400 block text-[9px] uppercase">Яркий свет</span>
-                <span className="font-bold text-amber-300">{selectedLight.brightRadiusFeet} фт.</span>
+                <span className="text-gray-400 block text-[9px] uppercase">{language === "en" ? "Bright Light" : "Яркий свет"}</span>
+                <span className="font-bold text-amber-300">{selectedLight.brightRadiusFeet} {language === "en" ? "ft." : "фт."}</span>
               </div>
               <div className="bg-surface/80 p-1.5 rounded border border-white/5">
-                <span className="text-gray-400 block text-[9px] uppercase">Тусклый свет</span>
-                <span className="font-bold text-amber-400/80">{selectedLight.dimRadiusFeet} фт.</span>
+                <span className="text-gray-400 block text-[9px] uppercase">{language === "en" ? "Dim Light" : "Тусклый свет"}</span>
+                <span className="font-bold text-amber-400/80">{selectedLight.dimRadiusFeet} {language === "en" ? "ft." : "фт."}</span>
               </div>
             </div>
 
@@ -4316,7 +4316,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                   onChange={(e) => updateLight(selectedLight.id, { enabled: e.target.checked })}
                   className="rounded text-gold focus:ring-0 bg-surface-subtle border-glass-border"
                 />
-                <span className="text-gray-300">Включен</span>
+                <span className="text-gray-300">{language === "en" ? "Enabled" : "Включен"}</span>
               </label>
 
               <label className="flex items-center gap-1.5 cursor-pointer">
@@ -4326,7 +4326,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                   onChange={(e) => updateLight(selectedLight.id, { flicker: e.target.checked })}
                   className="rounded text-gold focus:ring-0 bg-surface-subtle border-glass-border"
                 />
-                <span className="text-gray-300">Мерцание</span>
+                <span className="text-gray-300">{language === "en" ? "Flicker" : "Мерцание"}</span>
               </label>
             </div>
 
@@ -4335,13 +4335,13 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
               <div className="flex items-center justify-between bg-emerald-950/40 border border-emerald-500/30 px-2 py-1 rounded text-[11px] text-emerald-300">
                 <div className="flex items-center gap-1">
                   <LinkIcon className="h-3 w-3" />
-                  <span>Привязан к токену</span>
+                  <span>{language === "en" ? "Attached to token" : "Привязан к токену"}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => updateLight(selectedLight.id, { attachedTokenId: null })}
                   className="text-gray-400 hover:text-red-300 transition-colors"
-                  title="Отвязать"
+                  title={language === "en" ? "Unlink" : "Отвязать"}
                 >
                   <UnlinkIcon className="h-3 w-3" />
                 </button>
@@ -4356,41 +4356,45 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                 className="text-red-400 hover:text-red-300 hover:bg-red-500/10 px-2 py-1 rounded flex items-center gap-1 transition-colors"
               >
                 <Trash2 className="h-3 w-3" />
-                <span>Удалить</span>
+                <span>{language === "en" ? "Delete" : "Удалить"}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedLightId(null)}
                 className="bg-gold/20 text-gold-light border border-gold/40 hover:bg-gold/30 px-3 py-1 rounded font-semibold transition-colors"
               >
-                Готово
+                {language === "en" ? "Done" : "Готово"}
               </button>
             </div>
           </div>
         )}
 
         {/* Floating Hint Overlay */}
-        <div className="absolute bottom-3 left-3 bg-surface/90 border border-border-subtle rounded px-2.5 py-1 text-[11px] text-gray-400 font-mono pointer-events-none flex items-center gap-3">
+        <div className="absolute bottom-3 left-3 bg-surface/90 border border-border-subtle rounded px-2.5 py-1 text-[11px] text-gray-400 font-mono pointer-events-none flex items-center gap-3 flex-wrap">
           <span>
-            Колёсико: <strong className="text-gray-200">Масштаб</strong>
+            {language === 'en' ? 'Wheel: ' : 'Колёсико: '}
+            <strong className="text-gray-200">{language === 'en' ? 'Zoom' : 'Масштаб'}</strong>
           </span>
           <span>
-            Shift: <strong className="text-gray-200">Линейка</strong>
+            Shift: <strong className="text-gray-200">{language === 'en' ? 'Ruler' : 'Линейка'}</strong>
           </span>
           <span>
-            ПКМ / 'T': <strong className="text-gold">Выбрать цель</strong>
+            {language === 'en' ? "RMB / 'T': " : "ПКМ / 'T': "}
+            <strong className="text-gold">{language === 'en' ? 'Target' : 'Выбрать цель'}</strong>
           </span>
           <span>
-            Клик: <strong className="text-gold">Инфо / Атака</strong>
+            {language === 'en' ? 'Click: ' : 'Клик: '}
+            <strong className="text-gold">{language === 'en' ? 'Info / Attack' : 'Инфо / Атака'}</strong>
           </span>
           <span>
-            Колёсико на AoE: <strong className="text-purple-300">Поворот</strong>
+            {language === 'en' ? 'Wheel on AoE: ' : 'Колёсико на AoE: '}
+            <strong className="text-purple-300">{language === 'en' ? 'Rotate' : 'Поворот'}</strong>
           </span>
           <span>
-            D / E: <strong className="text-gold">Рисование / Ластик</strong>
+            D / E: <strong className="text-gold">{language === 'en' ? 'Draw / Eraser' : 'Рисование / Ластик'}</strong>
           </span>
           <span>
-            Ctrl+Z: <strong className="text-gray-200">Отмена</strong>
+            Ctrl+Z: <strong className="text-gray-200">{language === 'en' ? 'Undo' : 'Отмена'}</strong>
           </span>
         </div>
       </div>

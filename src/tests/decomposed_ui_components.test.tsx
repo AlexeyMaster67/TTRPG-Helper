@@ -197,6 +197,7 @@ describe('Decomposed UI Components Suite', () => {
     });
 
     it('renders StatblockDefenses with skills, resistances, and senses', () => {
+      useSettingsStore.setState({ language: 'ru' });
       const html = clean(
         renderToString(<StatblockDefenses combatant={dummyMonster} />)
       );
@@ -206,7 +207,7 @@ describe('Decomposed UI Components Suite', () => {
       expect(html).toContain('Сопротивления к урону:');
       expect(html).toContain('яд');
       expect(html).toContain('Чувства:');
-      expect(html).toContain('темное зрение');
+      expect(html).toMatch(/т[её]мное зрение/);
       expect(html).toContain('Языки:');
     });
 

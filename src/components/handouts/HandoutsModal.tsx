@@ -24,6 +24,7 @@ import {
   Radio,
 } from 'lucide-react';
 import clsx from 'clsx';
+import { useSettingsStore } from '../../store/settingsStore';
 
 interface HandoutsModalProps {
   isOpen: boolean;
@@ -118,6 +119,7 @@ const PRESETS: HandoutPreset[] = [
 const STORAGE_KEY = 'dnd_saved_handouts_v1';
 
 export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const [activeHandout, setActiveHandout] = useState<HandoutData>({
     id: `handout-${Date.now()}`,
     title: PRESETS[0].title,
@@ -241,16 +243,16 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
             </div>
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <span>Транслятор раздаток и тайн игрокам</span>
+                <span>{isEn ? "Handouts & Secrets Broadcaster" : "Транслятор раздаток и тайн игрокам"}</span>
                 {isCurrentBroadcasting && (
                   <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-sans font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/60 animate-pulse">
                     <Radio className="h-2.5 w-2.5 inline" />
-                    <span>В ЭФИРЕ У ИГРОКОВ</span>
+                    <span>{isEn ? "ON AIR FOR PLAYERS" : "В ЭФИРЕ У ИГРОКОВ"}</span>
                   </span>
                 )}
               </h2>
               <p className="text-xs text-gray-400">
-                Создавайте старинные письма, свитки, указы и улики и мгновенно выводите их на экран игроков
+                {isEn ? "Create letters, scrolls, decrees, and clues and broadcast them instantly to the players screen" : "Создавайте старинные письма, свитки, указы и улики и мгновенно выводите их на экран игроков"}
               </p>
             </div>
           </div>
@@ -270,7 +272,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
             {/* Presets Row */}
             <div>
               <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">
-                Готовые шаблоны
+                {isEn ? "Templates" : "Готовые шаблоны"}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                 {PRESETS.map((preset) => {
@@ -293,19 +295,19 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
             {/* Type Selector */}
             <div>
               <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
-                Стиль оформления
+                {isEn ? "Document Style" : "Стиль оформления"}
               </span>
               <div className="flex flex-wrap gap-1">
                 {(
                   [
-                    { id: 'letter', label: 'Письмо' },
-                    { id: 'scroll', label: 'Свиток' },
-                    { id: 'map', label: 'Карта' },
-                    { id: 'portrait', label: 'Портрет' },
-                    { id: 'decree', label: 'Указ' },
-                    { id: 'clue', label: 'Улика' },
-                    { id: 'bounty', label: 'Награда' },
-                    { id: 'riddle', label: 'Загадка' },
+                    { id: 'letter', label: isEn ? 'Letter' : 'Письмо' },
+                    { id: 'scroll', label: isEn ? 'Scroll' : 'Свиток' },
+                    { id: 'map', label: isEn ? 'Map' : 'Карта' },
+                    { id: 'portrait', label: isEn ? 'Portrait' : 'Портрет' },
+                    { id: 'decree', label: isEn ? 'Decree' : 'Указ' },
+                    { id: 'clue', label: isEn ? 'Clue' : 'Улика' },
+                    { id: 'bounty', label: isEn ? 'Bounty' : 'Награда' },
+                    { id: 'riddle', label: isEn ? 'Riddle' : 'Загадка' },
                   ] as const
                 ).map((t) => (
                   <button
@@ -328,13 +330,13 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
             {/* Title Input */}
             <div>
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
-                Заголовок раздатки
+                {isEn ? "Handout Title" : "Заголовок раздатки"}
               </label>
               <input
                 type="text"
                 value={activeHandout.title}
                 onChange={(e) => setActiveHandout({ ...activeHandout, title: e.target.value })}
-                placeholder="Например: Старинное письмо, Королевский указ..."
+                placeholder={isEn ? "e.g. Ancient Letter, Royal Decree..." : "Например: Старинное письмо, Королевский указ..."}
                 className="w-full px-3 py-1.5 rounded bg-[#10151a] border border-[#2e3b46] focus:border-gold text-gray-100 text-xs outline-none"
               />
             </div>
@@ -342,12 +344,12 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
             {/* Content Textarea */}
             <div className="flex-1 flex flex-col min-h-[160px]">
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
-                Текст документа
+                {isEn ? "Document Text" : "Текст документа"}
               </label>
               <textarea
                 value={activeHandout.content}
                 onChange={(e) => setActiveHandout({ ...activeHandout, content: e.target.value })}
-                placeholder="Введите текст сообщения, письма, заклинания или улики..."
+                placeholder={isEn ? "Enter message text, letter, spell, or clue..." : "Введите текст сообщения, письма, заклинания или улики..."}
                 className="flex-1 w-full px-3 py-2 rounded bg-[#10151a] border border-[#2e3b46] focus:border-gold text-gray-100 text-xs outline-none font-serif leading-relaxed resize-none"
                 rows={7}
               />
@@ -356,8 +358,8 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
             {/* Image URL / Upload */}
             <div>
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1 flex items-center justify-between">
-                <span>Изображение (URL или файл с диска)</span>
-                <span className="text-gray-500 font-normal lowercase">для карты, портрета или арта</span>
+                <span>{isEn ? "Image (URL or Local File)" : "Изображение (URL или файл с диска)"}</span>
+                <span className="text-gray-500 font-normal lowercase">{isEn ? "for map, portrait, or art" : "для карты, портрета или арта"}</span>
               </label>
               <div className="flex items-center gap-1.5">
                 <div className="relative flex-1">
@@ -371,7 +373,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                         imageUrl: e.target.value.trim() || undefined,
                       })
                     }
-                    placeholder="https://... или загрузите файл"
+                    placeholder={isEn ? "https://... or upload local file" : "https://... или загрузите файл"}
                     className="w-full pl-8 pr-3 py-1.5 rounded bg-[#10151a] border border-[#2e3b46] focus:border-gold text-gray-100 text-xs outline-none"
                   />
                 </div>
@@ -388,10 +390,10 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                   type="button"
                   onClick={() => imageFileInputRef.current?.click()}
                   className="px-2.5 py-1.5 text-xs text-gray-200 bg-[#1c262f] hover:bg-[#25323e] border border-[#2e3b46] hover:border-gold/50 rounded flex items-center gap-1 shrink-0 transition-colors"
-                  title="Загрузить изображение с компьютера"
+                  title={isEn ? "Upload image from computer" : "Загрузить изображение с компьютера"}
                 >
                   <Upload className="h-3.5 w-3.5 text-gold" />
-                  <span>С диска</span>
+                  <span>{isEn ? "From Disk" : "С диска"}</span>
                 </button>
 
                 {activeHandout.imageUrl && (
@@ -399,7 +401,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                     type="button"
                     onClick={() => setActiveHandout({ ...activeHandout, imageUrl: undefined })}
                     className="px-2 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#1c262f] border border-[#2e3b46] rounded shrink-0 flex items-center justify-center"
-                    title="Удалить ссылку на изображение"
+                    title={isEn ? "Remove image URL" : "Удалить ссылку на изображение"}
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -411,7 +413,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
             {savedHandouts.length > 0 && (
               <div className="pt-2 border-t border-[#2e3b46]">
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
-                  Сохранённые раздатки ({savedHandouts.length})
+                  {isEn ? `Saved Handouts (${savedHandouts.length})` : `Сохранённые раздатки (${savedHandouts.length})`}
                 </span>
                 <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                   {savedHandouts.map((saved) => (
@@ -431,7 +433,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                         type="button"
                         onClick={(e) => handleDeleteSaved(saved.id, e)}
                         className="text-gray-500 hover:text-red-400 ml-1"
-                        title="Удалить из сохранённых"
+                        title={isEn ? "Delete from saved" : "Удалить из сохранённых"}
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -447,7 +449,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
             <div className="w-full max-w-md flex flex-col items-center">
               <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                 <Sparkles className="h-3 w-3 text-gold" />
-                Предпросмотр экрана игроков
+                {isEn ? "Player Screen Preview" : "Предпросмотр экрана игроков"}
               </span>
 
               {/* Parchment Box */}
@@ -471,27 +473,27 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                   <Sparkles className="h-3.5 w-3.5 opacity-60 inline" />
                   <span className="text-sm font-serif font-black tracking-widest uppercase opacity-75">
                     {activeHandout.type === 'decree'
-                      ? 'КОРОЛЕВСКИЙ УКАЗ'
+                      ? (isEn ? 'ROYAL DECREE' : 'КОРОЛЕВСКИЙ УКАЗ')
                       : activeHandout.type === 'bounty'
-                      ? 'РОЗЫСК И НАГРАДА'
+                      ? (isEn ? 'WANTED: DEAD OR ALIVE' : 'РОЗЫСК И НАГРАДА')
                       : activeHandout.type === 'clue'
-                      ? 'ТАЙНАЯ УЛИКА'
+                      ? (isEn ? 'SECRET CLUE' : 'ТАЙНАЯ УЛИКА')
                       : activeHandout.type === 'riddle'
-                      ? 'ДРЕВНЯЯ ЗАГАДКА'
+                      ? (isEn ? 'ANCIENT RIDDLE' : 'ДРЕВНЯЯ ЗАГАДКА')
                       : activeHandout.type === 'map'
-                      ? 'КАРТА МЕСТНОСТИ'
+                      ? (isEn ? 'TACTICAL MAP' : 'КАРТА МЕСТНОСТИ')
                       : activeHandout.type === 'portrait'
-                      ? 'ПОРТРЕТ ПЕРСОНАЖА'
+                      ? (isEn ? 'CHARACTER PORTRAIT' : 'ПОРТРЕТ ПЕРСОНАЖА')
                       : activeHandout.type === 'scroll'
-                      ? 'МАГИЧЕСКИЙ СВИТОК'
-                      : 'СТАРИННОЕ ПОСЛАНИЕ'}
+                      ? (isEn ? 'MAGIC SCROLL' : 'МАГИЧЕСКИЙ СВИТОК')
+                      : (isEn ? 'ANCIENT MESSAGE' : 'СТАРИННОЕ ПОСЛАНИЕ')}
                   </span>
                   <Sparkles className="h-3.5 w-3.5 opacity-60 inline" />
                 </div>
 
                 {/* Handout Title */}
                 <h3 className="font-serif font-bold text-center text-lg sm:text-xl tracking-wide mb-3 leading-snug drop-shadow-sm border-b pb-2 border-current/20">
-                  {activeHandout.title || 'Без названия'}
+                  {activeHandout.title || (isEn ? 'Untitled' : 'Без названия')}
                 </h3>
 
                 {/* Optional Attached Image */}
@@ -510,14 +512,14 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
 
                 {/* Handout Text Body */}
                 <div className="font-serif text-xs sm:text-sm leading-relaxed whitespace-pre-line tracking-normal select-none">
-                  {activeHandout.content || 'Текст документа пуст...'}
+                  {activeHandout.content || (isEn ? "Document text is empty..." : "Текст документа пуст...")}
                 </div>
 
                 {/* Decorative Bottom Flourish */}
                 <div className="mt-5 pt-3 border-t border-current/20 flex items-center justify-between text-[10px] opacity-70 font-serif italic">
                   <span className="flex items-center gap-1">
                     <Sparkles className="h-2.5 w-2.5 inline" />
-                    <span>Тайна открыта искателям</span>
+                    <span>{isEn ? "Secret revealed to adventurers" : "Тайна открыта искателям"}</span>
                   </span>
                   <span>D&D 2024</span>
                 </div>
@@ -537,12 +539,12 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
               {showCopiedToast ? (
                 <>
                   <Check className="h-3.5 w-3.5 text-emerald-400" />
-                  <span className="text-emerald-400">Сохранено!</span>
+                  <span className="text-emerald-400">{isEn ? "Saved!" : "Сохранено!"}</span>
                 </>
               ) : (
                 <>
                   <Plus className="h-3.5 w-3.5 text-gold" />
-                  <span>Сохранить раздатку</span>
+                  <span>{isEn ? "Save Handout" : "Сохранить раздатку"}</span>
                 </>
               )}
             </button>
@@ -551,20 +553,20 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
               type="button"
               onClick={() => handleSelectPreset(PRESETS[0])}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#1c262f] border border-[#2e3b46] hover:border-gray-500 text-xs text-gray-400 hover:text-gray-200 transition-colors"
-              title="Сбросить к первоначальному письму"
+              title={isEn ? "Reset to initial letter" : "Сбросить к первоначальному письму"}
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              <span>Сброс</span>
+              <span>{isEn ? "Reset" : "Сброс"}</span>
             </button>
 
             <button
               type="button"
               onClick={handleOpenPlayerWindow}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#1c262f] border border-[#2e3b46] hover:border-emerald-500 text-xs text-gray-300 hover:text-white transition-colors"
-              title="Открыть окно экрана игроков"
+              title={isEn ? "Open player display window" : "Открыть окно экрана игроков"}
             >
               <Monitor className="h-3.5 w-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">Экран игроков</span>
+              <span className="hidden sm:inline">{isEn ? "Player Display" : "Экран игроков"}</span>
             </button>
           </div>
 
@@ -576,7 +578,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                 className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-red-950/80 hover:bg-red-900 border border-red-500 text-red-100 font-bold text-xs transition-all shadow-md active:scale-95"
               >
                 <EyeOff className="h-3.5 w-3.5 text-red-300" />
-                <span>Скрыть у игроков</span>
+                <span>{isEn ? "Hide from Players" : "Скрыть у игроков"}</span>
               </button>
             ) : (
               <button
@@ -585,7 +587,7 @@ export function HandoutsModal({ isOpen, onClose }: HandoutsModalProps) {
                 className="flex items-center gap-1.5 px-5 py-1.5 rounded bg-gradient-to-r from-gold to-gold-light hover:brightness-110 text-canvas font-black text-xs transition-all shadow-gold-glow active:scale-95"
               >
                 <Send className="h-3.5 w-3.5" />
-                <span>Транслировать игрокам</span>
+                <span>{isEn ? "Broadcast to Players" : "Транслировать игрокам"}</span>
               </button>
             )}
 

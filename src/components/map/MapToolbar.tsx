@@ -52,25 +52,25 @@ interface MapToolbarProps {
 }
 
 const PALETTE_COLORS = [
-  { name: 'Черный', value: '#000000', border: 'border-gray-500' },
-  { name: 'Белый', value: '#FFFFFF', border: 'border-gray-400' },
-  { name: 'Красный', value: '#EF4444', border: 'border-red-400' },
-  { name: 'Синий', value: '#3B82F6', border: 'border-blue-400' },
-  { name: 'Зеленый', value: '#10B981', border: 'border-emerald-400' },
-  { name: 'Золотой', value: '#EAB308', border: 'border-yellow-400' },
-  { name: 'Фиолетовый', value: '#A855F7', border: 'border-purple-400' },
-  { name: 'Оранжевый', value: '#F97316', border: 'border-orange-400' },
+  { name: 'Черный', nameEn: 'Black', value: '#000000', border: 'border-gray-500' },
+  { name: 'Белый', nameEn: 'White', value: '#FFFFFF', border: 'border-gray-400' },
+  { name: 'Красный', nameEn: 'Red', value: '#EF4444', border: 'border-red-400' },
+  { name: 'Синий', nameEn: 'Blue', value: '#3B82F6', border: 'border-blue-400' },
+  { name: 'Зеленый', nameEn: 'Green', value: '#10B981', border: 'border-emerald-400' },
+  { name: 'Золотой', nameEn: 'Gold', value: '#EAB308', border: 'border-yellow-400' },
+  { name: 'Фиолетовый', nameEn: 'Purple', value: '#A855F7', border: 'border-purple-400' },
+  { name: 'Оранжевый', nameEn: 'Orange', value: '#F97316', border: 'border-orange-400' },
 ];
 
 export const AOE_DAMAGE_COLORS = [
-  { name: 'Огонь', value: '#EF4444' },
-  { name: 'Холод', value: '#3B82F6' },
-  { name: 'Излучение', value: '#F59E0B' },
-  { name: 'Силовое поле', value: '#8B5CF6' },
-  { name: 'Кислота', value: '#10B981' },
-  { name: 'Молния', value: '#EAB308' },
-  { name: 'Ожог', value: '#F97316' },
-  { name: 'Некротика', value: '#6366F1' },
+  { name: 'Огонь', nameEn: 'Fire', value: '#EF4444' },
+  { name: 'Холод', nameEn: 'Cold', value: '#3B82F6' },
+  { name: 'Излучение', nameEn: 'Radiant', value: '#F59E0B' },
+  { name: 'Силовое поле', nameEn: 'Force', value: '#8B5CF6' },
+  { name: 'Кислота', nameEn: 'Acid', value: '#10B981' },
+  { name: 'Молния', nameEn: 'Lightning', value: '#EAB308' },
+  { name: 'Ожог', nameEn: 'Burn', value: '#F97316' },
+  { name: 'Некротика', nameEn: 'Necrotic', value: '#6366F1' },
 ];
 
 export const QUICK_PRESETS = [
@@ -132,12 +132,12 @@ export const QUICK_PRESETS = [
   },
 ];
 
-export const WEATHER_OPTIONS: { id: WeatherEffect; label: string; icon: string; name: string }[] = [
-  { id: 'none', label: 'Ясно', icon: '', name: 'Ясно' },
-  { id: 'rain', label: 'Дождь', icon: '', name: 'Дождь' },
-  { id: 'snow', label: 'Снегопад', icon: '', name: 'Снегопад' },
-  { id: 'fog', label: 'Туман', icon: '', name: 'Туман' },
-  { id: 'embers', label: 'Угли и искры', icon: '', name: 'Угли и искры' },
+export const WEATHER_OPTIONS: { id: WeatherEffect; label: string; labelEn: string; icon: string; name: string }[] = [
+  { id: 'none', label: 'Ясно', labelEn: 'Clear', icon: '', name: 'Ясно' },
+  { id: 'rain', label: 'Дождь', labelEn: 'Rain', icon: '', name: 'Дождь' },
+  { id: 'snow', label: 'Снегопад', labelEn: 'Snow', icon: '', name: 'Снегопад' },
+  { id: 'fog', label: 'Туман', labelEn: 'Fog', icon: '', name: 'Туман' },
+  { id: 'embers', label: 'Угли и искры', labelEn: 'Embers & Sparks', icon: '', name: 'Угли и искры' },
 ];
 
 export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarProps) {
@@ -316,19 +316,19 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
 
   return (
     <div className="flex flex-col w-full flex-shrink-0 relative z-30">
-      <div className="flex items-center justify-between gap-1.5 px-2 sm:px-2.5 py-1.5 bg-surface/85 border-b border-[rgba(255,255,255,0.08)] backdrop-blur-md text-xs select-none overflow-x-auto no-scrollbar w-full min-w-0 shadow-glass">
+      <div className="flex flex-wrap items-center justify-between gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 bg-surface/85 border-b border-[rgba(255,255,255,0.08)] backdrop-blur-md text-xs select-none w-full shadow-glass">
         {/* Left Side: Groups 1, 2, 3 */}
-        <div className={`flex items-center gap-1.5 flex-shrink-0 relative ${isAoeOpen ? 'z-40' : 'z-30'}`}>
+        <div className={`flex flex-wrap items-center gap-1 sm:gap-1.5 relative ${isAoeOpen ? 'z-40' : 'z-30'}`}>
           {!isMasterView && (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold-light text-xs font-semibold select-none shadow-sm">
               <Hand className="h-3.5 w-3.5 text-gold animate-pulse flex-shrink-0" />
-              <span>Панорама карты активна (перемещайте зажатой мышью)</span>
+              <span>{isEn ? 'Pan mode active (drag to move)' : 'Панорама карты активна (перемещайте зажатой мышью)'}</span>
             </div>
           )}
           {isMasterView && (
             <>
               {/* Group 1: Navigation & Mode */}
-              <div className="flex items-center gap-0.5 bg-surface/85 border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/40 shadow-md backdrop-blur-md rounded-glass-lg p-0.5 sm:p-1 flex-shrink-0 transition-all">
+              <div className="flex items-center gap-0.5 bg-surface/85 border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/40 shadow-md backdrop-blur-md rounded-glass-lg p-0.5 sm:p-1 transition-all">
                 {/* [ Загрузить карту / Load Map ] */}
                 <button
                   type="button"
@@ -378,11 +378,11 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => useCombatStore.getState().autoArrangeCombatantsOnMap()}
-                  title="Автоматически расставить токены участников боя на карте (игроки слева, враги справа)"
+                  title={isEn ? "Automatically arrange combatants on map (players left, enemies right)" : "Автоматически расставить токены участников боя на карте (игроки слева, враги справа)"}
                   className="px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-gray-300 hover:text-gold-light hover:bg-gold/10 hover:border-gold/30 border border-transparent"
                 >
                   <Users className="h-3.5 w-3.5 text-emerald-400" />
-                  <span className="hidden xl:inline">Расставить</span>
+                  <span className="hidden xl:inline">{isEn ? 'Deploy' : 'Расставить'}</span>
                 </button>
 
                 {/* [ Добавить независимый токен ] */}
@@ -392,22 +392,22 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                     const { x, y } = getViewportCenter();
                     addMapToken({
                       id: crypto.randomUUID(),
-                      name: 'Новый токен',
+                      name: isEn ? 'New Token' : 'Новый токен',
                       x,
                       y,
                       size: 'medium',
                       hp: 20,
                       maxHp: 20,
                       ac: 12,
-                      speed: '30 фт.',
+                      speed: isEn ? '30 ft.' : '30 фт.',
                       isVisibleToPlayers: true,
                     });
                   }}
-                  title="Добавить независимый токен на карту (не участвует в инициативе пока не нажать 'В бой!')"
+                  title={isEn ? "Add independent token to map" : "Добавить независимый токен на карту (не участвует в инициативе пока не нажать 'В бой!')"}
                   className="px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all text-gray-300 hover:text-emerald-300 hover:bg-emerald-950/30 hover:border-emerald-500/30 border border-transparent"
                 >
                   <Plus className="h-3.5 w-3.5 text-emerald-400" />
-                  <span className="hidden xl:inline">+ Токен</span>
+                  <span className="hidden xl:inline">{isEn ? '+ Token' : '+ Токен'}</span>
                   {mapTokens.length > 0 && (
                     <span className="font-mono text-[10px] text-emerald-400/80">({mapTokens.length})</span>
                   )}
@@ -417,11 +417,11 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => useTokenForgeStore.getState().openForge()}
-                  title="Кузница токенов: кадрирование, векторные окантовки, свечение фракций и HD-экспорт токенов"
+                  title={isEn ? "Token Forge: vector rings, faction glows, and HD export" : "Кузница токенов: кадрирование, векторные окантовки, свечение фракций и HD-экспорт токенов"}
                   className="px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all text-amber-300 hover:text-amber-200 hover:bg-amber-950/30 hover:border-amber-500/40 border border-transparent cursor-pointer"
                 >
                   <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                  <span className="hidden xl:inline">Кузница</span>
+                  <span className="hidden xl:inline">{isEn ? 'Forge' : 'Кузница'}</span>
                 </button>
               </div>
 
@@ -431,7 +431,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => setActiveTool('ruler')}
-                  title="Линейка дистанций: точный подсчёт клеток и привязка к сетке (R или зажать Shift)"
+                  title={isEn ? "Distance ruler: grid snapping (R or hold Shift)" : "Линейка дистанций: точный подсчёт клеток и привязка к сетке (R или зажать Shift)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                     activeTool === 'ruler'
                       ? 'bg-gold/20 text-gold-light border border-gold/60 shadow-sm'
@@ -439,7 +439,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <Ruler className="h-3.5 w-3.5" />
-                  <span>Линейка</span>
+                  <span>{isEn ? "Ruler" : "Линейка"}</span>
                 </button>
 
                 <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
@@ -449,7 +449,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <button
                     type="button"
                     onClick={() => setIsAoeOpen((prev) => !prev)}
-                    title="Шаблоны заклинаний (AoE): Огненный шар, Конус холода, Молния, Кубы и настраиваемые зоны"
+                    title={isEn ? "Spell templates (AoE): Fireball, Cone of Cold, Lightning, Cubes" : "Шаблоны заклинаний (AoE): Огненный шар, Конус холода, Молния, Кубы и настраиваемые зоны"}
                     className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                       isAoeOpen || activeTool === 'aoe'
                         ? 'bg-purple-950/80 border border-purple-500/80 text-purple-200 shadow-sm'
@@ -457,7 +457,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                     }`}
                   >
                     <Sparkles className="h-3.5 w-3.5 text-purple-400" />
-                    <span><span className="hidden sm:inline">Шаблоны </span>AoE</span>
+                    <span><span className="hidden sm:inline">{isEn ? "Templates " : "Шаблоны "}</span>AoE</span>
                     <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform ${isAoeOpen ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -468,7 +468,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                       <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
                         <span className="text-xs font-serif font-bold text-gold-light uppercase tracking-wider flex items-center gap-1">
                           <Sparkles className="h-3 w-3 text-gold" />
-                          Шаблоны заклинаний
+                          {isEn ? "Spell Templates" : "Шаблоны заклинаний"}
                         </span>
                         <div className="flex items-center bg-[#090d14] p-0.5 rounded-lg border border-slate-700/60">
                           <button
@@ -480,7 +480,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                 : 'text-gray-400 hover:text-gray-200'
                             }`}
                           >
-                            Пресеты
+                            {isEn ? "Presets" : "Пресеты"}
                           </button>
                           <button
                             type="button"
@@ -491,7 +491,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                 : 'text-gray-400 hover:text-gray-200'
                             }`}
                           >
-                            Конструктор
+                            {isEn ? "Custom" : "Конструктор"}
                           </button>
                         </div>
                       </div>
@@ -500,7 +500,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                       {activeAoeTab === 'presets' && (
                         <div className="space-y-1.5">
                           <div className="text-[10px] text-gray-400 font-mono mb-1">
-                            Кликните для добавления в центр или выберите ручное размещение:
+                            {isEn ? "Click to add to center or select manual placement:" : "Кликните для добавления в центр или выберите ручное размещение:"}
                           </div>
                           <div className="space-y-1 max-h-[300px] overflow-y-auto pr-1">
                             {QUICK_PRESETS.map((preset) => (
@@ -534,7 +534,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                     className="p-1 rounded bg-[#1e293b] hover:bg-[#334155] text-gold-light border border-gold/30 text-[10px] font-medium flex items-center gap-0.5"
                                   >
                                     <MapPin className="h-3 w-3" />
-                                    <span className="hidden sm:inline">Центр</span>
+                                    <span className="hidden sm:inline">{isEn ? "Center" : "Центр"}</span>
                                   </button>
                                   <button
                                     type="button"
@@ -543,7 +543,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                     className="p-1 rounded bg-[#1e293b] hover:bg-[#334155] text-purple-300 border border-purple-500/30 text-[10px] font-medium flex items-center gap-0.5"
                                   >
                                     <Crosshair className="h-3 w-3" />
-                                    <span className="hidden sm:inline">Клик</span>
+                                    <span className="hidden sm:inline">{isEn ? "Click" : "Клик"}</span>
                                   </button>
                                 </div>
                               </div>
@@ -557,14 +557,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                         <div className="space-y-3">
                           <div>
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
-                              Форма области
+                              {isEn ? "Area Shape" : "Форма области"}
                             </label>
                             <div className="grid grid-cols-4 gap-1">
                               {[
-                                { shape: 'circle' as AoeShape, label: 'Круг' },
-                                { shape: 'cone' as AoeShape, label: 'Конус' },
-                                { shape: 'line' as AoeShape, label: 'Линия' },
-                                { shape: 'cube' as AoeShape, label: 'Куб' },
+                                { shape: 'circle' as AoeShape, label: isEn ? 'Circle' : 'Круг' },
+                                { shape: 'cone' as AoeShape, label: isEn ? 'Cone' : 'Конус' },
+                                { shape: 'line' as AoeShape, label: isEn ? 'Line' : 'Линия' },
+                                { shape: 'cube' as AoeShape, label: isEn ? 'Cube' : 'Куб' },
                               ].map((s) => (
                                 <button
                                   key={s.shape}
@@ -585,9 +585,9 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                           <div>
                             <div className="flex items-center justify-between mb-1">
                               <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                {customShape === 'line' ? 'Длина' : 'Радиус / Размер'} (футы)
+                                {isEn ? (customShape === 'line' ? 'Length (feet)' : 'Radius / Size (feet)') : (customShape === 'line' ? 'Длина' : 'Радиус / Размер') + ' (футы)'}
                               </label>
-                              <span className="text-xs font-mono font-bold text-gold">{customSize} фт.</span>
+                              <span className="text-xs font-mono font-bold text-gold">{customSize} {isEn ? "ft." : "фт."}</span>
                             </div>
                             <div className="flex flex-wrap gap-1 mb-1.5">
                               {[5, 10, 15, 20, 30, 40, 60, 100].map((ft) => (
@@ -629,7 +629,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
 
                           <div>
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
-                              Цвет / Тип энергии
+                              {isEn ? "Color / Energy Type" : "Цвет / Тип энергии"}
                             </label>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {AOE_DAMAGE_COLORS.map((c) => (
@@ -637,7 +637,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                   key={c.value}
                                   type="button"
                                   onClick={() => setCustomColor(c.value)}
-                                  title={c.name}
+                                  title={isEn ? (c.nameEn || c.name) : c.name}
                                   className={`w-6 h-6 rounded-full border-2 transition-transform ${
                                     customColor === c.value ? 'scale-110 border-white shadow-md' : 'border-transparent hover:scale-105'
                                   }`}
@@ -658,13 +658,13 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
 
                           <div>
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
-                              Подпись / Название (опционально)
+                              {isEn ? "Label / Name (optional)" : "Подпись / Название (опционально)"}
                             </label>
                             <input
                               type="text"
                               value={customLabel}
                               onChange={(e) => setCustomLabel(e.target.value)}
-                              placeholder={`${customShape === 'circle' ? 'Круг' : customShape === 'cone' ? 'Конус' : customShape === 'line' ? 'Линия' : 'Куб'} (${customSize} фт.)`}
+                              placeholder={`${customShape === 'circle' ? (isEn ? "Circle" : "Круг") : customShape === 'cone' ? (isEn ? "Cone" : "Конус") : customShape === 'line' ? (isEn ? "Line" : "Линия") : (isEn ? "Cube" : "Куб")} (${customSize} ${isEn ? "ft." : "фт."})`}
                               className="w-full px-2 py-1 bg-[#090d14] border border-slate-700/60 rounded-lg text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-gold/60"
                             />
                           </div>
@@ -682,7 +682,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                               className="py-1.5 px-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 shadow transition-all"
                             >
                               <MapPin className="h-3.5 w-3.5" />
-                              <span>В центр карты</span>
+                              <span>{isEn ? "To Map Center" : "В центр карты"}</span>
                             </button>
 
                             <button
@@ -697,7 +697,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                               className="py-1.5 px-2 bg-[#2e1065] hover:bg-[#3b0764] text-purple-200 border border-purple-500/60 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 shadow transition-all"
                             >
                               <Crosshair className="h-3.5 w-3.5 text-purple-300" />
-                              <span>Разместить кликом</span>
+                              <span>{isEn ? "Place with Click" : "Разместить кликом"}</span>
                             </button>
                           </div>
                         </div>
@@ -715,7 +715,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                             className="text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1 px-2 py-0.5 rounded-lg hover:bg-red-950/40 border border-red-900/40 transition-colors"
                           >
                             <Trash2 className="h-3 w-3" />
-                            <span>Удалить все шаблоны ({aoeTemplates.length})</span>
+                            <span>{isEn ? "Clear all templates" : "Удалить все шаблоны"} ({aoeTemplates.length})</span>
                           </button>
                         </div>
                       )}
@@ -727,7 +727,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 {aoeTemplates.length > 0 && (
                   <button
                     onClick={clearAoeTemplates}
-                    title="Очистить все шаблоны заклинаний"
+                    title={isEn ? "Clear all spell templates" : "Очистить все шаблоны заклинаний"}
                     className="p-1 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-950/50 flex items-center gap-0.5 transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -737,12 +737,12 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
               </div>
 
               {/* Group 3: Paint Engine (Draw, Eraser, Quick Palette, Width, Undo, Clear) */}
-              <div className="flex items-center gap-0.5 sm:gap-1 bg-surface/85 border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/40 shadow-md backdrop-blur-md rounded-glass-lg p-0.5 sm:p-1 flex-shrink-0 transition-all">
+              <div className="flex items-center gap-0.5 sm:gap-1 bg-surface/85 border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/40 shadow-md backdrop-blur-md rounded-glass-lg p-0.5 sm:p-1 transition-all">
                 {/* [ Рисовать ] */}
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'draw' ? 'select' : 'draw')}
-                  title="Рисование кистью (D)"
+                  title={isEn ? "Brush drawing (D)" : "Рисование кистью (D)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     activeTool === 'draw'
                       ? 'bg-gold/20 text-gold-light border border-gold/60 shadow-sm'
@@ -750,14 +750,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <Pencil className="h-3.5 w-3.5 text-gold" />
-                  <span>Рисовать</span>
+                  <span>{isEn ? 'Draw' : 'Рисовать'}</span>
                 </button>
 
                 {/* [ ⌫ Ластик ] */}
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'eraser' ? 'select' : 'eraser')}
-                  title="Ластик рисунков (E)"
+                  title={isEn ? "Drawing eraser (E)" : "Ластик рисунков (E)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     activeTool === 'eraser'
                       ? 'bg-red-950/70 border border-red-500/70 text-red-200 shadow-sm'
@@ -765,63 +765,68 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <Eraser className="h-3.5 w-3.5 text-red-400" />
-                  <span>Ластик</span>
+                  <span>{isEn ? 'Eraser' : 'Ластик'}</span>
                 </button>
 
-                <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
+                {/* Conditional Palette & Widths when Draw or Eraser is active */}
+                {(activeTool === 'draw' || activeTool === 'eraser') && (
+                  <>
+                    <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
 
-                {/* Quick Palette (8 colors) */}
-                <div className="flex items-center gap-0.5 px-0.5">
-                  {PALETTE_COLORS.map((c) => {
-                    const isSelected = activeTool === 'draw' && currentBrushColor.toLowerCase() === c.value.toLowerCase();
-                    return (
-                      <button
-                        key={c.value}
-                        type="button"
-                        onClick={() => {
-                          setBrushColor(c.value);
-                          if (activeTool !== 'draw') setActiveTool('draw');
-                        }}
-                        title={`Цвет: ${c.name}`}
-                        className={`w-3 h-3 rounded-full border transition-all ${c.border} ${
-                          isSelected
-                            ? 'ring-2 ring-gold scale-125 border-white shadow-sm'
-                            : 'opacity-80 hover:opacity-100 hover:scale-110'
-                        }`}
-                        style={{ backgroundColor: c.value }}
-                      />
-                    );
-                  })}
-                </div>
+                    {/* Quick Palette (8 colors) */}
+                    <div className="flex items-center gap-0.5 px-0.5">
+                      {PALETTE_COLORS.map((c) => {
+                        const isSelected = activeTool === 'draw' && currentBrushColor.toLowerCase() === c.value.toLowerCase();
+                        return (
+                          <button
+                            key={c.value}
+                            type="button"
+                            onClick={() => {
+                              setBrushColor(c.value);
+                              if (activeTool !== 'draw') setActiveTool('draw');
+                            }}
+                            title={`${isEn ? 'Color: ' : 'Цвет: '}${isEn ? c.nameEn : c.name}`}
+                            className={`w-3 h-3 rounded-full border transition-all ${c.border} ${
+                              isSelected
+                                ? 'ring-2 ring-gold scale-125 border-white shadow-sm'
+                                : 'opacity-80 hover:opacity-100 hover:scale-110'
+                            }`}
+                            style={{ backgroundColor: c.value }}
+                          />
+                        );
+                      })}
+                    </div>
 
-                <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
+                    <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
 
-                {/* Brush Width (Thin, Medium, Thick, Marker) */}
-                <div className="flex items-center gap-0.5">
-                  {[
-                    { label: '2px', title: 'Тонкая (2px)', width: 2 },
-                    { label: '5px', title: 'Средняя (5px)', width: 5 },
-                    { label: '12px', title: 'Толстая (12px)', width: 12 },
-                    { label: '24px', title: 'Маркер (24px)', width: 24 },
-                  ].map((sw) => (
-                    <button
-                      key={sw.width}
-                      type="button"
-                      onClick={() => {
-                        setBrushWidth(sw.width);
-                        if (activeTool !== 'draw' && activeTool !== 'eraser') setActiveTool('draw');
-                      }}
-                      title={sw.title}
-                      className={`px-1 py-0.5 rounded text-[10px] font-mono transition-colors ${
-                        currentBrushWidth === sw.width
-                          ? 'bg-gold/25 text-gold-light font-bold border border-gold/60 shadow-xs'
-                          : 'text-gray-400 hover:text-gray-200 border border-transparent'
-                      }`}
-                    >
-                      {sw.label}
-                    </button>
-                  ))}
-                </div>
+                    {/* Brush Width (Thin, Medium, Thick, Marker) */}
+                    <div className="flex items-center gap-0.5">
+                      {[
+                        { label: '2px', title: isEn ? 'Thin (2px)' : 'Тонкая (2px)', width: 2 },
+                        { label: '5px', title: isEn ? 'Medium (5px)' : 'Средняя (5px)', width: 5 },
+                        { label: '12px', title: isEn ? 'Thick (12px)' : 'Толстая (12px)', width: 12 },
+                        { label: '24px', title: isEn ? 'Marker (24px)' : 'Маркер (24px)', width: 24 },
+                      ].map((sw) => (
+                        <button
+                          key={sw.width}
+                          type="button"
+                          onClick={() => {
+                            setBrushWidth(sw.width);
+                            if (activeTool !== 'draw' && activeTool !== 'eraser') setActiveTool('draw');
+                          }}
+                          title={sw.title}
+                          className={`px-1 py-0.5 rounded text-[10px] font-mono transition-colors ${
+                            currentBrushWidth === sw.width
+                              ? 'bg-gold/25 text-gold-light font-bold border border-gold/60 shadow-xs'
+                              : 'text-gray-400 hover:text-gray-200 border border-transparent'
+                          }`}
+                        >
+                          {sw.label}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
 
                 <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
 
@@ -830,11 +835,11 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   type="button"
                   onClick={undoLastDrawing}
                   disabled={drawingLines.length === 0}
-                  title="Отменить последний штрих (Ctrl+Z)"
+                  title={isEn ? "Undo last stroke (Ctrl+Z)" : "Отменить последний штрих (Ctrl+Z)"}
                   className="px-1.5 py-1 rounded-lg text-gray-300 hover:text-gold-light hover:bg-gold/10 hover:border-gold/30 border border-transparent disabled:opacity-35 disabled:pointer-events-none flex items-center gap-1 transition-all"
                 >
                   <Undo2 className="h-3.5 w-3.5 text-gold" />
-                  <span className="hidden 2xl:inline">Отмена</span>
+                  <span className="hidden 2xl:inline">{isEn ? 'Undo' : 'Отмена'}</span>
                   {drawingLines.length > 0 && (
                     <span className="font-mono text-[10px] text-gray-400">({drawingLines.length})</span>
                   )}
@@ -845,7 +850,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   type="button"
                   onClick={clearAllDrawings}
                   disabled={drawingLines.length === 0}
-                  title="Очистить все рисунки"
+                  title={isEn ? "Clear all drawings" : "Очистить все рисунки"}
                   className="p-1 rounded-lg text-gray-400 hover:text-red-300 hover:bg-red-950/40 border border-transparent disabled:opacity-35 disabled:pointer-events-none transition-colors"
                 >
                   <Trash2 className="h-3.5 w-3.5 text-red-400" />
@@ -858,7 +863,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'pin' ? 'select' : 'pin')}
-                  title="Булавка Мастера: кликните по карте для размещения интерактивной заметки/ловушки (P)"
+                  title={isEn ? "GM Pin: interactive note or trap (P)" : "Булавка Мастера: кликните по карте для размещения интерактивной заметки/ловушки (P)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     activeTool === 'pin'
                       ? 'bg-amber-500/25 text-amber-300 border border-amber-500/60 shadow-sm'
@@ -866,7 +871,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <MapPin className="h-3.5 w-3.5 text-amber-400" />
-                  <span>Булавка</span>
+                  <span>{isEn ? "Pin" : "Булавка"}</span>
                   {pins.length > 0 && (
                     <span className="font-mono text-[10px] text-amber-300/80">({pins.length})</span>
                   )}
@@ -875,7 +880,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <button
                     type="button"
                     onClick={clearPins}
-                    title="Удалить все булавки с карты"
+                    title={isEn ? "Delete all pins from map" : "Удалить все булавки с карты"}
                     className="p-1 rounded-lg text-gray-400 hover:text-red-300 hover:bg-red-950/40 border border-transparent transition-colors"
                   >
                     <Trash2 className="h-3 w-3 text-red-400" />
@@ -888,7 +893,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'wall' ? 'select' : 'wall')}
-                  title="Стена: протяните отрезок стены, блокирующий передвижение токенов и обзор (W)"
+                  title={isEn ? "Wall: blocks token movement and line of sight (W)" : "Стена: протяните отрезок стены, блокирующий передвижение токенов и обзор (W)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     activeTool === 'wall'
                       ? 'bg-blue-500/25 text-blue-300 border border-blue-500/60 shadow-sm'
@@ -896,14 +901,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <ToyBrick className="h-3.5 w-3.5 text-blue-400" />
-                  <span>Стена</span>
+                  <span>{isEn ? "Wall" : "Стена"}</span>
                 </button>
 
                 {/* [ Дверь ] */}
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'door' ? 'select' : 'door')}
-                  title="Дверь: отрезок двери. Клик переключает (Открыта/Закрыта), Shift-клик запирает"
+                  title={isEn ? "Door: click to toggle (Open/Closed), Shift-click to lock" : "Дверь: отрезок двери. Клик переключает (Открыта/Закрыта), Shift-клик запирает"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     activeTool === 'door'
                       ? 'bg-amber-600/30 text-amber-200 border border-amber-500/60 shadow-sm'
@@ -911,14 +916,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <DoorClosed className="h-3.5 w-3.5 text-amber-400" />
-                  <span>Дверь</span>
+                  <span>{isEn ? "Door" : "Дверь"}</span>
                 </button>
 
                 {/* [ Тайная дверь ] */}
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'secret_door' ? 'select' : 'secret_door')}
-                  title="Тайная дверь: видна Мастеру фиолетовым пунктиром с символом 'S', на экране игроков скрыта как обычная стена"
+                  title={isEn ? "Secret door: visible to GM, hidden as normal wall to players" : "Тайная дверь: видна Мастеру фиолетовым пунктиром с символом 'S', на экране игроков скрыта как обычная стена"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     activeTool === 'secret_door'
                       ? 'bg-purple-600/30 text-purple-200 border border-purple-500/60 shadow-sm'
@@ -926,14 +931,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <EyeOff className="h-3.5 w-3.5 text-purple-400" />
-                  <span>Тайная</span>
+                  <span>{isEn ? "Secret" : "Тайная"}</span>
                 </button>
 
                 {/* [ Окно ] */}
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'window' ? 'select' : 'window')}
-                  title="Окно: полупрозрачная стеклянная преграда. Блокирует шаг токенов, но пропускает свет и обзор"
+                  title={isEn ? "Window: transparent barrier, blocks movement, allows vision and light" : "Окно: полупрозрачная стеклянная преграда. Блокирует шаг токенов, но пропускает свет и обзор"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     activeTool === 'window'
                       ? 'bg-cyan-600/30 text-cyan-200 border border-cyan-500/60 shadow-sm'
@@ -941,7 +946,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <AppWindow className="h-3.5 w-3.5 text-cyan-400" />
-                  <span>Окно</span>
+                  <span>{isEn ? "Window" : "Окно"}</span>
                   {walls.length > 0 && (
                     <span className="font-mono text-[10px] text-gray-400">({walls.length})</span>
                   )}
@@ -951,7 +956,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <button
                     type="button"
                     onClick={clearWalls}
-                    title="Удалить все барьеры и двери"
+                    title={isEn ? "Delete all barriers and doors" : "Удалить все барьеры и двери"}
                     className="p-1 rounded-lg text-gray-400 hover:text-red-300 hover:bg-red-950/40 border border-transparent transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5 text-red-400" />
@@ -971,7 +976,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                     <button
                       type="button"
                       onClick={() => setActiveTool(activeTool === 'light' ? 'select' : 'light')}
-                      title="Инструмент «Свет»: клик по карте ставит светильник (L)"
+                      title={isEn ? "Light Tool: click on map to place a light source (L)" : "Инструмент «Свет»: клик по карте ставит светильник (L)"}
                       className={`px-1.5 py-1 rounded-l-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                         activeTool === 'light'
                           ? 'bg-amber-950/90 border border-amber-500 text-amber-200 shadow-sm'
@@ -979,7 +984,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                       }`}
                     >
                       <Flame className={`h-3.5 w-3.5 ${isLightingEnabled ? 'text-amber-400' : 'text-gray-400'}`} />
-                      <span>Свет</span>
+                      <span>{isEn ? "Light" : "Свет"}</span>
                       {lights.length > 0 && (
                         <span className="font-mono text-[10px] text-amber-400/90">({lights.length})</span>
                       )}
@@ -987,7 +992,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                     <button
                       type="button"
                       onClick={() => setIsLightOpen((prev) => !prev)}
-                      title="Настройки динамического света, глобальное освещение и пресеты"
+                      title={isEn ? "Dynamic lighting settings, ambient light, and presets" : "Настройки динамического света, глобальное освещение и пресеты"}
                       className={`px-1 py-1 rounded-r-lg text-xs transition-all border ${
                         isLightOpen || activeTool === 'light'
                           ? 'bg-amber-950/90 border-amber-500 text-amber-200 shadow-sm border-l-0'
@@ -1005,7 +1010,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                       <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
                         <span className="text-xs font-serif font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                           <Flame className="h-3.5 w-3.5 text-amber-400" />
-                          Динамический свет и зрение
+                          {isEn ? "Dynamic Light & Vision" : "Динамический свет и зрение"}
                         </span>
                         <button
                           type="button"
@@ -1016,14 +1021,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                               : 'bg-surface-subtle text-gray-400 hover:text-gray-200'
                           }`}
                         >
-                          {isLightingEnabled ? 'Включен' : 'Выключен'}
+                          {isEn ? (isLightingEnabled ? 'Enabled' : 'Disabled') : (isLightingEnabled ? 'Включен' : 'Выключен')}
                         </button>
                       </div>
 
                       {/* Ambient Light Mode Selector */}
                       <div className="space-y-1.5">
                         <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block">
-                          Глобальное освещение карты
+                          {isEn ? "Global Map Lighting" : "Глобальное освещение карты"}
                         </span>
                         <div className="grid grid-cols-2 gap-1">
                           {(Object.keys(AMBIENT_LIGHT_CONFIG) as AmbientLightMode[]).map((mode) => {
@@ -1052,10 +1057,10 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                       <div className="space-y-1.5 pt-1 border-t border-slate-700/60">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
-                            Пресеты светильников D&D
+                            {isEn ? "D&D Light Presets" : "Пресеты светильников D&D"}
                           </span>
                           <span className="text-[10px] text-amber-400/80 font-mono">
-                            Клик = активный
+                            {isEn ? "Click = active" : "Клик = активный"}
                           </span>
                         </div>
 
@@ -1109,10 +1114,10 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                       setLightingEnabled(true);
                                     }
                                   }}
-                                  title="Разместить в центр карты"
+                                  title={isEn ? "Place in map center" : "Разместить в центр карты"}
                                   className="ml-2 px-1.5 py-0.5 rounded text-[10px] text-amber-300 bg-amber-950/60 border border-amber-500/40 hover:bg-amber-900/60 transition-colors flex-shrink-0"
                                 >
-                                  В центр
+                                  {isEn ? "To Center" : "В центр"}
                                 </button>
                               </div>
                             );
@@ -1123,14 +1128,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                       {/* Footer Actions */}
                       {lights.length > 0 && (
                         <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
-                          <span className="text-gray-400">Всего светильников: {lights.length}</span>
+                          <span className="text-gray-400">{isEn ? "Total lights: " : "Всего светильников: "}{lights.length}</span>
                           <button
                             type="button"
                             onClick={clearLights}
                             className="text-red-400 hover:text-red-300 hover:bg-red-950/40 px-2 py-0.5 rounded flex items-center gap-1 transition-colors"
                           >
                             <Trash2 className="h-3 w-3" />
-                            <span>Очистить все</span>
+                            <span>{isEn ? "Clear All" : "Очистить все"}</span>
                           </button>
                         </div>
                       )}
@@ -1391,7 +1396,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                         }`}
                       >
                         <span className="flex items-center gap-2">
-                          <span>{opt.label}</span>
+                          <span>{isEn ? opt.labelEn : opt.label}</span>
                         </span>
                         {weatherEffect === opt.id && <Check className="h-3 w-3 text-gold" />}
                       </button>
@@ -1410,7 +1415,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={toggleGrid}
-                  title="Отображение тактической сетки"
+                  title={isEn ? "Toggle tactical grid" : "Отображение тактической сетки"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     isGridVisible
                       ? 'bg-gold/20 text-gold-light border border-gold/60 shadow-sm'
@@ -1418,14 +1423,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <Grid className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Сетка</span>
+                  <span className="hidden sm:inline">{isEn ? "Grid" : "Сетка"}</span>
                 </button>
 
                 <div className="flex items-center gap-0.5 text-xs font-mono">
                   <button
                     type="button"
                     onClick={() => setGridCellSize(gridCellSize - 5)}
-                    title="Уменьшить шаг сетки (-5px)"
+                    title={isEn ? "Decrease grid step (-5px)" : "Уменьшить шаг сетки (-5px)"}
                     className="w-5 h-5 flex items-center justify-center rounded bg-[#1a202c] border border-slate-700 text-gray-300 hover:text-white hover:border-gold/40"
                   >
                     -
@@ -1434,7 +1439,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <button
                     type="button"
                     onClick={() => setGridCellSize(gridCellSize + 5)}
-                    title="Увеличить шаг сетки (+5px)"
+                    title={isEn ? "Increase grid step (+5px)" : "Увеличить шаг сетки (+5px)"}
                     className="w-5 h-5 flex items-center justify-center rounded bg-[#1a202c] border border-slate-700 text-gray-300 hover:text-white hover:border-gold/40"
                   >
                     +
@@ -1453,7 +1458,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                         : 'text-gray-400 hover:text-gray-200 border border-transparent'
                     }`}
                   >
-                    ■ Квадрат
+                    {isEn ? "■ Square" : "■ Квадрат"}
                   </button>
                   <button
                     type="button"
@@ -1465,7 +1470,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                         : 'text-gray-400 hover:text-gray-200 border border-transparent'
                     }`}
                   >
-                    ⬡ Гекс V
+                    {isEn ? "⬡ Hex V" : "⬡ Гекс V"}
                   </button>
                   <button
                     type="button"
@@ -1477,7 +1482,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                         : 'text-gray-400 hover:text-gray-200 border border-transparent'
                     }`}
                   >
-                    ⬢ Гекс H
+                    {isEn ? "⬢ Hex H" : "⬢ Гекс H"}
                   </button>
                 </div>
 
@@ -1490,7 +1495,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
               <button
                 type="button"
                 onClick={zoomOut}
-                title="Отдалить карту (-)"
+                title={isEn ? "Zoom out (-)" : "Отдалить карту (-)"}
                 className="p-1 rounded-lg text-gray-300 hover:text-white hover:bg-[#1a202c] transition-colors"
               >
                 <ZoomOut className="h-3.5 w-3.5" />
@@ -1503,7 +1508,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
               <button
                 type="button"
                 onClick={zoomIn}
-                title="Приблизить карту (+)"
+                title={isEn ? "Zoom in (+)" : "Приблизить карту (+)"}
                 className="p-1 rounded-lg text-gray-300 hover:text-white hover:bg-[#1a202c] transition-colors"
               >
                 <ZoomIn className="h-3.5 w-3.5" />
@@ -1512,7 +1517,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
               <button
                 type="button"
                 onClick={onFitToViewport}
-                title="Вписать карту в окно"
+                title={isEn ? "Fit map to viewport" : "Вписать карту в окно"}
                 className="p-1 rounded-lg text-gray-300 hover:text-gold-light hover:bg-[#1a202c] transition-colors"
               >
                 <Maximize2 className="h-3.5 w-3.5" />
@@ -1521,7 +1526,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
               <button
                 type="button"
                 onClick={resetView}
-                title="Сброс масштаба (100%)"
+                title={isEn ? "Reset zoom (100%)" : "Сброс масштаба (100%)"}
                 className="p-1 rounded-lg text-gray-300 hover:text-white hover:bg-[#1a202c] transition-colors"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
@@ -1561,16 +1566,6 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <span className="hidden sm:inline xl:hidden">{isEn ? 'Generator' : 'Генератор'}</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  title={isEn ? "Load map from device (.png, .jpg, .webp, .mp4, .webm)" : "Загрузить изображение карты или видео (.png, .jpg, .webp, .mp4, .webm)"}
-                  className="px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 text-gold-light bg-gold/15 hover:bg-gold/25 border border-gold/40 hover:border-gold transition-all shadow-sm cursor-pointer"
-                >
-                  <Upload className="h-3.5 w-3.5 text-gold" />
-                  <span className="hidden xl:inline">{isEn ? 'Load Map' : 'Загрузить карту'}</span>
-                  <span className="hidden sm:inline xl:hidden">{isEn ? 'Map' : 'Карта'}</span>
-                </button>
                 <input
                   type="file"
                   ref={fileInputRef}

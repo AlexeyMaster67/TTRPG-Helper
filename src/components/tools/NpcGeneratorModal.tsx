@@ -11,6 +11,7 @@ import {
   Swords,
 } from 'lucide-react';
 import { useCombatStore } from '../../store/combatStore';
+import { useSettingsStore } from '../../store/settingsStore';
 
 interface GeneratedNpc {
   name: string;
@@ -169,6 +170,7 @@ interface NpcGeneratorModalProps {
 }
 
 export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const addCombatant = useCombatStore((s) => s.addCombatant);
   const [npc, setNpc] = useState<GeneratedNpc>(generateRandomNpc);
   const [copied, setCopied] = useState(false);
@@ -298,12 +300,12 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
             </div>
             <div>
               <h2 className="font-sans font-bold text-sm sm:text-base text-gray-100 flex items-center gap-2">
-                Генератор случайных NPC «на лету»
+                {isEn ? "On-the-Fly NPC Generator" : "Генератор случайных NPC «на лету»"}
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono font-medium">
-                  Оффлайн
+                  {isEn ? 'Offline' : 'Оффлайн'}
                 </span>
               </h2>
-              <p className="text-[11px] text-gray-400">Мгновенный персонаж для внезапных встреч в таверне, городе или на тракте</p>
+              <p className="text-[11px] text-gray-400">{isEn ? "Instant character for spontaneous encounters in taverns, cities, or on the road" : "Мгновенный персонаж для внезапных встреч в таверне, городе или на тракте"}</p>
             </div>
           </div>
           <button
@@ -327,10 +329,10 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
               </div>
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-300 font-mono font-bold text-xs border border-blue-500/30 flex items-center gap-1">
-                  <Shield className="h-3 w-3" /> КД {npc.ac}
+                  <Shield className="h-3 w-3" /> {isEn ? "AC" : "КД"} {npc.ac}
                 </span>
                 <span className="px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 font-mono font-bold text-xs border border-rose-500/30 flex items-center gap-1">
-                  <Heart className="h-3 w-3" /> {npc.hp} ОЗ
+                  <Heart className="h-3 w-3" /> {npc.hp} {isEn ? "HP" : "ОЗ"}
                 </span>
               </div>
             </div>
@@ -338,15 +340,15 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
             {/* Narrative traits */}
             <div className="grid grid-cols-1 gap-2 pt-2 border-t border-[rgba(255,255,255,0.06)]">
               <div className="flex items-start gap-2">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider min-w-[110px]">Характер:</span>
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider min-w-[110px]">{isEn ? "Personality:" : "Характер:"}</span>
                 <span className="text-gray-200 flex-1">{npc.personality}</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider min-w-[110px]">Манера речи:</span>
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider min-w-[110px]">{isEn ? "Mannerism:" : "Манера речи:"}</span>
                 <span className="text-gray-200 flex-1">{npc.mannerism}</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider min-w-[110px]">Тайна / Секрет:</span>
+                <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider min-w-[110px]">{isEn ? "Secret / Hook:" : "Тайна / Секрет:"}</span>
                 <span className="text-amber-200/90 flex-1 font-medium italic">«{npc.secret}»</span>
               </div>
             </div>
@@ -355,16 +357,16 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
           {/* Ability Scores Grid */}
           <div className="p-3.5 rounded-glass-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] space-y-2">
             <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">
-              Характеристики и модификаторы:
+              {isEn ? "Attributes & Modifiers:" : "Характеристики и модификаторы:"}
             </span>
             <div className="grid grid-cols-6 gap-2 text-center">
               {[
-                { label: 'СИЛ', val: npc.str },
-                { label: 'ЛОВ', val: npc.dex },
-                { label: 'ТЕЛ', val: npc.con },
-                { label: 'ИНТ', val: npc.int },
-                { label: 'МДР', val: npc.wis },
-                { label: 'ХАР', val: npc.cha },
+                { label: isEn ? 'STR' : 'СИЛ', val: npc.str },
+                { label: isEn ? 'DEX' : 'ЛОВ', val: npc.dex },
+                { label: isEn ? 'CON' : 'ТЕЛ', val: npc.con },
+                { label: isEn ? 'INT' : 'ИНТ', val: npc.int },
+                { label: isEn ? 'WIS' : 'МДР', val: npc.wis },
+                { label: isEn ? 'CHA' : 'ХАР', val: npc.cha },
               ].map((s) => (
                 <div key={s.label} className="p-2 rounded bg-black/30 border border-white/5 flex flex-col items-center">
                   <span className="text-[9px] uppercase font-bold text-gray-400">{s.label}</span>
@@ -379,9 +381,9 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
           <div className="p-3 rounded-glass bg-black/30 border border-white/5 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
               <Swords className="h-4 w-4 text-gray-400" />
-              <span>Оружие: <strong className="text-white">{npc.attackName}</strong> (+{npc.attackBonus} к попад., {npc.damageDice} урона)</span>
+              <span>{isEn ? "Weapon: " : "Оружие: "}<strong className="text-white">{npc.attackName}</strong> (+{npc.attackBonus} к попад., {npc.damageDice} урона)</span>
             </div>
-            <span className="text-gray-400">Скорость: {npc.speed}</span>
+            <span className="text-gray-400">{isEn ? "Speed: " : "Скорость: "}{isEn ? npc.speed.replace("фт.", "ft.") : npc.speed}</span>
           </div>
         </div>
 
@@ -394,7 +396,7 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
               className="min-h-[34px] px-3.5 py-1.5 rounded-glass bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
             >
               <RefreshCw className="h-3.5 w-3.5 text-[#f5b920]" />
-              <span>Другой NPC (Сгенерировать)</span>
+              <span>{isEn ? "Generate Another NPC" : "Другой NPC (Сгенерировать)"}</span>
             </button>
 
             <button
@@ -403,7 +405,7 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
               className="min-h-[34px] px-3 py-1.5 rounded-glass bg-transparent hover:bg-white/5 text-gray-400 hover:text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-              <span>{copied ? 'Скопировано!' : 'Копировать'}</span>
+              <span>{copied ? (isEn ? 'Copied!' : 'Скопировано!') : (isEn ? 'Copy' : 'Копировать')}</span>
             </button>
           </div>
 
@@ -414,7 +416,7 @@ export function NpcGeneratorModal({ isOpen, onClose }: NpcGeneratorModalProps) {
               className="min-h-[34px] px-4 py-1.5 rounded-glass bg-gradient-to-r from-blue-600 to-indigo-600 hover:brightness-110 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
             >
               {addedNotice ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-              <span>{addedNotice ? 'Добавлен в бой!' : 'Добавить в бой как NPC'}</span>
+              <span>{addedNotice ? (isEn ? 'Added to Combat!' : 'Добавлен в бой!') : (isEn ? 'Add to Combat as NPC' : 'Добавить в бой как NPC')}</span>
             </button>
           </div>
         </div>

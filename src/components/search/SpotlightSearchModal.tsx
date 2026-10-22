@@ -22,6 +22,7 @@ import {
   ArrowDown,
 } from 'lucide-react';
 import clsx from 'clsx';
+import { useSettingsStore } from '../../store/settingsStore';
 
 export type SpotlightCategory = 'all' | 'monster' | 'spell' | 'item' | 'condition' | 'rule';
 
@@ -47,6 +48,7 @@ function formatMod(score: number): string {
 }
 
 export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalProps) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<SpotlightCategory>('all');
   const [results, setResults] = useState<SpotlightSearchResult[]>([]);
@@ -125,7 +127,7 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
                 titleRu: cleanRussianText(m.name_ru || m.name_en),
                 titleEn: m.name_en,
                 subtitle: `CR ${m.cr} • КД ${m.ac} • HP ${m.hp_average} • ${cleanRussianText(m.creature_type_ru || m.creature_type)}`,
-                badge: 'Монстр',
+                badge: isEn ? 'Monster' : 'Монстр',
                 badgeClass: 'bg-red-950/70 text-red-300 border-red-500/40',
                 data: m,
               });
@@ -145,7 +147,7 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
                 titleRu: cleanRussianText(s.name_ru || s.name_en),
                 titleEn: s.name_en,
                 subtitle: `${lvl} • ${cleanRussianText(s.school_ru || s.school)} • ${s.casting_time}`,
-                badge: 'Заклинание',
+                badge: isEn ? 'Spell' : 'Заклинание',
                 badgeClass: 'bg-blue-950/70 text-blue-300 border-blue-500/40',
                 data: s,
               });
@@ -164,7 +166,7 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
                 titleRu: cleanRussianText(it.name_ru || it.name_en),
                 titleEn: it.name_en,
                 subtitle: `${cleanRussianText(it.rarity || 'Обычный')} • ${cleanRussianText(it.category || 'Предмет')}`,
-                badge: 'Предмет',
+                badge: isEn ? 'Item' : 'Предмет',
                 badgeClass: 'bg-amber-950/70 text-amber-300 border-amber-500/40',
                 data: it,
               });
@@ -191,7 +193,7 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
               titleRu: c.nameRu,
               titleEn: c.nameEn,
               subtitle: c.descriptionRu.slice(0, 80) + '...',
-              badge: 'Состояние',
+              badge: isEn ? 'Condition' : 'Состояние',
               badgeClass: 'bg-purple-950/70 text-purple-300 border-purple-500/40',
               data: c,
             });
@@ -342,7 +344,7 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Быстрый поиск по D&D 2024: гоблин, огненный шар, топор, замедление, укрытие..."
+            placeholder={isEn ? "Quick search: goblin, fireball, battleaxe, slow, cover..." : "Быстрый поиск по D&D 2024: гоблин, огненный шар, топор, замедление, укрытие..."}
             className="flex-1 bg-transparent text-sm sm:text-base text-gray-100 placeholder-gray-500 outline-none font-sans"
           />
           {query && (
@@ -355,7 +357,7 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
             </button>
           )}
           <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 border border-[rgba(255,255,255,0.12)] text-[10px] text-gray-400 font-mono">
-            ESC закрыть
+            {isEn ? 'ESC to close' : 'ESC закрыть'}
           </kbd>
         </div>
 
@@ -363,12 +365,12 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
         <div className="flex items-center gap-1.5 px-4 py-2 bg-[rgba(14,18,25,0.5)] border-b border-[rgba(255,255,255,0.08)] overflow-x-auto flex-shrink-0 scrollbar-none">
           {(
             [
-              { id: 'all', label: 'Все категории', icon: Sparkles },
-              { id: 'monster', label: 'Монстры', icon: Swords },
-              { id: 'spell', label: 'Заклинания', icon: Zap },
-              { id: 'item', label: 'Предметы', icon: Package },
-              { id: 'condition', label: 'Состояния', icon: AlertCircle },
-              { id: 'rule', label: 'Правила 2024', icon: BookOpen },
+              { id: 'all', label: isEn ? 'All Categories' : 'Все категории', icon: Sparkles },
+              { id: 'monster', label: isEn ? 'Monsters' : 'Монстры', icon: Swords },
+              { id: 'spell', label: isEn ? 'Spells' : 'Заклинания', icon: Zap },
+              { id: 'item', label: isEn ? 'Items' : 'Предметы', icon: Package },
+              { id: 'condition', label: isEn ? 'Conditions' : 'Состояния', icon: AlertCircle },
+              { id: 'rule', label: isEn ? 'Rules' : 'Правила 2024', icon: BookOpen },
             ] as const
           ).map((tab) => {
             const Icon = tab.icon;
@@ -401,13 +403,13 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
           >
             {isLoading && results.length === 0 ? (
               <div className="p-8 text-center text-xs text-gray-400 italic">
-                Поиск по базе данных...
+                {isEn ? 'Searching database...' : 'Поиск по базе данных...'}
               </div>
             ) : results.length === 0 ? (
               <div className="p-8 text-center space-y-2">
                 <Search className="h-8 w-8 text-gray-600 mx-auto" />
-                <p className="text-xs text-gray-400">Ничего не найдено по запросу «{query}»</p>
-                <p className="text-[11px] text-gray-500">Попробуйте изменить категорию или формулировку</p>
+                <p className="text-xs text-gray-400">{isEn ? `No results found for "${query}"` : `Ничего не найдено по запросу «${query}»`}</p>
+                <p className="text-[11px] text-gray-500">{isEn ? "Try changing category or search terms" : "Попробуйте изменить категорию или формулировку"}</p>
               </div>
             ) : (
               results.map((res, idx) => {
@@ -479,17 +481,17 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
                         type="button"
                         onClick={handleAddToCombat}
                         className="flex items-center gap-1 px-3 py-1 rounded bg-crimson/80 hover:bg-crimson text-white font-bold text-xs transition-all shadow-sm active:scale-95"
-                        title="Добавить это существо в боевой трекер"
+                        title={isEn ? "Add this creature to combat tracker" : "Добавить это существо в боевой трекер"}
                       >
                         {addedToCombat ? (
                           <>
                             <Check className="h-3.5 w-3.5 text-emerald-300" />
-                            <span>Добавлено!</span>
+                            <span>{isEn ? "Added!" : "Добавлено!"}</span>
                           </>
                         ) : (
                           <>
                             <Plus className="h-3.5 w-3.5" />
-                            <span>В бой</span>
+                            <span>{isEn ? "To Combat" : "В бой"}</span>
                           </>
                         )}
                       </button>
@@ -500,17 +502,17 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
                       type="button"
                       onClick={handleAddToNotes}
                       className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#1f2933] border border-[#2e3b46] hover:border-gold text-xs text-gray-200 transition-colors"
-                      title="Сохранить в заметки Мастера"
+                      title={isEn ? "Save to GM notes" : "Сохранить в заметки Мастера"}
                     >
                       {addedToNotes ? (
                         <>
                           <Check className="h-3.5 w-3.5 text-emerald-400" />
-                          <span className="text-emerald-400">В заметках</span>
+                          <span className="text-emerald-400">{isEn ? "In Notes" : "В заметках"}</span>
                         </>
                       ) : (
                         <>
                           <FileText className="h-3.5 w-3.5 text-gold" />
-                          <span>В заметки</span>
+                          <span>{isEn ? "To Notes" : "В заметки"}</span>
                         </>
                       )}
                     </button>
@@ -520,17 +522,17 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
                       type="button"
                       onClick={handleCopyMarkdown}
                       className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#1f2933] border border-[#2e3b46] hover:border-gold text-xs text-gray-200 transition-colors"
-                      title="Скопировать описание в буфер обмена"
+                      title={isEn ? "Copy description to clipboard" : "Скопировать описание в буфер обмена"}
                     >
                       {copied ? (
                         <>
                           <Check className="h-3.5 w-3.5 text-emerald-400" />
-                          <span className="text-emerald-400">Скопировано</span>
+                          <span className="text-emerald-400">{isEn ? "Copied" : "Скопировано"}</span>
                         </>
                       ) : (
                         <>
                           <Copy className="h-3.5 w-3.5" />
-                          <span>Скопировать</span>
+                          <span>{isEn ? "Copy" : "Скопировать"}</span>
                         </>
                       )}
                     </button>
@@ -568,8 +570,8 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-gray-500">
                 <Search className="h-12 w-12 stroke-[1.5] mb-2 opacity-50 text-gold" />
-                <p className="text-sm font-serif">Выберите элемент из списка слева для предпросмотра</p>
-                <p className="text-xs text-gray-500 mt-1">Используйте стрелки навигации</p>
+                <p className="text-sm font-serif">{isEn ? "Select an item from the list on the left to preview" : "Выберите элемент из списка слева для предпросмотра"}</p>
+                <p className="text-xs text-gray-500 mt-1">{isEn ? "Use navigation arrows" : "Используйте стрелки навигации"}</p>
               </div>
             )}
           </div>
@@ -579,12 +581,12 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
         <div className="flex items-center justify-between px-4 py-2 bg-[#0e1419] border-t border-[#2e3b46] text-[11px] text-gray-400 flex-shrink-0">
           <div className="flex items-center gap-3">
             <span>
-              Найдено результатов: <strong className="text-gold-light">{results.length}</strong>
+              {isEn ? "Found results: " : "Найдено результатов: "}<strong className="text-gold-light">{results.length}</strong>
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline">Навигация:</span>
+            <span className="hidden sm:inline">{isEn ? "Navigation:" : "Навигация:"}</span>
             <kbd className="px-1.5 py-0.5 rounded bg-[#1c262f] border border-[#2e3b46] font-mono text-[10px] text-gray-300 inline-flex items-center">
               <ArrowUp className="h-3 w-3" />
             </kbd>
@@ -604,13 +606,14 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
 /* ================= SUB-RENDERERS FOR RICH PREVIEW ================= */
 
 function MonsterPreview({ monster: m }: { monster: ParsedMonster }) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const stats = [
-    { label: 'СИЛ', score: m.str },
-    { label: 'ЛОВ', score: m.dex },
-    { label: 'ТЕЛ', score: m.con },
-    { label: 'ИНТ', score: m.intellect },
-    { label: 'МДР', score: m.wis },
-    { label: 'ХАР', score: m.cha },
+    { label: isEn ? 'STR' : 'СИЛ', score: m.str },
+    { label: isEn ? 'DEX' : 'ЛОВ', score: m.dex },
+    { label: isEn ? 'CON' : 'ТЕЛ', score: m.con },
+    { label: isEn ? 'INT' : 'ИНТ', score: m.intellect },
+    { label: isEn ? 'WIS' : 'МДР', score: m.wis },
+    { label: isEn ? 'CHA' : 'ХАР', score: m.cha },
   ];
 
   return (
@@ -627,21 +630,21 @@ function MonsterPreview({ monster: m }: { monster: ParsedMonster }) {
       {/* Quick 4-box stat strip */}
       <div className="grid grid-cols-4 gap-2 bg-[#10171d] p-2.5 rounded border border-[#2e3b46] text-center">
         <div>
-          <span className="text-[10px] text-gray-400 uppercase font-bold block">Класс брони</span>
+          <span className="text-[10px] text-gray-400 uppercase font-bold block">{isEn ? "Armor Class" : "Класс брони"}</span>
           <span className="text-sm font-bold text-gold-light font-mono">{m.ac}</span>
         </div>
         <div>
-          <span className="text-[10px] text-gray-400 uppercase font-bold block">Хиты</span>
+          <span className="text-[10px] text-gray-400 uppercase font-bold block">{isEn ? "Hit Points" : "Хиты"}</span>
           <span className="text-sm font-bold text-red-300 font-mono">
             {m.hp_average} <span className="text-[10px] text-gray-500">({m.hp_formula || ''})</span>
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-gray-400 uppercase font-bold block">Скорость</span>
+          <span className="text-[10px] text-gray-400 uppercase font-bold block">{isEn ? "Speed" : "Скорость"}</span>
           <span className="text-sm font-bold text-gray-200 font-mono">{cleanRussianText(m.speed || '30 фт.')}</span>
         </div>
         <div>
-          <span className="text-[10px] text-gray-400 uppercase font-bold block">Опасность (CR)</span>
+          <span className="text-[10px] text-gray-400 uppercase font-bold block">{isEn ? "Challenge (CR)" : "Опасность (CR)"}</span>
           <span className="text-sm font-bold text-amber-300 font-mono">{m.cr}</span>
         </div>
       </div>
@@ -660,7 +663,7 @@ function MonsterPreview({ monster: m }: { monster: ParsedMonster }) {
       {/* Traits */}
       {m.traits && m.traits.length > 0 && (
         <div className="space-y-1.5 pt-2 border-t border-[#2e3b46]">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Особенности</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">{isEn ? "Traits" : "Особенности"}</span>
           {m.traits.map((t, idx) => (
             <div key={idx} className="text-xs leading-relaxed">
               <strong className="text-gold-light font-serif">{cleanRussianText(t.name)}. </strong>
@@ -673,7 +676,7 @@ function MonsterPreview({ monster: m }: { monster: ParsedMonster }) {
       {/* Actions */}
       {m.actions && m.actions.length > 0 && (
         <div className="space-y-2 pt-2 border-t border-[#2e3b46]">
-          <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider block">Действия</span>
+          <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider block">{isEn ? "Actions" : "Действия"}</span>
           {m.actions.map((act, idx) => (
             <div key={idx} className="p-2 rounded bg-[#10161b] border border-[#283540] space-y-1 text-xs">
               <div className="flex items-center justify-between">
@@ -694,6 +697,7 @@ function MonsterPreview({ monster: m }: { monster: ParsedMonster }) {
 }
 
 function SpellPreview({ spell: s }: { spell: ParsedSpell }) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const lvl = s.level === 0 ? 'Заговор' : `${s.level} круг`;
 
   return (
@@ -710,22 +714,22 @@ function SpellPreview({ spell: s }: { spell: ParsedSpell }) {
       {/* Metadata strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#10171d] p-2.5 rounded border border-[#2e3b46] text-xs">
         <div>
-          <span className="text-[10px] text-gray-400 font-bold block">Время накладывания</span>
+          <span className="text-[10px] text-gray-400 font-bold block">{isEn ? "Casting Time" : "Время накладывания"}</span>
           <span className="text-gray-200 font-medium">{s.casting_time}</span>
         </div>
         <div>
-          <span className="text-[10px] text-gray-400 font-bold block">Дистанция</span>
+          <span className="text-[10px] text-gray-400 font-bold block">{isEn ? "Range" : "Дистанция"}</span>
           <span className="text-gray-200 font-medium">{s.range}</span>
         </div>
         <div>
-          <span className="text-[10px] text-gray-400 font-bold block">Длительность</span>
+          <span className="text-[10px] text-gray-400 font-bold block">{isEn ? "Duration" : "Длительность"}</span>
           <span className="text-gray-200 font-medium">
             {s.duration}
             {s.concentration && <span className="text-amber-400 ml-1">(Конц.)</span>}
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-gray-400 font-bold block">Компоненты</span>
+          <span className="text-[10px] text-gray-400 font-bold block">{isEn ? "Components" : "Компоненты"}</span>
           <span className="text-gray-200 font-mono text-[11px]">
             {[s.components_v && 'В', s.components_s && 'С', s.components_m && 'М'].filter(Boolean).join(', ')}
           </span>
@@ -755,6 +759,7 @@ function SpellPreview({ spell: s }: { spell: ParsedSpell }) {
 }
 
 function ItemPreview({ item: it }: { item: ParsedItem }) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   return (
     <div className="space-y-3 font-sans">
       <div>
@@ -770,25 +775,25 @@ function ItemPreview({ item: it }: { item: ParsedItem }) {
       {/* Details Box */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#10171d] p-2.5 rounded border border-[#2e3b46] text-xs">
         <div>
-          <span className="text-[10px] text-gray-400 font-bold block">Стоимость</span>
+          <span className="text-[10px] text-gray-400 font-bold block">{isEn ? "Cost" : "Стоимость"}</span>
           <span className="text-gold-light font-bold font-mono">
             {it.cost_gp !== null ? `${it.cost_gp} зм` : '—'}
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-gray-400 font-bold block">Вес</span>
+          <span className="text-[10px] text-gray-400 font-bold block">{isEn ? "Weight" : "Вес"}</span>
           <span className="text-gray-200 font-medium">
             {it.weight_lb !== null ? `${it.weight_lb} фнт` : '—'}
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-gray-400 font-bold block">Урон / КД</span>
+          <span className="text-[10px] text-gray-400 font-bold block">{isEn ? "Damage / AC" : "Урон / КД"}</span>
           <span className="text-gray-200 font-mono">
             {it.damage_formula || it.ac || '—'}
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-gray-400 font-bold block">Мастерство</span>
+          <span className="text-[10px] text-gray-400 font-bold block">{isEn ? "Mastery" : "Мастерство"}</span>
           <span className="text-emerald-300 font-medium">
             {cleanRussianText(it.weapon_mastery_ru || it.weapon_mastery || '—')}
           </span>
@@ -797,13 +802,14 @@ function ItemPreview({ item: it }: { item: ParsedItem }) {
 
       {/* Description */}
       <div className="text-xs text-gray-200 leading-relaxed font-serif whitespace-pre-line space-y-2 pt-2 border-t border-[#2e3b46]">
-        <p>{cleanRussianText(it.description_ru || it.description_en || 'Нет описания')}</p>
+        <p>{isEn ? (it.description_en || it.description_ru || "No description") : cleanRussianText(it.description_ru || it.description_en || "Нет описания")}</p>
       </div>
     </div>
   );
 }
 
 function ConditionPreview({ condition: c }: { condition: ConditionInfo }) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   return (
     <div className="space-y-3 font-sans">
       <div className="flex items-center gap-2">
@@ -820,7 +826,7 @@ function ConditionPreview({ condition: c }: { condition: ConditionInfo }) {
             style={{ backgroundColor: c.badgeColor }}
           />
           <span className="text-xs font-bold uppercase tracking-wider text-gray-300">
-            Механика состояния D&D 2024
+            {isEn ? "Condition Rules" : "Механика состояния D&D 2024"}
           </span>
         </div>
 
@@ -839,6 +845,7 @@ function ConditionPreview({ condition: c }: { condition: ConditionInfo }) {
 }
 
 function RulePreview({ rule: r }: { rule: Dnd2024RuleItem }) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   return (
     <div className="space-y-3 font-sans">
       <div>
@@ -852,7 +859,7 @@ function RulePreview({ rule: r }: { rule: Dnd2024RuleItem }) {
 
       {r.triggerRu && (
         <div className="text-xs bg-[#10171d] p-2.5 rounded border border-[#2e3b46] flex items-center gap-2">
-          <span className="text-gold font-bold">Срабатывание:</span>
+          <span className="text-gold font-bold">{isEn ? "Trigger:" : "Срабатывание:"}</span>
           <span className="text-gray-200">{r.triggerRu}</span>
         </div>
       )}

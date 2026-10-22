@@ -78,6 +78,8 @@ export function SystemSelectionPanel({
   onCancel,
   showFooter = true,
 }: SystemSelectionPanelProps) {
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
   const currentSystemId = useSettingsStore((s) => s.currentSystemId);
   const themeBySystem = useSettingsStore((s) => s.themeBySystem);
   const fallbackTheme = useSettingsStore((s) => s.fallbackTheme);
@@ -88,7 +90,7 @@ export function SystemSelectionPanel({
   const setCombatSystemId = useCombatStore((s) => s.setSystemId);
   const duplicateCampaignInSystem = useCombatStore((s) => s.duplicateCampaignInSystem);
 
-  const activeSavedSystemId = currentSystemId || combatSystemId || 'dnd5e_2024';
+  const activeSavedSystemId = currentSystemId || combatSystemId || 'srd_5_2_1';
 
   const [selectedSystemId, setSelectedSystemId] = useState<string>(activeSavedSystemId);
   const [pendingConfirmSystem, setPendingConfirmSystem] = useState<SystemMetadata | null>(null);
@@ -97,12 +99,42 @@ export function SystemSelectionPanel({
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'warn'; text: string } | null>(null);
 
   // Group systems dynamically by family
-  const allSystems = getAllSystems();
+  const allSystems = getAllSystems().filter((sys) => sys.id !== 'dnd5e_2014' && sys.id !== 'dnd5e_2024');
   const families: SystemFamily[] = ['dnd5e', 'pathfinder', 'cyberpunk', 'custom'];
+
+  const familyTitles: Record<SystemFamily, string> = {
+    dnd5e: isEn ? 'D&D 5e / SRD' : 'D&D 5e',
+    pathfinder: 'Pathfinder',
+    cyberpunk: isEn ? 'Cyberpunk' : 'Киберпанк',
+    custom: isEn ? 'Other' : 'Другое',
+  };
+
+  const statusLabels: Record<SystemStatus, string> = {
+    stable: isEn ? 'Ready' : 'Готово',
+    beta: isEn ? 'Beta' : 'Бета',
+    wip: isEn ? 'In Development' : 'В разработке',
+    planned: isEn ? 'Coming Soon' : 'Скоро',
+  };
+
+  const getLocalizedSysName = (sys: SystemMetadata) => {
+    if (sys.id === 'custom_system' && isEn) return 'Custom System';
+    return sys.shortName || sys.name;
+  };
+
+  const getLocalizedSysDesc = (sys: SystemMetadata) => {
+    if (isEn) {
+      if (sys.id === 'srd_5_2_1') return 'Open game rules, 2024 edition (CC-BY 4.0)';
+      if (sys.id === 'pathfinder2e') return 'Second edition tactical rules & action economy';
+      if (sys.id === 'pathfinder1e') return 'Classic 3.5-based d20 fantasy system';
+      if (sys.id === 'cyberpunk_red') return 'Night City tabletop roleplaying game';
+      if (sys.id === 'custom_system') return 'Design your own skills, attributes & dice';
+    }
+    return sys.shortDescription || sys.description;
+  };
 
   const systemsByFamily = families.map((fam) => ({
     family: fam,
-    config: FAMILY_CONFIG[fam],
+    config: { ...FAMILY_CONFIG[fam], title: familyTitles[fam] },
     systems: allSystems.filter((sys) => sys.family === fam),
   }));
 
@@ -186,11 +218,12 @@ export function SystemSelectionPanel({
       {/* Title & Subtitle */}
       <div>
         <h1 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-white m-0">
-          Система НРИ
+          {isEn ? 'TTRPG System' : 'Система НРИ'}
         </h1>
         <p className="mt-2 text-sm text-[#a0a0b0] leading-relaxed max-w-2xl m-0">
-          Выберите правила для вашей кампании. Каждая система адаптирует карточки, броски и тему интерфейса.
-          Выбор влияет на инициативу, броски, карточки существ и ресурсы. Эта система будет предлагаться по умолчанию при создании новой кампании.
+          {isEn
+            ? 'Choose rules for your campaign. Each system adapts cards, rolls, and interface theme. Selection affects initiative, rolls, creature cards, and resources. This system will be default for new campaigns.'
+            : 'Выберите правила для вашей кампании. Каждая система адаптирует карточки, броски и тему интерфейса. Выбор влияет на инициативу, броски, карточки существ и ресурсы. Эта система будет предлагаться по умолчанию при создании новой кампании.'}
         </p>
       </div>
 
@@ -202,7 +235,11 @@ export function SystemSelectionPanel({
           </span>
           <span className="text-[#ececf1] flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-[#f5b920] shrink-0 inline" />
-            <span><strong>Система фиксируется при создании кампании.</strong> Для смены системы в начатой игре используйте «Создать копию кампании в другой системе»: данные разных систем не конвертируются вслепую.</span>
+            <span>{isEn ? (
+              <><strong>The system is fixed upon campaign creation.</strong> To switch systems in an active game, use "Duplicate Campaign": data between different systems cannot be blindly converted.</>
+            ) : (
+              <><strong>Система фиксируется при создании кампании.</strong> Для смены системы в начатой игре используйте «{isEn ? "Duplicate Campaign in Another System" : "Создать копию кампании в другой системе"}»: данные разных систем не конвертируются вслепую.</>
+            )}</span>
           </span>
         </div>
         <button
@@ -214,7 +251,7 @@ export function SystemSelectionPanel({
           className="shrink-0 min-h-[32px] px-3 py-1.5 rounded-[10px] bg-[#f5b920]/20 hover:bg-[#f5b920]/30 active:bg-[#f5b920]/40 border border-[#f5b920]/50 text-[#fce79f] hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
         >
           <Copy className="w-3.5 h-3.5 text-[#f5b920]" />
-          <span>Создать копию кампании</span>
+          <span>{isEn ? "Duplicate Campaign" : "Создать копию кампании"}</span>
         </button>
       </div>
 
@@ -282,7 +319,7 @@ export function SystemSelectionPanel({
                       {/* Card Header: Title & Status Badge */}
                       <div className="flex items-center justify-between gap-2 w-full">
                         <span className="font-bold text-sm sm:text-base text-white tracking-tight flex items-center gap-1.5 truncate">
-                          <span>{sys.shortName || sys.name}</span>
+                          <span>{getLocalizedSysName(sys)}</span>
                           {isSelected && (
                             <Sparkles className="w-3.5 h-3.5 text-[#f5b920] shrink-0" />
                           )}
@@ -291,13 +328,13 @@ export function SystemSelectionPanel({
                           className="text-[12px] font-semibold px-2.5 py-0.5 rounded-full shrink-0"
                           style={statusCfg.badgeStyle}
                         >
-                          {statusCfg.label}
+                          {statusLabels[sys.status]}
                         </span>
                       </div>
 
                       {/* Card Description */}
                       <p className="m-0 text-[13px] text-[#a0a0b0] leading-snug line-clamp-2">
-                        {sys.shortDescription || sys.description}
+                        {getLocalizedSysDesc(sys)}
                       </p>
                     </button>
                   );
@@ -316,14 +353,14 @@ export function SystemSelectionPanel({
             onClick={handleCancel}
             className="min-h-[44px] min-w-[32px] px-5 rounded-[12px] text-sm font-semibold text-[#ececf1] bg-transparent border border-white/[0.16] hover:bg-white/10 active:bg-white/15 transition-all cursor-pointer"
           >
-            Отмена
+            {isEn ? "Cancel" : "Отмена"}
           </button>
           <button
             type="button"
             onClick={handleSave}
             className="min-h-[44px] min-w-[32px] px-6 rounded-[12px] text-sm font-extrabold text-[#0a0a0d] bg-gradient-to-br from-[#ffd24d] to-[#f5b920] shadow-[0_0_24px_rgba(245,185,32,0.25)] shadow-gold-glow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center gap-2"
           >
-            <span>Сохранить</span>
+            <span>{isEn ? "Save" : "Сохранить"}</span>
           </button>
         </div>
       )}
@@ -412,7 +449,7 @@ export function SystemSelectionPanel({
               <div className="flex items-center gap-2">
                 <Copy className="w-5 h-5 text-[#f5b920]" />
                 <h3 id="duplicate-modal-title" className="text-base font-bold text-white m-0">
-                  Создать копию кампании в другой системе
+                  {isEn ? "Duplicate Campaign in Another System" : "Создать копию кампании в другой системе"}
                 </h3>
               </div>
               <button
@@ -425,18 +462,18 @@ export function SystemSelectionPanel({
             </div>
 
             <p className="text-xs text-gray-300 leading-relaxed m-0">
-              Будет создана независимая копия текущей кампании и участников с преобразованием параметров в целевую систему. Исходная кампания останется нетронутой.
+              {isEn ? "An independent copy of current campaign and combatants will be created with parameters converted to target system. Original campaign remains untouched." : "Будет создана независимая копия текущей кампании и участников с преобразованием параметров в целевую систему. Исходная кампания останется нетронутой."}
             </p>
 
             {combatants.length > 0 && (
               <div className="p-2.5 rounded-[10px] bg-blue-950/40 border border-blue-500/30 text-xs text-blue-200">
-                В активном трекере находится <strong>{combatants.length}</strong> участников. Все они будут скопированы в новую редакцию правил.
+                {isEn ? <>Active tracker contains <strong>{combatants.length}</strong> participants. All will be copied to the new ruleset.</> : <>В активном трекере находится <strong>{combatants.length}</strong> участников. Все они будут скопированы в новую редакцию правил.</>}
               </div>
             )}
 
             <div className="space-y-2">
               <label className="text-xs font-semibold text-gray-300 block">
-                Выберите целевую систему НРИ:
+                {isEn ? "Select target TTRPG system:" : "Выберите целевую систему НРИ:"}
               </label>
               <select
                 value={duplicateTargetSystemId}
@@ -467,7 +504,7 @@ export function SystemSelectionPanel({
                 className="min-h-[36px] px-4 rounded-[10px] text-xs font-bold text-[#0a0a0d] bg-gradient-to-r from-[#ffd24d] to-[#f5b920] shadow-[0_0_12px_rgba(245,185,32,0.3)] transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <Copy className="w-3.5 h-3.5" />
-                <span>Создать копию</span>
+                <span>{isEn ? "Create Copy" : "Создать копию"}</span>
               </button>
             </div>
           </div>

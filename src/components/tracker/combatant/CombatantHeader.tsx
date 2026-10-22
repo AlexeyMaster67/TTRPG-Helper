@@ -66,10 +66,12 @@ export function CombatantHeader({
         <div className="flex items-center justify-between px-3 py-1 bg-gradient-to-r from-amber-500/25 via-gold/35 to-amber-500/25 text-gold-light text-xs font-black uppercase tracking-wider shadow-sm rounded-t-glass-lg -mx-3 -mt-2 mb-2 border-b border-gold/40 select-none">
           <span className="flex items-center gap-1.5">
             <Zap className="h-3.5 w-3.5 fill-gold text-gold animate-pulse flex-shrink-0" />
-            <span className="font-extrabold tracking-widest leading-none text-white drop-shadow-sm">ТЕКУЩИЙ ХОД</span>
+            <span className="font-extrabold tracking-widest leading-none text-white drop-shadow-sm">
+              {isEn ? 'CURRENT TURN' : 'ТЕКУЩИЙ ХОД'}
+            </span>
           </span>
           <span className="text-[10px] font-mono font-bold text-amber-200/90 hidden sm:inline leading-none">
-            Горячая клавиша: Пробел
+            {isEn ? 'Hotkey: Space' : 'Горячая клавиша: Пробел'}
           </span>
         </div>
       )}
@@ -207,17 +209,17 @@ export function CombatantHeader({
                     party.openCharacterSheet(party.members[0].id);
                   }
                 }}
-                title="Открыть интерактивный лист персонажа D&D Beyond"
+                title={isEn ? "Open interactive character sheet" : "Открыть интерактивный лист персонажа D&D Beyond"}
                 className="text-[9px] px-1 py-0.5 rounded bg-emerald-950/80 border border-emerald-600/70 hover:border-gold hover:text-gold-light text-emerald-300 flex-shrink-0 font-mono leading-none whitespace-nowrap cursor-pointer transition-colors shadow-sm flex items-center gap-0.5"
               >
                 <FileText className="h-3 w-3" />
-                <span>ЛИСТ</span>
+                <span>{isEn ? 'SHEET' : 'ЛИСТ'}</span>
               </button>
             )}
 
             {isDead && (
               <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-900 border border-red-800 text-red-400 font-bold flex-shrink-0 leading-none whitespace-nowrap">
-                МЁРТВ
+                {isEn ? 'DEAD' : 'МЁРТВ'}
               </span>
             )}
           </div>
@@ -237,7 +239,7 @@ export function CombatantHeader({
                 faction,
               });
             }}
-            title="Кузница токена: кадрирование, рамки, свечение"
+            title={isEn ? "Token Forge: framing, borders, glow" : "Кузница токена: кадрирование, рамки, свечение"}
             className="p-1 rounded text-amber-400 hover:text-amber-200 hover:bg-amber-950/40 transition-colors cursor-pointer"
           >
             <Sparkles className="h-3.5 w-3.5" />
@@ -249,7 +251,7 @@ export function CombatantHeader({
               e.stopPropagation();
               onShowcase();
             }}
-            title="Показать игрокам на втором мониторе"
+            title={isEn ? "Broadcast to players screen" : "Показать игрокам на втором мониторе"}
             className="p-1 rounded text-gray-400 hover:text-gold-light hover:bg-white/5 transition-colors cursor-pointer"
           >
             <Eye className="h-3.5 w-3.5" />
@@ -261,7 +263,7 @@ export function CombatantHeader({
               e.stopPropagation();
               onRemove();
             }}
-            title="Удалить из боя"
+            title={isEn ? "Remove from combat" : "Удалить из боя"}
             className="p-1 rounded text-gray-500 hover:text-red-400 hover:bg-red-950/30 transition-colors cursor-pointer"
           >
             <X className="h-3.5 w-3.5" />

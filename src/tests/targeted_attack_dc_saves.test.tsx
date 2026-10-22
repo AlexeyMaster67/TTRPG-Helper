@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
+import { useSettingsStore } from '../store/settingsStore';
 import {
   parseSaveDetails,
   getCombatantSaveModifier,
@@ -328,6 +329,7 @@ describe('RulesCheatSheetModal (D&D 2024 Offline Rules)', () => {
   });
 
   it('renders modal component when open', () => {
+    useSettingsStore.setState({ language: 'ru' });
     const html = renderToString(
       <RulesCheatSheetModal isOpen={true} onClose={() => {}} />
     );

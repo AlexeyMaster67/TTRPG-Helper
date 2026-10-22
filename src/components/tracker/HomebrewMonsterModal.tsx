@@ -16,6 +16,7 @@ import {
 import { CreatureSize, CREATURE_SIZE_SCALE } from '../../types/dnd5e';
 import { MonsterAction, ParsedMonster } from '../../types/database';
 import { useCombatStore } from '../../store/combatStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { homebrewService, getProficiencyBonusByCr } from '../../services/homebrewService';
 
 interface HomebrewMonsterModalProps {
@@ -100,6 +101,7 @@ export function HomebrewMonsterModal({
   onCreated,
   initialData,
 }: HomebrewMonsterModalProps) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const addCombatant = useCombatStore((s) => s.addCombatant);
 
   // Form State
@@ -362,21 +364,21 @@ export function HomebrewMonsterModal({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h2 className="font-sans font-bold text-sm sm:text-base text-gray-100 tracking-wide truncate">
-                  Создание существа
+                  {isEn ? "Create Custom Creature" : "Создание существа"}
                 </h2>
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#f5b920]/15 text-[#fce79f] border border-[#f5b920]/30 font-mono flex-shrink-0">
                   D&D 2024
                 </span>
               </div>
               <p className="text-[11px] text-gray-400 mt-0.5 hidden sm:block">
-                Заполните боевой профиль для сохранения в бестиарий или немедленного добавления в бой
+                {isEn ? "Fill in the combat statblock to save to bestiary or deploy to combat" : "Заполните боевой профиль для сохранения в бестиарий или немедленного добавления в бой"}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white p-1.5 rounded-glass hover:bg-white/10 transition-colors flex-shrink-0 ml-2"
-            title="Закрыть"
+            title={isEn ? "Close" : "Закрыть"}
           >
             <X className="h-4.5 w-4.5" />
           </button>
@@ -396,27 +398,27 @@ export function HomebrewMonsterModal({
             <span className="text-[11px] font-bold text-[#fce79f] uppercase tracking-wider block font-sans">
               <span className="flex items-center gap-1.5">
                 <Sparkles className="h-3 w-3 text-[#f5b920] inline" />
-                <span>Основная информация</span>
+                <span>{isEn ? "Basic Information" : "Основная информация"}</span>
               </span>
             </span>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-[11px] font-medium text-gray-300 block mb-1">
-                  Название на русском <span className="text-rose-400">*</span>:
+                  {isEn ? "Name (Russian)" : "Название на русском"} <span className="text-rose-400">*</span>:
                 </label>
                 <input
                   type="text"
                   value={nameRu}
                   onChange={(e) => setNameRu(e.target.value)}
-                  placeholder="Например: Теневой ловец"
+                  placeholder={isEn ? "e.g. Shadow Stalker" : "Например: Теневой ловец"}
                   className="w-full h-8 px-3 rounded-glass bg-[rgba(0,0,0,0.4)] border border-[rgba(255,255,255,0.12)] text-gray-100 text-xs focus:outline-none focus:border-[#f5b920] focus:ring-1 focus:ring-[#f5b920] transition-colors"
                 />
               </div>
 
               <div>
                 <label className="text-[11px] font-medium text-gray-300 block mb-1">
-                  Название на английском (необязательно):
+                  {isEn ? "Name (English, optional):" : "Название на английском (необязательно):"}
                 </label>
                 <input
                   type="text"
@@ -432,7 +434,7 @@ export function HomebrewMonsterModal({
               {/* Size */}
               <div>
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                  Размер:
+                  {isEn ? "Size:" : "Размер:"}
                 </label>
                 <select
                   value={size}
@@ -450,7 +452,7 @@ export function HomebrewMonsterModal({
               {/* Creature Type */}
               <div>
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                  Тип существа:
+                  {isEn ? "Creature Type:" : "Тип существа:"}
                 </label>
                 <select
                   value={creatureType}
@@ -468,7 +470,7 @@ export function HomebrewMonsterModal({
               {/* CR */}
               <div>
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                  Класс опасности (КО):
+                  {isEn ? "Challenge Rating (CR):" : "Класс опасности (КО):"}
                 </label>
                 <select
                   value={cr}
@@ -486,7 +488,7 @@ export function HomebrewMonsterModal({
               {/* Alignment */}
               <div>
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                  Мировоззрение:
+                  {isEn ? "Alignment:" : "Мировоззрение:"}
                 </label>
                 <input
                   type="text"
@@ -504,7 +506,7 @@ export function HomebrewMonsterModal({
             <span className="text-[11px] font-bold text-[#fce79f] uppercase tracking-wider block font-sans">
               <span className="flex items-center gap-1.5">
                 <Shield className="h-3 w-3 text-[#f5b920] inline" />
-                <span>Боевые параметры и токен</span>
+                <span>{isEn ? "Combat Stats & Token" : "Боевые параметры и токен"}</span>
               </span>
             </span>
 
@@ -513,7 +515,7 @@ export function HomebrewMonsterModal({
               <div>
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider flex items-center gap-1 mb-1">
                   <Shield className="h-3 w-3 text-[#f5b920]" />
-                  <span>Класс доспеха (КД):</span>
+                  <span>{isEn ? "Armor Class (AC):" : "Класс доспеха (КД):"}</span>
                 </label>
                 <input
                   type="number"
@@ -529,7 +531,7 @@ export function HomebrewMonsterModal({
               <div>
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider flex items-center gap-1 mb-1">
                   <Heart className="h-3 w-3 text-rose-500" />
-                  <span>Хиты (ОЗ):</span>
+                  <span>{isEn ? "Hit Points (HP):" : "Хиты (ОЗ):"}</span>
                 </label>
                 <input
                   type="number"
@@ -543,7 +545,7 @@ export function HomebrewMonsterModal({
               {/* HP Dice Formula */}
               <div>
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                  Кость хитов:
+                  {isEn ? "Hit Dice:" : "Кость хитов:"}
                 </label>
                 <input
                   type="text"
@@ -558,13 +560,13 @@ export function HomebrewMonsterModal({
               <div>
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider flex items-center gap-1 mb-1">
                   <Footprints className="h-3 w-3 text-sky-400" />
-                  <span>Скорость:</span>
+                  <span>{isEn ? "Speed:" : "Скорость:"}</span>
                 </label>
                 <input
                   type="text"
                   value={speed}
                   onChange={(e) => setSpeed(e.target.value)}
-                  placeholder="30 фт., полёт 60 фт."
+                  placeholder={isEn ? "30 ft., fly 60 ft." : "30 фт., полёт 60 фт."}
                   className="w-full h-8 px-2.5 rounded-glass bg-[rgba(0,0,0,0.4)] border border-[rgba(255,255,255,0.12)] text-sky-300 text-xs focus:outline-none focus:border-[#f5b920]"
                 />
               </div>
@@ -588,7 +590,7 @@ export function HomebrewMonsterModal({
               </div>
               <div className="flex-1 min-w-0">
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                  Ссылка на изображение токена / аватара:
+                  {isEn ? "Token Image URL / Avatar:" : "Ссылка на изображение токена / аватара:"}
                 </label>
                 <input
                   type="text"
@@ -607,22 +609,22 @@ export function HomebrewMonsterModal({
               <span className="text-[11px] font-bold text-[#fce79f] uppercase tracking-wider font-sans">
                 <span className="flex items-center gap-1.5">
                   <Zap className="h-3 w-3 text-[#f5b920] inline" />
-                  <span>Характеристики и модификаторы</span>
+                  <span>{isEn ? "Ability Scores & Modifiers" : "Характеристики и модификаторы"}</span>
                 </span>
               </span>
               <span className="text-[11px] font-mono text-gray-300 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
-                Инициатива: <span className="text-[#f5b920] font-bold">{formatMod(dexMod)}</span> • БМ: <span className="text-[#f5b920] font-bold">+{pb}</span>
+                {isEn ? "Initiative:" : "Инициатива:"} <span className="text-[#f5b920] font-bold">{formatMod(dexMod)}</span> • БМ: <span className="text-[#f5b920] font-bold">+{pb}</span>
               </span>
             </div>
 
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center pt-1">
               {[
-                { label: 'СИЛ', score: str, mod: strMod, set: setStr },
-                { label: 'ЛОВ', score: dex, mod: dexMod, set: setDex },
-                { label: 'ТЕЛ', score: con, mod: conMod, set: setCon },
-                { label: 'ИНТ', score: intellect, mod: intMod, set: setIntellect },
-                { label: 'МДР', score: wis, mod: wisMod, set: setWis },
-                { label: 'ХАР', score: cha, mod: chaMod, set: setCha },
+                { label: isEn ? 'STR' : 'СИЛ', score: str, mod: strMod, set: setStr },
+                { label: isEn ? 'DEX' : 'ЛОВ', score: dex, mod: dexMod, set: setDex },
+                { label: isEn ? 'CON' : 'ТЕЛ', score: con, mod: conMod, set: setCon },
+                { label: isEn ? 'INT' : 'ИНТ', score: intellect, mod: intMod, set: setIntellect },
+                { label: isEn ? 'WIS' : 'МДР', score: wis, mod: wisMod, set: setWis },
+                { label: isEn ? 'CHA' : 'ХАР', score: cha, mod: chaMod, set: setCha },
               ].map((s) => (
                 <div
                   key={s.label}
@@ -652,7 +654,7 @@ export function HomebrewMonsterModal({
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-[#fce79f] uppercase tracking-wider font-sans flex items-center gap-1.5">
                 <Swords className="h-3.5 w-3.5 text-[#f5b920]" />
-                <span>Действия и Атаки ({actions.length})</span>
+                <span>{isEn ? `Actions & Attacks (${actions.length})` : `Действия и Атаки (${actions.length})`}</span>
               </span>
               <button
                 type="button"
@@ -660,14 +662,14 @@ export function HomebrewMonsterModal({
                 className="min-h-[32px] px-3 py-1 rounded-glass bg-[#f5b920]/10 hover:bg-[#f5b920]/20 border border-[#f5b920]/30 text-[#fce79f] text-[11px] font-bold flex items-center gap-1.5 transition-colors shadow-sm active:scale-95"
               >
                 <Plus className="h-3.5 w-3.5" />
-                <span>Добавить атаку</span>
+                <span>{isEn ? "Add Attack" : "Добавить атаку"}</span>
               </button>
             </div>
 
             <div className="space-y-2.5">
               {actions.length === 0 ? (
                 <div className="text-gray-500 text-xs italic text-center py-4 bg-black/20 rounded-glass border border-dashed border-white/10">
-                  Действия пока не добавлены. Нажмите «Добавить атаку», чтобы создать новую.
+                  {isEn ? "No actions added yet. Click \"Add Attack\" to create one." : "Действия пока не добавлены. Нажмите «Добавить атаку», чтобы создать новую."}
                 </div>
               ) : (
                 actions.map((act, idx) => (
@@ -681,7 +683,7 @@ export function HomebrewMonsterModal({
                           type="text"
                           value={act.name}
                           onChange={(e) => handleUpdateAction(idx, { name: e.target.value })}
-                          placeholder="Название атаки (например: Удар мечом)"
+                          placeholder={isEn ? "Attack name (e.g. Longsword Strike)" : "Название атаки (например: Удар мечом)"}
                           className="w-full h-7 px-2.5 bg-[rgba(0,0,0,0.4)] border border-[rgba(255,255,255,0.12)] rounded-glass text-xs font-bold text-gray-100 focus:outline-none focus:border-[#f5b920]"
                         />
                       </div>
@@ -689,7 +691,7 @@ export function HomebrewMonsterModal({
                         type="button"
                         onClick={() => handleRemoveAction(idx)}
                         className="text-gray-500 hover:text-rose-400 p-1.5 rounded-glass hover:bg-rose-500/10 transition-colors"
-                        title="Удалить действие"
+                        title={isEn ? "Remove action" : "Удалить действие"}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -699,7 +701,7 @@ export function HomebrewMonsterModal({
                       {/* Attack Bonus */}
                       <div>
                         <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-0.5">
-                          Бонус атаки:
+                          {isEn ? "Attack Bonus:" : "Бонус атаки:"}
                         </label>
                         <input
                           type="number"
@@ -716,7 +718,7 @@ export function HomebrewMonsterModal({
                       {/* Damage Dice */}
                       <div>
                         <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-0.5">
-                          Кость урона:
+                          {isEn ? "Damage Dice:" : "Кость урона:"}
                         </label>
                         <input
                           type="text"
@@ -732,7 +734,7 @@ export function HomebrewMonsterModal({
                       {/* Damage Type */}
                       <div>
                         <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-0.5">
-                          Тип урона:
+                          {isEn ? "Damage Type:" : "Тип урона:"}
                         </label>
                         <select
                           value={act.damage_type || 'Slashing'}
@@ -756,7 +758,7 @@ export function HomebrewMonsterModal({
                         type="text"
                         value={act.desc || ''}
                         onChange={(e) => handleUpdateAction(idx, { desc: e.target.value })}
-                        placeholder="Описание действия (досягаемость, цели, доп. эффекты...)"
+                        placeholder={isEn ? "Action description (reach, targets, additional effects...)" : "Описание действия (досягаемость, цели, доп. эффекты...)"}
                         className="w-full h-7 px-2.5 bg-[rgba(0,0,0,0.4)] border border-[rgba(255,255,255,0.12)] rounded-glass text-[11px] text-gray-300 focus:outline-none focus:border-[#f5b920]"
                       />
                     </div>
@@ -774,7 +776,7 @@ export function HomebrewMonsterModal({
             onClick={onClose}
             className="min-h-[34px] px-4 py-1.5 rounded-glass bg-transparent hover:bg-white/5 text-gray-400 hover:text-white text-xs font-semibold transition-colors"
           >
-            Отмена
+            {isEn ? "Cancel" : "Отмена"}
           </button>
 
           <div className="flex items-center gap-2.5">
@@ -783,7 +785,7 @@ export function HomebrewMonsterModal({
               onClick={handleSaveToBestiary}
               className="min-h-[34px] px-4 py-1.5 rounded-glass bg-white/5 hover:bg-white/10 border border-[rgba(255,255,255,0.12)] hover:border-[#f5b920]/40 text-gray-200 hover:text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
             >
-              <span>Сохранить в бестиарий</span>
+              <span>{isEn ? "Save to Bestiary" : "Сохранить в бестиарий"}</span>
             </button>
 
             <button
@@ -792,7 +794,7 @@ export function HomebrewMonsterModal({
               className="min-h-[34px] px-4 py-1.5 rounded-glass bg-gradient-to-r from-[#f5b920] to-[#e5a812] hover:brightness-110 text-black text-xs font-bold uppercase tracking-wider transition-all shadow-gold-glow flex items-center gap-1.5 active:scale-95"
             >
               <Zap className="h-3.5 w-3.5 text-black flex-shrink-0 fill-black" />
-              <span>Добавить в бой сейчас</span>
+              <span>{isEn ? "Add to Combat Now" : "Добавить в бой сейчас"}</span>
             </button>
           </div>
         </div>

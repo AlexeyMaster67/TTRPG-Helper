@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useSettingsStore } from '../../store/settingsStore';
 import {
   BookOpen,
   Search,
@@ -1118,6 +1119,7 @@ interface RulesCheatSheetModalProps {
 }
 
 export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalProps) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const [activeTab, setActiveTab] = useState<CategoryTab>('conditions');
   const [search, setSearch] = useState('');
 
@@ -1232,20 +1234,20 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
             </div>
             <div>
               <h2 className="font-sans font-bold text-base text-gray-100 flex items-center gap-2">
-                Шпаргалка правил • D&D 2024
+                {isEn ? "Rules Reference • D&D 2024" : "Шпаргалка правил • D&D 2024"}
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#f5b920]/20 text-[#fce79f] font-mono font-medium border border-[#f5b920]/30">
                   SRD 5.2 Offline
                 </span>
               </h2>
               <p className="text-[11px] text-gray-400">
-                Состояния, действия, мастерство оружия, классы, виды и механики урона
+                {isEn ? "Conditions, actions, weapon mastery, classes, species, and damage rules" : "Состояния, действия, мастерство оружия, классы, виды и механики урона"}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="p-1.5 rounded-glass text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            title="Закрыть (Esc)"
+            title={isEn ? "Close (Esc)" : "Закрыть (Esc)"}
           >
             <X className="h-4 w-4" />
           </button>
@@ -1255,12 +1257,12 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
         <div className="p-3 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(14,18,25,0.7)] flex items-center justify-between gap-3 flex-wrap flex-shrink-0">
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
             {[
-              { id: 'conditions' as const, label: 'Состояния', icon: AlertCircle },
-              { id: 'actions' as const, label: 'Действия', icon: Sword },
-              { id: 'mastery' as const, label: 'Мастерство', icon: Crosshair },
-              { id: 'classes' as const, label: 'Классы', icon: Shield },
-              { id: 'species' as const, label: 'Виды / Расы', icon: Users },
-              { id: 'rest_damage' as const, label: 'Отдых и Урон', icon: Bed },
+              { id: 'conditions' as const, label: isEn ? 'Conditions' : 'Состояния', icon: AlertCircle },
+              { id: 'actions' as const, label: isEn ? 'Actions' : 'Действия', icon: Sword },
+              { id: 'mastery' as const, label: isEn ? 'Mastery' : 'Мастерство', icon: Crosshair },
+              { id: 'classes' as const, label: isEn ? 'Classes' : 'Классы', icon: Shield },
+              { id: 'species' as const, label: isEn ? 'Species' : 'Виды / Расы', icon: Users },
+              { id: 'rest_damage' as const, label: isEn ? 'Rest & Damage' : 'Отдых и Урон', icon: Bed },
             ].map((tab) => {
               const TabIcon = tab.icon;
               const matchCount = counts[tab.id];
@@ -1304,7 +1306,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Мгновенный поиск по всем правилам..."
+              placeholder={isEn ? "Instant search across all rules..." : "Мгновенный поиск по всем правилам..."}
               className="w-full pl-8 pr-7 py-1 rounded-full bg-black/40 border border-white/10 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-[#f5b920] transition-colors"
             />
             {search && (
@@ -1323,11 +1325,11 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
         {q && (
           <div className="px-5 py-1.5 bg-[#f5b920]/10 border-b border-[#f5b920]/20 flex items-center justify-between text-[11px] text-[#fce79f]">
             <span>
-              Найдено совпадений: <strong>{totalMatches}</strong> во всех категориях
+              {isEn ? "Found matches: " : "Найдено совпадений: "}<strong>{totalMatches}</strong> {isEn ? "in all categories" : "во всех категориях"}
             </span>
             {counts[activeTab] === 0 && totalMatches > 0 && (
               <span className="text-amber-300 font-medium">
-                В этой вкладке нет совпадений — проверьте другие вкладки с цифрами выше!
+                {isEn ? "No matches in this tab — check other tabs with counts above!" : "В этой вкладке нет совпадений — проверьте другие вкладки с цифрами выше!"}
               </span>
             )}
           </div>
@@ -1363,7 +1365,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               ))}
               {filteredConditions.length === 0 && (
                 <div className="col-span-full py-8 text-center text-gray-500">
-                  Состояний по запросу «{search}» не найдено.
+                  {isEn ? `No conditions found for "${search}".` : `Состояний по запросу «${search}» не найдено.`}
                 </div>
               )}
             </div>
@@ -1416,7 +1418,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               </div>
               {filteredActions.length === 0 && (
                 <div className="py-8 text-center text-gray-500">
-                  Действий по запросу «{search}» не найдено.
+                  {isEn ? `No actions found for "${search}".` : `Действий по запросу «${search}» не найдено.`}
                 </div>
               )}
             </div>
@@ -1465,7 +1467,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               </div>
               {filteredMasteries.length === 0 && (
                 <div className="py-8 text-center text-gray-500">
-                  Свойств мастерства по запросу «{search}» не найдено.
+                  {isEn ? `No mastery properties found for "${search}".` : `Свойств мастерства по запросу «${search}» не найдено.`}
                 </div>
               )}
             </div>
@@ -1521,7 +1523,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               ))}
               {filteredClasses.length === 0 && (
                 <div className="col-span-full py-8 text-center text-gray-500">
-                  Классов по запросу «{search}» не найдено.
+                  {isEn ? `No classes found for "${search}".` : `Классов по запросу «${search}» не найдено.`}
                 </div>
               )}
             </div>
@@ -1569,7 +1571,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               ))}
               {filteredSpecies.length === 0 && (
                 <div className="col-span-full py-8 text-center text-gray-500">
-                  Видов / рас по запросу «{search}» не найдено.
+                  {isEn ? `No species found for "${search}".` : `Видов / рас по запросу «${search}» не найдено.`}
                 </div>
               )}
             </div>
@@ -1619,7 +1621,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               </div>
               {filteredRestDamage.length === 0 && (
                 <div className="py-8 text-center text-gray-500">
-                  Правил отдыха и урона по запросу «{search}» не найдено.
+                  {isEn ? `No rules found for "${search}".` : `Правил отдыха и урона по запросу «${search}» не найдено.`}
                 </div>
               )}
             </div>
@@ -1630,14 +1632,14 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
         <div className="px-5 py-3 bg-[rgba(14,18,25,0.85)] border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between text-xs text-gray-400 flex-shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Автономный справочник D&D 2024 • Полная оффлайн поддержка</span>
+            <span>{isEn ? "Offline Rules Reference • Full offline support" : "Автономный справочник D&D 2024 • Полная оффлайн поддержка"}</span>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-white font-bold transition-colors cursor-pointer"
           >
-            Закрыть
+            {isEn ? 'Close' : 'Закрыть'}
           </button>
         </div>
       </div>

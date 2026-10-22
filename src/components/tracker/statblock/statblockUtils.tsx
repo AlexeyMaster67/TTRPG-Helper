@@ -1,8 +1,14 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 import {
-  cleanRussianText,
   localizeCreatureType as localizeTypeUtils,
+  localizeSenses as textUtilsLocalizeSenses,
+  localizeLanguages as textUtilsLocalizeLanguages,
+  localizeDefenses as textUtilsLocalizeDefenses,
+  localizeConditionImmunities as textUtilsLocalizeConditionImmunities,
+  localizeSize as textUtilsLocalizeSize,
+  localizeAlignment as textUtilsLocalizeAlignment,
+  formatSpeed as textUtilsFormatSpeed,
 } from '../../../utils/textUtils';
 import { CreatureSize } from '../../../types/dnd5e';
 
@@ -51,107 +57,48 @@ export const SPELL_SCHOOL_RU: Record<string, string> = {
   transmutation: 'Преобразование',
 };
 
-export function formatSpeedRu(speed?: string): string {
-  if (!speed) return '30 фт.';
-  return speed
-    .replace(/\bft\.?\b/gi, 'фт.')
-    .replace(/\bfly\b/gi, 'полет')
-    .replace(/\bswim\b/gi, 'плавание')
-    .replace(/\bclimb\b/gi, 'лазание')
-    .replace(/\bburrow\b/gi, 'копание')
-    .replace(/\bhover\b/gi, 'парение');
+export function formatSpeedRu(speed?: string, lang?: 'en' | 'ru'): string {
+  return textUtilsFormatSpeed(speed, lang);
 }
 
-export function localizeCreatureType(type?: string): string {
-  if (!type) return 'Существо';
-  return localizeTypeUtils(type);
+export function localizeCreatureType(type?: string, lang?: 'en' | 'ru'): string {
+  return localizeTypeUtils(type, lang);
 }
 
-export function localizeAlignment(alignment?: string): string {
-  if (!alignment) return '';
-  const lower = alignment.toLowerCase().trim();
-  return ALIGNMENT_RU[lower] || cleanRussianText(alignment);
+export function localizeAlignment(alignment?: string, lang?: 'en' | 'ru'): string {
+  return textUtilsLocalizeAlignment(alignment, lang);
 }
 
-export function localizeSize(size?: string): string {
-  if (!size) return 'Средний';
-  return CREATURE_SIZE_RU[size] || cleanRussianText(size);
+export function localizeSize(size?: string, lang?: 'en' | 'ru'): string {
+  return textUtilsLocalizeSize(size, lang);
 }
 
-export function localizeSenses(senses?: string): string {
-  if (!senses) return '';
-  return cleanRussianText(senses)
-    .replace(/darkvision/gi, 'темное зрение')
-    .replace(/blindsight/gi, 'слепое зрение')
-    .replace(/truesight/gi, 'истинное зрение')
-    .replace(/tremorsense/gi, 'чувство вибрации')
-    .replace(/passive Perception/gi, 'пассивная Внимательность')
-    .replace(/\bft\.?\b/gi, 'фт.');
+export function localizeSenses(senses?: string, lang?: 'en' | 'ru'): string {
+  return textUtilsLocalizeSenses(senses, lang);
 }
 
-export function localizeLanguages(languages?: string): string {
-  if (!languages) return '';
-  return cleanRussianText(languages)
-    .replace(/\bCommon\b/gi, 'общий')
-    .replace(/\bDraconic\b/gi, 'драконий')
-    .replace(/\bElvish\b/gi, 'эльфийский')
-    .replace(/\bDwarvish\b/gi, 'дварфский')
-    .replace(/\bGiant\b/gi, 'великаний')
-    .replace(/\bGnomish\b/gi, 'гномий')
-    .replace(/\bGoblin\b/gi, 'гоблинский')
-    .replace(/\bHalfling\b/gi, 'полуросликов')
-    .replace(/\bOrc\b/gi, 'орочий')
-    .replace(/\bAbyssal\b/gi, 'бездны')
-    .replace(/\bCelestial\b/gi, 'небесный')
-    .replace(/\bInfernal\b/gi, 'инфернальный')
-    .replace(/\bPrimordial\b/gi, 'первородный')
-    .replace(/\bSylvan\b/gi, 'сильван')
-    .replace(/\bUndercommon\b/gi, 'подземный')
-    .replace(/\btelepathy\b/gi, 'телепатия')
-    .replace(/\bft\.?\b/gi, 'фт.');
+export function localizeLanguages(languages?: string, lang?: 'en' | 'ru'): string {
+  return textUtilsLocalizeLanguages(languages, lang);
 }
 
-export function localizeDefenses(defenses?: string): string {
-  if (!defenses) return '';
-  return cleanRussianText(defenses)
-    .replace(/bludgeoning/gi, 'дробящий')
-    .replace(/piercing/gi, 'колющий')
-    .replace(/slashing/gi, 'рубящий')
-    .replace(/fire/gi, 'огонь')
-    .replace(/cold/gi, 'холод')
-    .replace(/lightning/gi, 'электричество')
-    .replace(/thunder/gi, 'звук')
-    .replace(/poison/gi, 'яд')
-    .replace(/acid/gi, 'кислота')
-    .replace(/psychic/gi, 'психический')
-    .replace(/necrotic/gi, 'некротический')
-    .replace(/radiant/gi, 'излучение')
-    .replace(/force/gi, 'силовое поле')
-    .replace(/from nonmagical attacks/gi, 'от немагических атак');
+export function localizeDefenses(defenses?: string, lang?: 'en' | 'ru'): string {
+  return textUtilsLocalizeDefenses(defenses, lang);
 }
 
-export function localizeConditionImmunities(conds?: string): string {
-  if (!conds) return '';
-  return cleanRussianText(conds)
-    .replace(/blinded/gi, 'ослепление')
-    .replace(/charmed/gi, 'очарование')
-    .replace(/deafened/gi, 'глухота')
-    .replace(/frightened/gi, 'испуг')
-    .replace(/grappled/gi, 'захват')
-    .replace(/incapacitated/gi, 'недееспособность')
-    .replace(/invisible/gi, 'невидимость')
-    .replace(/paralyzed/gi, 'паралич')
-    .replace(/petrified/gi, 'окаменение')
-    .replace(/poisoned/gi, 'отравление')
-    .replace(/prone/gi, 'сбивание с ног')
-    .replace(/restrained/gi, 'опутывание')
-    .replace(/stunned/gi, 'оглушение')
-    .replace(/unconscious/gi, 'бессознательность')
-    .replace(/exhaustion/gi, 'истощение');
+export function localizeConditionImmunities(conds?: string, lang?: 'en' | 'ru'): string {
+  return textUtilsLocalizeConditionImmunities(conds, lang);
 }
 
-export function translateSpellCastingTime(val?: string): string {
-  if (!val) return '1 действие';
+export function translateSpellCastingTime(val?: string, lang?: 'en' | 'ru'): string {
+  if (!val) return lang === 'en' ? '1 action' : '1 действие';
+  if (lang === 'en') {
+    return val
+      .replace(/1 бонусное действие/gi, '1 bonus action')
+      .replace(/1 действие/gi, '1 action')
+      .replace(/1 реакция/gi, '1 reaction')
+      .replace(/минута/gi, 'minute')
+      .replace(/час/gi, 'hour');
+  }
   return val
     .replace(/1 bonus action/gi, '1 бонусное действие')
     .replace(/1 action/gi, '1 действие')
@@ -160,8 +107,16 @@ export function translateSpellCastingTime(val?: string): string {
     .replace(/hour/gi, 'час');
 }
 
-export function translateSpellRange(val?: string): string {
-  if (!val) return 'На себя';
+export function translateSpellRange(val?: string, lang?: 'en' | 'ru'): string {
+  if (!val) return lang === 'en' ? 'Self' : 'На себя';
+  if (lang === 'en') {
+    return val
+      .replace(/На себя/gi, 'Self')
+      .replace(/Касание/gi, 'Touch')
+      .replace(/В пределах видимости/gi, 'Sight')
+      .replace(/Неограниченная/gi, 'Unlimited')
+      .replace(/фт\.?/gi, 'ft.');
+  }
   return val
     .replace(/Self/gi, 'На себя')
     .replace(/Touch/gi, 'Касание')
@@ -170,8 +125,21 @@ export function translateSpellRange(val?: string): string {
     .replace(/feet|ft\.?/gi, 'фт.');
 }
 
-export function translateSpellDuration(val?: string): string {
-  if (!val) return 'Мгновенная';
+export function translateSpellDuration(val?: string, lang?: 'en' | 'ru'): string {
+  if (!val) return lang === 'en' ? 'Instantaneous' : 'Мгновенная';
+  if (lang === 'en') {
+    return val
+      .replace(/Мгновенная/gi, 'Instantaneous')
+      .replace(/Концентрация, до/gi, 'Concentration, up to')
+      .replace(/Концентрация/gi, 'Concentration')
+      .replace(/1 раунд/gi, '1 round')
+      .replace(/1 минута/gi, '1 minute')
+      .replace(/10 минут/gi, '10 minutes')
+      .replace(/1 час/gi, '1 hour')
+      .replace(/8 часов/gi, '8 hours')
+      .replace(/24 часа/gi, '24 hours')
+      .replace(/Пока не рассеется/gi, 'Until dispelled');
+  }
   return val
     .replace(/Instantaneous/gi, 'Мгновенная')
     .replace(/Concentration, up to/gi, 'Концентрация, до')

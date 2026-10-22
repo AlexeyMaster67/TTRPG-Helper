@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useCombatStore } from '../../store/combatStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { broadcastService } from '../../services/broadcastService';
 import {
   Play,
@@ -41,6 +42,7 @@ function playBeep(frequency = 600, duration = 0.15, count = 1) {
 }
 
 export function TurnTimer() {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const currentTurnIndex = useCombatStore((s) => s.currentTurnIndex);
   const combatantsCount = useCombatStore((s) => s.combatants.length);
 
@@ -173,7 +175,7 @@ export function TurnTimer() {
     <div
       ref={menuRef}
       className="relative flex items-center bg-black/40 border border-[rgba(255,255,255,0.08)] rounded-full px-2 py-0.5 gap-1.5 shadow-sm text-xs select-none min-h-[32px]"
-      title={`Таймер хода: ${timeFormatted} (Лимит: ${totalSeconds}с)`}
+      title={isEn ? `Turn timer: ${timeFormatted} (Limit: ${totalSeconds}s)` : `Таймер хода: ${timeFormatted} (Лимит: ${totalSeconds}с)`}
     >
       {/* Иконка таймера */}
       <Timer
@@ -191,7 +193,7 @@ export function TurnTimer() {
         type="button"
         onClick={() => setShowPresetsMenu((prev) => !prev)}
         className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer"
-        title="Нажмите для настройки длительности (60с / 90с / 120с)"
+        title={isEn ? "Click to configure duration (60s / 90s / 120s)" : "Нажмите для настройки длительности (60с / 90с / 120с)"}
       >
         <span
           className={`font-mono font-black text-xs sm:text-sm tabular-nums leading-none tracking-tight ${
@@ -229,7 +231,7 @@ export function TurnTimer() {
         onClick={() => setIsRunning((prev) => !prev)}
         disabled={combatantsCount === 0}
         className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer disabled:opacity-40"
-        title={isRunning ? 'Приостановить таймер' : 'Запустить таймер'}
+        title={isRunning ? (isEn ? 'Pause timer' : 'Приостановить таймер') : (isEn ? 'Start timer' : 'Запустить таймер')}
       >
         {isRunning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 text-[#f5b920]" />}
       </button>
@@ -240,7 +242,7 @@ export function TurnTimer() {
         onClick={handleReset}
         disabled={combatantsCount === 0}
         className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-white/10 text-gray-400 hover:text-[#f5b920] transition-colors cursor-pointer disabled:opacity-40"
-        title="Сбросить таймер хода"
+        title={isEn ? "Reset turn timer" : "Сбросить таймер хода"}
       >
         <RotateCcw className="w-2.5 h-2.5" />
       </button>
@@ -250,7 +252,7 @@ export function TurnTimer() {
         type="button"
         onClick={handleToggleSound}
         className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
-        title={soundEnabled ? 'Звуковые сигналы включены (10с и финиш)' : 'Звуковые сигналы выключены'}
+        title={soundEnabled ? (isEn ? 'Audio cues enabled (10s and finish)' : 'Звуковые сигналы включены (10с и финиш)') : (isEn ? 'Audio cues disabled' : 'Звуковые сигналы выключены')}
       >
         {soundEnabled ? (
           <Volume2 className="w-3 h-3 text-emerald-400" />
@@ -263,13 +265,13 @@ export function TurnTimer() {
       {showPresetsMenu && (
         <div className="absolute top-full right-0 mt-1.5 z-50 min-w-[170px] p-2 bg-[#141923] border border-[#f5b920]/70 rounded-glass-xl shadow-[0_16px_36px_rgba(0,0,0,0.95)] flex flex-col gap-1 text-xs animate-in fade-in zoom-in-95 duration-150">
           <span className="text-[10px] uppercase font-bold text-gray-400 px-2 py-0.5">
-            Лимит времени хода:
+            {isEn ? "Turn Time Limit:" : "Лимит времени хода:"}
           </span>
           {[
-            { sec: 60, label: '60 секунд (Быстро)' },
-            { sec: 90, label: '90 секунд (Стандарт)' },
-            { sec: 120, label: '120 секунд (Тактично)' },
-            { sec: 180, label: '3 минуты (Боссы)' },
+            { sec: 60, label: isEn ? '60 seconds (Fast)' : '60 секунд (Быстро)' },
+            { sec: 90, label: isEn ? '90 seconds (Standard)' : '90 секунд (Стандарт)' },
+            { sec: 120, label: isEn ? '120 seconds (Tactical)' : '120 секунд (Тактично)' },
+            { sec: 180, label: isEn ? '3 minutes (Bosses)' : '3 минуты (Боссы)' },
           ].map((preset) => (
             <button
               key={preset.sec}

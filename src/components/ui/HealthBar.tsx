@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import { Heart, Shield, Skull } from 'lucide-react';
+import { useSettingsStore } from '../../store/settingsStore';
 
 export interface HealthBarProps {
   current: number;
@@ -19,6 +20,8 @@ export function HealthBar({
   size = 'md',
   className,
 }: HealthBarProps) {
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
   const safeMax = Math.max(1, max);
   const clampedCurrent = Math.max(0, Math.min(safeMax, current));
   const hpPercent = Math.min(100, Math.round((clampedCurrent / safeMax) * 100));
@@ -210,7 +213,7 @@ export function HealthBar({
             >
               {current}<span className="text-gray-500 font-normal mx-0.5">/</span>{max}
               <span className={clsx('text-gray-400 font-sans ml-1 font-normal', size === 'sm' ? 'text-[9.5px]' : 'text-[10px]')}>
-                ОЗ
+                {isEn ? 'HP' : 'ОЗ'}
               </span>
             </span>
           </div>
@@ -242,7 +245,7 @@ export function HealthBar({
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
             <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-red-300 tracking-wider uppercase leading-none">
               <Skull className="h-2.5 w-2.5 text-red-400" />
-              <span>БЕЗ СОЗНАНИЯ</span>
+              <span>{isEn ? 'UNCONSCIOUS' : 'БЕЗ СОЗНАНИЯ'}</span>
             </span>
           </div>
         )}

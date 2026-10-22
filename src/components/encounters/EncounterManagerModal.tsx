@@ -422,7 +422,7 @@ export function EncounterManagerModal() {
               <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 flex-wrap">
                 <span>{isEn ? 'Encounter Manager' : 'Менеджер готовых энкаунтеров'}</span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[rgba(255,255,255,0.05)] text-gold-light border border-[rgba(255,255,255,0.08)] shrink-0">
-                  {encounters.length} шаблонов
+                  {encounters.length} {isEn ? 'templates' : 'шаблонов'}
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/30 shrink-0">
                   D&D 2024 / DMG
@@ -453,7 +453,7 @@ export function EncounterManagerModal() {
                   type="button"
                   onClick={() => setPartyCount((c) => Math.max(1, c - 1))}
                   className="hover:text-gold text-gray-400 font-bold px-1"
-                  title="Уменьшить количество героев"
+                  title={isEn ? "Decrease heroes count" : "Уменьшить количество героев"}
                 >
                   -
                 </button>
@@ -464,11 +464,11 @@ export function EncounterManagerModal() {
                   type="button"
                   onClick={() => setPartyCount((c) => Math.min(12, c + 1))}
                   className="hover:text-gold text-gray-400 font-bold px-1"
-                  title="Увеличить количество героев"
+                  title={isEn ? "Increase heroes count" : "Увеличить количество героев"}
                 >
                   +
                 </button>
-                <span className="text-[10px] text-gray-400">гер.</span>
+                <span className="text-[10px] text-gray-400">{isEn ? "heroes" : "гер."}</span>
               </div>
             </div>
 
@@ -480,7 +480,7 @@ export function EncounterManagerModal() {
                   type="button"
                   onClick={() => setPartyLevel((l) => Math.max(1, l - 1))}
                   className="hover:text-blue-300 text-gray-400 font-bold px-1"
-                  title="Понизить средний уровень"
+                  title={isEn ? "Decrease average level" : "Понизить средний уровень"}
                 >
                   -
                 </button>
@@ -491,41 +491,41 @@ export function EncounterManagerModal() {
                   type="button"
                   onClick={() => setPartyLevel((l) => Math.min(20, l + 1))}
                   className="hover:text-blue-300 text-gray-400 font-bold px-1"
-                  title="Повысить средний уровень"
+                  title={isEn ? "Increase average level" : "Повысить средний уровень"}
                 >
                   +
                 </button>
-                <span className="text-[10px] text-gray-400">ур.</span>
+                <span className="text-[10px] text-gray-400">{isEn ? "lvl" : "ур."}</span>
               </div>
             </div>
           </div>
 
           {/* 4 Difficulty Threshold Badges */}
           <div className="flex items-center gap-2 flex-wrap max-w-full">
-            <span className="text-[11px] text-gray-400 hidden xl:inline mr-1">Пороги опыта:</span>
+            <span className="text-[11px] text-gray-400 hidden xl:inline mr-1">{isEn ? "XP Thresholds:" : "Пороги опыта:"}</span>
             <span
               className="px-2 py-0.5 rounded border text-[11px] font-mono bg-emerald-950/70 border-emerald-700/60 text-emerald-300 font-medium whitespace-nowrap shrink-0 leading-tight"
-              title="Легкое столкновение (Easy): победа гарантирована без критических потерь"
+              title={isEn ? "Easy encounter: victory assured without critical resource loss" : "Легкое столкновение (Easy): победа гарантирована без критических потерь"}
             >
-              Легко: <span className="font-bold">{partyThresholds.easy}</span> XP
+              {isEn ? "Easy:" : "Легко:"} <span className="font-bold">{partyThresholds.easy}</span> XP
             </span>
             <span
               className="px-2 py-0.5 rounded border text-[11px] font-mono bg-amber-950/70 border-amber-700/60 text-amber-300 font-medium whitespace-nowrap shrink-0 leading-tight"
-              title="Среднее столкновение (Medium): умеренные траты ресурсов и ячеек"
+              title={isEn ? "Medium encounter: moderate resource and spell slot consumption" : "Среднее столкновение (Medium): умеренные траты ресурсов и ячеек"}
             >
-              Средне: <span className="font-bold">{partyThresholds.medium}</span> XP
+              {isEn ? "Medium:" : "Средне:"} <span className="font-bold">{partyThresholds.medium}</span> XP
             </span>
             <span
               className="px-2 py-0.5 rounded border text-[11px] font-mono bg-orange-950/70 border-orange-700/60 text-orange-300 font-medium whitespace-nowrap shrink-0 leading-tight"
-              title="Сложное столкновение (Hard): высокий риск, требуется тактика"
+              title={isEn ? "Hard encounter: high risk, sound tactical decisions required" : "Сложное столкновение (Hard): высокий риск, требуется тактика"}
             >
-              Сложно: <span className="font-bold">{partyThresholds.hard}</span> XP
+              {isEn ? "Hard:" : "Сложно:"} <span className="font-bold">{partyThresholds.hard}</span> XP
             </span>
             <span
               className="px-2 py-0.5 rounded border text-[11px] font-mono bg-rose-950/80 border-rose-700/80 text-rose-300 font-bold whitespace-nowrap shrink-0 leading-tight"
-              title="Смертельное столкновение (Deadly): прямая угроза гибели персонажей"
+              title={isEn ? "Deadly encounter: lethal danger to one or more party members" : "Смертельное столкновение (Deadly): прямая угроза гибели персонажей"}
             >
-              Смертельно: <span className="font-bold">{partyThresholds.deadly}</span> XP
+              {isEn ? "Deadly:" : "Смертельно:"} <span className="font-bold">{partyThresholds.deadly}</span> XP
             </span>
           </div>
         </div>
@@ -548,28 +548,28 @@ export function EncounterManagerModal() {
                   ? 'bg-gold-light text-canvas shadow-gold-glow'
                   : 'bg-gold hover:bg-gold-light text-canvas shadow-gold-glow'
               }`}
-              title="Открыть конструктор энкаунтеров с подбором монстров и расчётом бюджета XP"
+              title={isEn ? "Open encounter builder with monster search and XP budget calculator" : "Открыть конструктор энкаунтеров с подбором монстров и расчётом бюджета XP"}
             >
               <Plus className="h-3.5 w-3.5" />
-              <span>Собрать энкаунтер</span>
+              <span>{isEn ? "Build Encounter" : "Собрать энкаунтер"}</span>
             </button>
 
             <button
               onClick={handleStartSaveCurrent}
               className="px-2.5 py-1.5 rounded-sm bg-surface hover:bg-card border border-border-subtle text-gray-300 hover:text-white text-xs flex items-center gap-1.5 transition-colors"
-              title="Сохранить монстров из текущего боя на тактической карте"
+              title={isEn ? "Save current combatants from tactical battle map as encounter" : "Сохранить монстров из текущего боя на тактической карте"}
             >
               <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              <span>Сохранить текущий бой ({enemyCombatants.length})</span>
+              <span>{isEn ? `Save Current Combat (${enemyCombatants.length})` : `Сохранить текущий бой (${enemyCombatants.length})`}</span>
             </button>
 
             <button
               onClick={() => fileInputRef.current?.click()}
               className="px-2.5 py-1.5 rounded-sm bg-surface hover:bg-card border border-border-subtle text-gray-300 hover:text-white text-xs flex items-center gap-1.5 transition-colors"
-              title="Импортировать шаблоны энкаунтеров из JSON"
+              title={isEn ? "Import encounter templates from JSON" : "Импортировать шаблоны энкаунтеров из JSON"}
             >
               <Upload className="h-3.5 w-3.5 text-blue-400" />
-              <span>Импорт</span>
+              <span>{isEn ? "Import" : "Импорт"}</span>
             </button>
             <input
               ref={fileInputRef}
@@ -582,10 +582,10 @@ export function EncounterManagerModal() {
             <button
               onClick={handleExport}
               className="px-2.5 py-1.5 rounded-sm bg-surface hover:bg-card border border-border-subtle text-gray-300 hover:text-white text-xs flex items-center gap-1.5 transition-colors"
-              title="Экспортировать шаблоны энкаунтеров в JSON"
+              title={isEn ? "Export encounter templates to JSON" : "Экспортировать шаблоны энкаунтеров в JSON"}
             >
               <Download className="h-3.5 w-3.5 text-emerald-400" />
-              <span>Экспорт</span>
+              <span>{isEn ? "Export" : "Экспорт"}</span>
             </button>
           </div>
 
@@ -596,7 +596,7 @@ export function EncounterManagerModal() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Поиск по названию / монстрам..."
+              placeholder={isEn ? "Search by title or monsters..." : "Поиск по названию / монстрам..."}
               className="w-full h-7 pl-8 pr-3 bg-surface border border-border-subtle rounded-sm text-xs text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-gold"
             />
           </div>
@@ -611,7 +611,7 @@ export function EncounterManagerModal() {
             <div className="flex items-center justify-between border-b border-border-subtle pb-2">
               <span className="text-xs font-bold text-gold-light flex items-center gap-1.5">
                 <Sparkles className="h-4 w-4 text-gold" />
-                Конструктор энкаунтера (Подбор монстров и расчёт бюджета XP)
+                {isEn ? "Encounter Builder (Monster selection & XP budget calculator)" : "Конструктор энкаунтера (Подбор монстров и расчёт бюджета XP)"}
               </span>
               <button
                 type="button"
@@ -625,35 +625,35 @@ export function EncounterManagerModal() {
             {/* Inputs: Name, Folder, Description */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
               <div>
-                <label className="text-[10px] text-gray-400 block mb-1">Название энкаунтера:</label>
+                <label className="text-[10px] text-gray-400 block mb-1">{isEn ? "Encounter Name:" : "Название энкаунтера:"}</label>
                 <input
                   type="text"
                   required
                   value={builderName}
                   onChange={(e) => setBuilderName(e.target.value)}
-                  placeholder="Например, Засада гоблинов у тракта"
+                  placeholder={isEn ? "e.g. Goblin Ambush on the Road" : "Например, Засада гоблинов у тракта"}
                   className="w-full bg-card border border-border-subtle rounded px-2.5 py-1 text-xs text-white outline-none focus:border-gold"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400 block mb-1">Категория / Папка:</label>
+                <label className="text-[10px] text-gray-400 block mb-1">{isEn ? "Category / Folder:" : "Категория / Папка:"}</label>
                 <input
                   type="text"
                   value={builderFolder}
                   onChange={(e) => setBuilderFolder(e.target.value)}
-                  placeholder="Общие, Лес, Подземелье, Боссы..."
+                  placeholder={isEn ? "General, Forest, Dungeon, Bosses..." : "Общие, Лес, Подземелье, Боссы..."}
                   className="w-full bg-card border border-border-subtle rounded px-2.5 py-1 text-xs text-white outline-none focus:border-gold"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400 block mb-1">Краткое описание:</label>
+                <label className="text-[10px] text-gray-400 block mb-1">{isEn ? "Short Description:" : "Краткое описание:"}</label>
                 <input
                   type="text"
                   value={builderDesc}
                   onChange={(e) => setBuilderDesc(e.target.value)}
-                  placeholder="Заметки для Мастера Подземелий..."
+                  placeholder={isEn ? "Notes for the Dungeon Master..." : "Заметки для Мастера Подземелий..."}
                   className="w-full bg-card border border-border-subtle rounded px-2.5 py-1 text-xs text-white outline-none focus:border-gold"
                 />
               </div>
@@ -664,9 +664,9 @@ export function EncounterManagerModal() {
               {/* Monster Search & Picker */}
               <div className="bg-card p-2.5 rounded border border-border-subtle flex flex-col space-y-2">
                 <span className="text-[11px] font-bold text-gray-200 flex items-center justify-between">
-                  <span>Выбор монстров из бестиария</span>
+                  <span>{isEn ? "Bestiary Monster Selection" : "Выбор монстров из бестиария"}</span>
                   <span className="text-[10px] text-gray-400 font-normal">
-                    {searchResults.length} найдено
+                    {searchResults.length} {isEn ? 'found' : 'найдено'}
                   </span>
                 </span>
                 <div className="relative">
@@ -675,7 +675,7 @@ export function EncounterManagerModal() {
                     type="text"
                     value={monsterQuery}
                     onChange={(e) => setMonsterQuery(e.target.value)}
-                    placeholder="Поиск по названию (Гоблин, Огр...) или КО..."
+                    placeholder={isEn ? "Search by name (Goblin, Ogre...) or CR..." : "Поиск по названию (Гоблин, Огр...) или КО..."}
                     className="w-full h-7 pl-8 pr-2 bg-surface border border-border-subtle rounded text-xs text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-gold"
                   />
                 </div>
@@ -702,7 +702,7 @@ export function EncounterManagerModal() {
                         onClick={() => handleAddMonsterToBuilder(m)}
                         className="px-2 py-0.5 rounded bg-gold/20 hover:bg-gold text-gold hover:text-canvas border border-gold/40 text-[10px] font-bold shrink-0 transition-colors"
                       >
-                        + Добавить
+                        {isEn ? '+ Add' : '+ Добавить'}
                       </button>
                     </div>
                   ))}
@@ -712,26 +712,26 @@ export function EncounterManagerModal() {
               {/* Added Monsters Table */}
               <div className="bg-card p-2.5 rounded border border-border-subtle flex flex-col space-y-2 min-w-0">
                 <span className="text-[11px] font-bold text-gray-200 flex items-center justify-between">
-                  <span>Состав отряда противников ({builderMonsters.length} видов)</span>
+                  <span>{isEn ? `Enemies List (${builderMonsters.length} types)` : `Состав отряда противников (${builderMonsters.length} видов)`}</span>
                   <span className="text-[10px] font-mono text-gold-light">
-                    Всего: {builderMetrics.totalMonsters} монстров
+                    {isEn ? `Total: ${builderMetrics.totalMonsters} monsters` : `Всего: ${builderMetrics.totalMonsters} монстров`}
                   </span>
                 </span>
 
                 {builderMonsters.length === 0 ? (
                   <div className="text-center py-8 text-gray-500 text-xs italic">
-                    Выберите монстров слева, чтобы сформировать столкновение
+                    {isEn ? "Select monsters from the left to build an encounter" : "Выберите монстров слева, чтобы сформировать столкновение"}
                   </div>
                 ) : (
                   <div className="max-h-40 overflow-y-auto overflow-x-auto pr-1">
                     <table className="w-full min-w-[340px] text-left text-xs border-collapse">
                       <thead>
                         <tr className="border-b border-border-subtle text-[10px] text-gray-400 font-medium uppercase">
-                          <th className="py-1 px-1.5 font-normal">Название</th>
-                          <th className="py-1 px-1 font-normal text-center w-12 whitespace-nowrap">КО</th>
-                          <th className="py-1 px-1 font-normal text-right w-16 whitespace-nowrap">Опыт</th>
-                          <th className="py-1 px-1 font-normal text-center w-24 whitespace-nowrap">Количество</th>
-                          <th className="py-1 px-1 font-normal text-right w-10 whitespace-nowrap">Действия</th>
+                          <th className="py-1 px-1.5 font-normal">{isEn ? "Name" : "Название"}</th>
+                          <th className="py-1 px-1 font-normal text-center w-12 whitespace-nowrap">{isEn ? "CR" : "КО"}</th>
+                          <th className="py-1 px-1 font-normal text-right w-16 whitespace-nowrap">{isEn ? "XP" : "Опыт"}</th>
+                          <th className="py-1 px-1 font-normal text-center w-24 whitespace-nowrap">{isEn ? "Quantity" : "Количество"}</th>
+                          <th className="py-1 px-1 font-normal text-right w-10 whitespace-nowrap">{isEn ? "Actions" : "Действия"}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border-subtle/40">
@@ -774,7 +774,7 @@ export function EncounterManagerModal() {
                                 type="button"
                                 onClick={() => handleUpdateMonsterCount(bm.id, -bm.count)}
                                 className="p-1 hover:text-red-400 text-gray-500 rounded hover:bg-surface inline-flex shrink-0"
-                                title="Удалить монстра"
+                                title={isEn ? "Remove monster" : "Удалить монстра"}
                               >
                                 <Trash2 className="h-3 w-3" />
                               </button>
@@ -792,29 +792,29 @@ export function EncounterManagerModal() {
             <div className="bg-card p-2.5 rounded border border-border-subtle flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-4 flex-wrap">
                 <div>
-                  <span className="text-[10px] text-gray-400 block">Базовый опыт:</span>
+                  <span className="text-[10px] text-gray-400 block">{isEn ? "Base XP:" : "Базовый опыт:"}</span>
                   <span className="font-mono font-bold text-gray-200">{builderMetrics.rawXp} XP</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-gray-400 block">Множитель группы:</span>
+                  <span className="text-[10px] text-gray-400 block">{isEn ? "Group Multiplier:" : "Множитель группы:"}</span>
                   <span className="font-mono font-bold text-gold-light">
-                    ×{builderMetrics.mult} ({builderMetrics.totalMonsters} монстров)
+                    ×{builderMetrics.mult} ({builderMetrics.totalMonsters} {isEn ? 'monsters' : 'монстров'})
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-gray-400 block">Скорректированный опыт:</span>
+                  <span className="text-[10px] text-gray-400 block">{isEn ? "Adjusted XP:" : "Скорректированный опыт:"}</span>
                   <span className="font-mono font-bold text-gold-light">
                     {builderMetrics.adjustedXp} XP
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-gray-400 block">Расчётная сложность:</span>
+                  <span className="text-[10px] text-gray-400 block">{isEn ? "Calculated Difficulty:" : "Расчётная сложность:"}</span>
                   <span
                     className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getDifficultyBadge(
                       builderMetrics.difficulty
                     )}`}
                   >
-                    {getDifficultyLabel(builderMetrics.difficulty)}
+                    {getDifficultyLabel(builderMetrics.difficulty, isEn ? 'en' : 'ru')}
                   </span>
                 </div>
               </div>
@@ -825,7 +825,7 @@ export function EncounterManagerModal() {
                   onClick={() => setIsBuildingNew(false)}
                   className="px-3 py-1 rounded bg-surface hover:bg-card border border-border-subtle text-gray-400 hover:text-white text-xs"
                 >
-                  Отмена
+                  {isEn ? 'Cancel' : 'Отмена'}
                 </button>
                 <button
                   type="submit"
@@ -833,7 +833,7 @@ export function EncounterManagerModal() {
                   className="px-4 py-1 rounded bg-gold hover:bg-gold-light disabled:opacity-50 text-canvas font-bold text-xs shadow-gold-glow flex items-center gap-1.5"
                 >
                   <Sparkles className="h-3.5 w-3.5" />
-                  Сохранить энкаунтер
+                  {isEn ? 'Save Encounter' : 'Сохранить энкаунтер'}
                 </button>
               </div>
             </div>
@@ -849,7 +849,7 @@ export function EncounterManagerModal() {
             <div className="flex items-center justify-between border-b border-border-subtle pb-1.5">
               <span className="text-xs font-bold text-gold-light flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
-                Сохранение текущего боя ({enemyCombatants.length} монстров)
+                {isEn ? `Save Current Combat (${enemyCombatants.length} monsters)` : `Сохранение текущего боя (${enemyCombatants.length} монстров)`}
               </span>
               <button
                 type="button"
@@ -862,35 +862,35 @@ export function EncounterManagerModal() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div>
-                <label className="text-[10px] text-gray-400 block mb-1">Название энкаунтера:</label>
+                <label className="text-[10px] text-gray-400 block mb-1">{isEn ? "Encounter Name:" : "Название энкаунтера:"}</label>
                 <input
                   type="text"
                   required
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
-                  placeholder="Например, Засада у моста"
+                  placeholder={isEn ? "e.g. Bridge Ambush" : "Например, Засада у моста"}
                   className="w-full bg-card border border-border-subtle rounded px-2.5 py-1 text-xs text-white outline-none focus:border-gold"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400 block mb-1">Категория / Папка:</label>
+                <label className="text-[10px] text-gray-400 block mb-1">{isEn ? "Category / Folder:" : "Категория / Папка:"}</label>
                 <input
                   type="text"
                   value={saveFolder}
                   onChange={(e) => setSaveFolder(e.target.value)}
-                  placeholder="Общие, Лес, Боссы..."
+                  placeholder={isEn ? "General, Forest, Bosses..." : "Общие, Лес, Боссы..."}
                   className="w-full bg-card border border-border-subtle rounded px-2.5 py-1 text-xs text-white outline-none focus:border-gold"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400 block mb-1">Краткое описание:</label>
+                <label className="text-[10px] text-gray-400 block mb-1">{isEn ? "Short Description:" : "Краткое описание:"}</label>
                 <input
                   type="text"
                   value={saveDesc}
                   onChange={(e) => setSaveDesc(e.target.value)}
-                  placeholder="Заметки для Мастера..."
+                  placeholder={isEn ? "Notes for the GM..." : "Заметки для Мастера..."}
                   className="w-full bg-card border border-border-subtle rounded px-2.5 py-1 text-xs text-white outline-none focus:border-gold"
                 />
               </div>
@@ -902,13 +902,13 @@ export function EncounterManagerModal() {
                 onClick={() => setIsSavingCurrent(false)}
                 className="px-3 py-1 rounded bg-card hover:bg-surface border border-border-subtle text-gray-400 hover:text-white text-xs"
               >
-                Отмена
+                {isEn ? 'Cancel' : 'Отмена'}
               </button>
               <button
                 type="submit"
                 className="px-4 py-1 rounded bg-gold hover:bg-gold-light text-canvas font-bold text-xs"
               >
-                Сохранить
+                {isEn ? 'Save' : 'Сохранить'}
               </button>
             </div>
           </form>
@@ -943,7 +943,7 @@ export function EncounterManagerModal() {
         <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-[46vh]">
           {filteredEncounters.length === 0 ? (
             <div className="text-center py-12 text-gray-500 text-xs">
-              Шаблонов энкаунтеров в этой категории не найдено.
+              {isEn ? "No encounter templates found in this category." : "Шаблонов энкаунтеров в этой категории не найдено."}
             </div>
           ) : (
             filteredEncounters.map((enc) => {
@@ -965,14 +965,14 @@ export function EncounterManagerModal() {
                           enc.difficulty
                         )}`}
                       >
-                        {getDifficultyLabel(enc.difficulty)}
+                        {getDifficultyLabel(enc.difficulty, isEn ? 'en' : 'ru')}
                       </span>
                       <span className="text-[11px] font-mono text-gold-light shrink-0">
-                        Базовый XP: ~{enc.totalXp}
+                        {isEn ? "Base XP: ~" : "Базовый XP: ~"}{enc.totalXp}
                       </span>
                       {enc.adjustedXp && enc.adjustedXp !== enc.totalXp && (
                         <span className="text-[10px] font-mono text-gray-400 shrink-0">
-                          (Скорректированный: {enc.adjustedXp} XP)
+                          {isEn ? `(Adjusted: ${enc.adjustedXp} XP)` : `(Скорректированный: ${enc.adjustedXp} XP)`}
                         </span>
                       )}
                     </div>
@@ -1006,25 +1006,25 @@ export function EncounterManagerModal() {
                     <button
                       onClick={() => loadEncounterIntoCombat(enc.id, 'replace')}
                       className="px-3 py-1.5 rounded-sm bg-gold text-canvas font-bold text-xs hover:bg-gold-light shadow-gold-glow flex items-center gap-1.5 transition-all"
-                      title="Загрузить энкаунтер в бой (заменяет текущих монстров, сохраняя игроков)"
+                      title={isEn ? "Deploy encounter (replaces current monsters, keeps players)" : "Загрузить энкаунтер в бой (заменяет текущих монстров, сохраняя игроков)"}
                     >
                       <Swords className="h-3.5 w-3.5" />
-                      <span>В бой (Заменить)</span>
+                      <span>{isEn ? "Deploy (Replace)" : "В бой (Заменить)"}</span>
                     </button>
 
                     <button
                       onClick={() => loadEncounterIntoCombat(enc.id, 'merge')}
                       className="px-2.5 py-1.5 rounded-sm bg-surface hover:bg-card border border-border-subtle text-gray-300 hover:text-white text-xs flex items-center gap-1 transition-colors"
-                      title="Добавить монстров к текущему бою без сброса"
+                      title={isEn ? "Add monsters to active combat without resetting" : "Добавить монстров к текущему бою без сброса"}
                     >
                       <Plus className="h-3.5 w-3.5 text-gold" />
-                      <span>+ В бой (Добавить)</span>
+                      <span>{isEn ? "+ Deploy (Add)" : "+ В бой (Добавить)"}</span>
                     </button>
 
                     <button
                       onClick={() => deleteEncounter(enc.id)}
                       className="p-1.5 rounded-sm hover:bg-red-950/40 text-gray-500 hover:text-red-400 border border-transparent hover:border-red-800 transition-colors"
-                      title="Удалить энкаунтер"
+                      title={isEn ? "Delete encounter" : "Удалить энкаунтер"}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -1038,13 +1038,13 @@ export function EncounterManagerModal() {
         {/* Footer */}
         <div className="border-t border-border-subtle pt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
           <span className="break-words leading-relaxed flex-1 min-w-[200px]">
-            💡 Подсказка: При загрузке энкаунтера инициатива монстров бросается автоматически!
+            {isEn ? 'Tip: When deploying an encounter, monster initiatives are rolled automatically!' : 'Подсказка: При загрузке энкаунтера инициатива монстров бросается автоматически!'}
           </span>
           <button
             onClick={closeModal}
             className="px-4 py-1.5 rounded-sm bg-card hover:bg-surface border border-border-subtle text-gray-300 text-xs transition-colors shrink-0"
           >
-            Закрыть
+            {isEn ? 'Close' : 'Закрыть'}
           </button>
         </div>
       </div>

@@ -100,6 +100,7 @@ describe('Settings UI & System Selection Suite', () => {
 
   describe('SystemSelectionPanel Render & Accessibility', () => {
     it('renders all family sections and system cards', () => {
+      useSettingsStore.getState().setLanguage('ru');
       const html = renderToString(React.createElement(SystemSelectionPanel));
 
       // Title & description
@@ -116,12 +117,11 @@ describe('Settings UI & System Selection Suite', () => {
       expect(html).toContain('Киберпанк');
       expect(html).toContain('Другое');
 
-      // System cards & badges
+      // System cards & badges (SRD 5.2.1 only in D&D, dnd5e_2014 and 2024 removed from panel)
       expect(html).toContain('SRD 5.2.1');
       expect(html).toContain('Готово');
-      expect(html).toContain('D&amp;D 5e (2014)');
-      expect(html).toContain('D&amp;D 5e (2024)');
-      expect(html).toContain('Бета');
+      expect(html).not.toContain('D&amp;D 5e (2014)');
+      expect(html).not.toContain('D&amp;D 5e (2024)');
       expect(html).toContain('Pathfinder 2e');
       expect(html).toContain('Pathfinder 1e');
       expect(html).toContain('Скоро');
@@ -136,6 +136,15 @@ describe('Settings UI & System Selection Suite', () => {
       // Accessibility attributes
       expect(html).toContain('aria-pressed');
       expect(html).toContain('role="button"');
+
+      // Test English mode
+      useSettingsStore.getState().setLanguage('en');
+      const htmlEn = renderToString(React.createElement(SystemSelectionPanel));
+      expect(htmlEn).toContain('TTRPG System');
+      expect(htmlEn).toContain('Cancel');
+      expect(htmlEn).toContain('Save');
+      expect(htmlEn).toContain('Ready');
+      expect(htmlEn).toContain('In Development');
     });
   });
 

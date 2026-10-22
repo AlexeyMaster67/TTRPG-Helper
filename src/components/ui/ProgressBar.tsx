@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import { useSettingsStore } from '../../store/settingsStore';
 
 export interface ProgressBarProps {
   current: number;
@@ -20,6 +21,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   showLabel = true,
   className,
 }) => {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const safeMax = Math.max(1, max);
   const clampedCurrent = Math.max(0, Math.min(safeMax, current));
   const percent = Math.min(100, Math.round((clampedCurrent / safeMax) * 100));
@@ -60,7 +62,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
           </span>
           {temp > 0 && (
             <span className="font-mono tabular-nums text-[11px] text-blue-300">
-              +{temp} врем.
+              +{temp} {isEn ? 'temp' : 'врем.'}
             </span>
           )}
         </div>
