@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "TTRPG Helper",
-  "version": "2.0.4",
+  "version": "2.0.6",
   "identifier": "com.alexeymaster67.ttrpghelper",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -58,3 +58,4 @@
   },
   "plugins": {}
 }
+

@@ -4,6 +4,7 @@ import { campaignPackService, CampaignPack, CampaignImportSummary } from '../../
 import { backupService, BackupEntry } from '../../services/backupService';
 import { SystemSelectionPanel } from './SystemSelectionPanel';
 import { useTranslation } from '../../i18n';
+import { openExternal } from '../../utils/openExternal';
 import {
   X,
   Sliders,
@@ -702,15 +703,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </p>
 
                 <div className="pt-1">
-                  <a
-                    href="https://discord.com/invite/XYQSHWVAuE"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => openExternal('https://discord.com/invite/XYQSHWVAuE')}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-xs transition-all shadow-md cursor-pointer"
                   >
                     <span>{language === 'en' ? 'Open Discord Channel' : 'Перейти в наш Дискорд'}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  </button>
                 </div>
               </section>
             </div>

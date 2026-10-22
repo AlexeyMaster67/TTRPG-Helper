@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { Combatant, createDefaultCombatant } from '../types/combat';
+import { useSettingsStore } from '../store/settingsStore';
 
 // Statblock subcomponents
 import {
@@ -33,7 +34,6 @@ import {
 } from '../components/tracker/combatant';
 import { CombatantCard } from '../components/tracker/CombatantCard';
 import { useCombatStore } from '../store/combatStore';
-import { useSettingsStore } from '../store/settingsStore';
 
 const clean = (h: string) => h.replace(/<!--.*?-->/g, '');
 
@@ -377,6 +377,14 @@ describe('Decomposed UI Components Suite', () => {
   });
 
   describe('3. CombatantCard Subcomponents', () => {
+    beforeEach(() => {
+      useSettingsStore.setState({ language: 'ru' });
+    });
+
+    afterAll(() => {
+      useSettingsStore.setState({ language: 'en' });
+    });
+
     it('renders CombatantHeader with name, initiative, and badges', () => {
       const html = clean(
         renderToString(

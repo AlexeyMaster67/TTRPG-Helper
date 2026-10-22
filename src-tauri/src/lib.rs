@@ -105,7 +105,8 @@ pub fn run() {
             open_player_window,
             create_database_backup,
             list_database_backups,
-            run_app_migration
+            run_app_migration,
+            open_external_url
         ])
         .run(tauri::generate_context!())
         .expect("error while running TTRPG Helper tauri application");
@@ -479,5 +480,39 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
 #[tauri::command]
 async fn run_app_migration(app: tauri::AppHandle) -> Result<MigrationReport, String> {
     Ok(perform_app_migration(&app))
+}
+
+
+#[tauri::command]
+async fn open_external_url(url: String) -> Result<(), String> {
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        std::process::Command::new("cmd")
+            .args(["/c", "start", "", &url])
+            .creation_flags(CREATE_NO_WINDOW)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        #[cfg(target_os = "macos")]
+        {
+            std::process::Command::new("open")
+                .arg(&url)
+                .spawn()
+                .map_err(|e| e.to_string())?;
+        }
+        #[cfg(target_os = "linux")]
+        {
+            std::process::Command::new("xdg-open")
+                .arg(&url)
+                .spawn()
+                .map_err(|e| e.to_string())?;
+        }
+        Ok(())
+    }
 }
 

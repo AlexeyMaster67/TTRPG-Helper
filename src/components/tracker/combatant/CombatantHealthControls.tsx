@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Heart, Skull, X, Check } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { HealthBar } from '../../ui';
-import { cleanRussianText } from '../../../utils/textUtils';
+import { cleanRussianText, localizeMonsterName } from '../../../utils/textUtils';
 import { useTranslation } from '../../../i18n';
 
 export interface CombatantHealthControlsProps {
@@ -150,8 +150,18 @@ export function CombatantHealthControls({
           <div className="flex items-center justify-between border-b border-white/10 pb-1.5 gap-2">
             <div className="flex items-center gap-1.5 text-xs font-bold text-gray-100 min-w-0">
               <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500/20 flex-shrink-0" />
-              <span className="truncate max-w-[120px]" title={cleanRussianText(combatant.nameRu || combatant.name)}>
-                {cleanRussianText(combatant.nameRu || combatant.name)}
+              <span className="truncate max-w-[120px]" title={
+                language === 'en'
+                  ? (combatant.name && !/[а-яА-ЯёЁ]/.test(combatant.name)
+                      ? combatant.name
+                      : (localizeMonsterName(combatant.nameRu || combatant.name, 'en') || combatant.name || ''))
+                  : cleanRussianText(combatant.nameRu || combatant.name)
+              }>
+                {language === 'en'
+                  ? (combatant.name && !/[а-яА-ЯёЁ]/.test(combatant.name)
+                      ? combatant.name
+                      : (localizeMonsterName(combatant.nameRu || combatant.name, 'en') || combatant.name || ''))
+                  : cleanRussianText(combatant.nameRu || combatant.name)}
               </span>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">

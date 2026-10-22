@@ -179,7 +179,7 @@ export function createSampleCombatants(): Combatant[] {
       }
     }, 0),
     createDefaultCombatant({
-      name: 'Эльф-следопыт (Игрок)',
+      name: 'Elf Ranger (Player)',
       nameRu: 'Эльф-следопыт (Игрок)',
       isPlayer: true,
       color: '#10B981',
@@ -259,7 +259,7 @@ export function createSampleCombatants(): Combatant[] {
       }
     }, 1),
     createDefaultCombatant({
-      name: 'Стражник #1',
+      name: 'Guard #1',
       nameRu: 'Стражник #1',
       cr: '1/8',
       creatureType: 'Средний гуманоид, нейтральный',
@@ -323,7 +323,7 @@ export function createSampleCombatants(): Combatant[] {
       }
     }, 2),
     createDefaultCombatant({
-      name: 'Стражник #2',
+      name: 'Guard #2',
       nameRu: 'Стражник #2',
       cr: '1/8',
       creatureType: 'Средний гуманоид, нейтральный',

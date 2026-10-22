@@ -981,6 +981,14 @@ export function localizeMonsterName(name?: string | null, lang?: 'en' | 'ru'): s
         return en;
       }
     }
+    // Numbered copies e.g. "Стражник #1" or "Guard #2"
+    const numMatch = trimmed.match(/^(.+?)\s*([#№]\s*\d+)$/);
+    if (numMatch) {
+      const baseName = numMatch[1].trim();
+      const numSuffix = numMatch[2].trim();
+      const locBase = localizeMonsterName(baseName, 'en');
+      return `${locBase} ${numSuffix}`;
+    }
     const parenMatch = trimmed.match(/^([^(]+)\s*\(([^)]+)\)$/);
     if (parenMatch) {
       const baseName = parenMatch[1].trim();
@@ -1001,6 +1009,15 @@ export function localizeMonsterName(name?: string | null, lang?: 'en' | 'ru'): s
     if (en.toLowerCase() === lower) {
       return ru;
     }
+  }
+
+  // Numbered copies e.g. "Guard #1"
+  const numMatch = trimmed.match(/^(.+?)\s*([#№]\s*\d+)$/);
+  if (numMatch) {
+    const baseName = numMatch[1].trim();
+    const numSuffix = numMatch[2].trim();
+    const locBase = localizeMonsterName(baseName, 'ru');
+    return `${locBase} ${numSuffix}`;
   }
 
   // Handle parentheticals e.g. "Wolf (Alpha)"

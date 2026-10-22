@@ -2,10 +2,11 @@
 import clsx from 'clsx';
 import { Eye, X, Zap, Sparkles, Crosshair, FileText } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
-import { cleanRussianText } from '../../../utils/textUtils';
+import { cleanRussianText, localizeMonsterName } from '../../../utils/textUtils';
 import { resolveTokenUrl } from '../../../services/tokenResolver';
 import { usePartyStore } from '../../../store/partyStore';
 import { useTokenForgeStore } from '../../../store/tokenForgeStore';
+import { useTranslation } from '../../../i18n';
 
 export const CLONE_BADGE_STYLE =
   'bg-[#182128] text-gray-200 border-[#3d4d5c] ring-1 ring-black/50 font-mono font-bold';
@@ -39,12 +40,21 @@ export function CombatantHeader({
   onShowcase,
   onRemove,
 }: CombatantHeaderProps) {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
+
   const tokenUrl = resolveTokenUrl(combatant.name, combatant.nameRu, combatant.tokenUrl);
-  const initials = (combatant.nameRu || combatant.name || '??').slice(0, 2).toUpperCase();
+
+  const displayName = isEn
+    ? (combatant.name && !/[а-яА-ЯёЁ]/.test(combatant.name)
+        ? combatant.name
+        : (localizeMonsterName(combatant.nameRu || combatant.name, 'en') || combatant.name || ''))
+    : cleanRussianText(combatant.nameRu || combatant.name || '');
+
+  const initials = (displayName || '??').slice(0, 2).toUpperCase();
 
   // Detect clone mobs (e.g., "Стражник #1", "Goblin #2")
-  const nameToCheck = combatant.nameRu || combatant.name || '';
-  const cloneMatch = nameToCheck.match(/#(\d+)/);
+  const cloneMatch = displayName.match(/#(\d+)/);
   const cloneNumber = cloneMatch ? cloneMatch[1] : null;
 
   const isDead = combatant.isDead;
@@ -175,9 +185,9 @@ export function CombatantHeader({
                 isActiveTurn ? 'text-white font-extrabold drop-shadow-sm' : 'text-gray-100',
                 combatant.isPlayer && 'text-emerald-300'
               )}
-              title={cleanRussianText(combatant.nameRu || combatant.name)}
+              title={displayName}
             >
-              {cleanRussianText(combatant.nameRu || combatant.name)}
+              {displayName}
             </span>
 
             {combatant.isPlayer && (

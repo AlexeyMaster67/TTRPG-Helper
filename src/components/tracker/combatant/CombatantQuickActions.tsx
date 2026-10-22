@@ -145,9 +145,9 @@ export function CombatantQuickActions({
                       ? 'bg-blue-950/80 border-blue-500/80 text-blue-200 font-bold shadow-[0_0_8px_rgba(59,130,246,0.3)]'
                       : 'bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.08)] text-gray-300 hover:border-blue-400 hover:text-white'
                   )}
-                  title={language === 'en' ? `Roll ${st.nameRu} save (1d20 ${st.bonus >= 0 ? `+${st.bonus}` : st.bonus})` : `Бросить спасбросок ${st.nameRu} (1d20 ${st.bonus >= 0 ? `+${st.bonus}` : st.bonus})`}
+                  title={language === 'en' ? `Roll ${st.stat.toUpperCase()} save (1d20 ${st.bonus >= 0 ? `+${st.bonus}` : st.bonus})` : `Бросить спасбросок ${st.nameRu} (1d20 ${st.bonus >= 0 ? `+${st.bonus}` : st.bonus})`}
                 >
-                  <span className="text-[10px] font-sans font-semibold text-gray-400">{st.nameRu}</span>
+                  <span className="text-[10px] font-sans font-semibold text-gray-400">{language === 'en' ? st.stat.toUpperCase() : st.nameRu}</span>
                   <span className="font-bold text-white tabular-nums">
                     {st.bonus >= 0 ? `+${st.bonus}` : st.bonus}
                   </span>

@@ -10,7 +10,8 @@ import {
 import { useCombatStore } from '../../store/combatStore';
 import { CombatantCard } from './CombatantCard';
 import { CombatHeader } from './CombatHeader';
-import { cleanRussianText } from '../../utils/textUtils';
+import { cleanRussianText, localizeMonsterName } from '../../utils/textUtils';
+import { useSettingsStore } from '../../store/settingsStore';
 import { CombatQuickInputHud } from '../combat/CombatQuickInputHud';
 
 export function CombatRoster() {
@@ -23,6 +24,9 @@ export function CombatRoster() {
     populateDefaultEncounter,
     addCombatant,
   } = useCombatStore();
+
+  const { language } = useSettingsStore();
+  const isEn = language === 'en';
 
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
   const [playerName, setPlayerName] = useState('');
@@ -73,12 +77,16 @@ export function CombatRoster() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_#10b981]" />
               </span>
               <div className="truncate min-w-0 flex items-center gap-1">
-                <span className="text-gray-300 whitespace-nowrap flex-shrink-0">Ходит игрок: </span>
+                <span className="text-gray-300 whitespace-nowrap flex-shrink-0">{isEn ? 'Current Turn: ' : 'Ходит игрок: '}</span>
                 <strong className="text-emerald-300 font-bold truncate inline-block max-w-[140px] sm:max-w-[200px] md:max-w-[280px]">
-                  {cleanRussianText(activeCombatant.nameRu || activeCombatant.name)}
+                  {isEn
+                    ? (activeCombatant.name && !/[а-яА-ЯёЁ]/.test(activeCombatant.name)
+                        ? activeCombatant.name
+                        : (localizeMonsterName(activeCombatant.nameRu || activeCombatant.name, 'en') || activeCombatant.name || ''))
+                    : cleanRussianText(activeCombatant.nameRu || activeCombatant.name)}
                 </strong>
                 <span className="text-xs text-gray-400 hidden lg:inline whitespace-nowrap flex-shrink-0">
-                  (броски за столом)
+                  {isEn ? '(table rolls)' : '(броски за столом)'}
                 </span>
               </div>
             </div>
@@ -86,17 +94,17 @@ export function CombatRoster() {
               <button
                 onClick={() => setInspectedCombatantId(activeCombatant.id)}
                 className="min-h-[32px] px-3 py-1 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all whitespace-nowrap cursor-pointer"
-                title="Внести результат действия игрока"
+                title={isEn ? 'Record player action result' : 'Внести результат действия игрока'}
               >
                 <Edit3 className="h-3.5 w-3.5" />
-                <span>Внести результат</span>
+                <span>{isEn ? 'Log Action' : 'Внести результат'}</span>
               </button>
               <button
                 onClick={nextTurn}
                 className="min-h-[32px] px-3.5 py-1 rounded-full bg-[#f5b920] hover:bg-[#fac742] active:bg-[#e0a312] text-[#0c0d12] font-black text-xs flex items-center gap-1.5 shadow-[0_0_14px_rgba(245,185,32,0.3)] transition-all whitespace-nowrap cursor-pointer"
-                title="Передать ход дальше (Пробел)"
+                title={isEn ? 'Pass turn (Space)' : 'Передать ход дальше (Пробел)'}
               >
-                <span>След. ход</span>
+                <span>{isEn ? 'Next Turn' : 'След. ход'}</span>
                 <SkipForward className="h-3.5 w-3.5" />
               </button>
             </div>

@@ -4,6 +4,7 @@ import { Shield, ShieldOff, Zap, X, Clock } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { ConditionType } from '../../../types/dnd5e';
 import { CONDITIONS_2024_DATA } from '../../../engine/conditions';
+import { useTranslation } from '../../../i18n';
 
 export const ALL_CONDITIONS: ConditionType[] = [
   'Blinded',
@@ -279,6 +280,9 @@ export function CombatantConditions({
   combatant,
   onRemoveCondition,
 }: CombatantConditionsProps) {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
+
   if (!Array.isArray(combatant.conditions) || combatant.conditions.length === 0) {
     return null;
   }
@@ -287,22 +291,23 @@ export function CombatantConditions({
     <div className="mt-1.5 pt-1.5 flex flex-wrap items-center gap-1.5 border-t border-[#2e3b46]/70 max-w-full select-none">
       {combatant.conditions.map((cond) => {
         const condMeta = CONDITIONS_2024_DATA[cond.type];
+        const condName = isEn ? (condMeta?.nameEn || cond.type) : (condMeta?.nameRu || cond.type);
         const durationLabel =
           cond.triggerOn === 'end_of_turn' && cond.durationRounds === 1
-            ? 'до конца хода'
+            ? (isEn ? 'end of turn' : 'до конца хода')
             : cond.durationRounds
-            ? `${cond.durationRounds} р.`
+            ? `${cond.durationRounds} ${isEn ? 'rnd' : 'р.'}`
             : null;
 
         return (
           <span
             key={cond.type}
             className="group/cond relative inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-950/40 border border-amber-500/40 text-amber-200 hover:border-rose-500 hover:bg-rose-950/40 hover:text-rose-200 transition-all cursor-pointer shadow-sm max-w-full leading-none flex-shrink-0"
-            title={`${condMeta?.nameRu || cond.type}${cond.expiryRound ? ` (до раунда ${cond.expiryRound})` : ' (Бессрочно)'} • Кликните для снятия`}
+            title={`${condName}${cond.expiryRound ? ` (${isEn ? 'until round' : 'до раунда'} ${cond.expiryRound})` : (isEn ? ' (Permanent)' : ' (Бессрочно)')} • ${isEn ? 'Click to remove' : 'Кликните для снятия'}`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-gold group-hover/cond:bg-rose-400 transition-colors flex-shrink-0" />
             <span className="truncate max-w-[130px] sm:max-w-[160px] leading-tight">
-              {condMeta?.nameRu || cond.type}
+              {condName}
             </span>
             {cond.level !== undefined && (
               <span className="font-mono text-[9px] font-bold flex-shrink-0 whitespace-nowrap">
