@@ -1,6 +1,6 @@
 {
   "suite": "D&D 2024 / 5e Golden Regression Test Baseline",
-  "timestamp": "2026-10-22T03:36:03.448Z",
+  "timestamp": "2026-10-22T03:49:25.731Z",
   "tests": {
     "Test1_Calculations": {
       "standardCase": 14.12,
@@ -76,6 +76,6 @@
       }
     }
   },
-  "completedAt": "2026-10-22T03:36:03.481Z",
+  "completedAt": "2026-10-22T03:49:25.765Z",
   "status": "ALL_TESTS_PASSING"
 }

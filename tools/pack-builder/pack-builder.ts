@@ -179,7 +179,7 @@ export function buildPathfinder2ePack(outDir: string): BuildResult {
 
 export function buildSrd521Pack(outDir: string): BuildResult {
   const start = Date.now();
-  const monstersFile = path.join(ROOT_DIR, 'dnd2024_monsters.json');
+  const monstersFile = path.join(ROOT_DIR, 'ttrpg_monsters.json');
   if (!fs.existsSync(monstersFile)) {
     throw new Error(`Monsters source file not found: ${monstersFile}`);
   }
@@ -224,7 +224,7 @@ export function buildSrd521Pack(outDir: string): BuildResult {
 
 export function buildDnd5e2024Pack(outDir: string): BuildResult {
   const start = Date.now();
-  const monstersFile = path.join(ROOT_DIR, 'dnd2024_monsters.json');
+  const monstersFile = path.join(ROOT_DIR, 'ttrpg_monsters.json');
   if (!fs.existsSync(monstersFile)) {
     throw new Error(`Monsters source file not found: ${monstersFile}`);
   }
@@ -327,3 +327,4 @@ if (process.argv[1] && (process.argv[1].endsWith('pack-builder.ts') || process.a
   }
   console.log(`Total: ${results.length} packs, ${(totalSize / 1024).toFixed(1)} KB built.`);
 }
+
