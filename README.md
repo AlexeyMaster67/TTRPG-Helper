@@ -19,6 +19,12 @@
   <img src="https://img.shields.io/badge/tests-392%20passed-success.svg?style=flat-square" alt="Unit Tests" />
 </p>
 
+<p align="center">
+  <strong>Language / Язык:</strong>
+  <a href="README.md">🇷🇺 <strong>Русский</strong></a> &bull;
+  <a href="README_EN.md">🇬🇧 <strong>English</strong></a>
+</p>
+
 ---
 
 ## Навигация
@@ -240,8 +246,8 @@ flowchart TD
 
 1. **Клонирование репозитория:**
    ```bash
-   git clone https://github.com/<your-username>/ttrpg-helper.git
-   cd ttrpg-helper
+   git clone https://github.com/AlexeyMaster67/TTRPG-Helper.git
+   cd TTRPG-Helper
    ```
 
 2. **Установка зависимостей:**
