@@ -10,13 +10,13 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.3-gold.svg?style=flat-square" alt="Version 2.0.3" />
+  <img src="https://img.shields.io/badge/version-2.0.4-gold.svg?style=flat-square" alt="Version 2.0.3" />
   <a href="https://discord.gg/XYQSHWVAuE"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2.svg?style=flat-square&logo=discord&logoColor=white" alt="Discord Community" /></a>
   <img src="https://img.shields.io/badge/license-MIT%20%2F%20CC--BY--4.0-blue.svg?style=flat-square" alt="License MIT / CC-BY" />
   <img src="https://img.shields.io/badge/offline--first-100%25%20Local-emerald.svg?style=flat-square" alt="100% Offline" />
   <img src="https://img.shields.io/badge/platform-Windows%20x64-indigo.svg?style=flat-square" alt="Platform" />
   <img src="https://img.shields.io/badge/stack-Tauri%202.0%20%7C%20React%2018%20%7C%20TS-cyan.svg?style=flat-square" alt="Tech Stack" />
-  <img src="https://img.shields.io/badge/tests-392%20passed-success.svg?style=flat-square" alt="Unit Tests" />
+  <img src="https://img.shields.io/badge/tests-426%20passed-success.svg?style=flat-square" alt="Unit Tests" />
 </p>
 
 <p align="center">
@@ -368,4 +368,6 @@ flowchart TD
     <img src="https://img.shields.io/badge/Discord-Присоединиться%20к%20сообществу-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Присоединиться к Discord" height="42" />
   </a>
 </p>
+
+
 

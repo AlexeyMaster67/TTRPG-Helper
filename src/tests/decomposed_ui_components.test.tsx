@@ -33,6 +33,7 @@ import {
 } from '../components/tracker/combatant';
 import { CombatantCard } from '../components/tracker/CombatantCard';
 import { useCombatStore } from '../store/combatStore';
+import { useSettingsStore } from '../store/settingsStore';
 
 const clean = (h: string) => h.replace(/<!--.*?-->/g, '');
 
@@ -111,6 +112,7 @@ const dummyTarget: Combatant = createDefaultCombatant({
 
 describe('Decomposed UI Components Suite', () => {
   beforeEach(() => {
+    useSettingsStore.setState({ language: 'ru' });
     (useCombatStore as any).getInitialState = () => useCombatStore.getState();
     useCombatStore.setState({
       combatants: [dummyMonster, dummyTarget],

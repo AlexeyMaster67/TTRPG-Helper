@@ -1,10 +1,88 @@
 /**
  * textUtils.ts
- * Shared text cleaning and Russian D&D 2024 / 5e localization dictionaries.
- * Standard official terminology based on official Russian editions (Hobby World / D&D 2024).
+ * Bilingual text cleaning and D&D 2024 / SRD 5.2.1 localization dictionaries (English & Russian).
+ * Standard official terminology based on SRD 5.2.1 and official Russian editions (Hobby World / D&D 2024).
  */
 
-// 1. 13 Damage Types in Russian D&D
+import { useSettingsStore } from '../store/settingsStore';
+
+/**
+ * Resolves active language ('en' | 'ru').
+ * Falls back to settingsStore's language or 'en'.
+ */
+export function resolveLanguage(lang?: 'en' | 'ru'): 'en' | 'ru' {
+  if (lang === 'en' || lang === 'ru') return lang;
+  try {
+    const storeLang = useSettingsStore.getState().language;
+    if (storeLang === 'en' || storeLang === 'ru') return storeLang;
+  } catch {}
+  return 'en';
+}
+
+// 1. 13 Damage Types in English & Russian D&D
+export const DAMAGE_TYPES_EN: Record<string, string> = {
+  slashing: 'Slashing',
+  piercing: 'Piercing',
+  bludgeoning: 'Bludgeoning',
+  fire: 'Fire',
+  cold: 'Cold',
+  lightning: 'Lightning',
+  thunder: 'Thunder',
+  poison: 'Poison',
+  acid: 'Acid',
+  psychic: 'Psychic',
+  necrotic: 'Necrotic',
+  radiant: 'Radiant',
+  force: 'Force',
+  // Capitalized variants
+  Slashing: 'Slashing',
+  Piercing: 'Piercing',
+  Bludgeoning: 'Bludgeoning',
+  Fire: 'Fire',
+  Cold: 'Cold',
+  Lightning: 'Lightning',
+  Thunder: 'Thunder',
+  Poison: 'Poison',
+  Acid: 'Acid',
+  Psychic: 'Psychic',
+  Necrotic: 'Necrotic',
+  Radiant: 'Radiant',
+  Force: 'Force',
+  // Russian inputs mapping to canonical English
+  рубящий: 'Slashing',
+  колющий: 'Piercing',
+  дробящий: 'Bludgeoning',
+  огонь: 'Fire',
+  холод: 'Cold',
+  электричество: 'Lightning',
+  молния: 'Lightning',
+  звук: 'Thunder',
+  гром: 'Thunder',
+  яд: 'Poison',
+  кислота: 'Acid',
+  психический: 'Psychic',
+  некротический: 'Necrotic',
+  излучение: 'Radiant',
+  'силовое поле': 'Force',
+  Рубящий: 'Slashing',
+  Колющий: 'Piercing',
+  Дробящий: 'Bludgeoning',
+  Огонь: 'Fire',
+  Холод: 'Cold',
+  Электричество: 'Lightning',
+  Молния: 'Lightning',
+  Звук: 'Thunder',
+  Гром: 'Thunder',
+  Яд: 'Poison',
+  Кислота: 'Acid',
+  Психический: 'Psychic',
+  Некротический: 'Necrotic',
+  Излучение: 'Radiant',
+  'Силовое поле': 'Force',
+};
+
+export const DAMAGE_NAMES_EN = DAMAGE_TYPES_EN;
+
 export const DAMAGE_TYPES_RU: Record<string, string> = {
   slashing: 'Рубящий',
   piercing: 'Колющий',
@@ -33,12 +111,149 @@ export const DAMAGE_TYPES_RU: Record<string, string> = {
   Necrotic: 'Некротический',
   Radiant: 'Излучение',
   Force: 'Силовое поле',
+  // Russian inputs to normalized Russian
+  рубящий: 'Рубящий',
+  колющий: 'Колющий',
+  дробящий: 'Дробящий',
+  огонь: 'Огонь',
+  холод: 'Холод',
+  электричество: 'Электричество',
+  молния: 'Электричество',
+  звук: 'Звук',
+  гром: 'Звук',
+  яд: 'Яд',
+  кислота: 'Кислота',
+  психический: 'Психический',
+  некротический: 'Некротический',
+  излучение: 'Излучение',
+  'силовое поле': 'Силовое поле',
+  Рубящий: 'Рубящий',
+  Колющий: 'Колющий',
+  Дробящий: 'Дробящий',
+  Огонь: 'Огонь',
+  Холод: 'Холод',
+  Электричество: 'Электричество',
+  Молния: 'Электричество',
+  Звук: 'Звук',
+  Гром: 'Звук',
+  Яд: 'Яд',
+  Кислота: 'Кислота',
+  Психический: 'Психический',
+  Некротический: 'Некротический',
+  Излучение: 'Излучение',
+  'Силовое поле': 'Силовое поле',
 };
 
 // Alias for backwards compatibility
 export const DAMAGE_NAMES_RU = DAMAGE_TYPES_RU;
 
-// 2. 6 Ability Scores in Russian D&D
+// 2. 6 Ability Scores in English & Russian D&D
+export const STAT_NAMES_EN: Record<string, string> = {
+  str: 'STR',
+  dex: 'DEX',
+  con: 'CON',
+  int: 'INT',
+  intellect: 'INT',
+  wis: 'WIS',
+  cha: 'CHA',
+  strength: 'STR',
+  dexterity: 'DEX',
+  constitution: 'CON',
+  intelligence: 'INT',
+  wisdom: 'WIS',
+  charisma: 'CHA',
+  Str: 'STR',
+  Dex: 'DEX',
+  Con: 'CON',
+  Int: 'INT',
+  Wis: 'WIS',
+  Cha: 'CHA',
+  Strength: 'STR',
+  Dexterity: 'DEX',
+  Constitution: 'CON',
+  Intelligence: 'INT',
+  Wisdom: 'WIS',
+  Charisma: 'CHA',
+  // Russian inputs mapping to English abbreviations
+  сил: 'STR',
+  лов: 'DEX',
+  тел: 'CON',
+  инт: 'INT',
+  мдр: 'WIS',
+  хар: 'CHA',
+  сила: 'STR',
+  ловкость: 'DEX',
+  телосложение: 'CON',
+  интеллект: 'INT',
+  мудрость: 'WIS',
+  харизма: 'CHA',
+  СИЛ: 'STR',
+  ЛОВ: 'DEX',
+  ТЕЛ: 'CON',
+  ИНТ: 'INT',
+  МДР: 'WIS',
+  ХАР: 'CHA',
+  Сила: 'STR',
+  Ловкость: 'DEX',
+  Телосложение: 'CON',
+  Интеллект: 'INT',
+  Мудрость: 'WIS',
+  Харизма: 'CHA',
+};
+
+export const STAT_FULL_NAMES_EN: Record<string, string> = {
+  str: 'Strength',
+  dex: 'Dexterity',
+  con: 'Constitution',
+  int: 'Intelligence',
+  intellect: 'Intelligence',
+  wis: 'Wisdom',
+  cha: 'Charisma',
+  strength: 'Strength',
+  dexterity: 'Dexterity',
+  constitution: 'Constitution',
+  intelligence: 'Intelligence',
+  wisdom: 'Wisdom',
+  charisma: 'Charisma',
+  Str: 'Strength',
+  Dex: 'Dexterity',
+  Con: 'Constitution',
+  Int: 'Intelligence',
+  Wis: 'Wisdom',
+  Cha: 'Charisma',
+  Strength: 'Strength',
+  Dexterity: 'Dexterity',
+  Constitution: 'Constitution',
+  Intelligence: 'Intelligence',
+  Wisdom: 'Wisdom',
+  Charisma: 'Charisma',
+  // Russian inputs mapping to English full names
+  сил: 'Strength',
+  лов: 'Dexterity',
+  тел: 'Constitution',
+  инт: 'Intelligence',
+  мдр: 'Wisdom',
+  хар: 'Charisma',
+  сила: 'Strength',
+  ловкость: 'Dexterity',
+  телосложение: 'Constitution',
+  интеллект: 'Intelligence',
+  мудрость: 'Wisdom',
+  харизма: 'Charisma',
+  СИЛ: 'Strength',
+  ЛОВ: 'Dexterity',
+  ТЕЛ: 'Constitution',
+  ИНТ: 'Intelligence',
+  МДР: 'Wisdom',
+  ХАР: 'Charisma',
+  Сила: 'Strength',
+  Ловкость: 'Dexterity',
+  Телосложение: 'Constitution',
+  Интеллект: 'Intelligence',
+  Мудрость: 'Wisdom',
+  Харизма: 'Charisma',
+};
+
 export const STAT_NAMES_RU: Record<string, string> = {
   str: 'СИЛ',
   dex: 'ЛОВ',
@@ -73,6 +288,12 @@ export const STAT_NAMES_RU: Record<string, string> = {
   инт: 'ИНТ',
   мдр: 'МДР',
   хар: 'ХАР',
+  сила: 'СИЛ',
+  ловкость: 'ЛОВ',
+  телосложение: 'ТЕЛ',
+  интеллект: 'ИНТ',
+  мудрость: 'МДР',
+  харизма: 'ХАР',
 };
 
 export const STAT_FULL_NAMES_RU: Record<string, string> = {
@@ -89,9 +310,120 @@ export const STAT_FULL_NAMES_RU: Record<string, string> = {
   intelligence: 'Интеллект',
   wisdom: 'Мудрость',
   charisma: 'Харизма',
+  Str: 'Сила',
+  Dex: 'Ловкость',
+  Con: 'Телосложение',
+  Int: 'Интеллект',
+  Wis: 'Мудрость',
+  Cha: 'Харизма',
+  Strength: 'Сила',
+  Dexterity: 'Ловкость',
+  Constitution: 'Телосложение',
+  Intelligence: 'Интеллект',
+  Wisdom: 'Мудрость',
+  Charisma: 'Харизма',
+  сил: 'Сила',
+  лов: 'Ловкость',
+  тел: 'Телосложение',
+  инт: 'Интеллект',
+  мдр: 'Мудрость',
+  хар: 'Харизма',
+  сила: 'Сила',
+  ловкость: 'Ловкость',
+  телосложение: 'Телосложение',
+  интеллект: 'Интеллект',
+  мудрость: 'Мудрость',
+  харизма: 'Харизма',
 };
 
-// 3. 18 Skills in Russian D&D 2024 / 5e
+// 3. 18 Skills in English & Russian D&D 2024 / 5e
+export const SKILL_NAMES_EN: Record<string, string> = {
+  acrobatics: 'Acrobatics',
+  animal_handling: 'Animal Handling',
+  'animal handling': 'Animal Handling',
+  animalhandling: 'Animal Handling',
+  arcana: 'Arcana',
+  athletics: 'Athletics',
+  deception: 'Deception',
+  history: 'History',
+  insight: 'Insight',
+  intimidation: 'Intimidation',
+  investigation: 'Investigation',
+  medicine: 'Medicine',
+  nature: 'Nature',
+  perception: 'Perception',
+  performance: 'Performance',
+  persuasion: 'Persuasion',
+  religion: 'Religion',
+  sleight_of_hand: 'Sleight of Hand',
+  'sleight of hand': 'Sleight of Hand',
+  sleightofhand: 'Sleight of Hand',
+  stealth: 'Stealth',
+  survival: 'Survival',
+  Acrobatics: 'Acrobatics',
+  'Animal Handling': 'Animal Handling',
+  AnimalHandling: 'Animal Handling',
+  Arcana: 'Arcana',
+  Athletics: 'Athletics',
+  Deception: 'Deception',
+  History: 'History',
+  Insight: 'Insight',
+  Intimidation: 'Intimidation',
+  Investigation: 'Investigation',
+  Medicine: 'Medicine',
+  Nature: 'Nature',
+  Perception: 'Perception',
+  Performance: 'Performance',
+  Persuasion: 'Persuasion',
+  Religion: 'Religion',
+  'Sleight of Hand': 'Sleight of Hand',
+  SleightOfHand: 'Sleight of Hand',
+  Stealth: 'Stealth',
+  Survival: 'Survival',
+  // Russian inputs mapping to canonical English
+  акробатика: 'Acrobatics',
+  'уход за животными': 'Animal Handling',
+  уход_за_животными: 'Animal Handling',
+  дрессировка: 'Animal Handling',
+  магия: 'Arcana',
+  атлетика: 'Athletics',
+  обман: 'Deception',
+  история: 'History',
+  проницательность: 'Insight',
+  запугивание: 'Intimidation',
+  анализ: 'Investigation',
+  расследование: 'Investigation',
+  медицина: 'Medicine',
+  природа: 'Nature',
+  внимательность: 'Perception',
+  восприятие: 'Perception',
+  выступление: 'Performance',
+  убеждение: 'Persuasion',
+  религия: 'Religion',
+  'ловкость рук': 'Sleight of Hand',
+  ловкость_рук: 'Sleight of Hand',
+  скрытность: 'Stealth',
+  выживание: 'Survival',
+  Акробатика: 'Acrobatics',
+  'Уход за животными': 'Animal Handling',
+  Магия: 'Arcana',
+  Атлетика: 'Athletics',
+  Обман: 'Deception',
+  История: 'History',
+  Проницательность: 'Insight',
+  Запугивание: 'Intimidation',
+  Анализ: 'Investigation',
+  Медицина: 'Medicine',
+  Природа: 'Nature',
+  Внимательность: 'Perception',
+  Выступление: 'Performance',
+  Убеждение: 'Persuasion',
+  Религия: 'Religion',
+  'Ловкость рук': 'Sleight of Hand',
+  Скрытность: 'Stealth',
+  Выживание: 'Survival',
+};
+
 export const SKILL_NAMES_RU: Record<string, string> = {
   acrobatics: 'Акробатика',
   animal_handling: 'Уход за животными',
@@ -140,9 +472,104 @@ export const SKILL_NAMES_RU: Record<string, string> = {
   расследование: 'Анализ',
   дрессировка: 'Уход за животными',
   восприятие: 'Внимательность',
+  // Russian self-mappings
+  акробатика: 'Акробатика',
+  'уход за животными': 'Уход за животными',
+  магия: 'Магия',
+  атлетика: 'Атлетика',
+  обман: 'Обман',
+  история: 'История',
+  проницательность: 'Проницательность',
+  запугивание: 'Запугивание',
+  анализ: 'Анализ',
+  медицина: 'Медицина',
+  природа: 'Природа',
+  внимательность: 'Внимательность',
+  выступление: 'Выступление',
+  убеждение: 'Убеждение',
+  религия: 'Религия',
+  'ловкость рук': 'Ловкость рук',
+  скрытность: 'Скрытность',
+  выживание: 'Выживание',
 };
 
 // 4. Standard Conditions in D&D 2024 / 5e (16 conditions)
+export const CONDITION_NAMES_EN: Record<string, string> = {
+  blinded: 'Blinded',
+  charmed: 'Charmed',
+  deafened: 'Deafened',
+  dazed: 'Dazed',
+  exhaustion: 'Exhaustion',
+  frightened: 'Frightened',
+  grappled: 'Grappled',
+  incapacitated: 'Incapacitated',
+  invisible: 'Invisible',
+  paralyzed: 'Paralyzed',
+  petrified: 'Petrified',
+  poisoned: 'Poisoned',
+  prone: 'Prone',
+  restrained: 'Restrained',
+  stunned: 'Stunned',
+  unconscious: 'Unconscious',
+  // Capitalized
+  Blinded: 'Blinded',
+  Charmed: 'Charmed',
+  Deafened: 'Deafened',
+  Dazed: 'Dazed',
+  Exhaustion: 'Exhaustion',
+  Frightened: 'Frightened',
+  Grappled: 'Grappled',
+  Incapacitated: 'Incapacitated',
+  Invisible: 'Invisible',
+  Paralyzed: 'Paralyzed',
+  Petrified: 'Petrified',
+  Poisoned: 'Poisoned',
+  Prone: 'Prone',
+  Restrained: 'Restrained',
+  Stunned: 'Stunned',
+  Unconscious: 'Unconscious',
+  // Russian inputs mapping to English
+  ослеплённый: 'Blinded',
+  ослепленный: 'Blinded',
+  очарованный: 'Charmed',
+  глухой: 'Deafened',
+  ошеломлённый: 'Dazed',
+  ошеломленный: 'Dazed',
+  истощение: 'Exhaustion',
+  испуганный: 'Frightened',
+  захваченный: 'Grappled',
+  недееспособный: 'Incapacitated',
+  невидимый: 'Invisible',
+  парализованный: 'Paralyzed',
+  окаменевший: 'Petrified',
+  отравленный: 'Poisoned',
+  'сбит с ног': 'Prone',
+  сбит_с_ног: 'Prone',
+  опутанный: 'Restrained',
+  оглушённый: 'Stunned',
+  оглушенный: 'Stunned',
+  бессознательный: 'Unconscious',
+  Ослеплённый: 'Blinded',
+  Ослепленный: 'Blinded',
+  Очарованный: 'Charmed',
+  Глухой: 'Deafened',
+  Ошеломлённый: 'Dazed',
+  Ошеломленный: 'Dazed',
+  Истощение: 'Exhaustion',
+  Испуганный: 'Frightened',
+  Захваченный: 'Grappled',
+  Недееспособный: 'Incapacitated',
+  Невидимый: 'Invisible',
+  Парализованный: 'Paralyzed',
+  Окаменевший: 'Petrified',
+  Отравленный: 'Poisoned',
+  'Сбит с ног': 'Prone',
+  Опутанный: 'Restrained',
+  Оглушённый: 'Stunned',
+  Оглушенный: 'Stunned',
+  Бессознательный: 'Unconscious',
+};
+
 export const CONDITION_NAMES_RU: Record<string, string> = {
   blinded: 'Ослеплённый',
   charmed: 'Очарованный',
@@ -177,9 +604,124 @@ export const CONDITION_NAMES_RU: Record<string, string> = {
   Restrained: 'Опутанный',
   Stunned: 'Оглушённый',
   Unconscious: 'Бессознательный',
+  // Russian self-mappings
+  ослеплённый: 'Ослеплённый',
+  ослепленный: 'Ослеплённый',
+  очарованный: 'Очарованный',
+  глухой: 'Глухой',
+  ошеломлённый: 'Ошеломлённый',
+  ошеломленный: 'Ошеломлённый',
+  истощение: 'Истощение',
+  испуганный: 'Испуганный',
+  захваченный: 'Захваченный',
+  недееспособный: 'Недееспособный',
+  невидимый: 'Невидимый',
+  парализованный: 'Парализованный',
+  окаменевший: 'Окаменевший',
+  отравленный: 'Отравленный',
+  'сбит с ног': 'Сбит с ног',
+  сбит_с_ног: 'Сбит с ног',
+  опутанный: 'Опутанный',
+  оглушённый: 'Оглушённый',
+  оглушенный: 'Оглушённый',
+  бессознательный: 'Бессознательный',
 };
 
-// 5. 14 Creature Types in D&D 2024 / 5e
+// 5. 14 Creature Types in English & Russian D&D 2024 / 5e
+export const CREATURE_TYPES_EN: Record<string, string> = {
+  aberration: 'Aberration',
+  beast: 'Beast',
+  celestial: 'Celestial',
+  construct: 'Construct',
+  dragon: 'Dragon',
+  elemental: 'Elemental',
+  fey: 'Fey',
+  fiend: 'Fiend',
+  giant: 'Giant',
+  humanoid: 'Humanoid',
+  monstrosity: 'Monstrosity',
+  monster: 'Monster',
+  ooze: 'Ooze',
+  plant: 'Plant',
+  undead: 'Undead',
+  // Capitalized
+  Aberration: 'Aberration',
+  Beast: 'Beast',
+  Celestial: 'Celestial',
+  Construct: 'Construct',
+  Dragon: 'Dragon',
+  Elemental: 'Elemental',
+  Fey: 'Fey',
+  Fiend: 'Fiend',
+  Giant: 'Giant',
+  Humanoid: 'Humanoid',
+  Monstrosity: 'Monstrosity',
+  Monster: 'Monster',
+  Ooze: 'Ooze',
+  Plant: 'Plant',
+  Undead: 'Undead',
+  // Plural English
+  aberrations: 'Aberrations',
+  beasts: 'Beasts',
+  celestials: 'Celestials',
+  constructs: 'Constructs',
+  dragons: 'Dragons',
+  elementals: 'Elementals',
+  fiends: 'Fiends',
+  giants: 'Giants',
+  humanoids: 'Humanoids',
+  monstrosities: 'Monstrosities',
+  monsters: 'Monsters',
+  oozes: 'Oozes',
+  plants: 'Plants',
+  // Russian inputs mapping to English
+  аберрация: 'Aberration',
+  зверь: 'Beast',
+  небожитель: 'Celestial',
+  конструкт: 'Construct',
+  дракон: 'Dragon',
+  элементаль: 'Elemental',
+  фея: 'Fey',
+  исчадие: 'Fiend',
+  великан: 'Giant',
+  гуманоид: 'Humanoid',
+  чудовище: 'Monstrosity',
+  монстр: 'Monster',
+  слизь: 'Ooze',
+  растение: 'Plant',
+  нежить: 'Undead',
+  существо: 'Creature',
+  аберрации: 'Aberrations',
+  звери: 'Beasts',
+  небожители: 'Celestials',
+  конструкты: 'Constructs',
+  драконы: 'Dragons',
+  элементали: 'Elementals',
+  исчадия: 'Fiends',
+  великаны: 'Giants',
+  гуманоиды: 'Humanoids',
+  чудовища: 'Monstrosities',
+  монстры: 'Monsters',
+  слизи: 'Oozes',
+  растения: 'Plants',
+  Аберрация: 'Aberration',
+  Зверь: 'Beast',
+  Небожитель: 'Celestial',
+  Конструкт: 'Construct',
+  Дракон: 'Dragon',
+  Элементаль: 'Elemental',
+  Фея: 'Fey',
+  Исчадие: 'Fiend',
+  Великан: 'Giant',
+  Гуманоид: 'Humanoid',
+  Чудовище: 'Monstrosity',
+  Монстр: 'Monster',
+  Слизь: 'Ooze',
+  Растение: 'Plant',
+  Нежить: 'Undead',
+  Существо: 'Creature',
+};
+
 export const CREATURE_TYPES_RU: Record<string, string> = {
   aberration: 'Аберрация',
   beast: 'Зверь',
@@ -226,9 +768,71 @@ export const CREATURE_TYPES_RU: Record<string, string> = {
   monsters: 'Монстры',
   oozes: 'Слизи',
   plants: 'Растения',
+  // Russian self-mappings
+  аберрация: 'Аберрация',
+  зверь: 'Зверь',
+  небожитель: 'Небожитель',
+  конструкт: 'Конструкт',
+  дракон: 'Дракон',
+  элементаль: 'Элементаль',
+  фея: 'Фея',
+  исчадие: 'Исчадие',
+  великан: 'Великан',
+  гуманоид: 'Гуманоид',
+  чудовище: 'Чудовище',
+  монстр: 'Монстр',
+  слизь: 'Слизь',
+  растение: 'Растение',
+  нежить: 'Нежить',
+  существо: 'Существо',
+  аберрации: 'Аберрации',
+  звери: 'Звери',
+  небожители: 'Небожители',
+  конструкты: 'Конструкты',
+  драконы: 'Драконы',
+  элементали: 'Элементали',
+  исчадия: 'Исчадия',
+  великаны: 'Великаны',
+  гуманоиды: 'Гуманоиды',
+  чудовища: 'Чудовища',
+  монстры: 'Монстры',
+  слизи: 'Слизи',
+  растения: 'Растения',
 };
 
-// 6. Magic Item Rarities
+// 6. Magic Item Rarities in English & Russian
+export const RARITY_NAMES_EN: Record<string, string> = {
+  common: 'Common',
+  uncommon: 'Uncommon',
+  rare: 'Rare',
+  'very rare': 'Very Rare',
+  very_rare: 'Very Rare',
+  legendary: 'Legendary',
+  artifact: 'Artifact',
+  Common: 'Common',
+  Uncommon: 'Uncommon',
+  Rare: 'Rare',
+  'Very Rare': 'Very Rare',
+  Legendary: 'Legendary',
+  Artifact: 'Artifact',
+  // Russian inputs mapping to English
+  обычный: 'Common',
+  необычный: 'Uncommon',
+  редкий: 'Rare',
+  'очень редкий': 'Very Rare',
+  очень_редкий: 'Very Rare',
+  легендарный: 'Legendary',
+  артефакт: 'Artifact',
+  магический: 'Magical',
+  Обычный: 'Common',
+  Необычный: 'Uncommon',
+  Редкий: 'Rare',
+  'Очень редкий': 'Very Rare',
+  Легендарный: 'Legendary',
+  Артефакт: 'Artifact',
+  Магический: 'Magical',
+};
+
 export const RARITY_NAMES_RU: Record<string, string> = {
   common: 'Обычный',
   uncommon: 'Необычный',
@@ -245,7 +849,79 @@ export const RARITY_NAMES_RU: Record<string, string> = {
   Artifact: 'Артефакт',
 };
 
-// 7. Item Types
+// 7. Item Types in English & Russian
+export const ITEM_TYPE_NAMES_EN: Record<string, string> = {
+  weapon: 'Weapon',
+  weapons: 'Weapon',
+  armor: 'Armor',
+  potion: 'Potion',
+  potions: 'Potion',
+  scroll: 'Scroll',
+  scrolls: 'Scroll',
+  ring: 'Ring',
+  rings: 'Ring',
+  rod: 'Rod',
+  rods: 'Rod',
+  wand: 'Wand',
+  wands: 'Wand',
+  staff: 'Staff',
+  staffs: 'Staff',
+  staves: 'Staff',
+  'wondrous item': 'Wondrous Item',
+  wondrous: 'Wondrous Item',
+  Weapon: 'Weapon',
+  Weapons: 'Weapon',
+  Armor: 'Armor',
+  Potion: 'Potion',
+  Potions: 'Potion',
+  Scroll: 'Scroll',
+  Scrolls: 'Scroll',
+  Ring: 'Ring',
+  Rings: 'Ring',
+  Rod: 'Rod',
+  Rods: 'Rod',
+  Wand: 'Wand',
+  Wands: 'Wand',
+  Staff: 'Staff',
+  Staffs: 'Staff',
+  Staves: 'Staff',
+  'Wondrous Item': 'Wondrous Item',
+  Wondrous: 'Wondrous Item',
+  // Russian inputs mapping to English
+  оружие: 'Weapon',
+  'доспехи и щиты': 'Armor',
+  доспехи: 'Armor',
+  зелье: 'Potion',
+  зелья: 'Potion',
+  свиток: 'Scroll',
+  свитки: 'Scroll',
+  кольцо: 'Ring',
+  кольца: 'Ring',
+  жезл: 'Rod',
+  жезлы: 'Rod',
+  'волшебная палочка': 'Wand',
+  'волшебные палочки': 'Wand',
+  посох: 'Staff',
+  посохи: 'Staff',
+  'чудесный предмет': 'Wondrous Item',
+  Оружие: 'Weapon',
+  'Доспехи и щиты': 'Armor',
+  Доспехи: 'Armor',
+  Зелье: 'Potion',
+  Зелья: 'Potion',
+  Свиток: 'Scroll',
+  Свитки: 'Scroll',
+  Кольцо: 'Ring',
+  Кольца: 'Ring',
+  Жезл: 'Rod',
+  Жезлы: 'Rod',
+  'Волшебная палочка': 'Wand',
+  'Волшебные палочки': 'Wand',
+  Посох: 'Staff',
+  Посохи: 'Staff',
+  'Чудесный предмет': 'Wondrous Item',
+};
+
 export const ITEM_TYPE_NAMES_RU: Record<string, string> = {
   weapon: 'Оружие',
   weapons: 'Оружие',
@@ -270,11 +946,52 @@ export const ITEM_TYPE_NAMES_RU: Record<string, string> = {
 import { MONSTER_NAMES_RU } from './monsterNamesRu';
 export { MONSTER_NAMES_RU };
 
-export function localizeMonsterName(name?: string | null): string {
+/**
+ * Reverse mapping from Russian monster names to English canonical names.
+ */
+export const MONSTER_NAMES_EN: Record<string, string> = Object.entries(
+  MONSTER_NAMES_RU
+).reduce((acc, [enName, ruName]) => {
+  acc[ruName] = enName;
+  acc[ruName.toLowerCase()] = enName;
+  return acc;
+}, {} as Record<string, string>);
+
+export function localizeMonsterName(name?: string | null, lang?: 'en' | 'ru'): string {
   if (!name) return '';
   const trimmed = name.trim();
   if (!trimmed) return '';
+  const effectiveLang = resolveLanguage(lang);
 
+  if (effectiveLang === 'en') {
+    if (MONSTER_NAMES_EN[trimmed]) {
+      return MONSTER_NAMES_EN[trimmed];
+    }
+    if (MONSTER_NAMES_RU[trimmed]) {
+      return trimmed;
+    }
+    const lower = trimmed.toLowerCase();
+    for (const [ru, en] of Object.entries(MONSTER_NAMES_EN)) {
+      if (ru.toLowerCase() === lower) {
+        return en;
+      }
+    }
+    for (const en of Object.keys(MONSTER_NAMES_RU)) {
+      if (en.toLowerCase() === lower) {
+        return en;
+      }
+    }
+    const parenMatch = trimmed.match(/^([^(]+)\s*\(([^)]+)\)$/);
+    if (parenMatch) {
+      const baseName = parenMatch[1].trim();
+      const inner = parenMatch[2].trim();
+      const locBase = localizeMonsterName(baseName, 'en');
+      return `${locBase} (${inner})`;
+    }
+    return trimmed;
+  }
+
+  // Russian logic
   if (MONSTER_NAMES_RU[trimmed]) {
     return MONSTER_NAMES_RU[trimmed];
   }
@@ -291,7 +1008,7 @@ export function localizeMonsterName(name?: string | null): string {
   if (parenMatch) {
     const baseName = parenMatch[1].trim();
     const inner = parenMatch[2].trim();
-    const locBase = localizeMonsterName(baseName);
+    const locBase = localizeMonsterName(baseName, 'ru');
     const locInner = cleanRussianText(inner);
     if (locBase !== baseName) {
       return `${locBase} (${locInner})`;
@@ -302,29 +1019,87 @@ export function localizeMonsterName(name?: string | null): string {
 }
 
 // Localization Helpers
-export function localizeDamageType(dmg?: string | null): string {
+export function localizeDamageType(dmg?: string | null, lang?: 'en' | 'ru'): string {
   if (!dmg) return '';
+  const effectiveLang = resolveLanguage(lang);
   const key = dmg.toLowerCase().trim();
-  return DAMAGE_TYPES_RU[key] || dmg;
+  if (effectiveLang === 'en') {
+    return DAMAGE_TYPES_EN[key] || DAMAGE_TYPES_EN[dmg.trim()] || dmg;
+  }
+  return DAMAGE_TYPES_RU[key] || DAMAGE_TYPES_RU[dmg.trim()] || dmg;
 }
 
-export function localizeRarity(rarity?: string | null): string {
-  if (!rarity) return 'Магический';
+export function localizeRarity(rarity?: string | null, lang?: 'en' | 'ru'): string {
+  const effectiveLang = resolveLanguage(lang);
+  if (!rarity) return effectiveLang === 'en' ? 'Magical' : 'Магический';
   const key = rarity.toLowerCase().trim();
-  return RARITY_NAMES_RU[key] || rarity;
+  if (effectiveLang === 'en') {
+    return RARITY_NAMES_EN[key] || RARITY_NAMES_EN[rarity.trim()] || rarity;
+  }
+  return RARITY_NAMES_RU[key] || RARITY_NAMES_RU[rarity.trim()] || rarity;
 }
 
-export function localizeItemType(type?: string | null): string {
+export function localizeItemType(type?: string | null, lang?: 'en' | 'ru'): string {
   if (!type) return '';
+  const effectiveLang = resolveLanguage(lang);
   const key = type.toLowerCase().trim();
-  return ITEM_TYPE_NAMES_RU[key] || type;
+  if (effectiveLang === 'en') {
+    return ITEM_TYPE_NAMES_EN[key] || ITEM_TYPE_NAMES_EN[type.trim()] || type;
+  }
+  return ITEM_TYPE_NAMES_RU[key] || ITEM_TYPE_NAMES_RU[type.trim()] || type;
 }
 
-export function localizeCondition(condition?: string | null): string {
+export function localizeCondition(condition?: string | null, lang?: 'en' | 'ru'): string {
   if (!condition) return '';
+  const effectiveLang = resolveLanguage(lang);
   const key = condition.toLowerCase().trim();
-  return CONDITION_NAMES_RU[key] || condition;
+  if (effectiveLang === 'en') {
+    return CONDITION_NAMES_EN[key] || CONDITION_NAMES_EN[condition.trim()] || condition;
+  }
+  return CONDITION_NAMES_RU[key] || CONDITION_NAMES_RU[condition.trim()] || condition;
 }
+
+export const COMPOUND_CREATURE_TYPES_EN: Record<string, string> = {
+  'or small humanoid': 'Humanoid (Medium or Small)',
+  'or small humanoid (cleric)': 'Humanoid (Cleric)',
+  'or small humanoid (wizard)': 'Humanoid (Wizard)',
+  'or small monstrosity (lycanthrope)': 'Monstrosity (Lycanthrope)',
+  'or small undead': 'Undead (Medium or Small)',
+  'or small undead (cleric)': 'Undead (Cleric)',
+  'swarm of tiny beasts': 'Swarm of Tiny Beasts',
+  'swarm of tiny undead': 'Swarm of Tiny Undead',
+  'swarm of tiny constructs': 'Swarm of Tiny Constructs',
+  'beast (dinosaur)': 'Beast (Dinosaur)',
+  'celestial (angel)': 'Celestial (Angel)',
+  'dragon (chromatic)': 'Dragon (Chromatic)',
+  'dragon (metallic)': 'Dragon (Metallic)',
+  'elemental (genie)': 'Elemental (Genie)',
+  'fey (goblinoid)': 'Fey (Goblinoid)',
+  'fiend (demon)': 'Fiend (Demon)',
+  'fiend (devil)': 'Fiend (Devil)',
+  'monstrosity (titan)': 'Monstrosity (Titan)',
+  'undead (wizard)': 'Undead (Wizard)',
+  // Russian compound types mapped to English
+  'гуманоид (средний или маленький)': 'Humanoid (Medium or Small)',
+  'гуманоид (жрец)': 'Humanoid (Cleric)',
+  'гуманоид (волшебник)': 'Humanoid (Wizard)',
+  'чудовище (ликантроп)': 'Monstrosity (Lycanthrope)',
+  'нежить (средняя или маленькая)': 'Undead (Medium or Small)',
+  'нежить (жрец)': 'Undead (Cleric)',
+  'рой крошечных зверей': 'Swarm of Tiny Beasts',
+  'рой крошечной нежити': 'Swarm of Tiny Undead',
+  'рой крошечных конструктов': 'Swarm of Tiny Constructs',
+  'зверь (динозавр)': 'Beast (Dinosaur)',
+  'небожитель (ангел)': 'Celestial (Angel)',
+  'дракон (хроматический)': 'Dragon (Chromatic)',
+  'дракон (металлический)': 'Dragon (Metallic)',
+  'элементаль (джинн)': 'Elemental (Genie)',
+  'фея (гоблиноид)': 'Fey (Goblinoid)',
+  'исчадие (демон)': 'Fiend (Demon)',
+  'исчадие (дьявол)': 'Fiend (Devil)',
+  'чудовище (титан)': 'Monstrosity (Titan)',
+  'нежить (волшебник)': 'Undead (Wizard)',
+};
 
 const COMPOUND_CREATURE_TYPES: Record<string, string> = {
   'or small humanoid': 'Гуманоид (Средний или Маленький)',
@@ -348,10 +1123,27 @@ const COMPOUND_CREATURE_TYPES: Record<string, string> = {
   'undead (wizard)': 'Нежить (волшебник)',
 };
 
-export function localizeCreatureType(type?: string | null): string {
-  if (!type) return 'существо';
+export function localizeCreatureType(type?: string | null, lang?: 'en' | 'ru'): string {
+  const effectiveLang = resolveLanguage(lang);
+  if (!type) return effectiveLang === 'en' ? 'Creature' : 'существо';
   const clean = type.trim();
   const lower = clean.toLowerCase();
+
+  if (effectiveLang === 'en') {
+    if (COMPOUND_CREATURE_TYPES_EN[lower]) return COMPOUND_CREATURE_TYPES_EN[lower];
+    if (CREATURE_TYPES_EN[lower]) return CREATURE_TYPES_EN[lower];
+
+    for (const [key, val] of Object.entries(COMPOUND_CREATURE_TYPES_EN)) {
+      if (lower.startsWith(key)) return val;
+    }
+    for (const [key, val] of Object.entries(CREATURE_TYPES_EN)) {
+      if (lower.startsWith(key.toLowerCase())) {
+        const remainder = clean.slice(key.length).trim();
+        return remainder ? `${val} ${remainder}` : val;
+      }
+    }
+    return clean;
+  }
 
   if (COMPOUND_CREATURE_TYPES[lower]) return COMPOUND_CREATURE_TYPES[lower];
   if (CREATURE_TYPES_RU[lower]) return CREATURE_TYPES_RU[lower];
@@ -372,22 +1164,55 @@ export function localizeCreatureType(type?: string | null): string {
   return cleanRussianText(clean);
 }
 
-export function localizeSkill(skill?: string | null): string {
+export function localizeSkill(skill?: string | null, lang?: 'en' | 'ru'): string {
   if (!skill) return '';
+  const effectiveLang = resolveLanguage(lang);
   const key = skill.toLowerCase().trim().replace(/[\s_-]+/g, '_');
-  return SKILL_NAMES_RU[key] || skill;
+  const spaceKey = skill.toLowerCase().trim();
+  if (effectiveLang === 'en') {
+    return SKILL_NAMES_EN[key] || SKILL_NAMES_EN[spaceKey] || skill;
+  }
+  return SKILL_NAMES_RU[key] || SKILL_NAMES_RU[spaceKey] || skill;
 }
 
-export function localizeStat(stat?: string | null, full = false): string {
+export function localizeStat(stat?: string | null, full = false, lang?: 'en' | 'ru'): string {
   if (!stat) return '';
+  const effectiveLang = resolveLanguage(lang);
   const key = stat.toLowerCase().trim();
+  if (effectiveLang === 'en') {
+    return full ? (STAT_FULL_NAMES_EN[key] || stat) : (STAT_NAMES_EN[key] || stat);
+  }
   return full ? (STAT_FULL_NAMES_RU[key] || stat) : (STAT_NAMES_RU[key] || stat);
+}
+
+export function formatSpeed(speed?: string | null, lang?: 'en' | 'ru'): string {
+  const effectiveLang = resolveLanguage(lang);
+  if (effectiveLang === 'ru') {
+    return formatSpeedRu(speed);
+  }
+  if (!speed) return '30 ft.';
+  return String(speed).trim()
+    .replace(/скорость\s+пол[её]та/gi, 'fly speed')
+    .replace(/скорость\s+плавания/gi, 'swim speed')
+    .replace(/скорость\s+лазания/gi, 'climb speed')
+    .replace(/скорость\s+копания/gi, 'burrow speed')
+    .replace(/пол[её]т/gi, 'fly')
+    .replace(/плавание/gi, 'swim')
+    .replace(/лазание/gi, 'climb')
+    .replace(/копание/gi, 'burrow')
+    .replace(/парение/gi, 'hover')
+    .replace(/футов/gi, 'ft.')
+    .replace(/(\d+)\s*фт\.?/gi, '$1 ft.')
+    .replace(/(?:^|\s)фт\.?(?:\s|$)/gi, ' ft. ')
+    .replace(/\bSpeed\b/g, 'Speed')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }
 
 export function formatSpeedRu(speed?: string | null): string {
   if (!speed) return '30 фт.';
   return cleanRussianText(speed)
-    .replace(/\bft\.?\b/gi, 'фт.')
+    .replace(/\bft\.?(?!\w)/gi, 'фт.')
     .replace(/\bfly\s*speed\b/gi, 'скорость полёта')
     .replace(/\bswim\s*speed\b/gi, 'скорость плавания')
     .replace(/\bclimb\s*speed\b/gi, 'скорость лазания')
@@ -397,10 +1222,27 @@ export function formatSpeedRu(speed?: string | null): string {
     .replace(/\bclimb\b/gi, 'лазание')
     .replace(/\bburrow\b/gi, 'копание')
     .replace(/\bhover\b/gi, 'парение')
-    .replace(/\bSpeed\b/g, 'Скорость');
+    .replace(/\bSpeed\b/g, 'Скорость')
+    .replace(/фт\.+/g, 'фт.');
 }
 
-export function localizeSenses(senses?: string | null): string {
+export function localizeSenses(senses?: string | null, lang?: 'en' | 'ru'): string {
+  const effectiveLang = resolveLanguage(lang);
+  if (effectiveLang === 'en') {
+    if (!senses) return 'Normal senses';
+    return String(senses).trim()
+      .replace(/т[её]мное\s+зрение/gi, 'darkvision')
+      .replace(/слепое\s+зрение/gi, 'blindsight')
+      .replace(/истинное\s+зрение/gi, 'truesight')
+      .replace(/чувство\s+вибрации/gi, 'tremorsense')
+      .replace(/пассивная\s+[вВ]нимательность/gi, 'passive Perception')
+      .replace(/не затруднено магической тьмой/gi, 'unimpeded by magical darkness')
+      .replace(/(\d+)\s*фт\.?/gi, '$1 ft.')
+      .replace(/(?:^|\s)фт\.?(?:\s|$)/gi, ' ft. ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
   if (!senses) return 'Обычные чувства';
   return cleanRussianText(senses)
     .replace(/\bdarkvision\b/gi, 'тёмное зрение')
@@ -410,7 +1252,8 @@ export function localizeSenses(senses?: string | null): string {
     .replace(/\bpassive\s+Perception\b/gi, 'пассивная Внимательность')
     .replace(/unimpeded by magical Darkness/gi, 'не затруднено магической тьмой')
     .replace(/unimpeded by magical darkness/gi, 'не затруднено магической тьмой')
-    .replace(/\bft\.?\b/gi, 'фт.');
+    .replace(/\bft\.?(?!\w)/gi, 'фт.')
+    .replace(/фт\.+/g, 'фт.');
 }
 
 /**
@@ -561,11 +1404,11 @@ export function cleanRussianText(text?: string | null): string {
     .replace(/\bFailure:\b/gi, 'Провал:')
     .replace(/\bSuccess:\b/gi, 'Успех:')
     .replace(/\bHit:\b/gi, 'Попадание:')
-    .replace(/\breach\s*(\d+)\s*ft\.?\b/gi, 'досягаемость $1 фт.')
-    .replace(/\brange\s*(\d+)\/(\d+)\s*ft\.?\b/gi, 'дистанция $1/$2 фт.')
-    .replace(/\brange\s*(\d+)\s*ft\.?\b/gi, 'дистанция $1 фт.')
+    .replace(/\breach\s*(\d+)\s*ft\.?(?!\w)/gi, 'досягаемость $1 фт.')
+    .replace(/\brange\s*(\d+)\/(\d+)\s*ft\.?(?!\w)/gi, 'дистанция $1/$2 фт.')
+    .replace(/\brange\s*(\d+)\s*ft\.?(?!\w)/gi, 'дистанция $1 фт.')
     .replace(/\bfeet\b/gi, 'футов')
-    .replace(/\b(\d+)\s*ft\.?\b/gi, '$1 фт.')
+    .replace(/\b(\d+)\s*ft\.?(?!\w)/gi, '$1 фт.')
     .replace(/\bHit Points\b/gi, 'ОЗ')
     .replace(/\bplus\s+(\d+)\s*\(([^)]+)\)\s*([A-Za-zА-Яа-яЁё]+)\s+damage\b/gi, 'плюс $1 ($2) $3 урона')
     .replace(/\b(\d+)\s*\(([^)]+)\)\s*([A-Za-zА-Яа-яЁё]+)\s+damage\b/gi, '$1 ($2) $3 урона')
@@ -601,6 +1444,7 @@ export function cleanRussianText(text?: string | null): string {
 
   // 7. Cleanup empty parentheses, duplicate punctuation, and spacing
   res = res
+    .replace(/фт\.+/g, 'фт.')
     .replace(/\(\s*\)/g, '')
     .replace(/\[\s*\]/g, '')
     .replace(/\s+([,.:;!?])/g, '$1')

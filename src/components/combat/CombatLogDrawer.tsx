@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useCombatStore } from '../../store/combatStore';
+import { useTranslation } from '../../i18n';
 import {
   ScrollText,
   X,
@@ -19,6 +20,8 @@ import {
 
 export function CombatLogDrawer() {
   const { isCombatLogOpen, setCombatLogOpen, combatLog, clearCombatLog, roundCounter } = useCombatStore();
+  const { language } = useTranslation();
+  const isEn = language === 'en';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'damage_heal' | 'rounds' | 'saves' | 'conditions'>('all');
@@ -57,23 +60,33 @@ export function CombatLogDrawer() {
 
   // Format log into readable plain text for clipboard / file export
   const formatLogToText = (): string => {
-    const lines = [
-      '=============================================================',
-      '              ЖУРНАЛ СОБЫТИЙ БОЯ — TTRPG HELPER 2.0          ',
-      ` Дата выгрузки: ${new Date().toLocaleString('ru-RU')}         `,
-      ` Текущий раунд: ${roundCounter}                              `,
-      ` Всего записей: ${combatLog.length}                          `,
-      '=============================================================',
-      '',
-    ];
+    const lines = isEn
+      ? [
+          '=============================================================',
+          '              COMBAT EVENT LOG — TTRPG HELPER 2.0            ',
+          ` Export date: ${new Date().toLocaleString('en-US')}          `,
+          ` Current round: ${roundCounter}                             `,
+          ` Total entries: ${combatLog.length}                         `,
+          '=============================================================',
+          '',
+        ]
+      : [
+          '=============================================================',
+          '              ЖУРНАЛ СОБЫТИЙ БОЯ — TTRPG HELPER 2.0          ',
+          ` Дата выгрузки: ${new Date().toLocaleString('ru-RU')}         `,
+          ` Текущий раунд: ${roundCounter}                              `,
+          ` Всего записей: ${combatLog.length}                          `,
+          '=============================================================',
+          '',
+        ];
 
     combatLog.forEach((entry) => {
       const ts = entry.timestamp ? `[${entry.timestamp}]` : '';
-      const rd = entry.round ? `[Р${entry.round}]` : '';
+      const rd = entry.round ? (isEn ? `[R${entry.round}]` : `[Р${entry.round}]`) : '';
       lines.push(`${ts} ${rd} ${entry.text}${entry.details ? ` (${entry.details})` : ''}`);
     });
 
-    lines.push('', '======================= КОНЕЦ ЖУРНАЛА =======================');
+    lines.push('', isEn ? '======================= END OF LOG =======================' : '======================= КОНЕЦ ЖУРНАЛА =======================');
     return lines.join('\r\n');
   };
 
@@ -93,7 +106,7 @@ export function CombatLogDrawer() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `dnd_combat_log_round_${roundCounter}_${new Date().toISOString().slice(0, 10)}.txt`;
+    a.download = `ttrpg_combat_log_round_${roundCounter}_${new Date().toISOString().slice(0, 10)}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -110,9 +123,11 @@ export function CombatLogDrawer() {
             <div className="flex items-center gap-2 text-white">
               <ScrollText className="h-5 w-5 text-[#f5b920] flex-shrink-0" />
               <div>
-                <h2 className="text-sm font-bold tracking-tight">Журнал событий боя</h2>
+                <h2 className="text-sm font-bold tracking-tight">{isEn ? 'Combat Event Log' : 'Журнал событий боя'}</h2>
                 <p className="text-[11px] text-gray-400">
-                  Хронология раундов, урона, атак и спасов ({combatLog.length} записей)
+                  {isEn
+                    ? `Timeline of rounds, damage, attacks and saves (${combatLog.length} entries)`
+                    : `Хронология раундов, урона, атак и спасов (${combatLog.length} записей)`}
                 </p>
               </div>
             </div>
@@ -120,7 +135,7 @@ export function CombatLogDrawer() {
             <button
               onClick={() => setCombatLogOpen(false)}
               className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
-              title="Закрыть журнал"
+              title={isEn ? "Close combat log" : "Закрыть журнал"}
             >
               <X className="h-5 w-5" />
             </button>
@@ -131,17 +146,17 @@ export function CombatLogDrawer() {
             <button
               onClick={handleCopy}
               className="flex items-center gap-1.5 min-h-[32px] px-3 py-1 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.1)] text-xs font-semibold text-gray-200 hover:text-white transition-all cursor-pointer"
-              title="Скопировать весь лог в буфер обмена"
+              title={isEn ? "Copy full log to clipboard" : "Скопировать весь лог в буфер обмена"}
             >
               {copied ? (
                 <>
                   <Check className="h-3.5 w-3.5 text-emerald-400" />
-                  <span className="text-emerald-400">Скопировано!</span>
+                  <span className="text-emerald-400">{isEn ? 'Copied!' : 'Скопировано!'}</span>
                 </>
               ) : (
                 <>
                   <Copy className="h-3.5 w-3.5 text-[#f5b920]" />
-                  <span>Копировать</span>
+                  <span>{isEn ? 'Copy' : 'Копировать'}</span>
                 </>
               )}
             </button>
@@ -149,24 +164,24 @@ export function CombatLogDrawer() {
             <button
               onClick={handleExportTxt}
               className="flex items-center gap-1.5 min-h-[32px] px-3 py-1 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.1)] text-xs font-semibold text-gray-200 hover:text-white transition-all cursor-pointer"
-              title="Экспортировать лог в текстовый файл .txt"
+              title={isEn ? "Export log to text file .txt" : "Экспортировать лог в текстовый файл .txt"}
             >
               <Download className="h-3.5 w-3.5 text-blue-400" />
-              <span>Экспорт .txt</span>
+              <span>{isEn ? 'Export .txt' : 'Экспорт .txt'}</span>
             </button>
 
             {combatLog.length > 0 && (
               <button
                 onClick={() => {
-                  if (window.confirm('Очистить историю событий боя?')) {
+                  if (window.confirm(isEn ? 'Clear combat event history?' : 'Очистить историю событий боя?')) {
                     clearCombatLog();
                   }
                 }}
                 className="flex items-center gap-1.5 min-h-[32px] px-2.5 py-1 rounded-full bg-red-950/40 border border-red-800/40 hover:bg-red-900/60 text-xs font-semibold text-red-300 hover:text-red-100 transition-all cursor-pointer ml-auto"
-                title="Очистить все записи журнала"
+                title={isEn ? "Clear all log entries" : "Очистить все записи журнала"}
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Очистить</span>
+                <span className="hidden sm:inline">{isEn ? 'Clear' : 'Очистить'}</span>
               </button>
             )}
           </div>
@@ -177,7 +192,7 @@ export function CombatLogDrawer() {
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Поиск по имени, действию, урону..."
+                placeholder={isEn ? "Search by name, action, damage..." : "Поиск по имени, действию, урону..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-8 pr-3 py-1.5 rounded-full bg-black/40 border border-[rgba(255,255,255,0.08)] focus:border-[#f5b920]/60 text-xs text-white placeholder-gray-500 focus:outline-none transition-colors"
@@ -195,11 +210,11 @@ export function CombatLogDrawer() {
             {/* Быстрые фильтры */}
             <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
               {[
-                { id: 'all', label: 'Все' },
-                { id: 'damage_heal', label: 'Урон/Лечение' },
-                { id: 'rounds', label: 'Раунды' },
-                { id: 'saves', label: 'Спасброски' },
-                { id: 'conditions', label: 'Состояния' },
+                { id: 'all', label: isEn ? 'All' : 'Все' },
+                { id: 'damage_heal', label: isEn ? 'Damage / Heal' : 'Урон/Лечение' },
+                { id: 'rounds', label: isEn ? 'Rounds' : 'Раунды' },
+                { id: 'saves', label: isEn ? 'Saving Throws' : 'Спасброски' },
+                { id: 'conditions', label: isEn ? 'Conditions' : 'Состояния' },
               ].map((pill) => (
                 <button
                   key={pill.id}
@@ -222,11 +237,15 @@ export function CombatLogDrawer() {
           {filteredLogs.length === 0 ? (
             <div className="h-64 flex flex-col items-center justify-center text-center p-6 text-gray-400">
               <ScrollText className="h-10 w-10 text-gray-600 mb-2 stroke-1" />
-              <p className="text-xs font-semibold text-gray-300 mb-1">Записей не найдено</p>
+              <p className="text-xs font-semibold text-gray-300 mb-1">{isEn ? 'No entries found' : 'Записей не найдено'}</p>
               <p className="text-[11px] text-gray-500 max-w-xs">
                 {combatLog.length === 0
-                  ? 'События урона, исцеления, бросков и смены раундов будут появляться здесь автоматически.'
-                  : 'Попробуйте изменить поисковый запрос или фильтр.'}
+                  ? (isEn
+                      ? 'Damage, heal, rolls, and round events will automatically appear here.'
+                      : 'События урона, исцеления, бросков и смены раундов будут появляться здесь автоматически.')
+                  : (isEn
+                      ? 'Try changing search query or filter.'
+                      : 'Попробуйте изменить поисковый запрос или фильтр.')}
               </p>
             </div>
           ) : (
@@ -295,7 +314,7 @@ export function CombatLogDrawer() {
                     <div className="flex items-center gap-1 flex-shrink-0 font-mono tabular-nums">
                       {entry.round && (
                         <span className="px-1 py-0.2 rounded bg-black/40 text-[#f5b920] border border-white/5 text-[9px]">
-                          Р{entry.round}
+                          {isEn ? `R${entry.round}` : `Р${entry.round}`}
                         </span>
                       )}
                       <span className="text-gray-500">{entry.timestamp}</span>

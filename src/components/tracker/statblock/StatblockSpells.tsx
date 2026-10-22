@@ -4,6 +4,7 @@ import { RotateCcw, Sparkles, X } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { ParsedSpell } from '../../../types/database';
 import { cleanRussianText } from '../../../utils/textUtils';
+import { useTranslation } from '../../../i18n';
 import {
   SPELL_SCHOOL_RU,
   translateSpellCastingTime,
@@ -25,7 +26,54 @@ export interface SpellDetailsModalProps {
 }
 
 export function SpellDetailsModal({ spell, onClose }: SpellDetailsModalProps) {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
+
   if (!spell) return null;
+
+  const spellTitle = isEn
+    ? (spell.name_en || spell.name_ru)
+    : cleanRussianText(spell.name_ru || spell.name_en);
+
+  const schoolName = isEn
+    ? (spell.school || spell.school_ru || 'Magic')
+    : (spell.school_ru || SPELL_SCHOOL_RU[spell.school?.toLowerCase() || ''] || spell.school || 'Магия');
+
+  const levelText = isEn
+    ? (spell.level === 0 ? `Cantrip, ${schoolName}` : `Level ${spell.level}, ${schoolName}`)
+    : (spell.level === 0 ? `Заговор, ${schoolName}` : `${spell.level} круг, ${schoolName}`);
+
+  const castingTimeText = isEn
+    ? spell.casting_time
+    : cleanRussianText(translateSpellCastingTime(spell.casting_time));
+
+  const rangeText = isEn
+    ? spell.range
+    : cleanRussianText(translateSpellRange(spell.range));
+
+  const componentsText = isEn
+    ? [
+        spell.components_v ? 'V' : null,
+        spell.components_s ? 'S' : null,
+        spell.components_m ? 'M' : null,
+      ].filter(Boolean).join(', ') || 'V, S'
+    : [
+        spell.components_v ? 'В' : null,
+        spell.components_s ? 'С' : null,
+        spell.components_m ? 'М' : null,
+      ].filter(Boolean).join(', ') || 'В, С';
+
+  const materialsText = spell.materials_ru ? ` (${spell.materials_ru})` : '';
+
+  const durationText = isEn
+    ? spell.duration
+    : cleanRussianText(translateSpellDuration(spell.duration));
+
+  const descriptionText = isEn
+    ? (spell.description_en || spell.description_ru || '')
+    : cleanRussianText(spell.description_ru || spell.description_en || '');
+
+  const higherLevelsText = cleanRussianText(spell.higher_levels_ru || '');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in select-none">
@@ -34,24 +82,27 @@ export function SpellDetailsModal({ spell, onClose }: SpellDetailsModalProps) {
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-400" />
-              <span>{cleanRussianText(spell.name_ru || spell.name_en)}</span>
-              {spell.name_en && (
+              <span>{spellTitle}</span>
+              {isEn && spell.name_ru && spell.name_ru !== spell.name_en && (
+                <span className="text-xs text-gray-400 font-normal italic">
+                  ({cleanRussianText(spell.name_ru)})
+                </span>
+              )}
+              {!isEn && spell.name_en && (
                 <span className="text-xs text-gray-400 font-normal italic">
                   ({spell.name_en})
                 </span>
               )}
             </h3>
             <p className="text-xs text-purple-300 font-medium mt-0.5">
-              {spell.level === 0
-                ? `Заговор, ${spell.school_ru || SPELL_SCHOOL_RU[spell.school?.toLowerCase() || ''] || spell.school || 'Магия'}`
-                : `${spell.level} круг, ${spell.school_ru || SPELL_SCHOOL_RU[spell.school?.toLowerCase() || ''] || spell.school || 'Магия'}`}
+              {levelText}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="min-h-[32px] min-w-[32px] flex items-center justify-center text-gray-400 hover:text-white rounded-glass-sm hover:bg-white/10 transition-colors cursor-pointer"
-            title="Закрыть описание заклинания"
+            title={isEn ? "Close spell details" : "Закрыть описание заклинания"}
           >
             <X className="w-4 h-4" />
           </button>
@@ -60,48 +111,41 @@ export function SpellDetailsModal({ spell, onClose }: SpellDetailsModalProps) {
         {/* Spell Metadata Grid */}
         <div className="grid grid-cols-2 gap-2.5 text-xs bg-black/40 p-3 rounded-glass-sm border border-white/10">
           <div>
-            <span className="text-gray-400 text-xs block">Время накладывания:</span>
+            <span className="text-gray-400 text-xs block">{isEn ? 'Casting Time:' : 'Время накладывания:'}</span>
             <span className="font-bold text-gray-200">
-              {cleanRussianText(translateSpellCastingTime(spell.casting_time))}
+              {castingTimeText}
             </span>
           </div>
           <div>
-            <span className="text-gray-400 text-xs block">Дистанция:</span>
+            <span className="text-gray-400 text-xs block">{isEn ? 'Range:' : 'Дистанция:'}</span>
             <span className="font-bold text-gray-200">
-              {cleanRussianText(translateSpellRange(spell.range))}
+              {rangeText}
             </span>
           </div>
           <div>
-            <span className="text-gray-400 text-xs block">Компоненты:</span>
+            <span className="text-gray-400 text-xs block">{isEn ? 'Components:' : 'Компоненты:'}</span>
             <span className="font-bold text-gray-200">
-              {[
-                spell.components_v ? 'В' : null,
-                spell.components_s ? 'С' : null,
-                spell.components_m ? 'М' : null,
-              ]
-                .filter(Boolean)
-                .join(', ') || 'В, С'}
-              {spell.materials_ru ? ` (${spell.materials_ru})` : ''}
+              {componentsText}{materialsText}
             </span>
           </div>
           <div>
-            <span className="text-gray-400 text-xs block">Длительность:</span>
+            <span className="text-gray-400 text-xs block">{isEn ? 'Duration:' : 'Длительность:'}</span>
             <span className="font-bold text-gray-200 flex items-center gap-1">
               {spell.concentration && (
-                <span className="text-blue-400 text-xs font-semibold">Конц., </span>
+                <span className="text-blue-400 text-xs font-semibold">{isEn ? 'Conc., ' : 'Конц., '}</span>
               )}
-              {cleanRussianText(translateSpellDuration(spell.duration))}
+              {durationText}
             </span>
           </div>
         </div>
 
         {/* Description */}
         <div className="text-xs text-gray-300 leading-relaxed font-sans space-y-2 whitespace-pre-wrap">
-          <p>{cleanRussianText(spell.description_ru || spell.description_en || '')}</p>
-          {spell.higher_levels_ru && (
+          <p>{descriptionText}</p>
+          {higherLevelsText && (
             <div className="p-2.5 rounded-glass-sm bg-black/40 border border-gold/30 text-xs text-gold-light">
-              <strong className="font-bold">На более высоких кругах: </strong>
-              <span>{cleanRussianText(spell.higher_levels_ru)}</span>
+              <strong className="font-bold">{isEn ? 'At Higher Levels: ' : 'На более высоких кругах: '}</strong>
+              <span>{higherLevelsText}</span>
             </div>
           )}
         </div>
@@ -117,6 +161,8 @@ export function StatblockSpells({
   onToggleSpellSlot,
   onRestoreAllSpellSlots,
 }: StatblockSpellsProps) {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
   const sb = combatant.statblock;
 
   return (
@@ -126,22 +172,27 @@ export function StatblockSpells({
         <div className="rounded-glass-lg bg-purple-950/25 backdrop-blur-md border border-purple-500/30 p-3.5 shadow-sm">
           <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-purple-500/20 text-xs font-bold uppercase tracking-wider text-purple-200">
             <Sparkles className="h-4 w-4 text-purple-400" />
-            <span>ЗАКЛИНАНИЯ СУЩЕСТВА</span>
+            <span>{isEn ? 'CREATURE SPELLS' : 'ЗАКЛИНАНИЯ СУЩЕСТВА'}</span>
             <Sparkles className="h-4 w-4 text-purple-400" />
           </div>
           <div className="flex flex-wrap gap-1.5">
             {sb.spells.map((sItem: any, idx: number) => {
-              const spName = typeof sItem === 'string' ? sItem : sItem.name || sItem.name_ru || 'Заклинание';
+              const spName = typeof sItem === 'string'
+                ? sItem
+                : isEn
+                ? (sItem.name_en || sItem.name || sItem.name_ru || 'Spell')
+                : (sItem.name_ru || sItem.name || 'Заклинание');
+              const displaySpellName = isEn ? spName : cleanRussianText(spName);
               return (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => onInspectSpell(spName)}
                   className="min-h-[32px] inline-flex items-center gap-1.5 px-2.5 py-1 rounded-glass-sm bg-purple-950/60 border border-purple-500/50 hover:border-gold hover:text-gold text-purple-200 text-xs font-semibold transition-all shadow-sm cursor-pointer select-none active:scale-95"
-                  title={`Заклинание: ${spName} • Кликните для просмотра описания`}
+                  title={isEn ? `Spell: ${displaySpellName} • Click to view details` : `Заклинание: ${displaySpellName} • Кликните для просмотра описания`}
                 >
                   <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                  <span>{cleanRussianText(spName)}</span>
+                  <span>{displaySpellName}</span>
                 </button>
               );
             })}
@@ -155,17 +206,17 @@ export function StatblockSpells({
           <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-purple-500/20 text-xs">
             <span className="font-bold uppercase tracking-wider flex items-center gap-1.5 text-purple-100">
               <Sparkles className="h-4 w-4 text-purple-400" />
-              <span>ЯЧЕЙКИ ЗАКЛИНАНИЙ</span>
+              <span>{isEn ? 'SPELL SLOTS' : 'ЯЧЕЙКИ ЗАКЛИНАНИЙ'}</span>
               <Sparkles className="h-4 w-4 text-purple-400" />
             </span>
             <button
               type="button"
               onClick={onRestoreAllSpellSlots}
-              title="Восстановить все ячейки заклинаний (Долгий отдых)"
+              title={isEn ? "Restore all spell slots (Long Rest)" : "Восстановить все ячейки заклинаний (Долгий отдых)"}
               className="min-h-[32px] text-xs font-mono tabular-nums font-bold px-2.5 py-1 rounded-glass-sm bg-purple-900/60 hover:bg-purple-800 border border-purple-400/60 text-purple-100 transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
               <RotateCcw className="h-3 w-3" />
-              <span>Сброс</span>
+              <span>{isEn ? "Reset" : "Сброс"}</span>
             </button>
           </div>
 
@@ -180,7 +231,7 @@ export function StatblockSpells({
                 >
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span className="font-bold text-xs text-purple-300 whitespace-nowrap">
-                      {lvlNum} круг
+                      {isEn ? `Level ${lvlNum}` : `${lvlNum} круг`}
                     </span>
                     <span className="font-mono tabular-nums text-xs text-gray-400">
                       ({remaining}/{slotData.max})
@@ -198,8 +249,12 @@ export function StatblockSpells({
                           onClick={() => onToggleSpellSlot(lvlNum, slotIdx)}
                           title={
                             isUsed
-                              ? `Ячейка ${lvlNum} круга израсходована (клик, чтобы восстановить)`
-                              : `Ячейка ${lvlNum} круга готова (клик, чтобы потратить)`
+                              ? (isEn
+                                  ? `Level ${lvlNum} slot expended (click to restore)`
+                                  : `Ячейка ${lvlNum} круга израсходована (клик, чтобы восстановить)`)
+                              : (isEn
+                                  ? `Level ${lvlNum} slot ready (click to expend)`
+                                  : `Ячейка ${lvlNum} круга готова (клик, чтобы потратить)`)
                           }
                           className={clsx(
                             "w-7 h-7 min-w-[28px] min-h-[28px] rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-90 select-none",

@@ -8,6 +8,7 @@
  * - Armor SP: Head SP & Body SP; when damage > SP, excess applies to HP and SP reduces by 1
  * - Resources: HP, Humanity (EMP recalculation), Luck (spendable pool)
  * - Rest: Natural healing restores BODY HP per day (no short/long rests)
+ * - Critical Injuries: Inflicted when 2+ damage dice roll 6 (+5 bonus HP damage, specific bodily trauma)
  */
 
 import {
@@ -22,11 +23,14 @@ import {
 } from '../../types/system';
 import { SYSTEM_REGISTRY } from '../registry';
 import { rollDie } from '../../engine/rolls';
+import { getCurrentLanguage } from '../../i18n';
+import { SupportedLanguage } from '../../i18n/types';
 import {
   CyberpunkRollContext,
   CyberpunkWoundState,
   CyberpunkDeathSaveResult,
   CyberpunkArmorZone,
+  getCyberpunkCriticalInjury,
 } from './types';
 
 export class CyberpunkRedEngine implements SystemRuleEngine {
@@ -41,7 +45,7 @@ export class CyberpunkRedEngine implements SystemRuleEngine {
       version: '1.0.0',
       status: 'stable',
       themeId: 'cyberpunk-red',
-      description: 'Правила Cyberpunk RED: REF+1d10, броня SP по зонам, Humanity, пороги ранений.',
+      description: 'Cyberpunk RED Rules: REF+1d10, SP Armor Ablation by Hit Zone, Humanity & Wound Thresholds.',
       supportedFeatures: {
         spellSlots: false,
         weaponMastery: false,
@@ -223,15 +227,22 @@ export class CyberpunkRedEngine implements SystemRuleEngine {
     const targetDefense = stats.dv ?? (dex > 0 || evasion > 0 ? dex + evasion + 10 : stats.ac ?? 10);
 
     const isHit = attackRoll > targetDefense;
+    const lang = getCurrentLanguage();
+
+    const details = lang === 'en'
+      ? (isHit
+          ? `Hit: ${attackRoll} vs Defense ${targetDefense}${isCritRoll ? ' (Critical Roll!)' : ''}`
+          : `Miss: ${attackRoll} vs Defense ${targetDefense}`)
+      : (isHit
+          ? `Попадание: ${attackRoll} против Защиты ${targetDefense}${isCritRoll ? ' (Критический бросок!)' : ''}`
+          : `Промах: ${attackRoll} против Защиты ${targetDefense}`);
 
     return {
       isHit,
       isCritical: isCritRoll,
       isFumble: false,
       degree: isHit ? (isCritRoll ? 'critical_success' : 'success') : 'failure',
-      details: isHit
-        ? `Попадание: ${attackRoll} против Защиты ${targetDefense}${isCritRoll ? ' (Критический бросок!)' : ''}`
-        : `Промах: ${attackRoll} против Защиты ${targetDefense}`,
+      details,
     };
   }
 
@@ -303,21 +314,27 @@ export class CyberpunkRedEngine implements SystemRuleEngine {
       (c) => c.id !== 'seriously_wounded' && c.id !== 'mortally_wounded'
     )];
 
+    const lang = getCurrentLanguage();
+
     if (isMortallyWounded) {
       statusEffectsApplied.push('Mortally Wounded');
       updatedConditions.push({
         id: 'mortally_wounded',
-        name: 'Mortally Wounded',
+        name: lang === 'ru' ? 'Смертельно ранен (Mortally Wounded)' : 'Mortally Wounded',
         level: 1,
-        notes: 'Должен совершать Death Save каждый раунд. Штраф -4 к действиям.',
+        notes: lang === 'ru'
+          ? 'Должен совершать Death Save каждый раунд. Штраф -4 к действиям.'
+          : 'Must make a Death Save at the start of each turn. -4 penalty to actions.',
       });
     } else if (isSeriouslyWounded) {
       statusEffectsApplied.push('Seriously Wounded');
       updatedConditions.push({
         id: 'seriously_wounded',
-        name: 'Seriously Wounded',
+        name: lang === 'ru' ? 'Тяжело ранен (Seriously Wounded)' : 'Seriously Wounded',
         level: 1,
-        notes: 'Штраф -2 ко всем действиям при HP <= 50%.',
+        notes: lang === 'ru'
+          ? 'Штраф -2 ко всем действиям при HP <= 50%.'
+          : '-2 penalty to all actions when HP <= 50%.',
       });
     }
 
@@ -396,11 +413,19 @@ export class CyberpunkRedEngine implements SystemRuleEngine {
     const isSuccess = !isCriticalFailure && effectiveRoll < bodyStat;
     const isDead = !isSuccess;
 
-    const details = isSuccess
-      ? `Успешный спасбросок от смерти: ${effectiveRoll} (кубик ${roll} + штраф ${penalty}) < ТЕЛО ${bodyStat}`
-      : isCriticalFailure
-      ? `Критический провал (Натуральная 10)! Персонаж погибает.`
-      : `Провал спасброска от смерти: ${effectiveRoll} >= ТЕЛО ${bodyStat}. Персонаж погибает.`;
+    const lang = getCurrentLanguage();
+
+    const details = lang === 'en'
+      ? (isSuccess
+          ? `Death save succeeded: ${effectiveRoll} (Die ${roll} + Penalty ${penalty}) < BODY ${bodyStat}`
+          : isCriticalFailure
+          ? `Critical Failure (Natural 10)! Character dies.`
+          : `Death save failed: ${effectiveRoll} >= BODY ${bodyStat}. Character dies.`)
+      : (isSuccess
+          ? `Успешный спасбросок от смерти: ${effectiveRoll} (кубик ${roll} + штраф ${penalty}) < ТЕЛО ${bodyStat}`
+          : isCriticalFailure
+          ? `Критический провал (Натуральная 10)! Персонаж погибает.`
+          : `Провал спасброска от смерти: ${effectiveRoll} >= ТЕЛО ${bodyStat}. Персонаж погибает.`);
 
     return {
       roll,
@@ -427,13 +452,16 @@ export class CyberpunkRedEngine implements SystemRuleEngine {
 
     const conditions = [...(creature.conditions || [])];
     const isPsychotic = newHumanity <= 0;
+    const lang = getCurrentLanguage();
 
     if (isPsychotic && !conditions.some((c) => c.id === 'cyberpsychosis')) {
       conditions.push({
         id: 'cyberpsychosis',
-        name: 'Киберпсихоз (Cyberpsychosis)',
+        name: lang === 'ru' ? 'Киберпсихоз (Cyberpsychosis)' : 'Cyberpsychosis',
         level: 1,
-        notes: 'Человечность исчерпана. Персонаж теряет самоконтроль и становится неуправляемым.',
+        notes: lang === 'ru'
+          ? 'Человечность исчерпана. Персонаж теряет самоконтроль и становится неуправляемым.'
+          : 'Humanity depleted. Character loses control and enters violent psychosis.',
       });
     }
 
@@ -478,6 +506,38 @@ export class CyberpunkRedEngine implements SystemRuleEngine {
           max: maxLuck,
         },
       },
+    };
+  }
+
+  /**
+   * Resolves a Critical Injury for Cyberpunk RED (inflicted when 2+ d6 damage dice come up 6).
+   */
+  getCriticalInjury(
+    zone: 'head' | 'body',
+    roll: number,
+    lang?: SupportedLanguage
+  ) {
+    const effectiveLang = lang || getCurrentLanguage();
+    return getCyberpunkCriticalInjury(zone, roll, effectiveLang);
+  }
+
+  /**
+   * Rolls 2d6 on the Critical Injury Table for Cyberpunk RED.
+   */
+  rollCriticalInjury(
+    zone: 'head' | 'body',
+    rollOverride?: number,
+    lang?: SupportedLanguage
+  ) {
+    const effectiveLang = lang || getCurrentLanguage();
+    const roll = typeof rollOverride === 'number' ? rollOverride : rollDie(6) + rollDie(6);
+    const clampedRoll = Math.max(2, Math.min(12, roll));
+    const result = getCyberpunkCriticalInjury(zone, clampedRoll, effectiveLang);
+    return {
+      roll: clampedRoll,
+      zone,
+      bonusDamage: 5, // All CPR critical injuries deal 5 bonus damage directly to HP
+      ...result,
     };
   }
 

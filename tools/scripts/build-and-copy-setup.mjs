@@ -19,7 +19,7 @@ console.log('  TTRPG Helper - Build & Duplicate Setup Installer');
 console.log('========================================================\n');
 
 // 1. Setup PATH with node, cargo and mingw if needed
-const userProfile = process.env.USERPROFILE || '';
+const userProfile = process.env.USERPROFILE || process.env.HOME || '';
 const cargoBin = path.join(userProfile, '.cargo', 'bin');
 const nodeBin = 'C:\\Program Files\\nodejs';
 const mingwBin = path.join(
@@ -42,7 +42,8 @@ function findExistingInstallers() {
   if (!fs.existsSync(nsisDir)) return [];
   return fs.readdirSync(nsisDir)
     .filter(f => f.endsWith('.exe'))
-    .map(f => path.join(nsisDir, f));
+    .map(f => path.join(nsisDir, f))
+    .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
 }
 
 let installers = findExistingInstallers();
@@ -50,7 +51,7 @@ let installers = findExistingInstallers();
 if (installers.length === 0 || process.argv.includes('--rebuild') || process.argv.includes('-b')) {
   console.log('[BUILD] Launching Tauri production build (npm run build + cargo tauri build)...');
   try {
-    execSync('npm run build', { cwd: projectRoot, env, stdio: 'inherit' });
+    execSync('npm run build', { cwd: projectRoot, env, stdio: 'inherit', shell: true });
 
     // Ensure WebView2Loader.dll is in src-tauri so NSIS bundles it into the install directory
     const targetDll = path.join(srcTauriDir, 'target', 'release', 'WebView2Loader.dll');
@@ -60,7 +61,7 @@ if (installers.length === 0 || process.argv.includes('--rebuild') || process.arg
       console.log('[BUNDLE] Copied WebView2Loader.dll to src-tauri for NSIS inclusion');
     }
 
-    execSync('npx tauri build', { cwd: projectRoot, env, stdio: 'inherit' });
+    execSync('npx tauri build', { cwd: projectRoot, env, stdio: 'inherit', shell: true });
     installers = findExistingInstallers();
   } catch (err) {
     console.error('\n[ERROR] Build step failed or MSVC linker is missing.');
@@ -94,3 +95,4 @@ if (installers.length > 0) {
   console.log(`  1. ${path.join(projectRoot, 'TTRPG_Helper_Setup.exe')} (Project Root)`);
   console.log(`  2. ${path.join(releasesDir, 'TTRPG Helper_2.0.0_x64-setup.exe')} (releases/ folder)`);
 }
+

@@ -24,9 +24,10 @@ import {
   cleanRussianText,
   localizeCreatureType,
   localizeMonsterName,
-  formatSpeedRu,
+  formatSpeed,
   localizeSenses,
 } from '../../utils/textUtils';
+import { useTranslation } from '../../i18n';
 import { homebrewService } from '../../services/homebrewService';
 import { HomebrewMonsterModal } from './HomebrewMonsterModal';
 import { CreatureSize, CREATURE_SIZE_SCALE } from '../../types/dnd5e';
@@ -127,6 +128,8 @@ const FALLBACK_MONSTERS: Partial<ParsedMonster>[] = [
 ];
 
 export function BestiaryLibrary() {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
   const [query, setQuery] = useState('');
   const [monsters, setMonsters] = useState<ParsedMonster[]>([]);
   const [customMonsters, setCustomMonsters] = useState<ParsedMonster[]>(() =>
@@ -202,13 +205,13 @@ export function BestiaryLibrary() {
   };
 
   const FOLDERS: { id: string; label: string }[] = useMemo(() => [
-    { id: 'all', label: 'Все папки' },
-    { id: 'dungeon', label: 'Подземелье' },
-    { id: 'forest', label: 'Лес' },
-    { id: 'bosses', label: 'Боссы' },
-    { id: 'custom', label: 'Пользовательские' },
+    { id: 'all', label: isEn ? 'All Folders' : 'Все папки' },
+    { id: 'dungeon', label: isEn ? 'Dungeon' : 'Подземелье' },
+    { id: 'forest', label: isEn ? 'Forest' : 'Лес' },
+    { id: 'bosses', label: isEn ? 'Bosses' : 'Боссы' },
+    { id: 'custom', label: isEn ? 'Custom' : 'Пользовательские' },
     ...customFolders,
-  ], [customFolders]);
+  ], [customFolders, isEn]);
 
   useEffect(() => {
     let isMounted = true;
@@ -285,31 +288,31 @@ export function BestiaryLibrary() {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedCrRange, setSelectedCrRange] = useState<string>('all');
 
-  const CATEGORIES: { id: string; label: string; keywords: string[] }[] = [
-    { id: 'all', label: 'Все', keywords: [] },
-    { id: 'humanoid', label: 'Гуманоиды', keywords: ['гуманоид', 'humanoid'] },
-    { id: 'undead', label: 'Нежить', keywords: ['нежить', 'undead'] },
-    { id: 'beast', label: 'Звери', keywords: ['зверь', 'beast'] },
-    { id: 'dragon', label: 'Драконы', keywords: ['дракон', 'dragon'] },
-    { id: 'giant', label: 'Великаны', keywords: ['великан', 'giant'] },
-    { id: 'fiend', label: 'Исчадия', keywords: ['исчадие', 'fiend'] },
-    { id: 'aberration', label: 'Аберрации', keywords: ['аберрация', 'aberration'] },
-    { id: 'elemental', label: 'Элементали', keywords: ['элементаль', 'elemental'] },
-    { id: 'fey', label: 'Феи', keywords: ['фея', 'fey'] },
-    { id: 'construct', label: 'Конструкты', keywords: ['конструкт', 'construct'] },
-    { id: 'monstrosity', label: 'Чудовища', keywords: ['чудовище', 'монстр', 'monstrosity', 'monster'] },
-    { id: 'celestial', label: 'Небожители', keywords: ['небожитель', 'celestial'] },
-    { id: 'ooze', label: 'Слизи', keywords: ['слизь', 'ooze'] },
-    { id: 'plant', label: 'Растения', keywords: ['растение', 'plant'] },
-  ];
+  const CATEGORIES: { id: string; label: string; keywords: string[] }[] = useMemo(() => [
+    { id: 'all', label: isEn ? 'All Types' : 'Все', keywords: [] },
+    { id: 'humanoid', label: isEn ? 'Humanoids' : 'Гуманоиды', keywords: ['гуманоид', 'humanoid'] },
+    { id: 'undead', label: isEn ? 'Undead' : 'Нежить', keywords: ['нежить', 'undead'] },
+    { id: 'beast', label: isEn ? 'Beasts' : 'Звери', keywords: ['зверь', 'beast'] },
+    { id: 'dragon', label: isEn ? 'Dragons' : 'Драконы', keywords: ['дракон', 'dragon'] },
+    { id: 'giant', label: isEn ? 'Giants' : 'Великаны', keywords: ['великан', 'giant'] },
+    { id: 'fiend', label: isEn ? 'Fiends' : 'Исчадия', keywords: ['исчадие', 'fiend'] },
+    { id: 'aberration', label: isEn ? 'Aberrations' : 'Аберрации', keywords: ['аберрация', 'aberration'] },
+    { id: 'elemental', label: isEn ? 'Elementals' : 'Элементали', keywords: ['элементаль', 'elemental'] },
+    { id: 'fey', label: isEn ? 'Fey' : 'Феи', keywords: ['фея', 'fey'] },
+    { id: 'construct', label: isEn ? 'Constructs' : 'Конструкты', keywords: ['конструкт', 'construct'] },
+    { id: 'monstrosity', label: isEn ? 'Monstrosities' : 'Чудовища', keywords: ['чудовище', 'монстр', 'monstrosity', 'monster'] },
+    { id: 'celestial', label: isEn ? 'Celestials' : 'Небожители', keywords: ['небожитель', 'celestial'] },
+    { id: 'ooze', label: isEn ? 'Oozes' : 'Слизи', keywords: ['слизь', 'ooze'] },
+    { id: 'plant', label: isEn ? 'Plants' : 'Растения', keywords: ['растение', 'plant'] },
+  ], [isEn]);
 
-  const CR_RANGES = [
-    { id: 'all', label: 'Все КО' },
-    { id: '0-1', label: 'КО 0–1' },
-    { id: '2-4', label: 'КО 2–4' },
-    { id: '5-10', label: 'КО 5–10' },
-    { id: '11+', label: 'КО 11+' },
-  ];
+  const CR_RANGES = useMemo(() => [
+    { id: 'all', label: isEn ? 'All CR' : 'Все КО' },
+    { id: '0-1', label: isEn ? 'CR 0–1' : 'КО 0–1' },
+    { id: '2-4', label: isEn ? 'CR 2–4' : 'КО 2–4' },
+    { id: '5-10', label: isEn ? 'CR 5–10' : 'КО 5–10' },
+    { id: '11+', label: isEn ? 'CR 11+' : 'КО 11+' },
+  ], [isEn]);
 
   const parseCr = (crStr?: string | number): number => {
     if (crStr === undefined || crStr === null) return 0;
@@ -425,15 +428,18 @@ export function BestiaryLibrary() {
     const initBonus = monster.init_bonus || 0;
     const rolledInitiative = d20 + initBonus;
     const mSize = (monster.size as CreatureSize) || 'Medium';
-    const monsterNameRu = cleanRussianText(localizeMonsterName(monster.name_ru || monster.name_en));
-    const monsterTypeRu = cleanRussianText(localizeCreatureType(monster.creature_type_ru || monster.creature_type));
-    const speedRu = formatSpeedRu(monster.speed);
+
+    const monsterNameEn = monster.name_en || localizeMonsterName(monster.name_ru, 'en') || monster.name_ru || '';
+    const monsterNameRu = cleanRussianText(monster.name_ru || localizeMonsterName(monster.name_en, 'ru') || monster.name_en || '');
+    const activeName = isEn ? monsterNameEn : monsterNameRu;
+    const activeType = localizeCreatureType(isEn ? (monster.creature_type || monster.creature_type_ru) : (monster.creature_type_ru || monster.creature_type), language);
+    const speed = formatSpeed(monster.speed, language);
 
     addCombatant({
-      name: monsterNameRu,
+      name: activeName,
       nameRu: monsterNameRu,
       cr: monster.cr,
-      creatureType: monsterTypeRu,
+      creatureType: activeType,
       size: mSize,
       tokenScale: CREATURE_SIZE_SCALE[mSize] || 1.0,
       tokenUrl: (monster as any).token_url,
@@ -443,7 +449,7 @@ export function BestiaryLibrary() {
       ac: monster.ac || 10,
       initiative: rolledInitiative,
       initBonus: initBonus,
-      speed: speedRu,
+      speed: speed,
       color: '#C5A059',
       statblock: monster,
     });
@@ -475,7 +481,7 @@ export function BestiaryLibrary() {
           <div className="flex items-center gap-1.5 min-w-0">
             <BookOpen className="h-4 w-4 text-[#f5b920] shrink-0" />
             <span className="text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap">
-              Бестиарий
+              {isEn ? 'Bestiary' : 'Бестиарий'}
             </span>
             <span className="text-[10px] font-mono font-bold text-amber-300/90 bg-amber-950/50 px-1.5 py-0.5 rounded-full border border-amber-500/30 shrink-0">
               {filteredList.length}
@@ -484,19 +490,19 @@ export function BestiaryLibrary() {
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => setIsHomebrewModalOpen(true)}
-              title="Создать своё существо"
+              title={isEn ? 'Create custom creature' : 'Создать своё существо'}
               className="min-h-[28px] px-2 py-0.5 rounded-full bg-gradient-to-r from-[#7a2016] to-[#991b1b] hover:from-[#94271c] hover:to-[#b91c1c] border border-red-500/50 text-white font-sans text-xs font-semibold flex items-center gap-1 transition-all shadow-sm active:scale-95 cursor-pointer whitespace-nowrap"
             >
               <Sparkles className="h-3.5 w-3.5 text-[#f5b920]" />
-              <span>+ Своё</span>
+              <span>{isEn ? '+ Custom' : '+ Своё'}</span>
             </button>
             <button
               onClick={() => lssFileRef.current?.click()}
-              title="Импортировать персонажа из Long Story Short (.json) прямо в бой"
+              title={isEn ? 'Import character from Long Story Short (.json) directly into combat' : 'Импортировать персонажа из Long Story Short (.json) прямо в бой'}
               className="min-h-[28px] px-2 py-0.5 rounded-full bg-emerald-950/70 hover:bg-emerald-900/80 border border-emerald-600/60 hover:border-emerald-500 text-emerald-200 font-sans text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap"
             >
               <FileText className="h-3.5 w-3.5 text-emerald-400" />
-              <span>+ Файл</span>
+              <span>{isEn ? '+ LSS' : '+ Файл'}</span>
             </button>
             <input
               ref={lssFileRef}
@@ -516,14 +522,14 @@ export function BestiaryLibrary() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Поиск существа в бестиарии..."
+            placeholder={isEn ? "Search bestiary (name, type, CR)..." : "Поиск существа в бестиарии..."}
             className="w-full min-h-[34px] pl-9 pr-8 bg-[rgba(20,25,35,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] focus:border-[#f5b920]/70 rounded-glass text-xs text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#f5b920]/40 focus:shadow-[0_0_12px_rgba(245,185,32,0.2)] transition-all font-sans"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 p-1 cursor-pointer"
-              title="Очистить поиск"
+              title={isEn ? "Clear search" : "Очистить поиск"}
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -536,7 +542,7 @@ export function BestiaryLibrary() {
             type="button"
             onClick={() => foldersRef.current?.scrollBy({ left: -140, behavior: 'smooth' })}
             className="w-5 h-6 rounded flex items-center justify-center text-gray-400 hover:text-amber-300 hover:bg-white/5 shrink-0 transition-colors cursor-pointer mr-0.5"
-            title="Прокрутить папки назад"
+            title={isEn ? "Scroll folders left" : "Прокрутить папки назад"}
           >
             <ChevronLeft className="h-3.5 w-3.5" />
           </button>
@@ -552,7 +558,7 @@ export function BestiaryLibrary() {
           >
             <div className="flex items-center gap-1 text-[11px] font-bold text-amber-400 uppercase tracking-wider shrink-0 mr-0.5">
               <Folder className="h-3.5 w-3.5 text-[#f5b920]" />
-              <span>Папки:</span>
+              <span>{isEn ? "Folders:" : "Папки:"}</span>
             </div>
             {FOLDERS.map((folder) => {
               const isSelected = selectedFolder === folder.id;
@@ -572,11 +578,11 @@ export function BestiaryLibrary() {
             })}
             <button
               onClick={() => setIsNewFolderOpen(true)}
-              title="Создать новую папку для монстров"
+              title={isEn ? "Create new bestiary folder" : "Создать новую папку для монстров"}
               className="min-h-[26px] px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border border-dashed border-amber-500/40 text-amber-300 hover:bg-amber-950/40 hover:border-amber-400 cursor-pointer shrink-0 flex items-center gap-1"
             >
               <FolderPlus className="h-3 w-3" />
-              <span>+ Папка</span>
+              <span>{isEn ? "+ Folder" : "+ Папка"}</span>
             </button>
           </div>
 
@@ -584,7 +590,7 @@ export function BestiaryLibrary() {
             type="button"
             onClick={() => foldersRef.current?.scrollBy({ left: 140, behavior: 'smooth' })}
             className="w-5 h-6 rounded flex items-center justify-center text-gray-400 hover:text-amber-300 hover:bg-white/5 shrink-0 transition-colors cursor-pointer ml-0.5"
-            title="Прокрутить папки вперёд"
+            title={isEn ? "Scroll folders right" : "Прокрутить папки вперёд"}
           >
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
@@ -689,18 +695,23 @@ export function BestiaryLibrary() {
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-1.5">
         {loading && monsters.length === 0 ? (
           <div className="p-6 text-center text-xs text-gray-400">
-            Загрузка каталога существ...
+            {isEn ? 'Loading creatures catalog...' : 'Загрузка каталога существ...'}
           </div>
         ) : filteredList.length === 0 ? (
           <div className="p-6 text-center text-xs text-gray-400">
-            Существ не найдено
+            {isEn ? 'No creatures found' : 'Существ не найдено'}
           </div>
         ) : (
           filteredList.map((monster) => {
-            const monsterNameRu = cleanRussianText(localizeMonsterName(monster.name_ru || monster.name_en));
-            const creatureTypeRu = cleanRussianText(localizeCreatureType(monster.creature_type_ru || monster.creature_type));
-            const sensesRu = localizeSenses(monster.senses);
-            const speedRu = formatSpeedRu(monster.speed);
+            const monsterNameEn = monster.name_en || localizeMonsterName(monster.name_ru, 'en') || monster.name_ru || '';
+            const monsterNameRu = cleanRussianText(monster.name_ru || localizeMonsterName(monster.name_en, 'ru') || monster.name_en || '');
+            const activeDisplayName = isEn ? monsterNameEn : monsterNameRu;
+            const creatureType = localizeCreatureType(isEn ? (monster.creature_type || monster.creature_type_ru) : (monster.creature_type_ru || monster.creature_type), language);
+            const senses = localizeSenses(monster.senses, language);
+            const speed = formatSpeed(monster.speed, language);
+            const crLabel = isEn ? `CR ${monster.cr}` : `КО ${monster.cr}`;
+            const acLabel = isEn ? `${monster.ac} AC` : `${monster.ac} КД`;
+            const hpLabel = isEn ? `${monster.hp_average} HP` : `${monster.hp_average} ОЗ`;
             const assignedFolders = creatureFolderMap[monster.id] || [];
 
             return (
@@ -713,20 +724,20 @@ export function BestiaryLibrary() {
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span
                       className="text-xs font-bold text-gray-100 truncate group-hover:text-gold-light transition-colors min-w-0 flex-1"
-                      title={monsterNameRu}
+                      title={activeDisplayName}
                     >
-                      {monsterNameRu}
+                      {activeDisplayName}
                     </span>
                     {monster.is_custom && (
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-[#f5b920]/60 shrink-0 whitespace-nowrap shadow-sm inline-flex items-center gap-1">
                         <Sparkles className="h-2.5 w-2.5 inline" />
-                        <span>Своё</span>
+                        <span>{isEn ? 'Custom' : 'Своё'}</span>
                       </span>
                     )}
                     {assignedFolders.length > 0 && (
                       <span
                         className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 shrink-0 whitespace-nowrap inline-flex items-center gap-1"
-                        title={`Папки: ${assignedFolders.map((fId) => FOLDERS.find((f) => f.id === fId)?.label || fId).join(', ')}`}
+                        title={isEn ? `Folders: ${assignedFolders.map((fId) => FOLDERS.find((f) => f.id === fId)?.label || fId).join(', ')}` : `Папки: ${assignedFolders.map((fId) => FOLDERS.find((f) => f.id === fId)?.label || fId).join(', ')}`}
                       >
                         <Folder className="h-2.5 w-2.5 inline" />
                         <span>{assignedFolders.length}</span>
@@ -734,7 +745,7 @@ export function BestiaryLibrary() {
                     )}
                     {monster.cr && (
                       <span className="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-black/50 border border-[#f5b920]/30 text-amber-300 shrink-0 whitespace-nowrap leading-none">
-                        КО {monster.cr}
+                        {crLabel}
                       </span>
                     )}
                   </div>
@@ -743,24 +754,24 @@ export function BestiaryLibrary() {
                   <div className="flex items-center gap-1 text-[11px] text-gray-400 font-sans min-w-0 mt-1 overflow-hidden">
                     <span
                       className="truncate flex-1 min-w-0 text-gray-300 text-[11px]"
-                      title={`Тип: ${creatureTypeRu}`}
+                      title={isEn ? `Type: ${creatureType}` : `Тип: ${creatureType}`}
                     >
-                      {creatureTypeRu}
+                      {creatureType}
                     </span>
                     <span className="text-gray-600 shrink-0 text-[10px]">•</span>
                     <span
                       className="inline-flex items-center gap-0.5 text-[10.5px] font-mono font-bold text-gray-200 shrink-0 whitespace-nowrap bg-black/50 px-1.5 py-0.5 rounded border border-[rgba(255,255,255,0.08)] leading-none"
-                      title={`Класс доспеха: ${monster.ac} КД`}
+                      title={isEn ? `Armor Class: ${acLabel}` : `Класс доспеха: ${acLabel}`}
                     >
                       <Shield className="h-2.5 w-2.5 text-[#f5b920] shrink-0" />
-                      <span>{monster.ac} КД</span>
+                      <span>{acLabel}</span>
                     </span>
                     <span className="text-gray-600 shrink-0 text-[10px]">•</span>
                     <span
                       className="inline-flex items-center gap-0.5 text-[10.5px] font-mono font-bold text-emerald-300 shrink-0 whitespace-nowrap bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/60 leading-none"
-                      title={`Хиты: ${monster.hp_average} ОЗ • Скорость: ${speedRu}${monster.senses ? ` • Чувства: ${sensesRu}` : ''}`}
+                      title={isEn ? `Hit Points: ${hpLabel} • Speed: ${speed}${monster.senses ? ` • Senses: ${senses}` : ''}` : `Хиты: ${hpLabel} • Скорость: ${speed}${monster.senses ? ` • Чувства: ${senses}` : ''}`}
                     >
-                      <span>{monster.hp_average} ОЗ</span>
+                      <span>{hpLabel}</span>
                     </span>
                   </div>
                 </div>
@@ -773,7 +784,7 @@ export function BestiaryLibrary() {
                       e.stopPropagation();
                       setFolderAssignMonster(monster);
                     }}
-                    title={`Назначить папку для «${monsterNameRu}»`}
+                    title={isEn ? `Assign folder for "${activeDisplayName}"` : `Назначить папку для «${activeDisplayName}»`}
                     className="flex items-center justify-center w-6 h-6 rounded-full bg-[rgba(255,255,255,0.04)] hover:bg-amber-500/20 border border-[rgba(255,255,255,0.08)] hover:border-amber-400 text-gray-400 hover:text-amber-300 opacity-60 group-hover:opacity-100 transition-all cursor-pointer"
                   >
                     <Folder className="h-3 w-3" />
@@ -782,7 +793,7 @@ export function BestiaryLibrary() {
                   <button
                     type="button"
                     onClick={(e) => handleCloneMonster(monster, e)}
-                    title={`Клонировать и изменить «${monsterNameRu}»`}
+                    title={isEn ? `Clone and edit "${activeDisplayName}"` : `Клонировать и изменить «${activeDisplayName}»`}
                     className="flex items-center justify-center w-6 h-6 rounded-full bg-[rgba(255,255,255,0.04)] hover:bg-[#f5b920]/20 border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920] text-gray-400 hover:text-[#f5b920] opacity-60 group-hover:opacity-100 transition-all cursor-pointer"
                   >
                     <Copy className="h-3 w-3" />
@@ -795,7 +806,7 @@ export function BestiaryLibrary() {
                         e.stopPropagation();
                         homebrewService.deleteCustomMonster(monster.id);
                       }}
-                      title={`Удалить «${monsterNameRu}»`}
+                      title={isEn ? `Delete "${activeDisplayName}"` : `Удалить «${activeDisplayName}»`}
                       className="flex items-center justify-center w-6 h-6 rounded-full bg-red-950/40 border border-red-800/50 hover:border-red-500 hover:bg-red-900 text-gray-300 hover:text-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
                     >
                       <Trash2 className="h-3 w-3" />
@@ -805,7 +816,7 @@ export function BestiaryLibrary() {
                   <button
                     type="button"
                     onClick={() => handleAddMonster(monster)}
-                    title={`Добавить «${monsterNameRu}» в бой (автобросок инициативы)`}
+                    title={isEn ? `Add "${activeDisplayName}" to combat (auto-rolls initiative)` : `Добавить «${activeDisplayName}» в бой (автобросок инициативы)`}
                     className="flex items-center justify-center w-6.5 h-6.5 rounded-full bg-[rgba(255,255,255,0.06)] hover:bg-[#f5b920] border border-[rgba(255,255,255,0.12)] hover:border-[#f5b920] text-gray-200 hover:text-[#0c0d12] hover:shadow-[0_0_12px_rgba(245,185,32,0.4)] transition-all flex-shrink-0 group/btn cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5 group-hover/btn:scale-110 transition-transform flex-shrink-0" />
@@ -821,7 +832,7 @@ export function BestiaryLibrary() {
       <div className="p-2.5 border-t border-[rgba(255,255,255,0.08)] bg-[rgba(14,18,25,0.6)] text-xs text-gray-400 flex items-center justify-between font-sans">
         <span className="flex items-center gap-1.5">
           <Sparkles className="h-3.5 w-3.5 text-[#f5b920]" />
-          <span>Клик [+] бросает инициативу (d20)</span>
+          <span>{isEn ? 'Click [+] rolls initiative (d20)' : 'Клик [+] бросает инициативу (d20)'}</span>
         </span>
       </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { usePartyStore } from '../../store/partyStore';
 import { useCombatStore } from '../../store/combatStore';
+import { useTranslation } from '../../i18n';
 import { rollDie } from '../../engine/rolls';
 import { Flame, X, Sparkles, Check, RotateCcw, HeartPulse, Zap } from 'lucide-react';
 import { HealthBar } from '../ui';
@@ -25,6 +26,9 @@ interface RestParticipant {
 }
 
 export const ShortRestModal: React.FC = () => {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
+
   const {
     members,
     isShortRestModalOpen,
@@ -85,7 +89,7 @@ export const ShortRestModal: React.FC = () => {
         combatantId: matched?.id,
         name: m.name,
         color: m.color || '#10B981',
-        characterClass: m.characterClass || 'Герой',
+        characterClass: m.characterClass || (isEn ? 'Hero' : 'Герой'),
         currentHp,
         maxHp,
         tempHp,
@@ -106,14 +110,16 @@ export const ShortRestModal: React.FC = () => {
         const conScore = c.statblock?.con || 12;
         const isWarlock =
           (c.creatureType || '').toLowerCase().includes('колдун') ||
-          c.name.toLowerCase().includes('колдун');
+          (c.creatureType || '').toLowerCase().includes('warlock') ||
+          c.name.toLowerCase().includes('колдун') ||
+          c.name.toLowerCase().includes('warlock');
 
         list.push({
           id: c.id,
           combatantId: c.id,
-          name: c.nameRu || c.name,
+          name: isEn ? (c.name || c.nameRu || '') : (c.nameRu || c.name || ''),
           color: c.color || '#3b82f6',
-          characterClass: c.creatureType || 'Персонаж игрока',
+          characterClass: c.creatureType || (isEn ? 'Player Character' : 'Персонаж игрока'),
           currentHp: c.hp,
           maxHp: c.maxHp,
           tempHp: c.tempHp || 0,
@@ -138,7 +144,7 @@ export const ShortRestModal: React.FC = () => {
     }
 
     return list;
-  }, [members, combatants, shortRestTargetId]);
+  }, [members, combatants, shortRestTargetId, isEn]);
 
   if (!isShortRestModalOpen) return null;
 
@@ -244,7 +250,9 @@ export const ShortRestModal: React.FC = () => {
     });
 
     showToast(
-      'Короткий отдых (1ч) завершён: здоровье, ячейки колдунов и тактические умения восстановлены'
+      isEn
+        ? 'Short rest (1 hr) completed: HP, warlock spell slots, and tactical abilities restored'
+        : 'Короткий отдых (1ч) завершён: здоровье, ячейки колдунов и тактические умения восстановлены'
     );
     closeShortRestModal();
   };
@@ -253,7 +261,7 @@ export const ShortRestModal: React.FC = () => {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Короткий отдых"
+      aria-label={isEn ? 'Short Rest' : 'Короткий отдых'}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-3 sm:p-4 select-none animate-in fade-in duration-200"
     >
       <div className="w-full max-w-2xl bg-[rgba(18,22,30,0.88)] backdrop-blur-xl border border-[rgba(255,255,255,0.08)] rounded-glass-xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] p-5 sm:p-6 text-gray-100 flex flex-col max-h-[90vh] overflow-hidden gap-4 font-sans">
@@ -266,14 +274,16 @@ export const ShortRestModal: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                  Короткий отдых (1 час)
+                  {isEn ? 'Short Rest (1 Hour)' : 'Короткий отдых (1 час)'}
                 </h2>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-600/40">
-                  1 час отдыха
+                  {isEn ? '1 hour rest' : '1 час отдыха'}
                 </span>
               </div>
               <p className="text-xs text-gray-400 mt-0.5">
-                Герои бросают кости хитов (КХ) для исцеления ран и восполняют ресурсы короткого отдыха.
+                {isEn
+                  ? 'Heroes roll Hit Dice (HD) to heal wounds and regain short rest resources.'
+                  : 'Герои бросают кости хитов (КХ) для исцеления ран и восполняют ресурсы короткого отдыха.'}
               </p>
             </div>
           </div>
@@ -281,7 +291,7 @@ export const ShortRestModal: React.FC = () => {
             type="button"
             onClick={closeShortRestModal}
             className="p-1.5 rounded-glass text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            title="Закрыть"
+            title={isEn ? 'Close' : 'Закрыть'}
           >
             <X className="h-4 w-4" />
           </button>
@@ -291,7 +301,7 @@ export const ShortRestModal: React.FC = () => {
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">
           {participants.length === 0 ? (
             <div className="p-8 text-center text-gray-400 text-xs">
-              Нет доступных персонажей для отдыха.
+              {isEn ? 'No characters available for rest.' : 'Нет доступных персонажей для отдыха.'}
             </div>
           ) : (
             participants.map((p) => {
@@ -326,12 +336,12 @@ export const ShortRestModal: React.FC = () => {
                           <h4 className="text-sm font-bold text-white truncate">{p.name}</h4>
                           {p.combatantId && (
                             <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-blue-950/70 text-blue-300 border border-blue-600/40">
-                              В бою
+                              {isEn ? 'In combat' : 'В бою'}
                             </span>
                           )}
                         </div>
                         <p className="text-[11px] text-gray-400 truncate">
-                          {p.characterClass} • Телосложение {p.conScore} ({p.conMod >= 0 ? `+${p.conMod}` : p.conMod})
+                          {p.characterClass} • {isEn ? 'Constitution' : 'Телосложение'} {p.conScore} ({p.conMod >= 0 ? `+${p.conMod}` : p.conMod})
                         </p>
                       </div>
                     </div>
@@ -340,7 +350,7 @@ export const ShortRestModal: React.FC = () => {
                       <div className="text-xs font-mono font-bold text-emerald-400 flex items-center justify-end gap-1">
                         <span>{projectedHp}</span>
                         <span className="text-gray-500 font-normal">/</span>
-                        <span>{p.maxHp} ОЗ</span>
+                        <span>{p.maxHp} {isEn ? 'HP' : 'ОЗ'}</span>
                         {recovered > 0 && (
                           <span className="text-[11px] text-emerald-300 font-bold ml-1">
                             (+{recovered})
@@ -349,7 +359,7 @@ export const ShortRestModal: React.FC = () => {
                       </div>
                       {p.tempHp > 0 && (
                         <span className="text-[10px] font-mono text-cyan-300">
-                          +{p.tempHp} врем. ОЗ
+                          +{p.tempHp} {isEn ? 'temp HP' : 'врем. ОЗ'}
                         </span>
                       )}
                     </div>
@@ -368,7 +378,9 @@ export const ShortRestModal: React.FC = () => {
                   {/* Hit Dice Controls */}
                   <div className="flex items-center justify-between bg-[rgba(14,18,25,0.7)] p-2.5 rounded-glass border border-[rgba(255,255,255,0.06)] gap-2 flex-wrap text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-400 text-xs font-medium">Кости хитов:</span>
+                      <span className="text-gray-400 text-xs font-medium">
+                        {isEn ? 'Hit Dice:' : 'Кости хитов:'}
+                      </span>
                       <span className="font-mono font-bold text-[#fce79f] bg-black/40 px-2 py-0.5 rounded-glass border border-[#f5b920]/30 shadow-inner">
                         [{diceType}] {remainingDice} / {maxDice}
                       </span>
@@ -381,11 +393,11 @@ export const ShortRestModal: React.FC = () => {
                         onClick={() => handleRollHitDie(p)}
                         disabled={remainingDice <= 0 || isFullHp}
                         className="min-h-[34px] px-3.5 py-1.5 rounded-glass bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_0_10px_rgba(245,158,11,0.15)] cursor-pointer"
-                        title={`Бросить 1${diceType} + ${p.conMod}`}
+                        title={isEn ? `Roll 1${diceType} + ${p.conMod}` : `Бросить 1${diceType} + ${p.conMod}`}
                       >
                         <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                         <span>
-                          Бросить 1{diceType}
+                          {isEn ? `Roll 1${diceType}` : `Бросить 1${diceType}`}
                           {p.conMod >= 0 ? `+${p.conMod}` : p.conMod}
                         </span>
                       </button>
@@ -396,10 +408,10 @@ export const ShortRestModal: React.FC = () => {
                         onClick={() => handleAutoRecover(p)}
                         disabled={remainingDice <= 0 || isFullHp}
                         className="min-h-[34px] px-3 py-1.5 rounded-glass bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/35 text-xs font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_0_10px_rgba(16,185,129,0.15)] cursor-pointer"
-                        title="Автоматически потратить кости хитов до максимума ОЗ"
+                        title={isEn ? 'Automatically spend hit dice up to max HP' : 'Автоматически потратить кости хитов до максимума ОЗ'}
                       >
                         <HeartPulse className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Авто-лечение</span>
+                        <span>{isEn ? 'Auto-Heal' : 'Авто-лечение'}</span>
                       </button>
 
                       {spent > 0 && (
@@ -407,7 +419,7 @@ export const ShortRestModal: React.FC = () => {
                           type="button"
                           onClick={() => handleResetParticipant(p.id)}
                           className="min-h-[34px] min-w-[34px] flex items-center justify-center rounded-glass text-gray-400 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/10 transition-colors cursor-pointer"
-                          title="Сбросить броски"
+                          title={isEn ? 'Reset rolls' : 'Сбросить броски'}
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                         </button>
@@ -420,7 +432,7 @@ export const ShortRestModal: React.FC = () => {
                     <div>
                       {rolls.length > 0 && (
                         <span className="font-mono text-gray-300 text-[11px]">
-                          Броски:{' '}
+                          {isEn ? 'Rolls: ' : 'Броски: '}
                           {rolls
                             .map((r) => `${r}${p.conMod >= 0 ? `+${p.conMod}` : p.conMod}`)
                             .join(', ')}
@@ -431,11 +443,11 @@ export const ShortRestModal: React.FC = () => {
                     {(p.shortRestResources.length > 0 || p.isWarlock) && (
                       <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-mono">
                         <Zap className="w-3 h-3 text-emerald-400" />
-                        <span>Восстановит: </span>
+                        <span>{isEn ? 'Will restore: ' : 'Восстановит: '}</span>
                         <span className="font-semibold text-emerald-300">
                           {[
                             ...p.shortRestResources.map((r) => r.name),
-                            ...(p.isWarlock ? ['Ячейки магии договора'] : []),
+                            ...(p.isWarlock ? [isEn ? 'Pact Magic spell slots' : 'Ячейки магии договора'] : []),
                           ].join(', ')}
                         </span>
                       </div>
@@ -454,7 +466,7 @@ export const ShortRestModal: React.FC = () => {
             onClick={closeShortRestModal}
             className="min-h-[34px] px-4 py-2 rounded-glass border border-[rgba(255,255,255,0.08)] bg-white/5 hover:bg-white/10 text-xs font-semibold text-gray-300 hover:text-white transition-all cursor-pointer"
           >
-            Отмена
+            {isEn ? 'Cancel' : 'Отмена'}
           </button>
 
           <button
@@ -463,7 +475,7 @@ export const ShortRestModal: React.FC = () => {
             className="min-h-[34px] px-5 py-2 rounded-glass bg-[#f5b920] hover:bg-[#fac742] active:bg-[#e0a312] text-[#0c0d12] font-black text-xs shadow-[0_0_18px_rgba(245,185,32,0.35)] flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <Check className="w-4 h-4" />
-            <span>Завершить короткий отдых</span>
+            <span>{isEn ? 'Finish Short Rest' : 'Завершить короткий отдых'}</span>
           </button>
         </div>
       </div>

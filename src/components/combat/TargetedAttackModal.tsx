@@ -6,8 +6,10 @@ import { useDiceAnimationStore } from '../../store/diceAnimationStore';
 import { DamageType, RollMode } from '../../types/dnd5e';
 import { rollD20, rollDiceFormula } from '../../engine/rolls';
 import { broadcastService } from '../../services/broadcastService';
-import { Crosshair, Shield, Sparkles, Send, Swords, Dices, X, Edit3, Skull, Zap } from 'lucide-react';
-import { cleanRussianText, DAMAGE_NAMES_RU, localizeDamageType } from '../../utils/textUtils';
+import { Crosshair, Sparkles, Send, Swords, Dices, X, Edit3, Zap } from 'lucide-react';
+import { cleanRussianText, localizeDamageType } from '../../utils/textUtils';
+import { useTranslation } from '../../i18n';
+import { Combatant } from '../../types/combat';
 import {
   parseActionDetails,
   parseMultiattackPlan,
@@ -20,7 +22,10 @@ import {
   ABILITY_LABELS,
 } from '../../utils/attackParser';
 import {
+  TargetSelector,
+  AdvantageToggle,
   DamagePreview,
+  HitOutcomeBanner,
   MultiattackStepLog,
 } from './targeted';
 
@@ -36,6 +41,9 @@ function formatFormulaBreakdown(dmg: {
 }
 
 export function TargetedAttackModal() {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
+
   const {
     combatants,
     targetedAttackModalOpen,
@@ -47,6 +55,13 @@ export function TargetedAttackModal() {
   } = useCombatStore();
 
   const attacker = combatants.find((c) => c.id === targetedAttackAttackerId) || combatants[0];
+
+  const getName = (c?: Combatant | null): string => {
+    if (!c) return '';
+    return (isEn ? (c.name || c.nameRu) : (c.nameRu || c.name)) || '';
+  };
+
+  const formatLogText = (text: string) => (isEn ? text : cleanRussianText(text));
 
   // Possible targets: exclude attacker and dead creatures
   const availableTargets = useMemo(() => {
@@ -65,6 +80,9 @@ export function TargetedAttackModal() {
   const [selectedTargetId, setSelectedTargetId] = useState<string>(defaultTargetId);
   const [isAoEMode, setIsAoEMode] = useState(false);
   const [selectedAoETargetIds, setSelectedAoETargetIds] = useState<string[]>([]);
+
+  // Cover state: 'none' | 'half' | 'threeQuarters' | 'total'
+  const [cover, setCover] = useState<'none' | 'half' | 'threeQuarters' | 'total'>('none');
 
   // First-class mode: Attack vs DC Save
   const [attackOrSaveMode, setAttackOrSaveMode] = useState<'attack' | 'save'>('attack');
@@ -85,10 +103,21 @@ export function TargetedAttackModal() {
   const [selectedActionIndex, setSelectedActionIndex] = useState<number>(0);
 
   // Custom Action fields
-  const [customName, setCustomName] = useState('Атака оружием');
+  const [customName, setCustomName] = useState(isEn ? 'Weapon Attack' : 'Атака оружием');
   const [customToHit, setCustomToHit] = useState(5);
   const [customFormula, setCustomFormula] = useState('1d8+3');
   const [customDamageType, setCustomDamageType] = useState<DamageType>('slashing');
+
+  // Sync customName default on language change if user hasn't modified it
+  useEffect(() => {
+    if (actionMode === 'custom') {
+      if (isEn && customName === 'Атака оружием') {
+        setCustomName('Weapon Attack');
+      } else if (!isEn && customName === 'Weapon Attack') {
+        setCustomName('Атака оружием');
+      }
+    }
+  }, [isEn, actionMode, customName]);
 
   // Physical Dice Inputs
   const [physicalD20, setPhysicalD20] = useState('');
@@ -137,6 +166,10 @@ export function TargetedAttackModal() {
 
   const target = combatants.find((c) => c.id === selectedTargetId);
 
+  // Cover AC bonus: Half Cover (+2 AC), Three-Quarters Cover (+5 AC)
+  const coverAcBonus = cover === 'half' ? 2 : cover === 'threeQuarters' ? 5 : 0;
+  const effectiveTargetAc = (target?.ac ?? 10) + coverAcBonus;
+
   // Current selected action details parsed
   const currentAction = actionMode === 'action' && attacker?.statblock?.actions?.[selectedActionIndex]
     ? attacker.statblock.actions[selectedActionIndex]
@@ -150,7 +183,7 @@ export function TargetedAttackModal() {
 
     if (currentAction) {
       const parsed = parseActionDetails(currentAction);
-      actName = currentAction.name;
+      actName = isEn ? currentAction.name : cleanRussianText(currentAction.name);
       toHitMod = parsed.attackBonus ?? 5;
       formula = parsed.damageFormula || '1d8+3';
       dmgType = (parsed.damageType?.toLowerCase() || 'slashing') as DamageType;
@@ -162,7 +195,20 @@ export function TargetedAttackModal() {
       damageFormula: formula,
       damageType: dmgType,
     };
-  }, [currentAction, customName, customToHit, customFormula, customDamageType]);
+  }, [currentAction, customName, customToHit, customFormula, customDamageType, isEn]);
+
+  // Reset calculated result when parameters change
+  const resetResults = () => {
+    setHasCalculated(false);
+    setIsHit(false);
+    setIsCrit(false);
+    setHitOutcomeText('');
+    setDamageDetailText('');
+    setDefenseNoticeText('');
+    setFinalCalculatedDamage(0);
+    setMultiattackLogs([]);
+    setConcentrationCheckDc(null);
+  };
 
   // Auto-detect DC Save from selected monster action
   useEffect(() => {
@@ -196,19 +242,6 @@ export function TargetedAttackModal() {
     });
   }, [currentActionDetails.damageFormula]);
 
-  // Reset calculated result when parameters change
-  const resetResults = () => {
-    setHasCalculated(false);
-    setIsHit(false);
-    setIsCrit(false);
-    setHitOutcomeText('');
-    setDamageDetailText('');
-    setDefenseNoticeText('');
-    setFinalCalculatedDamage(0);
-    setMultiattackLogs([]);
-    setConcentrationCheckDc(null);
-  };
-
   // Re-calculate physical mode outcome immediately upon input
   const calculatePhysicalOutcome = (
     d20ValStr: string,
@@ -224,14 +257,38 @@ export function TargetedAttackModal() {
 
     const num = parseInt(d20ValStr, 10);
     const mod = currentActionDetails.attackBonus;
-    const targetAc = target.ac;
+    const targetAc = effectiveTargetAc;
 
     if (isNaN(num) || num < 1 || num > 20) {
       setHasCalculated(true);
       setIsHit(false);
       setIsCrit(false);
-      setHitOutcomeText('Введите значение броска d20 от 1 до 20');
+      setHitOutcomeText(
+        isEn
+          ? 'Enter a d20 roll value between 1 and 20'
+          : 'Введите значение броска d20 от 1 до 20'
+      );
       setDamageDetailText('');
+      setDefenseNoticeText('');
+      setFinalCalculatedDamage(0);
+      setConcentrationCheckDc(null);
+      return;
+    }
+
+    if (cover === 'total') {
+      setHasCalculated(true);
+      setIsHit(false);
+      setIsCrit(false);
+      setHitOutcomeText(
+        isEn
+          ? 'TOTAL COVER! Target cannot be targeted directly by attacks.'
+          : 'ПОЛНОЕ УКРЫТИЕ! Цель за сплошным укрытием и не может быть атакована напрямую.'
+      );
+      setDamageDetailText(
+        isEn
+          ? 'Total cover provides full obstruction from attacks and spells.'
+          : 'Полное укрытие полностью защищает от прямых атак и направленных заклинаний.'
+      );
       setDefenseNoticeText('');
       setFinalCalculatedDamage(0);
       setConcentrationCheckDc(null);
@@ -249,16 +306,24 @@ export function TargetedAttackModal() {
       crit = true;
       const sum = 20 + mod;
       setHitOutcomeText(
-        `КРИТИЧЕСКОЕ ПОПАДАНИЕ (КРИТ!) ИТОГ: 20 + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ПОПАДАНИЕ!`
+        isEn
+          ? `CRITICAL HIT! TOTAL: 20 + ${modStr} = ${sum} vs Target AC (${targetAc}) -> HIT!`
+          : `КРИТИЧЕСКОЕ ПОПАДАНИЕ (КРИТ!) ИТОГ: 20 + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ПОПАДАНИЕ!`
       );
     } else if (num === 1) {
       hit = false;
       crit = false;
       const sum = 1 + mod;
       setHitOutcomeText(
-        `АВТОМАТИЧЕСКИЙ ПРОМАХ! ИТОГ: 1 + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ПРОМАХ!`
+        isEn
+          ? `AUTOMATIC MISS! TOTAL: 1 + ${modStr} = ${sum} vs Target AC (${targetAc}) -> MISS!`
+          : `АВТОМАТИЧЕСКИЙ ПРОМАХ! ИТОГ: 1 + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ПРОМАХ!`
       );
-      setDamageDetailText('Бросок 1 на кости d20 — автоматический промах независимо от бонуса к атаке.');
+      setDamageDetailText(
+        isEn
+          ? 'Natural 1 on d20 is an automatic miss regardless of attack bonus.'
+          : 'Бросок 1 на кости d20 — автоматический промах независимо от бонуса к атаке.'
+      );
       setDefenseNoticeText('');
       setFinalCalculatedDamage(0);
       setConcentrationCheckDc(null);
@@ -270,7 +335,9 @@ export function TargetedAttackModal() {
       hit = sum >= targetAc;
       crit = false;
       setHitOutcomeText(
-        `${hit ? 'ПОПАДАНИЕ!' : 'ПРОМАХ!'} ИТОГ: ${num} + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ${hit ? 'ПОПАДАНИЕ!' : 'ПРОМАХ!'}`
+        isEn
+          ? `${hit ? 'HIT!' : 'MISS!'} TOTAL: ${num} + ${modStr} = ${sum} vs Target AC (${targetAc}) -> ${hit ? 'HIT!' : 'MISS!'}`
+          : `${hit ? 'ПОПАДАНИЕ!' : 'ПРОМАХ!'} ИТОГ: ${num} + ${modStr} = ${sum} против КД Цели (${targetAc}) -> ${hit ? 'ПОПАДАНИЕ!' : 'ПРОМАХ!'}`
       );
     }
 
@@ -279,7 +346,11 @@ export function TargetedAttackModal() {
 
     if (!hit) {
       const sum = num + mod;
-      setDamageDetailText(`Сумма атаки (${sum}) не пробивает защиту цели (КД ${targetAc}).`);
+      setDamageDetailText(
+        isEn
+          ? `Attack total (${sum}) does not meet target defense (Target AC ${targetAc}).`
+          : `Сумма атаки (${sum}) не пробивает защиту цели (КД ${targetAc}).`
+      );
       setDefenseNoticeText('');
       setFinalCalculatedDamage(0);
       setConcentrationCheckDc(null);
@@ -294,18 +365,26 @@ export function TargetedAttackModal() {
 
     if (totalOverrideStr !== undefined && totalOverrideStr.trim() !== '') {
       finalDmg = Math.max(0, parseInt(totalOverrideStr, 10) || 0);
-      detailText = `Итоговый суммарный урон задан вручную: ${finalDmg} (${localizeDamageType(dmgType)})`;
-      noticeText = 'Урон введён вручную мастером (без модификаторов).';
+      detailText = isEn
+        ? `Total damage set manually: ${finalDmg} (${localizeDamageType(dmgType, language)})`
+        : `Итоговый суммарный урон задан вручную: ${finalDmg} (${localizeDamageType(dmgType, language)})`;
+      noticeText = isEn
+        ? 'Damage entered manually by DM (unmodified).'
+        : 'Урон введён вручную мастером (без модификаторов).';
     } else {
       const effectiveRawStr = rawDmgStr !== undefined ? rawDmgStr : physicalRawDamage;
       if (effectiveRawStr && effectiveRawStr.trim() !== '') {
         const rawDmg = Math.max(0, parseInt(effectiveRawStr, 10) || 0);
-        const def = computeDamageWithDefenses(rawDmg, dmgType, target);
+        const def = computeDamageWithDefenses(rawDmg, dmgType, target, language);
         finalDmg = def.finalDmg;
-        detailText = `Чистый урон со стола: ${rawDmg} (${localizeDamageType(dmgType)})`;
+        detailText = isEn
+          ? `Raw table damage: ${rawDmg} (${localizeDamageType(dmgType, language)})`
+          : `Чистый урон со стола: ${rawDmg} (${localizeDamageType(dmgType, language)})`;
         noticeText = def.notice;
       } else {
-        detailText = `Нажмите «Бросить формулу урона» или введите урон со стола.`;
+        detailText = isEn
+          ? 'Click "Roll Formula" or enter raw damage from table.'
+          : 'Нажмите «Бросить формулу урона» или введите урон со стола.';
       }
     }
 
@@ -331,11 +410,13 @@ export function TargetedAttackModal() {
     setPhysicalTotalOverride('');
 
     const dmgType = physicalDamageType || currentActionDetails.damageType;
-    const def = computeDamageWithDefenses(raw, dmgType, target);
+    const def = computeDamageWithDefenses(raw, dmgType, target, language);
 
     setFinalCalculatedDamage(def.finalDmg);
     setDamageDetailText(
-      `Бросок формулы (${isCrit ? 'КРИТ x2 кубы' : 'обычный'}): ${formatFormulaBreakdown(dmgRoll)} (${localizeDamageType(dmgType)})`
+      isEn
+        ? `Formula roll (${isCrit ? 'CRIT x2 dice' : 'normal'}): ${formatFormulaBreakdown(dmgRoll)} (${localizeDamageType(dmgType, language)})`
+        : `Бросок формулы (${isCrit ? 'КРИТ x2 кубы' : 'обычный'}): ${formatFormulaBreakdown(dmgRoll)} (${localizeDamageType(dmgType, language)})`
     );
     setDefenseNoticeText(def.notice);
 
@@ -362,12 +443,32 @@ export function TargetedAttackModal() {
 
     if (!target) return;
 
+    if (cover === 'total') {
+      setHasCalculated(true);
+      setIsHit(false);
+      setIsCrit(false);
+      setHitOutcomeText(
+        isEn
+          ? 'TOTAL COVER! Target cannot be targeted directly by attacks.'
+          : 'ПОЛНОЕ УКРЫТИЕ! Цель за сплошным укрытием и не может быть атакована напрямую.'
+      );
+      setDamageDetailText(
+        isEn
+          ? 'Total cover provides full obstruction from attacks and spells.'
+          : 'Полное укрытие полностью защищает от прямых атак и направленных заклинаний.'
+      );
+      setDefenseNoticeText('');
+      setFinalCalculatedDamage(0);
+      setConcentrationCheckDc(null);
+      return;
+    }
+
     // Roll d20 with advantage mode
     const d20 = rollD20(advMode, toHitMod);
     const attackTotal = d20.total;
     const isNat20 = d20.isNatural20;
     const isNat1 = d20.isNatural1;
-    const targetAc = target.ac;
+    const targetAc = effectiveTargetAc;
     const rollLog = `[d20: ${d20.keptRoll} + ${d20.modifier} = ${d20.total}]`;
 
     const hit = !isNat1 && (isNat20 || attackTotal >= targetAc);
@@ -381,18 +482,31 @@ export function TargetedAttackModal() {
           ]
         : [{ sides: 20, result: d20.keptRoll }];
 
+    const attackerName = getName(attacker);
+    const targetName = getName(target);
+
     if (!hit) {
       setHitOutcomeText(
-        `ПРОМАХ! ${rollLog} против КД ${targetAc}`
+        isEn
+          ? `MISS! ${rollLog} vs Target AC ${targetAc}`
+          : `ПРОМАХ! ${rollLog} против КД ${targetAc}`
       );
-      setDamageDetailText('Атака прошла мимо цели или отражена бронёй.');
+      setDamageDetailText(
+        isEn
+          ? 'The attack missed or was deflected by armor.'
+          : 'Атака прошла мимо цели или отражена бронёй.'
+      );
       setDefenseNoticeText('');
       setFinalCalculatedDamage(0);
       setConcentrationCheckDc(null);
 
       useDiceAnimationStore.getState().triggerRoll({
-        title: `${attacker?.nameRu || attacker?.name}: ${actName} (Промах)`,
-        subtitle: `Промах по ${target?.nameRu || target?.name} [${attackTotal} против КД ${targetAc}]`,
+        title: isEn
+          ? `${attackerName}: ${actName} (Miss)`
+          : `${attackerName}: ${actName} (Промах)`,
+        subtitle: isEn
+          ? `Miss vs ${targetName} [${attackTotal} vs Target AC ${targetAc}]`
+          : `Промах по ${targetName} [${attackTotal} против КД ${targetAc}]`,
         sides: 20,
         r1: d20.d20_1,
         r2: d20.d20_2,
@@ -402,14 +516,16 @@ export function TargetedAttackModal() {
         mode: advMode,
         isNat1: d20.isNatural1,
         isNat20: false,
-        rollerName: attacker?.nameRu || attacker?.name,
-        targetName: target?.nameRu || target?.name,
+        rollerName: attackerName,
+        targetName: targetName,
       });
 
       if (useDice3dStore.getState().is3dEnabled) {
         useDice3dStore.getState().rollDice3d({
           dice: diceToRoll,
-          title: `${attacker?.nameRu || attacker?.name}: ${actName} (Промах)`,
+          title: isEn
+            ? `${attackerName}: ${actName} (Miss)`
+            : `${attackerName}: ${actName} (Промах)`,
           total: attackTotal,
           isSecret: useDice3dStore.getState().isSecretRoll,
           rollMode: advMode,
@@ -428,7 +544,7 @@ export function TargetedAttackModal() {
 
     const dmgRoll = rollDiceFormula(damageFormulaToRoll);
     const rawDamage = dmgRoll.total;
-    const { finalDmg, notice } = computeDamageWithDefenses(rawDamage, dmgType, target);
+    const { finalDmg, notice } = computeDamageWithDefenses(rawDamage, dmgType, target, language);
     const breakdown = formatFormulaBreakdown(dmgRoll);
 
     // Collect damage dice for 2D/3D animation
@@ -444,21 +560,25 @@ export function TargetedAttackModal() {
     }
 
     useDiceAnimationStore.getState().triggerRoll({
-      title: `${attacker?.nameRu || attacker?.name}: ${actName} (${isNat20 ? 'КРИТ!' : 'Хит!'})`,
-      subtitle: `По цели: ${target?.nameRu || target?.name} [КД ${targetAc}]`,
+      title: isEn
+        ? `${attackerName}: ${actName} (${isNat20 ? 'CRITICAL HIT!' : 'HIT!'})`
+        : `${attackerName}: ${actName} (${isNat20 ? 'КРИТ!' : 'Хит!'})`,
+      subtitle: isEn
+        ? `Target: ${targetName} [Target AC ${targetAc}]`
+        : `По цели: ${targetName} [КД ${targetAc}]`,
       dice: poolDice.length > 0 ? poolDice : [{ id: 'dmg-static', sides: 6, value: finalDmg }],
       modifier: dmgRoll.modifier || 0,
       total: rawDamage,
-      damageType: localizeDamageType(dmgType),
+      damageType: localizeDamageType(dmgType, language),
       isNat20,
-      rollerName: attacker?.nameRu || attacker?.name,
-      targetName: target?.nameRu || target?.name,
+      rollerName: attackerName,
+      targetName: targetName,
     });
 
     if (useDice3dStore.getState().is3dEnabled) {
       useDice3dStore.getState().rollDice3d({
         dice: diceToRoll,
-        title: `${attacker?.nameRu || attacker?.name}: ${actName}`,
+        title: `${attackerName}: ${actName}`,
         total: rawDamage,
         isSecret: useDice3dStore.getState().isSecretRoll,
         rollMode: advMode,
@@ -467,9 +587,15 @@ export function TargetedAttackModal() {
 
     setFinalCalculatedDamage(finalDmg);
     setHitOutcomeText(
-      `${isNat20 ? 'КРИТИЧЕСКОЕ ' : ''}ПОПАДАНИЕ! ${rollLog} против КД ${targetAc}`
+      isEn
+        ? `${isNat20 ? 'CRITICAL HIT!' : 'HIT!'} ${rollLog} vs Target AC ${targetAc}`
+        : `${isNat20 ? 'КРИТИЧЕСКОЕ ' : ''}ПОПАДАНИЕ! ${rollLog} против КД ${targetAc}`
     );
-    setDamageDetailText(`Бросок урона: ${breakdown} (${localizeDamageType(dmgType)})`);
+    setDamageDetailText(
+      isEn
+        ? `Damage roll: ${breakdown} (${localizeDamageType(dmgType, language)})`
+        : `Бросок урона: ${breakdown} (${localizeDamageType(dmgType, language)})`
+    );
     setDefenseNoticeText(notice);
 
     if (finalDmg > 0 && target.isConcentrating) {
@@ -496,6 +622,9 @@ export function TargetedAttackModal() {
     let totalDmg = 0;
     let highestDmg = 0;
     const multiDice: Array<{ id: string; sides: number; value: number }> = [];
+    const attackerName = getName(attacker);
+    const targetName = getName(target);
+    const targetAc = effectiveTargetAc;
 
     for (const act of attacks) {
       const parsed = parseActionDetails(act);
@@ -506,18 +635,18 @@ export function TargetedAttackModal() {
       const d20 = rollD20(advMode, toHitMod);
       const isNat20 = d20.isNatural20;
       const isNat1 = d20.isNatural1;
-      const hit = !isNat1 && (isNat20 || d20.total >= target.ac);
+      const hit = !isNat1 && (isNat20 || d20.total >= targetAc) && cover !== 'total';
       const rollLog = `[d20: ${d20.keptRoll} + ${d20.modifier} = ${d20.total}]`;
 
       if (!hit) {
         logs.push({
           actionName: act.name,
-          d20Log: `${rollLog} против КД ${target.ac}`,
+          d20Log: isEn ? `${rollLog} vs Target AC ${targetAc}` : `${rollLog} против КД ${targetAc}`,
           isHit: false,
           isCrit: false,
           damage: 0,
           damageType: dmgType,
-          notes: 'ПРОМАХ',
+          notes: isEn ? 'MISS!' : 'ПРОМАХ',
         });
         continue;
       }
@@ -539,18 +668,20 @@ export function TargetedAttackModal() {
           }
         }
       }
-      const { finalDmg, notice } = computeDamageWithDefenses(dmgResult.total, dmgType, target);
+      const { finalDmg, notice } = computeDamageWithDefenses(dmgResult.total, dmgType, target, language);
       totalDmg += finalDmg;
       if (finalDmg > highestDmg) highestDmg = finalDmg;
 
       logs.push({
         actionName: act.name,
-        d20Log: `${rollLog} против КД ${target.ac}`,
+        d20Log: isEn ? `${rollLog} vs Target AC ${targetAc}` : `${rollLog} против КД ${targetAc}`,
         isHit: true,
         isCrit: isNat20,
         damage: finalDmg,
         damageType: dmgType,
-        notes: isNat20 ? `КРИТ! ${notice}` : notice || 'ПОПАДАНИЕ',
+        notes: isNat20
+          ? (isEn ? `CRITICAL HIT! ${notice}` : `КРИТ! ${notice}`)
+          : notice || (isEn ? 'HIT!' : 'ПОПАДАНИЕ'),
       });
     }
 
@@ -559,30 +690,54 @@ export function TargetedAttackModal() {
     setIsHit(totalDmg > 0);
     setIsCrit(logs.some((l) => l.isCrit));
     setHasCalculated(true);
-    setHitOutcomeText(`Серия из ${attacks.length} атак по «${target.nameRu || target.name}»!`);
-    setDamageDetailText(`Суммарно нанесено: ${totalDmg} урона.`);
-    setDefenseNoticeText(`Удары: ${logs.filter((l) => l.isHit).length} попало, ${logs.filter((l) => !l.isHit).length} промахов.`);
+
+    const hitsCount = logs.filter((l) => l.isHit).length;
+    const missCount = logs.filter((l) => !l.isHit).length;
+
+    setHitOutcomeText(
+      isEn
+        ? `Multiattack Series: ${attacks.length} attacks against "${targetName}"!`
+        : `Серия из ${attacks.length} атак по «${targetName}»!`
+    );
+    setDamageDetailText(
+      isEn
+        ? `Total damage dealt: ${totalDmg}.`
+        : `Суммарно нанесено: ${totalDmg} урона.`
+    );
+    setDefenseNoticeText(
+      isEn
+        ? `Attacks: ${hitsCount} hit, ${missCount} missed.`
+        : `Удары: ${hitsCount} попало, ${missCount} промахов.`
+    );
 
     if (totalDmg > 0) {
       useDiceAnimationStore.getState().triggerRoll({
-        title: `${attacker?.nameRu || attacker?.name}: Мультиатака (${logs.filter((l) => l.isHit).length}/${attacks.length} хитов)`,
-        subtitle: `По цели: ${target.nameRu || target.name} • Нанесено ${totalDmg} урона`,
+        title: isEn
+          ? `${attackerName}: Multiattack Series (${hitsCount}/${attacks.length} hits)`
+          : `${attackerName}: Мультиатака (${hitsCount}/${attacks.length} хитов)`,
+        subtitle: isEn
+          ? `Target: ${targetName} • Dealt ${totalDmg} damage`
+          : `По цели: ${targetName} • Нанесено ${totalDmg} урона`,
         dice: multiDice.length > 0 ? multiDice : [{ id: 'm-static', sides: 6, value: totalDmg }],
         total: totalDmg,
         isNat20: logs.some((l) => l.isCrit),
-        rollerName: attacker?.nameRu || attacker?.name,
-        targetName: target.nameRu || target.name,
+        rollerName: attackerName,
+        targetName: targetName,
       });
     } else {
       useDiceAnimationStore.getState().triggerRoll({
-        title: `${attacker?.nameRu || attacker?.name}: Мультиатака (Все мимо)`,
-        subtitle: `Серия по цели: ${target.nameRu || target.name} [0/${attacks.length} попаданий]`,
+        title: isEn
+          ? `${attackerName}: Multiattack Series (All missed)`
+          : `${attackerName}: Мультиатака (Все мимо)`,
+        subtitle: isEn
+          ? `Series vs ${targetName} [0/${attacks.length} hits]`
+          : `Серия по цели: ${targetName} [0/${attacks.length} попаданий]`,
         sides: 20,
         kept: 0,
         modifier: 0,
         total: 0,
-        rollerName: attacker?.nameRu || attacker?.name,
-        targetName: target.nameRu || target.name,
+        rollerName: attackerName,
+        targetName: targetName,
       });
     }
 
@@ -613,33 +768,36 @@ export function TargetedAttackModal() {
       const isNat1 = d20.isNatural1;
       const hit = !isNat1 && (isNat20 || d20.total >= t.ac);
       const rollLog = `[d20: ${d20.keptRoll} + ${d20.modifier} = ${d20.total}]`;
+      const tName = getName(t);
 
       if (!hit) {
         logs.push({
-          actionName: t.nameRu || t.name,
-          d20Log: `${rollLog} против КД ${t.ac}`,
+          actionName: tName,
+          d20Log: isEn ? `${rollLog} vs Target AC ${t.ac}` : `${rollLog} против КД ${t.ac}`,
           isHit: false,
           isCrit: false,
           damage: 0,
           damageType: dmgType,
-          notes: 'ПРОМАХ',
+          notes: isEn ? 'MISS!' : 'ПРОМАХ',
         });
         continue;
       }
 
       let raw = baseDmgRoll.total;
       if (isNat20) raw = Math.round(raw * 1.5);
-      const { finalDmg, notice } = computeDamageWithDefenses(raw, dmgType, t);
+      const { finalDmg, notice } = computeDamageWithDefenses(raw, dmgType, t, language);
       totalDmg += finalDmg;
 
       logs.push({
-        actionName: t.nameRu || t.name,
-        d20Log: `${rollLog} против КД ${t.ac}`,
+        actionName: tName,
+        d20Log: isEn ? `${rollLog} vs Target AC ${t.ac}` : `${rollLog} против КД ${t.ac}`,
         isHit: true,
         isCrit: isNat20,
         damage: finalDmg,
         damageType: dmgType,
-        notes: isNat20 ? `КРИТ! ${notice}` : notice || 'ПОПАДАНИЕ',
+        notes: isNat20
+          ? (isEn ? `CRITICAL HIT! ${notice}` : `КРИТ! ${notice}`)
+          : notice || (isEn ? 'HIT!' : 'ПОПАДАНИЕ'),
       });
     }
 
@@ -647,9 +805,21 @@ export function TargetedAttackModal() {
     setFinalCalculatedDamage(totalDmg);
     setIsHit(totalDmg > 0);
     setHasCalculated(true);
-    setHitOutcomeText(`Атака/заклинание «${actName}» по ${targets.length} целям!`);
-    setDamageDetailText(`Базовый урон: ${formatFormulaBreakdown(baseDmgRoll)} (${localizeDamageType(dmgType)}) | Суммарно: ${totalDmg} урона`);
-    setDefenseNoticeText('Сопротивления каждой цели рассчитаны индивидуально.');
+    setHitOutcomeText(
+      isEn
+        ? `Attack/Spell "${actName}" against ${targets.length} targets!`
+        : `Атака/заклинание «${actName}» по ${targets.length} целям!`
+    );
+    setDamageDetailText(
+      isEn
+        ? `Base damage: ${formatFormulaBreakdown(baseDmgRoll)} (${localizeDamageType(dmgType, language)}) | Total: ${totalDmg} damage`
+        : `Базовый урон: ${formatFormulaBreakdown(baseDmgRoll)} (${localizeDamageType(dmgType, language)}) | Суммарно: ${totalDmg} урона`
+    );
+    setDefenseNoticeText(
+      isEn
+        ? 'Defenses for each target calculated individually.'
+        : 'Сопротивления каждой цели рассчитаны индивидуально.'
+    );
   };
 
   // 4. ROLL SAVING THROWS (SINGLE TARGET OR AOE)
@@ -665,7 +835,10 @@ export function TargetedAttackModal() {
     const baseDamage = Math.max(0, dmgRoll.total);
     const formulaBreakdown = formatFormulaBreakdown(dmgRoll);
     const abilityInfo = ABILITY_LABELS[saveAbility];
+    const abilityName = isEn ? abilityInfo.en : abilityInfo.ru;
+    const abilityShort = isEn ? abilityInfo.en : abilityInfo.shortRu;
     const partyMembers = usePartyStore.getState().members;
+    const attackerName = getName(attacker);
 
     const savePoolDice: Array<{ id: string; sides: number; value: number }> = [];
     if (dmgRoll.rolls) {
@@ -677,13 +850,17 @@ export function TargetedAttackModal() {
       }
     }
     useDiceAnimationStore.getState().triggerRoll({
-      title: `${attacker?.nameRu || attacker?.name}: Урон (Спасбросок ${abilityInfo.ru} Сл ${saveDc})`,
-      subtitle: `Бросок урона: ${formulaBreakdown}`,
+      title: isEn
+        ? `${attackerName}: Damage (${abilityName} Saving Throw DC ${saveDc})`
+        : `${attackerName}: Урон (Спасбросок ${abilityName} Сл ${saveDc})`,
+      subtitle: isEn
+        ? `Damage roll: ${formulaBreakdown}`
+        : `Бросок урона: ${formulaBreakdown}`,
       dice: savePoolDice.length > 0 ? savePoolDice : [{ id: 'save-static', sides: 6, value: baseDamage }],
       modifier: dmgRoll.modifier || 0,
       total: baseDamage,
-      damageType: localizeDamageType(saveDamageType),
-      rollerName: attacker?.nameRu || attacker?.name,
+      damageType: localizeDamageType(saveDamageType, language),
+      rollerName: attackerName,
     });
 
     if (useDice3dStore.getState().is3dEnabled) {
@@ -698,7 +875,9 @@ export function TargetedAttackModal() {
       if (diceToRoll.length > 0) {
         useDice3dStore.getState().rollDice3d({
           dice: diceToRoll,
-          title: `${attacker?.nameRu || attacker?.name}: Спасбросок ${abilityInfo.ru}`,
+          title: isEn
+            ? `${attackerName}: ${abilityName} Saving Throw`
+            : `${attackerName}: Спасбросок ${abilityName}`,
           total: baseDamage,
           isSecret: useDice3dStore.getState().isSecretRoll,
         });
@@ -713,9 +892,12 @@ export function TargetedAttackModal() {
       const d20 = Math.floor(Math.random() * 20) + 1;
       const partyMember = t.isPlayer ? partyMembers.find((m) => m.id === t.id || m.name === t.name) : undefined;
       const { modifier: mod } = getCombatantSaveModifier(t, saveAbility, partyMember);
-      const total = d20 + mod;
+      // Dexterity saves gain bonus from cover (+2 for half, +5 for 3/4)
+      const coverBonus = saveAbility === 'dex' ? (cover === 'half' ? 2 : cover === 'threeQuarters' ? 5 : 0) : 0;
+      const totalMod = mod + coverBonus;
+      const total = d20 + totalMod;
       const isSuccess = total >= saveDc;
-      const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
+      const modStr = totalMod >= 0 ? `+${totalMod}` : `${totalMod}`;
 
       // Damage calculation before defenses
       let rawDamage = 0;
@@ -726,16 +908,21 @@ export function TargetedAttackModal() {
       }
 
       // Defenses (Immunities, Resistances, Vulnerabilities)
-      const { finalDmg, notice } = computeDamageWithDefenses(rawDamage, saveDamageType, t);
+      const { finalDmg, notice } = computeDamageWithDefenses(rawDamage, saveDamageType, t, language);
       totalAppliedDamage += finalDmg;
       if (finalDmg > highestDmg) highestDmg = finalDmg;
 
-      const outcomeLabel = isSuccess ? 'УСПЕХ' : 'ПРОВАЛ';
+      const outcomeLabel = isEn
+        ? (isSuccess ? 'SUCCESS' : 'FAILURE')
+        : (isSuccess ? 'УСПЕХ' : 'ПРОВАЛ');
       const outcomeNote = notice ? `${outcomeLabel}! ${notice}` : outcomeLabel;
+      const tName = getName(t);
 
       logs.push({
-        actionName: cleanRussianText(t.nameRu || t.name),
-        d20Log: `d20 (${d20}) ${modStr} = ${total} против СЛ ${saveDc} [${abilityInfo.shortRu}] -> ${outcomeLabel}`,
+        actionName: tName,
+        d20Log: isEn
+          ? `d20 (${d20}) ${modStr} = ${total} vs DC ${saveDc} [${abilityShort}] -> ${outcomeLabel}`
+          : `d20 (${d20}) ${modStr} = ${total} против СЛ ${saveDc} [${abilityShort}] -> ${outcomeLabel}`,
         isHit: !isSuccess || finalDmg > 0,
         isCrit: false,
         damage: finalDmg,
@@ -749,28 +936,42 @@ export function TargetedAttackModal() {
     setIsHit(totalAppliedDamage > 0);
     setHasCalculated(true);
 
-    const actionTitle = currentAction?.name || customName || 'Спасбросок';
+    const actionTitle = currentAction?.name || customName || (isEn ? 'Saving Throw (DC Save)' : 'Спасбросок');
     if (targets.length === 1) {
       const singleLog = logs[0];
       setHitOutcomeText(
-        `Спасбросок ${abilityInfo.ru} против СЛ ${saveDc}: ${singleLog.d20Log}`
-      );
-      setDamageDetailText(`Бросок формулы: ${formulaBreakdown} (${localizeDamageType(saveDamageType)}) | Итог: ${singleLog.damage} урона`);
-      setDefenseNoticeText(singleLog.notes);
-    } else {
-      const successes = logs.filter((l) => l.d20Log.includes('УСПЕХ')).length;
-      const fails = logs.filter((l) => l.d20Log.includes('ПРОВАЛ')).length;
-      setHitOutcomeText(
-        `Спасбросок ${abilityInfo.ru} СЛ ${saveDc} («${actionTitle}») по ${targets.length} целям!`
+        isEn
+          ? `${abilityName} Saving Throw (DC Save) vs DC ${saveDc}: ${singleLog.d20Log}`
+          : `Спасбросок ${abilityName} против СЛ ${saveDc}: ${singleLog.d20Log}`
       );
       setDamageDetailText(
-        `Базовый урон: ${formulaBreakdown} (${localizeDamageType(saveDamageType)}) | Суммарно: ${totalAppliedDamage} урона`
+        isEn
+          ? `Formula roll: ${formulaBreakdown} (${localizeDamageType(saveDamageType, language)}) | Total: ${singleLog.damage} damage`
+          : `Бросок формулы: ${formulaBreakdown} (${localizeDamageType(saveDamageType, language)}) | Итог: ${singleLog.damage} урона`
       );
-      setDefenseNoticeText(`Успехов: ${successes}, Провалов: ${fails}. Защита целей учтена.`);
+      setDefenseNoticeText(singleLog.notes);
+    } else {
+      const successes = logs.filter((l) => l.d20Log.includes(isEn ? 'SUCCESS' : 'УСПЕХ')).length;
+      const fails = logs.filter((l) => l.d20Log.includes(isEn ? 'FAILURE' : 'ПРОВАЛ')).length;
+      setHitOutcomeText(
+        isEn
+          ? `${abilityName} Saving Throw (DC Save) DC ${saveDc} ("${actionTitle}") against ${targets.length} targets!`
+          : `Спасбросок ${abilityName} СЛ ${saveDc} («${actionTitle}») по ${targets.length} целям!`
+      );
+      setDamageDetailText(
+        isEn
+          ? `Base damage: ${formulaBreakdown} (${localizeDamageType(saveDamageType, language)}) | Total: ${totalAppliedDamage} damage`
+          : `Базовый урон: ${formulaBreakdown} (${localizeDamageType(saveDamageType, language)}) | Суммарно: ${totalAppliedDamage} урона`
+      );
+      setDefenseNoticeText(
+        isEn
+          ? `Successes: ${successes}, Failures: ${fails}. Target defenses applied.`
+          : `Успехов: ${successes}, Провалов: ${fails}. Защита целей учтена.`
+      );
     }
 
-    // Concentration Check
-    if (totalAppliedDamage > 0 && targets.some((t) => t.isConcentrating && logs.find((l) => l.actionName === cleanRussianText(t.nameRu || t.name))?.damage! > 0)) {
+    // Concentration DC Check
+    if (totalAppliedDamage > 0 && targets.some((t) => t.isConcentrating && logs.find((l) => l.actionName === getName(t))?.damage! > 0)) {
       setConcentrationCheckDc(Math.max(10, Math.floor(highestDmg / 2)));
     } else {
       setConcentrationCheckDc(null);
@@ -784,6 +985,8 @@ export function TargetedAttackModal() {
       return;
     }
 
+    const attackerName = getName(attacker);
+
     // If Save Mode: apply damage per target and add dice logs & concentration checks
     if (attackOrSaveMode === 'save') {
       const targets = isAoEMode
@@ -792,7 +995,7 @@ export function TargetedAttackModal() {
 
       for (const log of multiattackLogs) {
         if (log.damage > 0) {
-          const tgt = targets.find((c) => cleanRussianText(c.nameRu || c.name) === log.actionName);
+          const tgt = targets.find((c) => getName(c) === log.actionName);
           if (tgt) {
             applyDamage(tgt.id, [{ amount: log.damage, type: log.damageType as DamageType }], false, true);
           }
@@ -800,27 +1003,31 @@ export function TargetedAttackModal() {
       }
 
       const isSecret = useDice3dStore.getState().isSecretRoll;
+      const abilityInfo = ABILITY_LABELS[saveAbility];
 
       // Add dice logs for targets
       for (const t of targets) {
-        const log = multiattackLogs.find((l) => l.actionName === cleanRussianText(t.nameRu || t.name));
+        const tName = getName(t);
+        const log = multiattackLogs.find((l) => l.actionName === tName);
         const effectiveDamage = log?.damage || 0;
-        const rollerName = cleanRussianText(attacker?.nameRu || attacker?.name || 'Атакующий');
-        const actName = `${cleanRussianText(currentAction?.name || customName || 'Спасбросок')} (СЛ ${saveDc} ${ABILITY_LABELS[saveAbility].shortRu})`;
+        const rollerName = attackerName || (isEn ? 'Attacker' : 'Атакующий');
+        const actName = isEn
+          ? `${currentAction?.name || customName || 'Saving Throw'} (DC ${saveDc} ${abilityInfo.en})`
+          : `${cleanRussianText(currentAction?.name || customName || 'Спасбросок')} (СЛ ${saveDc} ${abilityInfo.shortRu})`;
 
         addDiceLog({
           id: crypto.randomUUID(),
           timestamp: new Date().toLocaleTimeString(),
-          combatantName: isSecret ? `[Скрытно] ${rollerName}` : rollerName,
-          actionName: isSecret ? `[Скрытно] ${actName}` : actName,
-          targetName: cleanRussianText(t.nameRu || t.name),
+          combatantName: isSecret ? `${isEn ? '[Secret] ' : '[Скрытно] '}${rollerName}` : rollerName,
+          actionName: isSecret ? `${isEn ? '[Secret] ' : '[Скрытно] '}${actName}` : actName,
+          targetName: tName,
           targetId: t.id,
           isHit: effectiveDamage > 0,
           effectiveDamage,
           damageRoll: effectiveDamage > 0 ? {
             formula: saveDamageFormula,
             total: effectiveDamage,
-            damageType: localizeDamageType(saveDamageType),
+            damageType: localizeDamageType(saveDamageType, language),
             details: log?.d20Log || '',
           } : undefined,
           note: log?.notes || '',
@@ -837,15 +1044,21 @@ export function TargetedAttackModal() {
           type: 'BROADCAST_ROLL',
           payload: {
             id: crypto.randomUUID(),
-            title: cleanRussianText(`${attacker?.nameRu || attacker?.name}: ${currentAction?.name || customName || 'Спасбросок'}`),
-            formula: cleanRussianText(`Спасбросок ${ABILITY_LABELS[saveAbility].ru} СЛ ${saveDc} | ${saveDamageFormula}`),
-            resultDisplay: cleanRussianText(
-              targets.length === 1
-                ? `${multiattackLogs[0]?.d20Log} -> ${multiattackLogs[0]?.damage} урона (${localizeDamageType(saveDamageType)})`
-                : `AoE по ${targets.length} целям: ${finalCalculatedDamage} суммарного урона (${localizeDamageType(saveDamageType)})`
-            ),
+            title: formatLogText(`${attackerName}: ${currentAction?.name || customName || (isEn ? 'Saving Throw' : 'Спасбросок')}`),
+            formula: isEn
+              ? `${abilityInfo.en} Saving Throw DC ${saveDc} | ${saveDamageFormula}`
+              : cleanRussianText(`Спасбросок ${abilityInfo.ru} СЛ ${saveDc} | ${saveDamageFormula}`),
+            resultDisplay: isEn
+              ? (targets.length === 1
+                  ? `${multiattackLogs[0]?.d20Log} -> ${multiattackLogs[0]?.damage} damage (${localizeDamageType(saveDamageType, language)})`
+                  : `AoE against ${targets.length} targets: ${finalCalculatedDamage} total damage (${localizeDamageType(saveDamageType, language)})`)
+              : cleanRussianText(
+                  targets.length === 1
+                    ? `${multiattackLogs[0]?.d20Log} -> ${multiattackLogs[0]?.damage} урона (${localizeDamageType(saveDamageType, language)})`
+                    : `AoE по ${targets.length} целям: ${finalCalculatedDamage} суммарного урона (${localizeDamageType(saveDamageType, language)})`
+                ),
             total: finalCalculatedDamage,
-            damageType: localizeDamageType(saveDamageType),
+            damageType: localizeDamageType(saveDamageType, language),
             isCritical: false,
             timestamp: Date.now(),
           },
@@ -861,11 +1074,11 @@ export function TargetedAttackModal() {
       ? (physicalDamageType || currentActionDetails.damageType)
       : currentActionDetails.damageType;
 
-    // Multi-target or Single Target application (skipDefenses: true to prevent double deduction)
+    // Multi-target or Single Target application
     if (isAoEMode && multiattackLogs.length > 0) {
       for (const log of multiattackLogs) {
         if (log.isHit && log.damage > 0) {
-          const tgt = combatants.find((c) => (c.nameRu || c.name) === log.actionName);
+          const tgt = combatants.find((c) => getName(c) === log.actionName);
           if (tgt) {
             applyDamage(tgt.id, [{ amount: log.damage, type: log.damageType as DamageType }], log.isCrit, true);
           }
@@ -884,14 +1097,14 @@ export function TargetedAttackModal() {
 
     // Add to Dice Log
     const isSecretDirect = useDice3dStore.getState().isSecretRoll;
-    const directRollerName = cleanRussianText(attacker?.nameRu || attacker?.name || 'Атакующий');
+    const directRollerName = attackerName || (isEn ? 'Attacker' : 'Атакующий');
 
     addDiceLog({
       id: crypto.randomUUID(),
       timestamp: new Date().toLocaleTimeString(),
-      combatantName: isSecretDirect ? `[Скрытно] ${directRollerName}` : directRollerName,
-      actionName: isSecretDirect ? `[Скрытно] ${actionTitle}` : actionTitle,
-      targetName: target ? cleanRussianText(target.nameRu || target.name) : undefined,
+      combatantName: isSecretDirect ? `${isEn ? '[Secret] ' : '[Скрытно] '}${directRollerName}` : directRollerName,
+      actionName: isSecretDirect ? `${isEn ? '[Secret] ' : '[Скрытно] '}${actionTitle}` : actionTitle,
+      targetName: target ? getName(target) : undefined,
       targetId: target?.id,
       isHit,
       effectiveDamage: finalCalculatedDamage,
@@ -907,7 +1120,7 @@ export function TargetedAttackModal() {
       damageRoll: finalCalculatedDamage > 0 ? {
         formula: damageDetailText || currentActionDetails.damageFormula,
         total: finalCalculatedDamage,
-        damageType: localizeDamageType(dmgType),
+        damageType: localizeDamageType(dmgType, language),
         details: hitOutcomeText,
       } : undefined,
       note: defenseNoticeText ? `${hitOutcomeText} | ${defenseNoticeText}` : hitOutcomeText,
@@ -923,15 +1136,21 @@ export function TargetedAttackModal() {
         type: 'BROADCAST_ROLL',
         payload: {
           id: crypto.randomUUID(),
-          title: cleanRussianText(`${attacker?.nameRu || attacker?.name}: ${actionTitle}`),
-          formula: isAoEMode ? 'AoE / Мультиатака' : cleanRussianText(damageDetailText || currentActionDetails.damageFormula),
-          resultDisplay: cleanRussianText(
-            isHit
-              ? `${hitOutcomeText} -> Нанесено ${finalCalculatedDamage} ${localizeDamageType(dmgType)} урона по ${target?.nameRu || target?.name}`
-              : hitOutcomeText
-          ),
+          title: formatLogText(`${attackerName}: ${actionTitle}`),
+          formula: isAoEMode
+            ? (isEn ? 'AoE / Multiattack' : 'AoE / Мультиатака')
+            : (isEn ? (damageDetailText || currentActionDetails.damageFormula) : cleanRussianText(damageDetailText || currentActionDetails.damageFormula)),
+          resultDisplay: isEn
+            ? (isHit
+                ? `${hitOutcomeText} -> Dealt ${finalCalculatedDamage} ${localizeDamageType(dmgType, language)} damage to ${target ? getName(target) : ''}`
+                : hitOutcomeText)
+            : cleanRussianText(
+                isHit
+                  ? `${hitOutcomeText} -> Нанесено ${finalCalculatedDamage} ${localizeDamageType(dmgType, language)} урона по ${target ? getName(target) : ''}`
+                  : hitOutcomeText
+              ),
           total: finalCalculatedDamage,
-          damageType: localizeDamageType(dmgType),
+          damageType: localizeDamageType(dmgType, language),
           isCritical: isCrit,
           timestamp: Date.now(),
         },
@@ -947,6 +1166,9 @@ export function TargetedAttackModal() {
     ? (attacker.initBonus >= 0 ? `+${attacker.initBonus}` : `${attacker.initBonus}`)
     : '+0';
 
+  const attackerName = getName(attacker);
+  const targetName = getName(target);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200 select-none font-sans">
       <div className="w-full max-w-2xl bg-[rgba(18,22,30,0.88)] backdrop-blur-xl border border-[rgba(255,255,255,0.08)] rounded-glass-xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] p-5 sm:p-6 text-gray-100 flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
@@ -958,165 +1180,61 @@ export function TargetedAttackModal() {
             </div>
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <span>Таргетированная атака и расчёт КД</span>
+                <span>
+                  {isEn ? 'Targeted Attack & Spell Resolution' : 'Таргетированная атака и расчёт КД'}
+                </span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-gold/15 text-gold-light border border-gold/40">
                   D&D 2024
                 </span>
               </h2>
               <p className="text-xs text-gray-400">
-                Атакует: <strong className="text-gold-light">{attacker?.nameRu || attacker?.name}</strong> (КД: {attacker?.ac ?? 10}, Иниц: {attackerInit})
+                {isEn ? 'Attacker: ' : 'Атакует: '}
+                <strong className="text-gold-light">{attackerName}</strong> ({isEn ? 'Target AC' : 'КД'}: {attacker?.ac ?? 10}, {isEn ? 'Init' : 'Иниц'}: {attackerInit})
               </p>
             </div>
           </div>
           <button
             onClick={closeTargetedAttack}
             className="p-1.5 rounded-glass hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center"
+            title={isEn ? 'Cancel' : 'Отмена'}
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* SECTION 1: Target Selection */}
-        <div className="space-y-2 bg-card p-3.5 rounded-sm border border-border-subtle">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-              <Shield className="h-3.5 w-3.5 text-blue-400" />
-              1. Выбор цели атаки:
-            </label>
-            <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer hover:text-gray-200">
-              <input
-                type="checkbox"
-                checked={isAoEMode}
-                onChange={(e) => {
-                  setIsAoEMode(e.target.checked);
-                  resetResults();
-                }}
-                className="rounded border-border-subtle text-gold focus:ring-0 bg-surface"
-              />
-              <span>Несколько целей / AoE</span>
-            </label>
-          </div>
-
-          {!isAoEMode ? (
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-              <select
-                value={selectedTargetId}
-                onChange={(e) => {
-                  setSelectedTargetId(e.target.value);
-                  resetResults();
-                }}
-                className="flex-1 min-w-0 max-w-full bg-surface border border-border-subtle text-xs rounded-sm px-3 py-2 text-gray-100 focus:border-gold outline-none"
-              >
-                {availableTargets.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.isPlayer ? '[Игрок] ' : '[Монстр] '}
-                    {t.nameRu || t.name} — КД: {t.ac} | ОЗ: {t.hp}/{t.maxHp}
-                  </option>
-                ))}
-              </select>
-              {target && (
-                <div className="text-[11px] font-mono px-3 py-1.5 bg-surface border border-border-subtle rounded-sm text-gray-300 shrink-0">
-                  КД цели: <strong className="text-gold font-bold text-sm">{target.ac}</strong>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5 text-[11px] text-gray-400 flex-wrap">
-                <span className="text-[10px] text-gray-500 mr-1">Быстрый выбор:</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSelectedAoETargetIds(
-                      availableTargets
-                        .filter((t) => (attacker.isPlayer ? !t.isPlayer : t.isPlayer))
-                        .map((t) => t.id)
-                    )
-                  }
-                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors inline-flex items-center gap-1"
-                >
-                  <Swords className="h-3 w-3" />
-                  <span>Все враги</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSelectedAoETargetIds(availableTargets.filter((t) => t.isPlayer).map((t) => t.id))
-                  }
-                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors inline-flex items-center gap-1"
-                >
-                  <Shield className="h-3 w-3" />
-                  <span>Все игроки</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSelectedAoETargetIds(availableTargets.filter((t) => !t.isPlayer).map((t) => t.id))
-                  }
-                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors inline-flex items-center gap-1"
-                >
-                  <Skull className="h-3 w-3" />
-                  <span>Все монстры</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedAoETargetIds(availableTargets.map((t) => t.id))}
-                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white hover:border-gold/40 transition-colors"
-                >
-                  Все ({availableTargets.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedAoETargetIds([])}
-                  className="px-2 py-0.5 rounded bg-surface border border-border-subtle hover:text-white transition-colors text-red-400 hover:text-red-300"
-                >
-                  Сбросить
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-1 bg-surface rounded-sm border border-border-subtle">
-                {availableTargets.map((t) => {
-                  const isChecked = selectedAoETargetIds.includes(t.id);
-                  return (
-                    <label
-                      key={t.id}
-                      className={`flex items-center gap-2 p-1.5 rounded text-xs cursor-pointer border transition-all ${
-                        isChecked
-                          ? 'bg-gold/10 border-gold/40 text-gold-light'
-                          : 'border-transparent text-gray-400 hover:bg-card'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedAoETargetIds([...selectedAoETargetIds, t.id]);
-                          } else {
-                            setSelectedAoETargetIds(
-                              selectedAoETargetIds.filter((id) => id !== t.id)
-                            );
-                          }
-                          resetResults();
-                        }}
-                        className="rounded border-border-subtle text-gold focus:ring-0 bg-canvas"
-                      />
-                      <span className="truncate">
-                        {t.nameRu || t.name} (КД {t.ac})
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
+        <TargetSelector
+          availableTargets={availableTargets}
+          attacker={attacker}
+          selectedTargetId={selectedTargetId}
+          onSelectTarget={(id) => {
+            setSelectedTargetId(id);
+            resetResults();
+          }}
+          target={target}
+          isAoEMode={isAoEMode}
+          onToggleAoEMode={(aoe) => {
+            setIsAoEMode(aoe);
+            resetResults();
+          }}
+          selectedAoETargetIds={selectedAoETargetIds}
+          onSelectAoETargetIds={(ids) => {
+            setSelectedAoETargetIds(ids);
+            resetResults();
+          }}
+          cover={cover}
+          onCoverChange={(cov) => {
+            setCover(cov);
+            resetResults();
+          }}
+        />
 
         {/* SECTION 2: Action Selection */}
         <div className="space-y-2 bg-card p-3.5 rounded-sm border border-border-subtle">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
               <Swords className="h-3.5 w-3.5 text-gold" />
-              2. Действие атакующего:
+              {isEn ? '2. Attacker Action:' : '2. Действие атакующего:'}
             </label>
             <div className="flex items-center gap-1 bg-surface p-0.5 rounded-sm border border-border-subtle text-[11px]">
               <button
@@ -1129,7 +1247,7 @@ export function TargetedAttackModal() {
                   actionMode === 'action' ? 'bg-card text-gold-light font-bold' : 'text-gray-400'
                 }`}
               >
-                Действие монстра
+                {isEn ? 'Monster Action' : 'Действие монстра'}
               </button>
               <button
                 type="button"
@@ -1141,7 +1259,7 @@ export function TargetedAttackModal() {
                   actionMode === 'custom' ? 'bg-card text-gold-light font-bold' : 'text-gray-400'
                 }`}
               >
-                Своя атака
+                {isEn ? 'Custom Attack' : 'Своя атака'}
               </button>
             </div>
           </div>
@@ -1158,7 +1276,7 @@ export function TargetedAttackModal() {
               >
                 {attacker.statblock.actions.map((act, idx) => (
                   <option key={idx} value={idx}>
-                    {cleanRussianText(act.name)} {act.attack_bonus ? `(+${act.attack_bonus})` : ''} — {formatDamageFormula(act.damage_dice, act.damage_bonus) || act.damage_dice || 'Урон'} {localizeDamageType(act.damage_type)}
+                    {isEn ? act.name : cleanRussianText(act.name)} {act.attack_bonus ? `(+${act.attack_bonus})` : ''} — {formatDamageFormula(act.damage_dice, act.damage_bonus) || act.damage_dice || (isEn ? 'Damage' : 'Урон')} {localizeDamageType(act.damage_type, language)}
                   </option>
                 ))}
               </select>
@@ -1171,7 +1289,7 @@ export function TargetedAttackModal() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div>
-                <span className="text-[10px] text-gray-400">Название:</span>
+                <span className="text-[10px] text-gray-400">{isEn ? 'Name:' : 'Название:'}</span>
                 <input
                   type="text"
                   value={customName}
@@ -1180,7 +1298,7 @@ export function TargetedAttackModal() {
                 />
               </div>
               <div>
-                <span className="text-[10px] text-gray-400">Бонус атаки (+X):</span>
+                <span className="text-[10px] text-gray-400">{isEn ? 'Attack Bonus (+X):' : 'Бонус атаки (+X):'}</span>
                 <input
                   type="number"
                   value={customToHit}
@@ -1189,7 +1307,7 @@ export function TargetedAttackModal() {
                 />
               </div>
               <div>
-                <span className="text-[10px] text-gray-400">Кубы урона (1d8+3):</span>
+                <span className="text-[10px] text-gray-400">{isEn ? 'Damage Formula:' : 'Кубы урона (1d8+3):'}</span>
                 <input
                   type="text"
                   value={customFormula}
@@ -1198,7 +1316,7 @@ export function TargetedAttackModal() {
                 />
               </div>
               <div>
-                <span className="text-[10px] text-gray-400">Тип урона:</span>
+                <span className="text-[10px] text-gray-400">{isEn ? 'Damage Type:' : 'Тип урона:'}</span>
                 <select
                   value={customDamageType}
                   onChange={(e) => setCustomDamageType(e.target.value as DamageType)}
@@ -1220,7 +1338,7 @@ export function TargetedAttackModal() {
                     'thunder',
                   ].map((dt) => (
                     <option key={dt} value={dt}>
-                      {DAMAGE_NAMES_RU[dt] || dt}
+                      {localizeDamageType(dt, language)}
                     </option>
                   ))}
                 </select>
@@ -1235,10 +1353,12 @@ export function TargetedAttackModal() {
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-purple-400" />
-                3. БРОСОК СПАСБРОСКОВ:
+                {isEn ? '3. Saving Throw (DC Save):' : '3. БРОСОК СПАСБРОСКОВ:'}
               </label>
               <span className="text-[11px] font-mono text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800">
-                СЛ {saveDc} {ABILITY_LABELS[saveAbility].ru} ({saveOutcome === 'half' ? '1/2 при успехе' : '0 при успехе'})
+                {isEn
+                  ? `DC ${saveDc} ${ABILITY_LABELS[saveAbility].en} (${saveOutcome === 'half' ? 'half on save' : 'none on save'})`
+                  : `СЛ ${saveDc} ${ABILITY_LABELS[saveAbility].ru} (${saveOutcome === 'half' ? '1/2 при успехе' : '0 при успехе'})`}
               </span>
             </div>
 
@@ -1250,338 +1370,323 @@ export function TargetedAttackModal() {
               <Dices className="h-4 w-4" />
               <span>
                 {isAoEMode
-                  ? `Бросить спасброски за всех (${selectedAoETargetIds.length} целей)`
-                  : `Бросить спасбросок цели (${target?.nameRu || target?.name || 'Цель'})`}
+                  ? (isEn
+                      ? `Roll saving throws for all (${selectedAoETargetIds.length} targets)`
+                      : `Бросить спасброски за всех (${selectedAoETargetIds.length} целей)`)
+                  : (isEn
+                      ? `Roll saving throw for target (${targetName || 'Target'})`
+                      : `Бросить спасбросок цели (${targetName || 'Цель'})`)}
               </span>
             </button>
           </div>
         ) : (
-        <div className="space-y-3 bg-card p-3.5 rounded-sm border border-border-subtle">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-              3. РЕЖИМ БРОСКА:
-            </label>
-            {attacker?.isPlayer ? (
-              <div className="px-2.5 py-1 rounded-sm bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 font-bold text-[11px] flex items-center gap-1.5 shadow-sm">
-                <Edit3 className="h-3.5 w-3.5 text-emerald-400" />
-                <span>Игрок ходит за столом — только ручной ввод результата</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 bg-surface p-0.5 rounded-sm border border-border-subtle text-[11px]">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRollMode('digital');
-                    resetResults();
-                    setPhysicalD20('');
-                    setPhysicalRawDamage('');
-                    setPhysicalTotalOverride('');
-                  }}
-                  className={`px-2.5 py-1 rounded-sm transition-colors flex items-center gap-1.5 font-bold ${
-                    rollMode === 'digital'
-                      ? 'bg-gold text-canvas shadow-sm'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                >
-                  <Dices className="h-3.5 w-3.5" />
-                  <span>Цифровой бросок (d20)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRollMode('physical');
-                    resetResults();
-                  }}
-                  className={`px-2.5 py-1 rounded-sm transition-colors flex items-center gap-1.5 font-bold ${
-                    rollMode === 'physical'
-                      ? 'bg-gold text-canvas shadow-sm'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                >
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span>Бросок за столом (кости)</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-          {rollMode === 'digital' ? (
-            <div className="space-y-3">
-              {/* Advantage / Normal / Disadvantage */}
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] text-gray-400">Модификатор броска:</span>
-                <div className="flex items-center gap-2 text-xs">
-                  <label className="flex items-center gap-1 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="advMode"
-                      checked={advMode === 'normal'}
-                      onChange={() => {
-                        setAdvMode('normal');
-                        resetResults();
-                      }}
-                      className="text-gold focus:ring-0 bg-surface"
-                    />
-                    <span>Обычный (1d20)</span>
-                  </label>
-                  <label className="flex items-center gap-1 cursor-pointer text-emerald-400">
-                    <input
-                      type="radio"
-                      name="advMode"
-                      checked={advMode === 'advantage'}
-                      onChange={() => {
-                        setAdvMode('advantage');
-                        resetResults();
-                      }}
-                      className="text-emerald-500 focus:ring-0 bg-surface"
-                    />
-                    <span>Преимущество (2d20kh1)</span>
-                  </label>
-                  <label className="flex items-center gap-1 cursor-pointer text-red-400">
-                    <input
-                      type="radio"
-                      name="advMode"
-                      checked={advMode === 'disadvantage'}
-                      onChange={() => {
-                        setAdvMode('disadvantage');
-                        resetResults();
-                      }}
-                      className="text-red-500 focus:ring-0 bg-surface"
-                    />
-                    <span>Помеха (2d20kl1)</span>
-                  </label>
+          <div className="space-y-3 bg-card p-3.5 rounded-sm border border-border-subtle">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+                {isEn ? '3. ROLL MODE:' : '3. РЕЖИМ БРОСКА:'}
+              </label>
+              {attacker?.isPlayer ? (
+                <div className="px-2.5 py-1 rounded-sm bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 font-bold text-[11px] flex items-center gap-1.5 shadow-sm">
+                  <Edit3 className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>
+                    {isEn
+                      ? 'Player rolls at table — manual result entry only'
+                      : 'Игрок ходит за столом — только ручной ввод результата'}
+                  </span>
                 </div>
-              </div>
-
-              {/* Action Trigger Buttons */}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleAutoRoll}
-                  className="flex-1 py-2 px-4 rounded-sm bg-gold text-canvas font-bold text-xs hover:bg-gold-light transition-all shadow-gold-glow flex items-center justify-center gap-2"
-                >
-                  <Dices className="h-4 w-4" />
-                  <span>{isAoEMode ? 'Бросить атаку по площади' : 'Бросить атаку против КД'}</span>
-                </button>
-
-                {!isAoEMode && attacker?.statblock?.actions && attacker.statblock.actions.length > 1 && (
+              ) : (
+                <div className="flex items-center gap-1 bg-surface p-0.5 rounded-sm border border-border-subtle text-[11px]">
                   <button
                     type="button"
-                    onClick={handleMultiattackSeries}
-                    className="py-2 px-4 rounded-sm bg-card border border-gold/50 text-gold-light font-bold text-xs hover:bg-surface transition-all flex items-center gap-1.5"
-                  >
-                    <Swords className="h-4 w-4" />
-                    <span>Серия мультиатак</span>
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : (
-            /* PHYSICAL DICE MODE INPUTS */
-            <div className="space-y-3.5">
-              {/* Step A: D20 Input */}
-              <div className="p-3 bg-surface rounded-sm border border-gold/40 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
-                    <Dices className="h-4 w-4 text-gold" />
-                    Число на реальной кости d20 (от 1 до 20):
-                  </span>
-                  <span className="text-xs font-mono text-gold-light bg-gold/10 px-2 py-0.5 rounded border border-gold/30">
-                    Модификатор атаки: <strong>{currentActionDetails.attackBonus >= 0 ? `+${currentActionDetails.attackBonus}` : currentActionDetails.attackBonus}</strong>
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <input
-                    type="number"
-                    min={1}
-                    max={20}
-                    value={physicalD20}
-                    onChange={(e) => {
-                      setPhysicalD20(e.target.value);
-                      calculatePhysicalOutcome(e.target.value, physicalRawDamage, physicalTotalOverride);
+                    onClick={() => {
+                      setRollMode('digital');
+                      resetResults();
+                      setPhysicalD20('');
+                      setPhysicalRawDamage('');
+                      setPhysicalTotalOverride('');
                     }}
-                    placeholder="1-20"
-                    className="w-24 text-center text-lg font-mono font-bold bg-canvas border border-gold/60 text-gold rounded-sm px-2 py-1 outline-none focus:ring-1 focus:ring-gold"
-                  />
-
-                  {/* Quick buttons */}
-                  <div className="flex items-center gap-1 text-[11px] font-mono flex-wrap">
-                    <span className="text-gray-500 text-[10px] mr-1">Быстрый выбор:</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhysicalD20('1');
-                        calculatePhysicalOutcome('1', physicalRawDamage, physicalTotalOverride);
-                      }}
-                      className="px-2 py-1 rounded bg-red-950/50 border border-red-800/60 text-red-300 hover:bg-red-900 font-bold"
-                      title="Критический промах"
-                    >
-                      1 (Промах)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhysicalD20('10');
-                        calculatePhysicalOutcome('10', physicalRawDamage, physicalTotalOverride);
-                      }}
-                      className="px-2 py-1 rounded bg-card border border-border-subtle hover:text-white"
-                    >
-                      10
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhysicalD20('15');
-                        calculatePhysicalOutcome('15', physicalRawDamage, physicalTotalOverride);
-                      }}
-                      className="px-2 py-1 rounded bg-card border border-border-subtle hover:text-white"
-                    >
-                      15
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhysicalD20('18');
-                        calculatePhysicalOutcome('18', physicalRawDamage, physicalTotalOverride);
-                      }}
-                      className="px-2 py-1 rounded bg-card border border-border-subtle hover:text-white"
-                    >
-                      18
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhysicalD20('20');
-                        calculatePhysicalOutcome('20', physicalRawDamage, physicalTotalOverride);
-                      }}
-                      className="px-2 py-1 rounded bg-emerald-950/50 border border-emerald-700/60 text-emerald-300 hover:bg-emerald-900 font-bold"
-                      title="Критическое попадание (Крит)"
-                    >
-                      20 (КРИТ!)
-                    </button>
-                  </div>
-                </div>
-
-                {/* Real-time calculated status line */}
-                {physicalD20 ? (
-                  <div
-                    className={`p-2 rounded text-xs font-mono font-medium border flex flex-wrap items-center justify-between gap-2 min-w-0 ${
-                      isCrit
-                        ? 'bg-emerald-950/40 border-emerald-500/70 text-emerald-200'
-                        : isHit
-                        ? 'bg-gold/10 border-gold/40 text-gold-light'
-                        : 'bg-red-950/30 border-red-900/50 text-red-300'
+                    className={`px-2.5 py-1 rounded-sm transition-colors flex items-center gap-1.5 font-bold ${
+                      rollMode === 'digital'
+                        ? 'bg-gold text-canvas shadow-sm'
+                        : 'text-gray-400 hover:text-gray-200'
                     }`}
                   >
-                    <span className="break-words min-w-0 flex-1 leading-snug">{hitOutcomeText}</span>
-                    <span className="font-bold text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface border border-border-subtle shrink-0">
-                      {isCrit ? 'КРИТ!' : isHit ? 'ПОПАДАНИЕ' : 'ПРОМАХ'}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="text-[11px] text-gray-500 italic">
-                    Введите выпавшее на реальной кости d20 число (1–20). Итог против КД цели ({target?.ac ?? 10}) рассчитается мгновенно.
-                  </div>
-                )}
-              </div>
-
-              {/* Step B: Damage Calculation (When Hit) */}
-              {isHit && (
-                <div className="p-3 bg-surface rounded-sm border border-border-subtle space-y-3 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
-                      <Zap className="h-3.5 w-3.5 text-amber-400" />
-                      <span>Расчёт урона ({localizeDamageType(physicalDamageType || currentActionDetails.damageType)}):</span>
-                    </span>
-                    {isCrit && (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-600 font-bold flex items-center gap-1">
-                        <Zap className="h-3 w-3 text-emerald-400" />
-                        <span>КРИТ: кубы формулы удвоены ({critFormula})</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-end">
-                    {/* Option 1: Roll Formula Button */}
-                    <div>
-                      <span className="text-[10px] text-gray-400 block mb-1 truncate" title={isCrit ? critFormula : currentActionDetails.damageFormula}>
-                        Формула: <strong className="text-gold-light break-words">{isCrit ? critFormula : currentActionDetails.damageFormula}</strong>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleRollFormulaInPhysicalMode}
-                        className="w-full py-1.5 px-2 rounded-sm bg-gold/15 border border-gold/40 hover:bg-gold hover:text-black text-gold-light font-bold text-xs transition-all flex items-center justify-center gap-1 shadow-sm"
-                      >
-                        <Dices className="h-3.5 w-3.5" />
-                        <span>Бросить формулу</span>
-                      </button>
-                    </div>
-
-                    {/* Option 2: Enter Raw Damage from table */}
-                    <div>
-                      <span className="text-[10px] text-gray-400 block mb-1 truncate">
-                        Чистый урон со стола (кости):
-                      </span>
-                      <input
-                        type="number"
-                        min={0}
-                        value={physicalRawDamage}
-                        onChange={(e) => {
-                          setPhysicalRawDamage(e.target.value);
-                          setPhysicalTotalOverride('');
-                          calculatePhysicalOutcome(physicalD20, e.target.value, '');
-                        }}
-                        placeholder="Например, 11"
-                        className="w-full bg-canvas border border-border-subtle text-xs rounded-sm px-2.5 py-1.5 text-gray-100 outline-none focus:border-gold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      />
-                    </div>
-
-                    {/* Option 3: Override Final Damage */}
-                    <div>
-                      <span className="text-[10px] text-gray-400 block mb-1 truncate">
-                        Или суммарный урон:
-                      </span>
-                      <input
-                        type="number"
-                        min={0}
-                        value={physicalTotalOverride || (finalCalculatedDamage > 0 ? String(finalCalculatedDamage) : '')}
-                        onChange={(e) => {
-                          setPhysicalTotalOverride(e.target.value);
-                          calculatePhysicalOutcome(physicalD20, physicalRawDamage, e.target.value);
-                        }}
-                        placeholder="Итоговый урон"
-                        className="w-full bg-canvas border border-border-subtle text-xs rounded-sm px-2.5 py-1.5 text-gold font-mono font-bold outline-none focus:border-gold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Target defenses and Temp HP preview */}
-                  {target && (
-                    <div className="p-2 rounded bg-canvas/60 border border-border-subtle/60 text-[11px] font-mono space-y-1">
-                      {defenseNoticeText && (
-                        <div className="text-yellow-300 font-semibold break-words leading-tight">{defenseNoticeText}</div>
-                      )}
-                      <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400">
-                        <span>
-                          ОЗ цели: <strong className="text-emerald-300">{target.hp}/{target.maxHp}</strong>
-                          {target.tempHp > 0 && <span className="text-cyan-300 ml-1">(+{target.tempHp} врем. ОЗ)</span>}
-                        </span>
-                        {finalCalculatedDamage > 0 && (
-                          <span className="text-gold-light">
-                            После удара: {Math.max(0, target.hp - Math.max(0, finalCalculatedDamage - target.tempHp))} ОЗ
-                            {target.tempHp > 0 && ` | ${Math.max(0, target.tempHp - finalCalculatedDamage)} врем. ОЗ`}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                    <Dices className="h-3.5 w-3.5" />
+                    <span>{isEn ? 'Digital Dice (3D)' : 'Цифровой бросок (d20)'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRollMode('physical');
+                      resetResults();
+                    }}
+                    className={`px-2.5 py-1 rounded-sm transition-colors flex items-center gap-1.5 font-bold ${
+                      rollMode === 'physical'
+                        ? 'bg-gold text-canvas shadow-sm'
+                        : 'text-gray-400 hover:text-gray-200'
+                    }`}
+                  >
+                    <Edit3 className="h-3.5 w-3.5" />
+                    <span>{isEn ? 'Physical Dice (Table)' : 'Бросок за столом (кости)'}</span>
+                  </button>
                 </div>
               )}
             </div>
-          )}
-        </div>
+
+            {rollMode === 'digital' ? (
+              <div className="space-y-3">
+                <AdvantageToggle
+                  advMode={advMode}
+                  onAdvModeChange={(mode) => {
+                    setAdvMode(mode);
+                    resetResults();
+                  }}
+                />
+
+                {/* Action Trigger Buttons */}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleAutoRoll}
+                    className="flex-1 py-2 px-4 rounded-sm bg-gold text-canvas font-bold text-xs hover:bg-gold-light transition-all shadow-gold-glow flex items-center justify-center gap-2"
+                  >
+                    <Dices className="h-4 w-4" />
+                    <span>
+                      {isAoEMode
+                        ? (isEn ? 'Roll AoE Attack' : 'Бросить атаку по площади')
+                        : (isEn ? 'Roll Attack vs AC' : 'Бросить атаку против КД')}
+                    </span>
+                  </button>
+
+                  {!isAoEMode && attacker?.statblock?.actions && attacker.statblock.actions.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={handleMultiattackSeries}
+                      className="py-2 px-4 rounded-sm bg-card border border-gold/50 text-gold-light font-bold text-xs hover:bg-surface transition-all flex items-center gap-1.5"
+                    >
+                      <Swords className="h-4 w-4" />
+                      <span>{isEn ? 'Multiattack Series' : 'Серия мультиатак'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* PHYSICAL DICE MODE INPUTS */
+              <div className="space-y-3.5">
+                {/* Step A: D20 Input */}
+                <div className="p-3 bg-surface rounded-sm border border-gold/40 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
+                      <Dices className="h-4 w-4 text-gold" />
+                      {isEn ? 'Value on actual d20 (1 to 20):' : 'Число на реальной кости d20 (от 1 до 20):'}
+                    </span>
+                    <span className="text-xs font-mono text-gold-light bg-gold/10 px-2 py-0.5 rounded border border-gold/30">
+                      {isEn ? 'Attack modifier: ' : 'Модификатор атаки: '}
+                      <strong>{currentActionDetails.attackBonus >= 0 ? `+${currentActionDetails.attackBonus}` : currentActionDetails.attackBonus}</strong>
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="number"
+                      min={1}
+                      max={20}
+                      value={physicalD20}
+                      onChange={(e) => {
+                        setPhysicalD20(e.target.value);
+                        calculatePhysicalOutcome(e.target.value, physicalRawDamage, physicalTotalOverride);
+                      }}
+                      placeholder="1-20"
+                      className="w-24 text-center text-lg font-mono font-bold bg-canvas border border-gold/60 text-gold rounded-sm px-2 py-1 outline-none focus:ring-1 focus:ring-gold"
+                    />
+
+                    {/* Quick buttons */}
+                    <div className="flex items-center gap-1 text-[11px] font-mono flex-wrap">
+                      <span className="text-gray-500 text-[10px] mr-1">
+                        {isEn ? 'Quick pick:' : 'Быстрый выбор:'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhysicalD20('1');
+                          calculatePhysicalOutcome('1', physicalRawDamage, physicalTotalOverride);
+                        }}
+                        className="px-2 py-1 rounded bg-red-950/50 border border-red-800/60 text-red-300 hover:bg-red-900 font-bold"
+                        title={isEn ? 'Automatic Miss' : 'Критический промах'}
+                      >
+                        {isEn ? '1 (AUTOMATIC MISS!)' : '1 (Промах)'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhysicalD20('10');
+                          calculatePhysicalOutcome('10', physicalRawDamage, physicalTotalOverride);
+                        }}
+                        className="px-2 py-1 rounded bg-card border border-border-subtle hover:text-white"
+                      >
+                        10
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhysicalD20('15');
+                          calculatePhysicalOutcome('15', physicalRawDamage, physicalTotalOverride);
+                        }}
+                        className="px-2 py-1 rounded bg-card border border-border-subtle hover:text-white"
+                      >
+                        15
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhysicalD20('18');
+                          calculatePhysicalOutcome('18', physicalRawDamage, physicalTotalOverride);
+                        }}
+                        className="px-2 py-1 rounded bg-card border border-border-subtle hover:text-white"
+                      >
+                        18
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhysicalD20('20');
+                          calculatePhysicalOutcome('20', physicalRawDamage, physicalTotalOverride);
+                        }}
+                        className="px-2 py-1 rounded bg-emerald-950/50 border border-emerald-700/60 text-emerald-300 hover:bg-emerald-900 font-bold"
+                        title={isEn ? 'Critical Hit' : 'Критическое попадание (Крит)'}
+                      >
+                        {isEn ? '20 (CRITICAL HIT!)' : '20 (КРИТ!)'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Real-time calculated status line */}
+                  {physicalD20 ? (
+                    <HitOutcomeBanner
+                      isHit={isHit}
+                      isCrit={isCrit}
+                      hitOutcomeText={hitOutcomeText}
+                    />
+                  ) : (
+                    <div className="text-[11px] text-gray-500 italic">
+                      {isEn
+                        ? `Enter the roll from the physical d20 (1–20). Total vs Target AC (${effectiveTargetAc}) calculates instantly.`
+                        : `Введите выпавшее на реальной кости d20 число (1–20). Итог против КД цели (${effectiveTargetAc}) рассчитается мгновенно.`}
+                    </div>
+                  )}
+                </div>
+
+                {/* Step B: Damage Calculation (When Hit) */}
+                {isHit && (
+                  <div className="p-3 bg-surface rounded-sm border border-border-subtle space-y-3 animate-in fade-in duration-150">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
+                        <Zap className="h-3.5 w-3.5 text-amber-400" />
+                        <span>
+                          {isEn
+                            ? `Damage Calculation (${localizeDamageType(physicalDamageType || currentActionDetails.damageType, language)}):`
+                            : `Расчёт урона (${localizeDamageType(physicalDamageType || currentActionDetails.damageType, language)}):`}
+                        </span>
+                      </span>
+                      {isCrit && (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-600 font-bold flex items-center gap-1">
+                          <Zap className="h-3 w-3 text-emerald-400" />
+                          <span>
+                            {isEn
+                              ? `CRITICAL HIT! Dice doubled (${critFormula})`
+                              : `КРИТ: кубы формулы удвоены (${critFormula})`}
+                          </span>
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-end">
+                      {/* Option 1: Roll Formula Button */}
+                      <div>
+                        <span className="text-[10px] text-gray-400 block mb-1 truncate" title={isCrit ? critFormula : currentActionDetails.damageFormula}>
+                          {isEn ? 'Damage Formula: ' : 'Формула: '}
+                          <strong className="text-gold-light break-words">{isCrit ? critFormula : currentActionDetails.damageFormula}</strong>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleRollFormulaInPhysicalMode}
+                          className="w-full py-1.5 px-2 rounded-sm bg-gold/15 border border-gold/40 hover:bg-gold hover:text-black text-gold-light font-bold text-xs transition-all flex items-center justify-center gap-1 shadow-sm"
+                        >
+                          <Dices className="h-3.5 w-3.5" />
+                          <span>{isEn ? 'Roll Formula' : 'Бросить формулу'}</span>
+                        </button>
+                      </div>
+
+                      {/* Option 2: Enter Raw Damage from table */}
+                      <div>
+                        <span className="text-[10px] text-gray-400 block mb-1 truncate">
+                          {isEn ? 'Raw damage from dice:' : 'Чистый урон со стола (кости):'}
+                        </span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={physicalRawDamage}
+                          onChange={(e) => {
+                            setPhysicalRawDamage(e.target.value);
+                            setPhysicalTotalOverride('');
+                            calculatePhysicalOutcome(physicalD20, e.target.value, '');
+                          }}
+                          placeholder={isEn ? 'e.g. 11' : 'Например, 11'}
+                          className="w-full bg-canvas border border-border-subtle text-xs rounded-sm px-2.5 py-1.5 text-gray-100 outline-none focus:border-gold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </div>
+
+                      {/* Option 3: Override Final Damage */}
+                      <div>
+                        <span className="text-[10px] text-gray-400 block mb-1 truncate">
+                          {isEn ? 'Or total damage override:' : 'Или суммарный урон:'}
+                        </span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={physicalTotalOverride || (finalCalculatedDamage > 0 ? String(finalCalculatedDamage) : '')}
+                          onChange={(e) => {
+                            setPhysicalTotalOverride(e.target.value);
+                            calculatePhysicalOutcome(physicalD20, physicalRawDamage, e.target.value);
+                          }}
+                          placeholder={isEn ? 'Final damage' : 'Итоговый урон'}
+                          className="w-full bg-canvas border border-border-subtle text-xs rounded-sm px-2.5 py-1.5 text-gold font-mono font-bold outline-none focus:border-gold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Target defenses and Temp HP preview */}
+                    {target && (
+                      <div className="p-2 rounded bg-canvas/60 border border-border-subtle/60 text-[11px] font-mono space-y-1">
+                        {defenseNoticeText && (
+                          <div className="text-yellow-300 font-semibold break-words leading-tight">{defenseNoticeText}</div>
+                        )}
+                        <div className="flex flex-wrap items-center justify-between gap-1 text-gray-400">
+                          <span>
+                            {isEn ? 'Target HP: ' : 'ОЗ цели: '}
+                            <strong className="text-emerald-300">{target.hp}/{target.maxHp}</strong>
+                            {target.tempHp > 0 && (
+                              <span className="text-cyan-300 ml-1">
+                                {isEn ? `(+${target.tempHp} Temp HP)` : `(+${target.tempHp} врем. ОЗ)`}
+                              </span>
+                            )}
+                          </span>
+                          {finalCalculatedDamage > 0 && (
+                            <span className="text-gold-light">
+                              {isEn ? 'After hit: ' : 'После удара: '}
+                              {Math.max(0, target.hp - Math.max(0, finalCalculatedDamage - target.tempHp))} {isEn ? 'HP' : 'ОЗ'}
+                              {target.tempHp > 0 && ` | ${Math.max(0, target.tempHp - finalCalculatedDamage)} ${isEn ? 'Temp HP' : 'врем. ОЗ'}`}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {/* SECTION 4: Result Display */}
@@ -1607,7 +1712,7 @@ export function TargetedAttackModal() {
             />
             <span className="flex items-center gap-1.5 font-medium">
               <Send className="h-3.5 w-3.5 text-gold" />
-              Транслировать бросок на экран игроков
+              {isEn ? 'Broadcast roll to player screen' : 'Транслировать бросок на экран игроков'}
             </span>
           </label>
 
@@ -1617,7 +1722,7 @@ export function TargetedAttackModal() {
               onClick={closeTargetedAttack}
               className="min-h-[34px] px-4 py-2 rounded-glass border border-[rgba(255,255,255,0.08)] text-xs font-semibold text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
             >
-              Отмена
+              {isEn ? 'Cancel' : 'Отмена'}
             </button>
             <button
               type="button"
@@ -1633,8 +1738,8 @@ export function TargetedAttackModal() {
                 <Zap className="h-3.5 w-3.5" />
                 <span>
                   {isAoEMode && (attackOrSaveMode === 'save' || multiattackLogs.length > 0)
-                    ? 'Применить урон всем целям'
-                    : 'Применить урон к цели'}
+                    ? (isEn ? 'Apply Damage to All Targets' : 'Применить урон всем целям')
+                    : (isEn ? 'Apply Damage' : 'Применить урон к цели')}
                 </span>
               </span>
             </button>

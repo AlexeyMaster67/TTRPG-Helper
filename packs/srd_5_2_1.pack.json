@@ -6,10 +6,10 @@
     "edition": "5.2.1 (CC-BY)",
     "version": "1.0.0",
     "author": "Wizards of the Coast / Open Gaming Foundation",
-    "description": "Официальный открытый свод из 336 существ SRD 5.2.1 под свободной лицензией Creative Commons Attribution 4.0 International (CC-BY-4.0).",
-    "count": 336,
+    "description": "Официальный открытый свод из 335 существ SRD 5.2.1 под свободной лицензией Creative Commons Attribution 4.0 International (CC-BY-4.0).",
+    "count": 335,
     "format": "ait-content-pack-v1",
-    "created_at": "2026-10-21T07:09:33.717Z",
+    "created_at": "2026-10-22T02:10:05.967Z",
     "tags": [
       "dnd5e",
       "srd",
@@ -23153,84 +23153,6 @@
         "hp": {
           "current": 13,
           "max": 13
-        }
-      }
-    },
-    {
-      "id": "slaad-tadpole",
-      "name_en": "Slaad Tadpole",
-      "name_ru": "Слаад головастик",
-      "size": "Tiny",
-      "size_ru": "Крошечный",
-      "creature_type": "Aberration",
-      "creature_type_ru": "Аберрация",
-      "alignment": "Без мировоззрения",
-      "ac": 12,
-      "hp_average": 7,
-      "hp_formula": "3d4",
-      "speed": "30ft, копание 10ft",
-      "init_bonus": 2,
-      "passive_init": 12,
-      "cr": "1/8",
-      "pb": 2,
-      "str": 7,
-      "dex": 15,
-      "con": 10,
-      "intellect": 3,
-      "wis": 5,
-      "cha": 3,
-      "saves": {
-        "str": -2,
-        "dex": 2,
-        "con": 0,
-        "int": -4,
-        "wis": -3,
-        "cha": -4
-      },
-      "skills": {
-        "Stealth": 4
-      },
-      "damage_vulnerabilities": "",
-      "damage_resistances": "кислота, холод, огонь, электричество, звук",
-      "damage_immunities": "",
-      "condition_immunities": "",
-      "senses": "Тёмное зрение 60 фт., пассивное восприятие 7",
-      "languages": "понимает Слаадов, но не говорит",
-      "traits": [
-        {
-          "name": "Магическое сопротивление",
-          "desc": "Слаад имеет преимущество при спасбросках от заклинаний и других магических эффектов."
-        }
-      ],
-      "actions": [
-        {
-          "name": "Укус",
-          "desc": "Бросок атаки: +4, досягаемость 5 фт.. Попадание: 5 (1d6+2) колющего урона."
-        }
-      ],
-      "bonus_actions": [],
-      "reactions": [],
-      "legendary_actions": [],
-      "spells": [],
-      "source": "SRD 5.2",
-      "is_srd": true,
-      "name": "Slaad Tadpole",
-      "system_id": "srd_5_2_1",
-      "systemId": "srd_5_2_1",
-      "systemVersion": "1.0.0",
-      "cr_or_level": "1/8",
-      "stats": {
-        "str": 7,
-        "dex": 15,
-        "con": 10,
-        "int": 3,
-        "wis": 5,
-        "cha": 3
-      },
-      "resources": {
-        "hp": {
-          "current": 7,
-          "max": 7
         }
       }
     },

@@ -290,6 +290,7 @@ describe('useCombatStore Modular Slices Architecture', () => {
         attack_bonus: 20, // guaranteed hit
         damage_dice: '1d4+2',
         damage_type: 'slashing',
+        weapon_mastery: 'Graze', // ensures damage even if random d20 rolls natural 1
       });
 
       const afterStrike = useCombatStore.getState();

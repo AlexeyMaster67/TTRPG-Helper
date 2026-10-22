@@ -4,6 +4,9 @@ export interface SettingsState {
   uiScale: number; // 80 - 150 (percentage)
   isModalOpen: boolean;
 
+  // Language Setting
+  language: 'en' | 'ru'; // default strictly 'en'
+
   // Multi-System Theme Settings
   currentSystemId: string; // default: 'dnd5e_2024'
   themeBySystem: boolean; // default: true
@@ -11,6 +14,8 @@ export interface SettingsState {
   globalTheme: string; // alias to fallbackTheme for specialist compatibility
 
   // Actions
+  setLanguage: (lang: 'en' | 'ru') => void;
+  toggleLanguage: () => void;
   setUiScale: (scale: number) => void;
   resetUiScale: () => void;
   setCurrentSystemId: (systemId: string) => void;
@@ -50,6 +55,7 @@ export function resolveEffectiveTheme(
 
 interface StoredSettings {
   uiScale?: number;
+  language?: 'en' | 'ru';
   currentSystemId?: string;
   themeBySystem?: boolean;
   fallbackTheme?: string;
@@ -75,6 +81,11 @@ function saveStoredSettings(partial: Partial<StoredSettings>) {
 }
 
 const initialSettings = getStoredSettings();
+const initialLanguage: 'en' | 'ru' =
+  initialSettings.language === 'ru' || initialSettings.language === 'en'
+    ? initialSettings.language
+    : 'en';
+
 const initialUiScale =
   typeof initialSettings.uiScale === 'number' &&
   initialSettings.uiScale >= 80 &&
@@ -91,6 +102,7 @@ const initialFallbackTheme =
   initialSettings.fallbackTheme || initialSettings.globalTheme || 'dnd5e';
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
+  language: initialLanguage,
   uiScale: initialUiScale,
   isModalOpen: false,
 
@@ -98,6 +110,18 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   themeBySystem: initialThemeBySystem,
   fallbackTheme: initialFallbackTheme,
   globalTheme: initialFallbackTheme,
+
+  setLanguage: (lang: 'en' | 'ru') => {
+    const valid: 'en' | 'ru' = lang === 'ru' ? 'ru' : 'en';
+    set({ language: valid });
+    saveStoredSettings({ language: valid });
+  },
+
+  toggleLanguage: () => {
+    const next: 'en' | 'ru' = get().language === 'en' ? 'ru' : 'en';
+    set({ language: next });
+    saveStoredSettings({ language: next });
+  },
 
   setUiScale: (scale: number) => {
     const clamped = Math.max(80, Math.min(150, Math.round(scale)));

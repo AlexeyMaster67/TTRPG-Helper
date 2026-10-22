@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePartyStore } from '../../store/partyStore';
+import { useTranslation } from '../../i18n';
 import { PartyMember } from '../../types/party';
 import {
   Users,
@@ -41,6 +42,22 @@ export const DND_CLASSES_RU = [
   'Изобретатель',
 ];
 
+export const DND_CLASSES_EN = [
+  'Barbarian',
+  'Bard',
+  'Cleric',
+  'Druid',
+  'Fighter',
+  'Monk',
+  'Paladin',
+  'Ranger',
+  'Rogue',
+  'Sorcerer',
+  'Warlock',
+  'Wizard',
+  'Artificer',
+];
+
 export const DND_SPECIES_RU = [
   'Человек',
   'Эльф',
@@ -52,6 +69,19 @@ export const DND_SPECIES_RU = [
   'Орк',
   'Голиаф',
   'Аасимар',
+];
+
+export const DND_SPECIES_EN = [
+  'Human',
+  'Elf',
+  'Dwarf',
+  'Halfling',
+  'Gnome',
+  'Dragonborn',
+  'Tiefling',
+  'Orc',
+  'Goliath',
+  'Aasimar',
 ];
 
 export const NOTE_TEMPLATES_RU = [
@@ -66,7 +96,25 @@ export const NOTE_TEMPLATES_RU = [
   'Магическое чутьё',
 ];
 
+export const NOTE_TEMPLATES_EN = [
+  'Darkvision 60 ft.',
+  'Poison Resistance',
+  'Defense Style (+1 AC)',
+  'Bardic Inspiration (d8)',
+  'Sneak Attack (2d6)',
+  'Divine Smite',
+  'Action Surge (1/rest)',
+  'Rage (3/day)',
+  'Detect Magic',
+];
+
 export function PartyManagerModal() {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
+
+  const dndClasses = isEn ? DND_CLASSES_EN : DND_CLASSES_RU;
+  const dndSpecies = isEn ? DND_SPECIES_EN : DND_SPECIES_RU;
+  const noteTemplates = isEn ? NOTE_TEMPLATES_EN : NOTE_TEMPLATES_RU;
   const {
     members,
     treasury,
@@ -162,8 +210,16 @@ export function PartyManagerModal() {
 
     if (ttrpghCount > 0 || lssCount > 0) {
       const msgs: string[] = [];
-      if (ttrpghCount > 0) msgs.push(`Импортировано героев из .ttrpgh: ${ttrpghCount}`);
-      if (lssCount > 0) msgs.push(`Импортировано из LSS: ${lssCount}`);
+      if (ttrpghCount > 0)
+        msgs.push(
+          isEn
+            ? `Imported heroes from .ttrpgh: ${ttrpghCount}`
+            : `Импортировано героев из .ttrpgh: ${ttrpghCount}`
+        );
+      if (lssCount > 0)
+        msgs.push(
+          isEn ? `Imported from LSS: ${lssCount}` : `Импортировано из LSS: ${lssCount}`
+        );
       setImportNotice(msgs.join(' • '));
       setTimeout(() => setImportNotice(null), 4000);
     }
@@ -174,7 +230,11 @@ export function PartyManagerModal() {
     for (const m of members) {
       downloadTtrpghFile(m, m.avatarUrl);
     }
-    setImportNotice(`Экспортировано персонажей в .ttrpgh: ${members.length}`);
+    setImportNotice(
+      isEn
+        ? `Exported party members to .ttrpgh: ${members.length}`
+        : `Экспортировано персонажей в .ttrpgh: ${members.length}`
+    );
     setTimeout(() => setImportNotice(null), 3500);
   };
 
@@ -230,7 +290,7 @@ export function PartyManagerModal() {
         maxHp: formHp,
         initBonus: formInit,
         passivePerception: formPerc,
-        speed: '30 фт.',
+        speed: isEn ? '30 ft.' : '30 фт.',
         color: '#10B981',
         notes: formNotes.trim(),
       });
@@ -265,13 +325,15 @@ export function PartyManagerModal() {
             </div>
             <div className="min-w-0">
               <h2 className="text-sm sm:text-base font-bold text-gray-100 flex items-center gap-2 flex-wrap">
-                <span>Реестр отряда приключенцев</span>
+                <span>{isEn ? 'Adventuring Party Roster' : 'Реестр отряда приключенцев'}</span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700/60 shrink-0">
-                  {members.length} героев
+                  {members.length} {isEn ? (members.length === 1 ? 'hero' : 'heroes') : 'героев'}
                 </span>
               </h2>
               <p className="text-xs text-gray-400 truncate sm:whitespace-normal">
-                Постоянный состав отряда: автовысадка в бой за 1 клик с сохранением характеристик.
+                {isEn
+                  ? 'Active party roster: 1-click deployment to combat with preserved stats.'
+                  : 'Постоянный состав отряда: автовысадка в бой за 1 клик с сохранением характеристик.'}
               </p>
             </div>
           </div>
@@ -292,13 +354,13 @@ export function PartyManagerModal() {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                  Казна отряда
+                  {isEn ? 'Party Treasury' : 'Казна отряда'}
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsEditingTreasury(!isEditingTreasury)}
                   className="text-gray-400 hover:text-gold transition-colors p-0.5 cursor-pointer"
-                  title="Изменить казну отряда"
+                  title={isEn ? 'Edit party treasury' : 'Изменить казну отряда'}
                 >
                   <Edit2 className="h-3 w-3" />
                 </button>
@@ -313,9 +375,9 @@ export function PartyManagerModal() {
                       value={editGp}
                       onChange={(e) => setEditGp(Math.max(0, parseInt(e.target.value, 10) || 0))}
                       className="w-16 min-w-[3.5rem] bg-transparent text-gold text-xs font-bold outline-none font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      title="Золотые монеты (зм)"
+                      title={isEn ? 'Gold pieces (GP)' : 'Золотые монеты (зм)'}
                     />
-                    <span className="text-gold text-[10px] shrink-0 font-sans font-bold">зм</span>
+                    <span className="text-gold text-[10px] shrink-0 font-sans font-bold">{isEn ? 'gp' : 'зм'}</span>
                   </div>
 
                   <div className="flex items-center gap-1 bg-surface border border-gray-600 rounded-glass px-2 py-0.5">
@@ -325,9 +387,9 @@ export function PartyManagerModal() {
                       value={editSp}
                       onChange={(e) => setEditSp(Math.max(0, parseInt(e.target.value, 10) || 0))}
                       className="w-14 min-w-[3rem] bg-transparent text-gray-300 text-xs font-bold outline-none font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      title="Серебряные монеты (см)"
+                      title={isEn ? 'Silver pieces (SP)' : 'Серебряные монеты (см)'}
                     />
-                    <span className="text-gray-300 text-[10px] shrink-0 font-sans font-bold">см</span>
+                    <span className="text-gray-300 text-[10px] shrink-0 font-sans font-bold">{isEn ? 'sp' : 'см'}</span>
                   </div>
 
                   <div className="flex items-center gap-1 bg-surface border border-amber-800 rounded-glass px-2 py-0.5">
@@ -337,27 +399,27 @@ export function PartyManagerModal() {
                       value={editCp}
                       onChange={(e) => setEditCp(Math.max(0, parseInt(e.target.value, 10) || 0))}
                       className="w-14 min-w-[3rem] bg-transparent text-amber-600 text-xs font-bold outline-none font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      title="Медные монеты (мм)"
+                      title={isEn ? 'Copper pieces (CP)' : 'Медные монеты (мм)'}
                     />
-                    <span className="text-amber-600 text-[10px] shrink-0 font-sans font-bold">мм</span>
+                    <span className="text-amber-600 text-[10px] shrink-0 font-sans font-bold">{isEn ? 'cp' : 'мм'}</span>
                   </div>
 
                   <button
                     type="submit"
                     className="px-2 py-1 rounded-glass bg-[#f5b920] text-[#0c0d12] font-black text-[10px] hover:bg-[#fac742] flex items-center gap-0.5 shrink-0 cursor-pointer shadow-sm"
-                    title="Сохранить казну"
+                    title={isEn ? 'Save treasury' : 'Сохранить казну'}
                   >
                     <Check className="w-3 h-3" />
-                    <span>ОК</span>
+                    <span>{isEn ? 'OK' : 'ОК'}</span>
                   </button>
                 </form>
               ) : (
                 <div className="text-sm font-bold font-mono text-gold flex items-center gap-2 flex-wrap">
-                  <span title="Золотые монеты">{treasury.gp} зм</span>
+                  <span title={isEn ? 'Gold pieces' : 'Золотые монеты'}>{treasury.gp} {isEn ? 'gp' : 'зм'}</span>
                   <span className="text-gray-400 font-normal">•</span>
-                  <span title="Серебряные монеты" className="text-gray-300">{treasury.sp} см</span>
+                  <span title={isEn ? 'Silver pieces' : 'Серебряные монеты'} className="text-gray-300">{treasury.sp} {isEn ? 'sp' : 'см'}</span>
                   <span className="text-gray-400 font-normal">•</span>
-                  <span title="Медные монеты" className="text-amber-600">{treasury.cp} мм</span>
+                  <span title={isEn ? 'Copper pieces' : 'Медные монеты'} className="text-amber-600">{treasury.cp} {isEn ? 'cp' : 'мм'}</span>
                 </div>
               )}
             </div>
@@ -367,28 +429,40 @@ export function PartyManagerModal() {
             <button
               onClick={() => openShortRestModal()}
               className="px-3 py-2 rounded-glass bg-amber-950/50 border border-amber-600/70 hover:border-amber-400 text-amber-300 hover:text-amber-100 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(245,158,11,0.25)] cursor-pointer"
-              title="Короткий отдых отряда (1ч): трата костей хитов и восстановление способностей"
+              title={
+                isEn
+                  ? 'Party Short Rest (1h): spend hit dice and recover abilities'
+                  : 'Короткий отдых отряда (1ч): трата костей хитов и восстановление способностей'
+              }
             >
               <Flame className="h-3.5 w-3.5 text-amber-400" />
-              <span>Отдых 1ч</span>
+              <span>{isEn ? '1h Rest' : 'Отдых 1ч'}</span>
             </button>
 
             <button
               onClick={longRest}
               className="px-3 py-2 rounded-glass bg-blue-950/50 border border-blue-600/70 hover:border-blue-400 text-blue-300 hover:text-blue-100 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(59,130,246,0.25)] cursor-pointer"
-              title="Долгий отдых (8 часов): 100% ОЗ, ячейки заклинаний, сброс истощения"
+              title={
+                isEn
+                  ? 'Long Rest (8 hours): 100% HP, spell slots, reset exhaustion'
+                  : 'Долгий отдых (8 часов): 100% ОЗ, ячейки заклинаний, сброс истощения'
+              }
             >
               <Moon className="h-3.5 w-3.5 text-blue-400" />
-              <span>Отдых 8ч</span>
+              <span>{isEn ? '8h Rest' : 'Отдых 8ч'}</span>
             </button>
 
             <button
               onClick={() => fileInputRef.current?.click()}
               className="px-3 py-2 rounded-glass bg-amber-950/40 border border-amber-700/60 hover:border-amber-500 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
-              title="Импорт персонажа из открытого формата .ttrpgh или LSS JSON"
+              title={
+                isEn
+                  ? 'Import character from open .ttrpgh format or LSS JSON'
+                  : 'Импорт персонажа из открытого формата .ttrpgh или LSS JSON'
+              }
             >
               <FileDown className="h-3.5 w-3.5 text-amber-400" />
-              <span>Импорт .ttrpgh</span>
+              <span>{isEn ? 'Import .ttrpgh' : 'Импорт .ttrpgh'}</span>
             </button>
             <input
               ref={fileInputRef}
@@ -402,19 +476,27 @@ export function PartyManagerModal() {
             <button
               onClick={handleExportAllTtrpgh}
               className="px-3 py-2 rounded-glass bg-gold/15 border border-gold/50 hover:bg-gold/25 text-gold-light text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
-              title="Экспорт всех персонажей отряда в формат .ttrpgh"
+              title={
+                isEn
+                  ? 'Export all party characters to .ttrpgh format'
+                  : 'Экспорт всех персонажей отряда в формат .ttrpgh'
+              }
             >
               <Download className="h-3.5 w-3.5 text-gold" />
-              <span>Экспорт .ttrpgh</span>
+              <span>{isEn ? 'Export .ttrpgh' : 'Экспорт .ttrpgh'}</span>
             </button>
 
             <button
               onClick={openCharacterBuilder}
               className="px-3 py-2 rounded-glass bg-gold/20 border border-gold hover:bg-gold/30 text-gold-light text-xs font-bold flex items-center gap-1.5 transition-all shadow-[0_0_12px_rgba(245,185,32,0.25)] cursor-pointer"
-              title="Пошаговый конструктор персонажей по правилам D&D 2024 (19 видов)"
+              title={
+                isEn
+                  ? 'Step-by-step character builder by D&D 2024 rules (19 species)'
+                  : 'Пошаговый конструктор персонажей по правилам D&D 2024 (19 видов)'
+              }
             >
               <Sparkles className="h-3.5 w-3.5 text-gold" />
-              <span>Конструктор 2024</span>
+              <span>{isEn ? '2024 Builder' : 'Конструктор 2024'}</span>
             </button>
 
             <button
@@ -422,7 +504,7 @@ export function PartyManagerModal() {
               className="px-3 py-2 rounded-glass bg-white/5 border border-[rgba(255,255,255,0.08)] hover:border-gold/50 text-gray-200 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5 text-gold" />
-              <span>Добавить героя</span>
+              <span>{isEn ? 'Add Character' : 'Добавить героя'}</span>
             </button>
 
             <button
@@ -430,7 +512,7 @@ export function PartyManagerModal() {
               className="px-4 py-2 rounded-glass bg-[#f5b920] hover:bg-[#fac742] text-[#0c0d12] font-black text-xs shadow-[0_0_18px_rgba(245,185,32,0.35)] flex items-center gap-2 transition-all cursor-pointer"
             >
               <Swords className="h-3.5 w-3.5" />
-              <span>Высадить в бой</span>
+              <span>{isEn ? 'Deploy to Combat' : 'Высадить в бой'}</span>
             </button>
           </div>
         </div>
@@ -445,12 +527,12 @@ export function PartyManagerModal() {
 
         {/* Datalist helpers for quick class & species autocomplete */}
         <datalist id="dnd-classes-datalist">
-          {DND_CLASSES_RU.map((cls) => (
+          {dndClasses.map((cls) => (
             <option key={cls} value={`${cls} 1`} />
           ))}
         </datalist>
         <datalist id="dnd-species-datalist">
-          {DND_SPECIES_RU.map((sp) => (
+          {dndSpecies.map((sp) => (
             <option key={sp} value={sp} />
           ))}
         </datalist>
@@ -463,7 +545,13 @@ export function PartyManagerModal() {
           >
             <div className="flex items-center justify-between border-b border-border-subtle pb-2">
               <h4 className="text-xs font-bold text-gold-light">
-                {isAddingNew ? '+ Новый персонаж отряда' : 'Редактирование персонажа'}
+                {isAddingNew
+                  ? isEn
+                    ? '+ New Party Character'
+                    : '+ Новый персонаж отряда'
+                  : isEn
+                  ? 'Edit Character'
+                  : 'Редактирование персонажа'}
               </h4>
               <button
                 type="button"
@@ -479,31 +567,37 @@ export function PartyManagerModal() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <div>
-                <label className="text-[10px] text-gray-400">Имя персонажа:</label>
+                <label className="text-[10px] text-gray-400">
+                  {isEn ? 'Character Name:' : 'Имя персонажа:'}
+                </label>
                 <input
                   type="text"
                   required
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  placeholder="Например, Эльдрих"
+                  placeholder={isEn ? 'e.g. Eldric' : 'Например, Эльдрих'}
                   className="w-full bg-surface border border-border-subtle rounded px-2.5 py-1 text-xs text-white outline-none focus:border-gold"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400">Класс, архетип и уровень:</label>
+                <label className="text-[10px] text-gray-400">
+                  {isEn ? 'Class, Archetype & Level:' : 'Класс, архетип и уровень:'}
+                </label>
                 <input
                   type="text"
                   list="dnd-classes-datalist"
                   value={formClass}
                   onChange={(e) => setFormClass(e.target.value)}
-                  placeholder="Паладин 5 (Преданность)"
+                  placeholder={isEn ? 'Paladin 5 (Devotion)' : 'Паладин 5 (Преданность)'}
                   className="w-full bg-surface border border-border-subtle rounded px-2.5 py-1 text-xs text-white outline-none focus:border-gold"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400">Класс доспеха (КД):</label>
+                <label className="text-[10px] text-gray-400">
+                  {isEn ? 'Armor Class (AC):' : 'Класс доспеха (КД):'}
+                </label>
                 <input
                   type="number"
                   required
@@ -514,7 +608,9 @@ export function PartyManagerModal() {
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400">Максимум хитов (ХП):</label>
+                <label className="text-[10px] text-gray-400">
+                  {isEn ? 'Max Hit Points (HP):' : 'Максимум хитов (ХП):'}
+                </label>
                 <input
                   type="number"
                   required
@@ -525,7 +621,9 @@ export function PartyManagerModal() {
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400">Бонус инициативы (+X):</label>
+                <label className="text-[10px] text-gray-400">
+                  {isEn ? 'Initiative Bonus (+X):' : 'Бонус инициативы (+X):'}
+                </label>
                 <input
                   type="number"
                   value={formInit}
@@ -535,7 +633,9 @@ export function PartyManagerModal() {
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400">Пассивное Внимание:</label>
+                <label className="text-[10px] text-gray-400">
+                  {isEn ? 'Passive Perception:' : 'Пассивное Внимание:'}
+                </label>
                 <input
                   type="number"
                   value={formPerc}
@@ -548,15 +648,15 @@ export function PartyManagerModal() {
             {/* Quick Class Selection Chips */}
             <div>
               <span className="text-[9px] text-gray-500 block mb-1">
-                Быстрый выбор класса D&D 2024 / 5e:
+                {isEn ? 'Quick Class Selection D&D 2024 / 5e:' : 'Быстрый выбор класса D&D 2024 / 5e:'}
               </span>
               <div className="flex flex-wrap gap-1 max-w-full">
-                {DND_CLASSES_RU.map((cls) => (
+                {dndClasses.map((cls) => (
                   <button
                     key={cls}
                     type="button"
                     onClick={() => handleSelectClass(cls)}
-                    className="text-[9px] px-1.5 py-0.5 rounded bg-surface hover:bg-gold/20 text-gray-300 hover:text-gold border border-border-subtle transition-colors shrink-0 leading-tight"
+                    className="text-[9px] px-1.5 py-0.5 rounded bg-surface hover:bg-gold/20 text-gray-300 hover:text-gold border border-border-subtle transition-colors shrink-0 leading-tight cursor-pointer"
                   >
                     {cls}
                   </button>
@@ -567,23 +667,29 @@ export function PartyManagerModal() {
             {/* Character Notes and Quick Templates */}
             <div className="space-y-1">
               <label className="text-[10px] text-gray-400 flex items-center justify-between flex-wrap gap-1">
-                <span>Заметки ДМа / Особенности и черты:</span>
-                <span className="text-[9px] text-gray-500">Шаблоны черт (кликните для добавления):</span>
+                <span>{isEn ? 'DM Notes / Features & Traits:' : 'Заметки ДМа / Особенности и черты:'}</span>
+                <span className="text-[9px] text-gray-500">
+                  {isEn ? 'Trait Templates (click to add):' : 'Шаблоны черт (кликните для добавления):'}
+                </span>
               </label>
               <input
                 type="text"
                 value={formNotes}
                 onChange={(e) => setFormNotes(e.target.value)}
-                placeholder="Стиль боя, тёмное зрение, сопротивления, черты..."
+                placeholder={
+                  isEn
+                    ? 'Fighting style, darkvision, resistances, traits...'
+                    : 'Стиль боя, тёмное зрение, сопротивления, черты...'
+                }
                 className="w-full bg-surface border border-border-subtle rounded px-2.5 py-1 text-xs text-white outline-none focus:border-gold"
               />
               <div className="flex flex-wrap gap-1 pt-1 max-w-full">
-                {NOTE_TEMPLATES_RU.map((tpl) => (
+                {noteTemplates.map((tpl) => (
                   <button
                     key={tpl}
                     type="button"
                     onClick={() => handleAddNoteTemplate(tpl)}
-                    className="text-[9px] px-1.5 py-0.5 rounded bg-surface hover:bg-emerald-950/60 text-gray-300 hover:text-emerald-300 border border-border-subtle hover:border-emerald-700/60 transition-colors shrink-0 leading-tight"
+                    className="text-[9px] px-1.5 py-0.5 rounded bg-surface hover:bg-emerald-950/60 text-gray-300 hover:text-emerald-300 border border-border-subtle hover:border-emerald-700/60 transition-colors shrink-0 leading-tight cursor-pointer"
                   >
                     + {tpl}
                   </button>
@@ -598,15 +704,21 @@ export function PartyManagerModal() {
                   setIsAddingNew(false);
                   setEditingId(null);
                 }}
-                className="px-3 py-1 rounded border border-border-subtle text-xs text-gray-400 hover:text-white"
+                className="px-3 py-1 rounded border border-border-subtle text-xs text-gray-400 hover:text-white cursor-pointer"
               >
-                Отмена
+                {isEn ? 'Cancel' : 'Отмена'}
               </button>
               <button
                 type="submit"
-                className="px-4 py-1 rounded bg-gold text-canvas font-bold text-xs hover:bg-gold-light"
+                className="px-4 py-1 rounded bg-gold text-canvas font-bold text-xs hover:bg-gold-light cursor-pointer"
               >
-                {isAddingNew ? 'Добавить' : 'Сохранить'}
+                {isAddingNew
+                  ? isEn
+                    ? 'Add'
+                    : 'Добавить'
+                  : isEn
+                  ? 'Save'
+                  : 'Сохранить'}
               </button>
             </div>
           </form>
@@ -628,9 +740,14 @@ export function PartyManagerModal() {
                     {m.name.slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-bold text-white truncate leading-snug" title={m.name}>{m.name}</h3>
-                    <p className="text-xs text-emerald-400 font-medium truncate leading-tight mt-0.5" title={m.characterClass || 'Герой'}>
-                      {m.characterClass || 'Герой'}
+                    <h3 className="text-sm font-bold text-white truncate leading-snug" title={m.name}>
+                      {m.name}
+                    </h3>
+                    <p
+                      className="text-xs text-emerald-400 font-medium truncate leading-tight mt-0.5"
+                      title={m.characterClass || (isEn ? 'Hero' : 'Герой')}
+                    >
+                      {m.characterClass || (isEn ? 'Hero' : 'Герой')}
                     </p>
                   </div>
                 </div>
@@ -638,29 +755,29 @@ export function PartyManagerModal() {
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => openCharacterSheet(m.id)}
-                    title="Открыть интерактивный лист персонажа D&D Beyond"
+                    title={isEn ? 'Open interactive character sheet' : 'Открыть интерактивный лист персонажа D&D Beyond'}
                     className="px-2.5 py-1 rounded-glass bg-gold/15 hover:bg-gold/30 border border-gold/40 text-gold-light text-xs font-semibold flex items-center gap-1 transition-all shadow-sm cursor-pointer"
                   >
                     <BookOpen className="h-3.5 w-3.5 text-gold" />
-                    <span className="hidden sm:inline">Лист</span>
+                    <span className="hidden sm:inline">{isEn ? 'Sheet' : 'Лист'}</span>
                   </button>
                   <button
                     onClick={() => downloadTtrpghFile(m, m.avatarUrl)}
-                    title="Экспорт персонажа в .ttrpgh с внедренным токеном"
+                    title={isEn ? 'Export character to .ttrpgh with embedded token' : 'Экспорт персонажа в .ttrpgh с внедренным токеном'}
                     className="p-1 rounded-glass hover:bg-gold/20 text-gold hover:text-gold-light transition-colors cursor-pointer"
                   >
                     <FileDown className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => startEdit(m)}
-                    title="Быстрое редактирование"
+                    title={isEn ? 'Quick edit' : 'Быстрое редактирование'}
                     className="p-1 rounded-glass hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => removeMember(m.id)}
-                    title="Удалить из отряда"
+                    title={isEn ? 'Remove from party' : 'Удалить из отряда'}
                     className="p-1 rounded-glass hover:bg-white/10 text-gray-500 hover:text-red-400 transition-colors cursor-pointer"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -672,21 +789,21 @@ export function PartyManagerModal() {
               <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-mono">
                 <div className="bg-[rgba(14,18,25,0.7)] py-1.5 px-1 rounded-glass border border-[rgba(255,255,255,0.06)] flex flex-col min-w-0">
                   <span className="text-[9px] text-gray-400 font-sans flex items-center justify-center gap-0.5 leading-tight">
-                    <Shield className="h-2.5 w-2.5 text-blue-400 shrink-0" /> КД
+                    <Shield className="h-2.5 w-2.5 text-blue-400 shrink-0" /> {isEn ? 'AC' : 'КД'}
                   </span>
                   <span className="font-bold text-gray-100 leading-tight mt-0.5 truncate">{m.ac}</span>
                 </div>
 
                 <div className="bg-[rgba(14,18,25,0.7)] py-1.5 px-1 rounded-glass border border-[rgba(255,255,255,0.06)] flex flex-col min-w-0">
                   <span className="text-[9px] text-gray-400 font-sans flex items-center justify-center gap-0.5 leading-tight">
-                    <Heart className="h-2.5 w-2.5 text-emerald-400 shrink-0" /> ОЗ
+                    <Heart className="h-2.5 w-2.5 text-emerald-400 shrink-0" /> {isEn ? 'HP' : 'ОЗ'}
                   </span>
                   <span className="font-bold text-emerald-300 leading-tight mt-0.5 truncate">{m.maxHp}</span>
                 </div>
 
                 <div className="bg-[rgba(14,18,25,0.7)] py-1.5 px-1 rounded-glass border border-[rgba(255,255,255,0.06)] flex flex-col min-w-0">
                   <span className="text-[9px] text-gray-400 font-sans flex items-center justify-center gap-0.5 leading-tight">
-                    <Zap className="h-2.5 w-2.5 text-gold shrink-0" /> ИНИЦ
+                    <Zap className="h-2.5 w-2.5 text-gold shrink-0" /> {isEn ? 'INIT' : 'ИНИЦ'}
                   </span>
                   <span className="font-bold text-gold-light leading-tight mt-0.5 truncate">
                     {m.initBonus >= 0 ? `+${m.initBonus}` : m.initBonus}
@@ -695,14 +812,19 @@ export function PartyManagerModal() {
 
                 <div className="bg-[rgba(14,18,25,0.7)] py-1.5 px-1 rounded-glass border border-[rgba(255,255,255,0.06)] flex flex-col min-w-0">
                   <span className="text-[9px] text-gray-400 font-sans flex items-center justify-center gap-0.5 leading-tight">
-                    <Eye className="h-2.5 w-2.5 text-purple-400 shrink-0" /> ВНИМ
+                    <Eye className="h-2.5 w-2.5 text-purple-400 shrink-0" /> {isEn ? 'PERC' : 'ВНИМ'}
                   </span>
-                  <span className="font-bold text-purple-300 leading-tight mt-0.5 truncate">{m.passivePerception || 10}</span>
+                  <span className="font-bold text-purple-300 leading-tight mt-0.5 truncate">
+                    {m.passivePerception || 10}
+                  </span>
                 </div>
               </div>
 
               {m.notes && (
-                <p className="text-[11px] text-gray-400 italic break-words line-clamp-2 leading-relaxed" title={m.notes}>
+                <p
+                  className="text-[11px] text-gray-400 italic break-words line-clamp-2 leading-relaxed"
+                  title={m.notes}
+                >
                   {m.notes}
                 </p>
               )}

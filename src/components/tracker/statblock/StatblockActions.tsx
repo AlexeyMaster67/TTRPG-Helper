@@ -7,6 +7,7 @@ import { cleanRussianText } from '../../../utils/textUtils';
 import { parseActionDetails, parseMultiattackPlan } from '../../../utils/attackParser';
 import { resolveTokenUrl } from '../../../services/tokenResolver';
 import { renderTextWithSpellBadges } from './statblockUtils';
+import { useTranslation } from '../../../i18n';
 
 export interface StatblockActionsProps {
   combatant: Combatant;
@@ -37,6 +38,8 @@ export function StatblockActions({
   onCloseInlineTargetPicker,
   onInspectSpell,
 }: StatblockActionsProps) {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
   const sb = combatant.statblock;
   const currentTargetId = currentTarget?.id;
 
@@ -55,20 +58,26 @@ export function StatblockActions({
   const renderInlineTargetPicker = (actionKey: string, action: any) => {
     if (activeTargetingActionKey !== actionKey) return null;
 
+    const actionTitle = isEn
+      ? (action?.name || 'Attack')
+      : cleanRussianText(action?.name || 'Атака');
+
     return (
       <div className="mt-2.5 p-2.5 rounded-glass-sm bg-black/85 backdrop-blur-md border border-gold/60 shadow-[0_0_16px_rgba(245,185,32,0.25)] flex flex-col gap-2 animate-in slide-in-from-top-1 duration-150">
         {/* Header with Mode toggles and close button */}
         <div className="flex items-center justify-between gap-1.5 pb-2 border-b border-white/10">
           <div className="flex items-center gap-1.5 text-xs text-gold-light font-bold truncate">
             <Crosshair className="h-4 w-4 text-red-400 animate-pulse flex-shrink-0" />
-            <span className="truncate">Цель для «{cleanRussianText(action?.name || 'Атака')}»:</span>
+            <span className="truncate">
+              {isEn ? `Target for "${actionTitle}":` : `Цель для «${actionTitle}»:`}
+            </span>
           </div>
 
           <button
             type="button"
             onClick={onCloseInlineTargetPicker}
             className="min-h-[32px] min-w-[32px] flex items-center justify-center text-gray-400 hover:text-white rounded-glass-sm hover:bg-white/10 text-xs flex-shrink-0 transition-colors cursor-pointer"
-            title="Закрыть выбор цели"
+            title={isEn ? "Close target picker" : "Закрыть выбор цели"}
           >
             <X className="h-4 w-4" />
           </button>
@@ -78,7 +87,7 @@ export function StatblockActions({
         <div className="max-h-40 overflow-y-auto space-y-1.5 pr-0.5">
           {livingTargets.length === 0 ? (
             <div className="text-gray-400 text-xs text-center py-3 italic">
-              Нет живых доступных целей в бою
+              {isEn ? "No living targets available in combat" : "Нет живых доступных целей в бою"}
             </div>
           ) : (
             livingTargets.map((t) => {
@@ -86,6 +95,9 @@ export function StatblockActions({
               const initials = (t.nameRu || t.name).slice(0, 2).toUpperCase();
               const isLockedTarget = t.id === currentTargetId;
               const hpPct = Math.max(0, Math.min(100, Math.round((t.hp / (t.maxHp || 1)) * 100)));
+              const targetDisplayName = isEn
+                ? (t.name || t.nameRu)
+                : cleanRussianText(t.nameRu || t.name);
 
               return (
                 <div
@@ -117,13 +129,13 @@ export function StatblockActions({
                             'text-xs font-semibold truncate',
                             t.isPlayer ? 'text-emerald-300' : 'text-gray-200'
                           )}
-                          title={cleanRussianText(t.nameRu || t.name)}
+                          title={targetDisplayName}
                         >
-                          {cleanRussianText(t.nameRu || t.name)}
+                          {targetDisplayName}
                         </span>
                         {isLockedTarget && (
                           <span className="text-xs px-1.5 py-0.2 rounded-glass-sm bg-red-950 text-red-400 border border-red-800 font-mono tabular-nums flex-shrink-0 whitespace-nowrap">
-                            ЦЕЛЬ
+                            {isEn ? "TARGET" : "ЦЕЛЬ"}
                           </span>
                         )}
                       </div>
@@ -131,14 +143,14 @@ export function StatblockActions({
                       <div className="flex items-center gap-1.5 text-xs text-gray-400 font-mono tabular-nums truncate">
                         <span className="flex items-center gap-1 flex-shrink-0 whitespace-nowrap">
                           <Shield className="h-3 w-3 text-gray-400" />
-                          КД {t.ac}
+                          {isEn ? `AC ${t.ac}` : `КД ${t.ac}`}
                         </span>
                         <span className="text-gray-500 flex-shrink-0">•</span>
                         <span className={clsx(
                           'truncate whitespace-nowrap font-medium',
                           hpPct > 50 ? 'text-emerald-400' : hpPct > 20 ? 'text-amber' : 'text-red-400'
                         )}>
-                          {t.hp}/{t.maxHp} ОЗ
+                          {t.hp}/{t.maxHp} {isEn ? "HP" : "ОЗ"}
                         </span>
                       </div>
                     </div>
@@ -151,7 +163,7 @@ export function StatblockActions({
                     className="min-h-[32px] flex items-center gap-1.5 px-3 py-1 rounded-glass-sm bg-crimson/30 hover:bg-crimson border border-crimson/60 hover:text-white text-red-200 font-mono tabular-nums text-xs font-bold transition-all shadow-sm flex-shrink-0 group-hover/target:scale-105 whitespace-nowrap active:scale-95 cursor-pointer"
                   >
                     <Crosshair className="h-3.5 w-3.5 text-red-400 group-hover/target:text-white flex-shrink-0" />
-                    <span>УДАР</span>
+                    <span>{isEn ? "STRIKE" : "УДАР"}</span>
                   </button>
                 </div>
               );
@@ -169,7 +181,7 @@ export function StatblockActions({
         <div className="flex items-center justify-between gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-gold">
           <span className="flex items-center gap-1.5">
             <Sparkles className="h-3.5 w-3.5 text-gold flex-shrink-0" />
-            <span>ДЕЙСТВИЯ</span>
+            <span>{isEn ? 'ACTIONS' : 'ДЕЙСТВИЯ'}</span>
             <Sparkles className="h-3.5 w-3.5 text-gold flex-shrink-0" />
           </span>
 
@@ -180,12 +192,14 @@ export function StatblockActions({
               className="min-h-[32px] flex items-center gap-1.5 px-3 py-1 rounded-glass-sm bg-gold/20 hover:bg-gold text-gold-light hover:text-black border border-gold/50 font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-[0_0_14px_rgba(245,185,32,0.25)] flex-shrink-0 whitespace-nowrap cursor-pointer active:scale-95"
               title={
                 currentTarget
-                  ? `Нанести серию из ${attackSeriesCount} атак по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`
-                  : 'Выбрать цель для серии мультиатаки'
+                  ? (isEn
+                      ? `Execute series of ${attackSeriesCount} attacks on ${currentTarget.name || currentTarget.nameRu}`
+                      : `Нанести серию из ${attackSeriesCount} атак по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`)
+                  : (isEn ? 'Select target for multiattack series' : 'Выбрать цель для серии мультиатаки')
               }
             >
               <Zap className="h-3.5 w-3.5 text-gold group-hover:text-black transition-colors flex-shrink-0" />
-              <span>СЕРИЯ ({attackSeriesCount})</span>
+              <span>{isEn ? 'SERIES' : 'СЕРИЯ'} ({attackSeriesCount})</span>
             </button>
           )}
         </div>
@@ -193,7 +207,7 @@ export function StatblockActions({
         {/* Advantage / Disadvantage Selector */}
         <div className="flex items-center justify-between mb-3 p-1.5 rounded-glass-sm bg-black/40 border border-white/10">
           <span className="text-xs font-bold uppercase tracking-wider text-gray-400 font-sans flex-shrink-0">
-            Бросок атаки:
+            {isEn ? 'Attack Roll:' : 'Бросок атаки:'}
           </span>
           <div className="flex items-center gap-1 text-xs">
             <button
@@ -205,9 +219,9 @@ export function StatblockActions({
                   ? 'bg-crimson-dark text-red-100 border border-crimson shadow-[0_0_10px_rgba(239,68,68,0.35)]'
                   : 'text-gray-400 hover:text-gray-200 border border-transparent hover:bg-white/5'
               )}
-              title="Помеха на бросок атаки"
+              title={isEn ? "Disadvantage on attack roll" : "Помеха на бросок атаки"}
             >
-              Помеха
+              {isEn ? "Disadv." : "Помеха"}
             </button>
             <button
               type="button"
@@ -218,9 +232,9 @@ export function StatblockActions({
                   ? 'bg-card-hover text-gold-light border border-gold/60 shadow-[0_0_10px_rgba(245,185,32,0.25)]'
                   : 'text-gray-400 hover:text-gray-200 border border-transparent hover:bg-white/5'
               )}
-              title="Обычный бросок атаки"
+              title={isEn ? "Normal attack roll" : "Обычный бросок атаки"}
             >
-              Обычно
+              {isEn ? "Normal" : "Обычно"}
             </button>
             <button
               type="button"
@@ -231,9 +245,9 @@ export function StatblockActions({
                   ? 'bg-emerald-950 text-emerald-100 border border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.35)]'
                   : 'text-gray-400 hover:text-gray-200 border border-transparent hover:bg-white/5'
               )}
-              title="Преимущество на бросок атаки"
+              title={isEn ? "Advantage on attack roll" : "Преимущество на бросок атаки"}
             >
-              Преим.
+              {isEn ? "Adv." : "Преим."}
             </button>
           </div>
         </div>
@@ -259,10 +273,12 @@ export function StatblockActions({
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-gold-light text-xs tracking-wide">
-                          {cleanRussianText(act.name)}
+                          {isEn ? (act.name_en || act.name) : cleanRussianText(act.name)}
                         </span>
                         <span className="px-2 py-0.5 rounded-glass-sm bg-gold/15 text-gold text-xs font-mono tabular-nums font-bold border border-gold/30">
-                          {attackSeriesCount} {attackSeriesCount === 1 ? 'атака' : attackSeriesCount < 5 ? 'атаки' : 'атак'}
+                          {isEn
+                            ? `${attackSeriesCount} ${attackSeriesCount === 1 ? 'attack' : 'attacks'}`
+                            : `${attackSeriesCount} ${attackSeriesCount === 1 ? 'атака' : attackSeriesCount < 5 ? 'атаки' : 'атак'}`}
                         </span>
                       </div>
 
@@ -272,8 +288,10 @@ export function StatblockActions({
                         onClick={onExecuteMultiattack}
                         title={
                           currentTarget
-                            ? `Нанести серию (${attackSeriesCount} атак) по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`
-                            : 'Выбрать цель и нанести серию атак'
+                            ? (isEn
+                                ? `Execute series (${attackSeriesCount} attacks) on ${currentTarget.name || currentTarget.nameRu}`
+                                : `Нанести серию (${attackSeriesCount} атак) по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`)
+                            : (isEn ? 'Select target and execute attack series' : 'Выбрать цель и нанести серию атак')
                         }
                         className={clsx(
                           "min-h-[32px] flex items-center gap-1.5 px-3 py-1 rounded-glass-sm text-xs font-mono font-bold transition-all shadow-sm whitespace-nowrap active:scale-95 cursor-pointer",
@@ -285,21 +303,23 @@ export function StatblockActions({
                         <Zap className="h-3.5 w-3.5" />
                         <span>
                           {currentTarget
-                            ? `Серия по ${cleanRussianText(currentTarget.nameRu || currentTarget.name).split(' ')[0]}`
-                            : `Серия (${attackSeriesCount})`}
+                            ? (isEn
+                                ? `Series on ${(currentTarget.name || currentTarget.nameRu || '').split(' ')[0]}`
+                                : `Серия по ${cleanRussianText(currentTarget.nameRu || currentTarget.name || '').split(' ')[0]}`)
+                            : (isEn ? `Series (${attackSeriesCount})` : `Серия (${attackSeriesCount})`)}
                         </span>
                       </button>
                     </div>
 
                     {multiattackPlan.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 items-center">
-                        <span className="text-xs text-gray-400 font-sans">Включает:</span>
+                        <span className="text-xs text-gray-400 font-sans">{isEn ? 'Includes:' : 'Включает:'}</span>
                         {multiattackPlan.map((planAct, pIdx) => (
                           <span
                             key={pIdx}
                             className="px-2 py-0.5 rounded-glass-sm bg-black/50 border border-white/10 text-xs text-gray-300"
                           >
-                            {pIdx + 1}. {cleanRussianText(planAct.name)}
+                            {pIdx + 1}. {isEn ? (planAct.name_en || planAct.name) : cleanRussianText(planAct.name)}
                           </span>
                         ))}
                       </div>
@@ -307,7 +327,7 @@ export function StatblockActions({
 
                     {act.desc && (
                       <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">
-                        {renderTextWithSpellBadges(cleanRussianText(act.desc), onInspectSpell)}
+                        {renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}
                       </p>
                     )}
 
@@ -315,7 +335,7 @@ export function StatblockActions({
                     {renderInlineTargetPicker('multiattack', {
                       ...act,
                       _isMultiattack: true,
-                      name: `Серия мультиатаки (${attackSeriesCount})`,
+                      name: isEn ? `Multiattack Series (${attackSeriesCount})` : `Серия мультиатаки (${attackSeriesCount})`,
                     })}
                   </div>
                 );
@@ -323,6 +343,7 @@ export function StatblockActions({
 
               const { attackBonus, damageFormula, weaponMastery } = parseActionDetails(act);
               const isPickerOpen = activeTargetingActionKey === actionKey;
+              const actionDisplayName = isEn ? (act.name_en || act.name) : cleanRussianText(act.name);
 
               return (
                 <div
@@ -339,9 +360,9 @@ export function StatblockActions({
                       <span
                         onClick={(e) => onPerformAttack(act, actionKey, e)}
                         className="font-bold text-white text-xs truncate cursor-pointer hover:text-gold transition-colors tracking-wide min-w-0"
-                        title={`${cleanRussianText(act.name)} • Кликните для выбора цели и нанесения удара`}
+                        title={isEn ? `${actionDisplayName} • Click to select target and attack` : `${actionDisplayName} • Кликните для выбора цели и нанесения удара`}
                       >
-                        {cleanRussianText(act.name)}
+                        {actionDisplayName}
                       </span>
                       {weaponMastery && <MasteryBadge property={weaponMastery} />}
                     </div>
@@ -353,7 +374,7 @@ export function StatblockActions({
                         <button
                           type="button"
                           onClick={(e) => onExecuteActionRoll(act, actionKey, e)}
-                          title="Бросить попадание и урон по цели"
+                          title={isEn ? "Roll to hit and damage against target" : "Бросить попадание и урон по цели"}
                           className="min-h-[32px] flex items-center gap-1.5 px-2.5 py-1 rounded-glass-sm bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 border border-yellow-300 text-black font-mono tabular-nums text-xs font-black shadow-[0_0_12px_rgba(245,185,32,0.3)] active:scale-95 transition-all group/dice flex-shrink-0 whitespace-nowrap cursor-pointer leading-none"
                         >
                           <Dices className="h-3.5 w-3.5 text-black group-hover/dice:rotate-12 transition-transform flex-shrink-0" />
@@ -367,8 +388,10 @@ export function StatblockActions({
                         onClick={(e) => onPerformAttack(act, actionKey, e)}
                         title={
                           currentTarget
-                            ? `Нанести удар по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`
-                            : 'Выбрать цель для атаки'
+                            ? (isEn
+                                ? `Strike ${currentTarget.name || currentTarget.nameRu}`
+                                : `Нанести удар по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`)
+                            : (isEn ? "Select target for attack" : "Выбрать цель для атаки")
                         }
                         className={clsx(
                           "min-h-[32px] flex items-center gap-1.5 px-3 py-1 rounded-glass-sm font-mono text-xs font-bold transition-all shadow-sm flex-shrink-0 whitespace-nowrap cursor-pointer active:scale-95 leading-none",
@@ -378,7 +401,7 @@ export function StatblockActions({
                         )}
                       >
                         <Crosshair className="h-3.5 w-3.5 flex-shrink-0" />
-                        <span>{currentTarget ? 'УДАР' : 'ЦЕЛЬ'}</span>
+                        <span>{isEn ? (currentTarget ? 'STRIKE' : 'TARGET') : (currentTarget ? 'УДАР' : 'ЦЕЛЬ')}</span>
                       </button>
 
                       {/* Interactive Dice Pill for Damage */}
@@ -386,7 +409,7 @@ export function StatblockActions({
                         <button
                           type="button"
                           onClick={(e) => onExecuteActionRoll(act, actionKey, e)}
-                          title={`Урон: ${damageFormula} • Нажмите для броска`}
+                          title={isEn ? `Damage: ${damageFormula} • Click to roll` : `Урон: ${damageFormula} • Нажмите для броска`}
                           className="min-h-[32px] px-2.5 py-1 rounded-glass-sm border border-red-500/30 bg-red-950/40 hover:bg-red-900/50 hover:border-red-400 text-red-200 font-mono tabular-nums text-xs font-semibold cursor-pointer transition-all flex items-center justify-center whitespace-nowrap flex-shrink-0"
                         >
                           {damageFormula}
@@ -397,7 +420,7 @@ export function StatblockActions({
 
                   {act.desc && (
                     <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">
-                      {renderTextWithSpellBadges(cleanRussianText(act.desc), onInspectSpell)}
+                      {renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}
                     </p>
                   )}
 
@@ -407,7 +430,7 @@ export function StatblockActions({
               );
             })
           ) : (
-            <div className="text-gray-400 italic text-xs py-1">Нет описанных действий</div>
+            <div className="text-gray-400 italic text-xs py-1">{isEn ? 'No actions described' : 'Нет описанных действий'}</div>
           )}
         </div>
       </div>
@@ -417,13 +440,14 @@ export function StatblockActions({
         <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
           <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-amber-300">
             <Sparkles className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
-            <span>БОНУСНЫЕ ДЕЙСТВИЯ</span>
+            <span>{isEn ? 'BONUS ACTIONS' : 'БОНУСНЫЕ ДЕЙСТВИЯ'}</span>
             <Sparkles className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
           </div>
           <div className="space-y-2.5">
             {sb.bonus_actions.map((act: any, i: number) => {
               const bonusKey = `bonus-${i}`;
               const isPickerOpen = activeTargetingActionKey === bonusKey;
+              const bonusTitle = isEn ? (act.name_en || act.name) : cleanRussianText(act.name);
               return (
                 <div
                   key={i}
@@ -435,19 +459,19 @@ export function StatblockActions({
                   <div className="flex items-center justify-between gap-2 min-w-0">
                     <span
                       className="font-bold text-white text-xs tracking-wide min-w-0 flex-1 truncate"
-                      title={cleanRussianText(act.name)}
+                      title={bonusTitle}
                     >
-                      {cleanRussianText(act.name)}
+                      {bonusTitle}
                     </span>
                     <button
                       type="button"
                       onClick={(e) => onPerformAttack(act, bonusKey, e)}
                       className="min-h-[32px] px-3 py-1 rounded-glass-sm bg-amber-500/20 hover:bg-amber-500 border border-amber-500/50 hover:text-black text-amber-200 font-mono text-xs font-bold transition-all shadow-sm uppercase flex-shrink-0 whitespace-nowrap cursor-pointer active:scale-95"
                     >
-                      Применить
+                      {isEn ? 'Use' : 'Применить'}
                     </button>
                   </div>
-                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(cleanRussianText(act.desc), onInspectSpell)}</p>}
+                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}</p>}
                   {renderInlineTargetPicker(bonusKey, act)}
                 </div>
               );
@@ -461,13 +485,14 @@ export function StatblockActions({
         <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
           <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-emerald-300">
             <Sparkles className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
-            <span>РЕАКЦИИ</span>
+            <span>{isEn ? 'REACTIONS' : 'РЕАКЦИИ'}</span>
             <Sparkles className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
           </div>
           <div className="space-y-2.5">
             {sb.reactions.map((act: any, i: number) => {
               const reactionKey = `reaction-${i}`;
               const isPickerOpen = activeTargetingActionKey === reactionKey;
+              const reactionTitle = isEn ? (act.name_en || act.name) : cleanRussianText(act.name);
               return (
                 <div
                   key={i}
@@ -479,19 +504,19 @@ export function StatblockActions({
                   <div className="flex items-center justify-between gap-2 min-w-0">
                     <span
                       className="font-bold text-white text-xs tracking-wide min-w-0 flex-1 truncate"
-                      title={cleanRussianText(act.name)}
+                      title={reactionTitle}
                     >
-                      {cleanRussianText(act.name)}
+                      {reactionTitle}
                     </span>
                     <button
                       type="button"
                       onClick={(e) => onPerformAttack(act, reactionKey, e)}
                       className="min-h-[32px] px-3 py-1 rounded-glass-sm bg-emerald-500/20 hover:bg-emerald-500 border border-emerald-500/50 hover:text-black text-emerald-200 font-mono text-xs font-bold transition-all shadow-sm uppercase flex-shrink-0 whitespace-nowrap cursor-pointer active:scale-95"
                     >
-                      Реакция
+                      {isEn ? 'Reaction' : 'Реакция'}
                     </button>
                   </div>
-                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(cleanRussianText(act.desc), onInspectSpell)}</p>}
+                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}</p>}
                   {renderInlineTargetPicker(reactionKey, act)}
                 </div>
               );
@@ -505,13 +530,14 @@ export function StatblockActions({
         <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
           <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-purple-300">
             <Sparkles className="h-3.5 w-3.5 text-purple-400 flex-shrink-0" />
-            <span>ЛЕГЕНДАРНЫЕ ДЕЙСТВИЯ (3/раунд)</span>
+            <span>{isEn ? 'LEGENDARY ACTIONS (3/round)' : 'ЛЕГЕНДАРНЫЕ ДЕЙСТВИЯ (3/раунд)'}</span>
             <Sparkles className="h-3.5 w-3.5 text-purple-400 flex-shrink-0" />
           </div>
           <div className="space-y-2.5">
             {sb.legendary_actions.map((act: any, i: number) => {
               const legKey = `legendary-${i}`;
               const isPickerOpen = activeTargetingActionKey === legKey;
+              const legTitle = isEn ? (act.name_en || act.name) : cleanRussianText(act.name);
               return (
                 <div
                   key={i}
@@ -523,19 +549,19 @@ export function StatblockActions({
                   <div className="flex items-center justify-between gap-2 min-w-0">
                     <span
                       className="font-bold text-white text-xs tracking-wide min-w-0 flex-1 truncate"
-                      title={cleanRussianText(act.name)}
+                      title={legTitle}
                     >
-                      {cleanRussianText(act.name)}
+                      {legTitle}
                     </span>
                     <button
                       type="button"
                       onClick={(e) => onPerformAttack(act, legKey, e)}
                       className="min-h-[32px] px-3 py-1 rounded-glass-sm bg-violet/20 hover:bg-violet border border-violet/50 hover:text-white text-violet-300 font-mono text-xs font-bold transition-all shadow-sm uppercase flex-shrink-0 whitespace-nowrap cursor-pointer active:scale-95"
                     >
-                      Применить
+                      {isEn ? 'Use' : 'Применить'}
                     </button>
                   </div>
-                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(cleanRussianText(act.desc), onInspectSpell)}</p>}
+                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}</p>}
                   {renderInlineTargetPicker(legKey, act)}
                 </div>
               );

@@ -14,7 +14,6 @@ import {
   Skull,
   Shield,
   Users,
-  Lightbulb,
 } from 'lucide-react';
 import { useEncounterStore } from '../../store/encounterStore';
 import { useCombatStore } from '../../store/combatStore';
@@ -27,6 +26,7 @@ import {
   getDifficultyLabel,
 } from '../../services/encounterService';
 import { DatabaseService } from '../../services/dbService';
+import { useTranslation } from '../../i18n';
 
 interface QuickMonster {
   name: string;
@@ -39,26 +39,26 @@ interface QuickMonster {
 }
 
 const FALLBACK_MONSTERS: QuickMonster[] = [
-  { name: 'Гоблин', nameRu: 'Гоблин', cr: '1/4', ac: 15, hp: 7, initBonus: 2, speed: '30 фт.' },
-  { name: 'Скелет', nameRu: 'Скелет', cr: '1/4', ac: 13, hp: 13, initBonus: 2, speed: '30 фт.' },
-  { name: 'Зомби', nameRu: 'Зомби', cr: '1/4', ac: 8, hp: 22, initBonus: -2, speed: '20 фт.' },
-  { name: 'Кобольд', nameRu: 'Кобольд', cr: '1/8', ac: 12, hp: 5, initBonus: 2, speed: '30 фт.' },
-  { name: 'Культист', nameRu: 'Культист', cr: '1/8', ac: 12, hp: 9, initBonus: 1, speed: '30 фт.' },
-  { name: 'Бандит', nameRu: 'Бандит', cr: '1/8', ac: 12, hp: 11, initBonus: 1, speed: '30 фт.' },
-  { name: 'Орк', nameRu: 'Орк', cr: '1/2', ac: 13, hp: 15, initBonus: 1, speed: '30 фт.' },
-  { name: 'Лютоволк', nameRu: 'Лютоволк', cr: '1', ac: 14, hp: 37, initBonus: 2, speed: '50 фт.' },
-  { name: 'Вурдалак', nameRu: 'Вурдалак', cr: '1', ac: 12, hp: 22, initBonus: 2, speed: '30 фт.' },
-  { name: 'Медвежатник', nameRu: 'Медвежатник', cr: '1', ac: 16, hp: 27, initBonus: 2, speed: '30 фт.' },
-  { name: 'Огр', nameRu: 'Огр', cr: '2', ac: 11, hp: 59, initBonus: -1, speed: '40 фт.' },
-  { name: 'Гаргулья', nameRu: 'Гаргулья', cr: '2', ac: 15, hp: 52, initBonus: 0, speed: '30 фт., полёт 60 фт.' },
-  { name: 'Фанатик культа', nameRu: 'Фанатик культа', cr: '2', ac: 13, hp: 33, initBonus: 2, speed: '30 фт.' },
-  { name: 'Василиск', nameRu: 'Василиск', cr: '3', ac: 15, hp: 52, initBonus: -1, speed: '20 фт.' },
-  { name: 'Минотавр', nameRu: 'Минотавр', cr: '3', ac: 14, hp: 76, initBonus: 0, speed: '40 фт.' },
-  { name: 'Призрак', nameRu: 'Призрак', cr: '4', ac: 11, hp: 45, initBonus: 1, speed: '0 фт., полёт 40 фт.' },
-  { name: 'Тролль', nameRu: 'Тролль', cr: '5', ac: 15, hp: 84, initBonus: 1, speed: '30 фт.' },
-  { name: 'Маг', nameRu: 'Маг', cr: '6', ac: 12, hp: 40, initBonus: 2, speed: '30 фт.' },
-  { name: 'Молодой зелёный дракон', nameRu: 'Молодой зелёный дракон', cr: '8', ac: 18, hp: 136, initBonus: 1, speed: '40 фт., полёт 80 фт.' },
-  { name: 'Вампир', nameRu: 'Вампир', cr: '13', ac: 16, hp: 144, initBonus: 4, speed: '30 фт.' },
+  { name: 'Goblin', nameRu: 'Гоблин', cr: '1/4', ac: 15, hp: 7, initBonus: 2, speed: '30 ft.' },
+  { name: 'Skeleton', nameRu: 'Скелет', cr: '1/4', ac: 13, hp: 13, initBonus: 2, speed: '30 ft.' },
+  { name: 'Zombie', nameRu: 'Зомби', cr: '1/4', ac: 8, hp: 22, initBonus: -2, speed: '20 ft.' },
+  { name: 'Kobold', nameRu: 'Кобольд', cr: '1/8', ac: 12, hp: 5, initBonus: 2, speed: '30 ft.' },
+  { name: 'Cultist', nameRu: 'Культист', cr: '1/8', ac: 12, hp: 9, initBonus: 1, speed: '30 ft.' },
+  { name: 'Bandit', nameRu: 'Бандит', cr: '1/8', ac: 12, hp: 11, initBonus: 1, speed: '30 ft.' },
+  { name: 'Orc', nameRu: 'Орк', cr: '1/2', ac: 13, hp: 15, initBonus: 1, speed: '30 ft.' },
+  { name: 'Dire Wolf', nameRu: 'Лютоволк', cr: '1', ac: 14, hp: 37, initBonus: 2, speed: '50 ft.' },
+  { name: 'Ghoul', nameRu: 'Вурдалак', cr: '1', ac: 12, hp: 22, initBonus: 2, speed: '30 ft.' },
+  { name: 'Bugbear', nameRu: 'Медвежатник', cr: '1', ac: 16, hp: 27, initBonus: 2, speed: '30 ft.' },
+  { name: 'Ogre', nameRu: 'Огр', cr: '2', ac: 11, hp: 59, initBonus: -1, speed: '40 ft.' },
+  { name: 'Gargoyle', nameRu: 'Гаргулья', cr: '2', ac: 15, hp: 52, initBonus: 0, speed: '30 ft., fly 60 ft.' },
+  { name: 'Cult Fanatic', nameRu: 'Фанатик культа', cr: '2', ac: 13, hp: 33, initBonus: 2, speed: '30 ft.' },
+  { name: 'Basilisk', nameRu: 'Василиск', cr: '3', ac: 15, hp: 52, initBonus: -1, speed: '20 ft.' },
+  { name: 'Minotaur', nameRu: 'Минотавр', cr: '3', ac: 14, hp: 76, initBonus: 0, speed: '40 ft.' },
+  { name: 'Ghost', nameRu: 'Призрак', cr: '4', ac: 11, hp: 45, initBonus: 1, speed: '0 ft., fly 40 ft.' },
+  { name: 'Troll', nameRu: 'Тролль', cr: '5', ac: 15, hp: 84, initBonus: 1, speed: '30 ft.' },
+  { name: 'Mage', nameRu: 'Маг', cr: '6', ac: 12, hp: 40, initBonus: 2, speed: '30 ft.' },
+  { name: 'Young Green Dragon', nameRu: 'Молодой зелёный дракон', cr: '8', ac: 18, hp: 136, initBonus: 1, speed: '40 ft., fly 80 ft.' },
+  { name: 'Vampire', nameRu: 'Вампир', cr: '13', ac: 16, hp: 144, initBonus: 4, speed: '30 ft.' },
 ];
 
 interface BuilderItem {
@@ -74,6 +74,8 @@ interface BuilderItem {
 }
 
 export function EncounterManagerModal() {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
   const {
     encounters,
     selectedFolder,
@@ -418,7 +420,7 @@ export function EncounterManagerModal() {
             </div>
             <div className="min-w-0">
               <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 flex-wrap">
-                <span>Менеджер готовых энкаунтеров</span>
+                <span>{isEn ? 'Encounter Manager' : 'Менеджер готовых энкаунтеров'}</span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[rgba(255,255,255,0.05)] text-gold-light border border-[rgba(255,255,255,0.08)] shrink-0">
                   {encounters.length} шаблонов
                 </span>
@@ -427,7 +429,7 @@ export function EncounterManagerModal() {
                 </span>
               </h2>
               <p className="text-xs text-gray-400 truncate sm:whitespace-normal">
-                Библиотека боевых столкновений, расчёт порогов сложности и высадка на тактическую карту.
+                {isEn ? 'Combat encounter library, difficulty threshold calculator, and tactical map deployment.' : 'Библиотека боевых столкновений, расчёт порогов сложности и высадка на тактическую карту.'}
               </p>
             </div>
           </div>
@@ -445,7 +447,7 @@ export function EncounterManagerModal() {
           <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
             <div className="flex items-center gap-1.5 text-gray-300 font-medium shrink-0">
               <Users className="h-3.5 w-3.5 text-gold shrink-0" />
-              <span>Отряд:</span>
+              <span>{isEn ? 'Party:' : 'Отряд:'}</span>
               <div className="flex items-center bg-surface border border-border-subtle rounded px-1.5 py-0.5 gap-1">
                 <button
                   type="button"
@@ -472,7 +474,7 @@ export function EncounterManagerModal() {
 
             <div className="flex items-center gap-1.5 text-gray-300 font-medium shrink-0">
               <Shield className="h-3.5 w-3.5 text-blue-400 shrink-0" />
-              <span>Ср. уровень:</span>
+              <span>{isEn ? 'Avg. Level:' : 'Ср. уровень:'}</span>
               <div className="flex items-center bg-surface border border-border-subtle rounded px-1.5 py-0.5 gap-1">
                 <button
                   type="button"
@@ -614,9 +616,9 @@ export function EncounterManagerModal() {
               <button
                 type="button"
                 onClick={() => setIsBuildingNew(false)}
-                className="text-gray-400 hover:text-white text-xs p-1 flex items-center justify-center cursor-pointer"
+                className="text-gray-400 hover:text-white text-xs p-1"
               >
-                <X className="h-3.5 w-3.5" />
+                ✕
               </button>
             </div>
 
@@ -852,9 +854,9 @@ export function EncounterManagerModal() {
               <button
                 type="button"
                 onClick={() => setIsSavingCurrent(false)}
-                className="text-gray-400 hover:text-white text-xs p-1 flex items-center justify-center cursor-pointer"
+                className="text-gray-400 hover:text-white text-xs"
               >
-                <X className="h-3.5 w-3.5" />
+                ✕
               </button>
             </div>
 
@@ -1035,9 +1037,8 @@ export function EncounterManagerModal() {
 
         {/* Footer */}
         <div className="border-t border-border-subtle pt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
-          <span className="break-words leading-relaxed flex-1 min-w-[200px] flex items-center gap-1.5">
-            <Lightbulb className="h-3.5 w-3.5 text-amber-400 shrink-0 inline" />
-            <span>Подсказка: При загрузке энкаунтера инициатива монстров бросается автоматически!</span>
+          <span className="break-words leading-relaxed flex-1 min-w-[200px]">
+            💡 Подсказка: При загрузке энкаунтера инициатива монстров бросается автоматически!
           </span>
           <button
             onClick={closeModal}

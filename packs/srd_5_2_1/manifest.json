@@ -5,10 +5,10 @@
   "edition": "5.2.1 (CC-BY)",
   "version": "1.0.0",
   "author": "Wizards of the Coast / Open Gaming Foundation",
-  "description": "Официальный открытый свод из 336 существ SRD 5.2.1 под свободной лицензией Creative Commons Attribution 4.0 International (CC-BY-4.0).",
-  "count": 336,
+  "description": "Официальный открытый свод из 335 существ SRD 5.2.1 под свободной лицензией Creative Commons Attribution 4.0 International (CC-BY-4.0).",
+  "count": 335,
   "format": "ait-content-pack-v1",
-  "created_at": "2026-10-21T07:09:33.717Z",
+  "created_at": "2026-10-22T02:10:05.967Z",
   "tags": [
     "dnd5e",
     "srd",
