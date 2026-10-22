@@ -2,6 +2,7 @@
 import clsx from 'clsx';
 import { Star } from 'lucide-react';
 import { formatMod } from './statblockUtils';
+import { useTranslation } from '../../../i18n';
 
 export interface AbilityStat {
   label: string;
@@ -35,10 +36,13 @@ export function StatblockSavingThrows({
   saves,
   onRollSavingThrow,
 }: StatblockSavingThrowsProps) {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
+
   return (
     <div className="space-y-1.5">
       <strong className="text-gray-200 font-bold tracking-wide block text-xs">
-        Спасброски (клик для броска):
+        {isEn ? 'Saving Throws (click to roll):' : 'Спасброски (клик для броска):'}
       </strong>
       <div className="flex flex-wrap gap-1.5">
         {saves.map((sv) => (
@@ -46,7 +50,7 @@ export function StatblockSavingThrows({
             key={sv.stat}
             type="button"
             onClick={() => onRollSavingThrow(sv.stat, sv.nameRu, sv.bonus, sv.fullName)}
-            title={`Бросить спасбросок ${sv.fullName} (${sv.nameRu}): 1d20 ${sv.bonus >= 0 ? `+${sv.bonus}` : sv.bonus}`}
+            title={isEn ? `Roll ${sv.fullName} (${sv.nameRu}) saving throw: 1d20 ${sv.bonus >= 0 ? `+${sv.bonus}` : sv.bonus}` : `Бросить спасбросок ${sv.fullName} (${sv.nameRu}): 1d20 ${sv.bonus >= 0 ? `+${sv.bonus}` : sv.bonus}`}
             className={clsx(
               'min-h-[32px] inline-flex items-center gap-1.5 px-2.5 py-1 rounded-glass-sm text-xs font-mono tabular-nums transition-all border shadow-sm cursor-pointer active:scale-95 select-none',
               sv.isProficient

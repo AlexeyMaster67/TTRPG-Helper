@@ -40,7 +40,7 @@ function matchAltNames(altNames: any, query: string): boolean {
 export class DatabaseService {
   private static instance: DatabaseService;
   private db: Database | null = null;
-  private dbPath = 'sqlite:dnd2024.db';
+  private dbPath = 'sqlite:ttrpghelper.db';
   private isConnecting = false;
 
   private constructor() {}

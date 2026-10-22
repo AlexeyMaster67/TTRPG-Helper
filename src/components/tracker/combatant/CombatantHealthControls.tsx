@@ -4,6 +4,7 @@ import { Heart, Skull, X, Check } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { HealthBar } from '../../ui';
 import { cleanRussianText } from '../../../utils/textUtils';
+import { useTranslation } from '../../../i18n';
 
 export interface CombatantHealthControlsProps {
   combatant: Combatant;
@@ -28,6 +29,7 @@ export function CombatantHealthControls({
   isHpPopoverOpen,
   setIsHpPopoverOpen,
 }: CombatantHealthControlsProps) {
+  const { language } = useTranslation();
   const [customHpVal, setCustomHpVal] = useState('');
   const [popoverPlacement, setPopoverPlacement] = useState<'top' | 'bottom'>('bottom');
   const [popoverAlign, setPopoverAlign] = useState<'right' | 'left'>('right');
@@ -154,15 +156,15 @@ export function CombatantHealthControls({
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <span className="font-mono text-xs font-black tabular-nums text-gold-light whitespace-nowrap">
-                {combatant.hp} <span className="text-gray-500 font-normal">/</span> {combatant.maxHp} ОЗ
+                {combatant.hp} <span className="text-gray-500 font-normal">/</span> {combatant.maxHp} {language === 'en' ? 'HP' : 'ОЗ'}
               </span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsHpPopoverOpen(false);
                 }}
-                className="text-gray-400 hover:text-white p-0.5 rounded hover:bg-white/10"
-                title="Закрыть"
+                className="text-gray-400 hover:text-white p-0.5 rounded hover:bg-white/10 cursor-pointer"
+                title={language === 'en' ? 'Close' : 'Закрыть'}
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -175,21 +177,21 @@ export function CombatantHealthControls({
             <div className="flex items-center justify-between gap-1 bg-red-950/20 p-1 rounded-glass-sm border border-red-500/20">
               <button
                 onClick={(e) => onDamage(e, 10)}
-                title="Нанести 10 урона"
+                title={language === 'en' ? 'Deal 10 damage' : 'Нанести 10 урона'}
                 className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-rose-100 bg-red-900/60 hover:bg-red-800 border border-red-500/40 hover:border-red-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 -10
               </button>
               <button
                 onClick={(e) => onDamage(e, 5)}
-                title="Нанести 5 урона"
+                title={language === 'en' ? 'Deal 5 damage' : 'Нанести 5 урона'}
                 className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-rose-100 bg-red-900/60 hover:bg-red-800 border border-red-500/40 hover:border-red-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 -5
               </button>
               <button
                 onClick={(e) => onDamage(e, 1)}
-                title="Нанести 1 урон"
+                title={language === 'en' ? 'Deal 1 damage' : 'Нанести 1 урон'}
                 className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-rose-100 bg-red-900/60 hover:bg-red-800 border border-red-500/40 hover:border-red-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 -1
@@ -200,21 +202,21 @@ export function CombatantHealthControls({
             <div className="flex items-center justify-between gap-1 bg-emerald-950/20 p-1 rounded-glass-sm border border-emerald-500/20">
               <button
                 onClick={(e) => onHeal(e, 1)}
-                title="Восстановить 1 ОЗ"
+                title={language === 'en' ? 'Heal 1 HP' : 'Восстановить 1 ОЗ'}
                 className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-emerald-100 bg-emerald-900/60 hover:bg-emerald-800 border border-emerald-500/40 hover:border-emerald-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 +1
               </button>
               <button
                 onClick={(e) => onHeal(e, 5)}
-                title="Восстановить 5 ОЗ"
+                title={language === 'en' ? 'Heal 5 HP' : 'Восстановить 5 ОЗ'}
                 className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-emerald-100 bg-emerald-900/60 hover:bg-emerald-800 border border-emerald-500/40 hover:border-emerald-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 +5
               </button>
               <button
                 onClick={(e) => onHeal(e, 10)}
-                title="Восстановить 10 ОЗ"
+                title={language === 'en' ? 'Heal 10 HP' : 'Восстановить 10 ОЗ'}
                 className="flex-1 py-1 px-0.5 text-center font-mono font-black text-xs text-emerald-100 bg-emerald-900/60 hover:bg-emerald-800 border border-emerald-500/40 hover:border-emerald-400 rounded transition-all active:scale-95 leading-tight whitespace-nowrap cursor-pointer shadow-sm"
               >
                 +10
@@ -227,7 +229,7 @@ export function CombatantHealthControls({
             <input
               type="number"
               min="1"
-              placeholder="Количество..."
+              placeholder={language === 'en' ? 'Amount...' : 'Количество...'}
               value={customHpVal}
               autoFocus
               onChange={(e) => setCustomHpVal(e.target.value)}
@@ -242,14 +244,14 @@ export function CombatantHealthControls({
               disabled={!customHpVal || parseInt(customHpVal, 10) <= 0}
               className="h-7 px-2.5 bg-red-800 hover:bg-red-700 disabled:opacity-40 text-white rounded text-[11px] font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 flex-shrink-0 whitespace-nowrap leading-none cursor-pointer inline-flex items-center justify-center"
             >
-              Урон
+              {language === 'en' ? 'Damage' : 'Урон'}
             </button>
             <button
               onClick={() => handleCustomSubmit('heal')}
               disabled={!customHpVal || parseInt(customHpVal, 10) <= 0}
               className="h-7 px-2.5 bg-emerald-800 hover:bg-emerald-700 disabled:opacity-40 text-white rounded text-[11px] font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 flex-shrink-0 whitespace-nowrap leading-none cursor-pointer inline-flex items-center justify-center"
             >
-              Лечение
+              {language === 'en' ? 'Heal' : 'Лечение'}
             </button>
           </div>
         </div>

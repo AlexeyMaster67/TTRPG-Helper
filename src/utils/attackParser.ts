@@ -1,6 +1,6 @@
 import { DamageType, WeaponMasteryProperty } from '../types/dnd5e';
 import { Combatant } from '../types/combat';
-import { DAMAGE_NAMES_RU } from './textUtils';
+import { DAMAGE_NAMES_RU, DAMAGE_TYPES_EN } from './textUtils';
 
 export type AbilityKey = 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha';
 export type SaveOutcome = 'half' | 'none';
@@ -351,14 +351,18 @@ export function checkHasDefense(defenses: any, type: string): boolean {
 export function computeDamageWithDefenses(
   rawDmg: number,
   damageType: string,
-  target: Combatant
+  target: Combatant,
+  lang?: 'en' | 'ru'
 ): {
   finalDmg: number;
   notice: string;
   modifierReason: 'immune' | 'resistant' | 'vulnerable' | 'normal';
 } {
+  const isEn = lang === 'en';
   const normType = damageType.toLowerCase();
-  const ruDmgName = DAMAGE_NAMES_RU[normType] || normType;
+  const dmgName = isEn
+    ? (DAMAGE_TYPES_EN[normType] || normType)
+    : (DAMAGE_NAMES_RU[normType] || normType);
 
   const hasImmunity =
     checkHasDefense(target.damageImmunities, normType) ||
@@ -375,7 +379,9 @@ export function computeDamageWithDefenses(
   if (hasImmunity) {
     return {
       finalDmg: 0,
-      notice: `У цели ИММУНИТЕТ к урону (${ruDmgName})! Урон сведён к 0.`,
+      notice: isEn
+        ? `Target has IMMUNITY to ${dmgName}! Damage reduced to 0.`
+        : `У цели ИММУНИТЕТ к урону (${dmgName})! Урон сведён к 0.`,
       modifierReason: 'immune',
     };
   }
@@ -384,7 +390,9 @@ export function computeDamageWithDefenses(
     const finalDmg = Math.floor(rawDmg / 2);
     return {
       finalDmg,
-      notice: `У цели СОПРОТИВЛЕНИЕ к урону (${ruDmgName})! Урон уменьшен вдвое (${rawDmg} -> ${finalDmg}).`,
+      notice: isEn
+        ? `Target has RESISTANCE to ${dmgName}! Damage halved (${rawDmg} -> ${finalDmg}).`
+        : `У цели СОПРОТИВЛЕНИЕ к урону (${dmgName})! Урон уменьшен вдвое (${rawDmg} -> ${finalDmg}).`,
       modifierReason: 'resistant',
     };
   }
@@ -393,7 +401,9 @@ export function computeDamageWithDefenses(
     const finalDmg = rawDmg * 2;
     return {
       finalDmg,
-      notice: `У цели УЯЗВИМОСТЬ к урону (${ruDmgName})! Урон удвоен (${rawDmg} -> ${finalDmg}).`,
+      notice: isEn
+        ? `Target has VULNERABILITY to ${dmgName}! Damage doubled (${rawDmg} -> ${finalDmg}).`
+        : `У цели УЯЗВИМОСТЬ к урону (${dmgName})! Урон удвоен (${rawDmg} -> ${finalDmg}).`,
       modifierReason: 'vulnerable',
     };
   }

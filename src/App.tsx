@@ -36,6 +36,15 @@ import { MasterToolsDropdown } from './components/navigation/MasterToolsDropdown
 import { runAppDataMigration } from './services/appMigrationService';
 import { runSaveMigration } from './services/saveMigrationService';
 import { importCharacterFromTtrpgh } from './services/ttrpghFormat';
+import { useTranslation } from './i18n';
+
+function DiscordIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+    </svg>
+  );
+}
 
 // Early synchronization of system theme attribute before first paint
 if (typeof document !== 'undefined') {
@@ -52,9 +61,11 @@ import {
   Search,
   Settings,
   AlertTriangle,
+  Globe,
 } from 'lucide-react';
 
 function MainApp() {
+  const { t, language, toggleLanguage } = useTranslation();
   // Global Space hotkey listener with strict input isolation
   useSpaceHotkey();
   // Global Numpad and Undo/Redo keyboard controls
@@ -118,7 +129,11 @@ function MainApp() {
               usePartyStore.getState().addMember(member);
               usePartyStore
                 .getState()
-                .showToast(`Персонаж "${member.name}" успешно добавлен в отряд из .ttrpgh!`);
+                .showToast(
+                  language === 'en'
+                    ? `Character "${member.name}" successfully added to party from .ttrpgh!`
+                    : `Персонаж "${member.name}" успешно добавлен в отряд из .ttrpgh!`
+                );
             } catch (err) {
               console.error('[App] Failed to import .ttrpgh file:', err);
             }
@@ -264,7 +279,7 @@ function MainApp() {
               onClick={() => setActiveTab('combat')}
               role="tab"
               aria-selected={activeTab === 'combat'}
-              title="Боевой трекер инициативы, очереди ходов и статблоков"
+              title={t('header.combat')}
               className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                 activeTab === 'combat'
                   ? 'bg-[#1e2634] text-white font-semibold border border-[#f5b920]/60 shadow-[0_0_14px_rgba(245,185,32,0.25)]'
@@ -272,7 +287,7 @@ function MainApp() {
               }`}
             >
               <Sword className={`h-3.5 w-3.5 ${activeTab === 'combat' ? 'text-[#f5b920]' : 'text-gray-400'}`} />
-              <span className="hidden sm:inline">Бой</span>
+              <span className="hidden sm:inline">{t('header.combat')}</span>
               {activeTab === 'combat' && (
                 <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 bg-[#f5b920] rounded-full shadow-[0_0_6px_#f5b920]" />
               )}
@@ -282,7 +297,7 @@ function MainApp() {
               onClick={() => setActiveTab('map')}
               role="tab"
               aria-selected={activeTab === 'map'}
-              title="Тактическая 2D боевая карта: сетка, туман войны, шаблоны AoE и токены"
+              title={t('header.map')}
               className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                 activeTab === 'map'
                   ? 'bg-[#1e2634] text-white font-semibold border border-[#f5b920]/60 shadow-[0_0_14px_rgba(245,185,32,0.25)]'
@@ -290,7 +305,7 @@ function MainApp() {
               }`}
             >
               <Map className={`h-3.5 w-3.5 ${activeTab === 'map' ? 'text-blue-400' : 'text-gray-400'}`} />
-              <span className="hidden sm:inline">Карта</span>
+              <span className="hidden sm:inline">{t('header.map')}</span>
               {activeTab === 'map' && (
                 <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 bg-[#f5b920] rounded-full shadow-[0_0_6px_#f5b920]" />
               )}
@@ -300,7 +315,7 @@ function MainApp() {
               onClick={() => setActiveTab('split')}
               role="tab"
               aria-selected={activeTab === 'split'}
-              title="Сплит-режим: Боевой ростер слева + Тактическая карта справа"
+              title={t('header.splitDescription')}
               className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                 activeTab === 'split'
                   ? 'bg-[#1e2634] text-white font-semibold border border-[#f5b920]/60 shadow-[0_0_14px_rgba(245,185,32,0.25)]'
@@ -308,7 +323,7 @@ function MainApp() {
               }`}
             >
               <Layout className={`h-3.5 w-3.5 ${activeTab === 'split' ? 'text-amber-400' : 'text-gray-400'}`} />
-              <span className="hidden sm:inline">Сплит</span>
+              <span className="hidden sm:inline">{t('header.split')}</span>
               {activeTab === 'split' && (
                 <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 bg-[#f5b920] rounded-full shadow-[0_0_6px_#f5b920]" />
               )}
@@ -321,13 +336,13 @@ function MainApp() {
           <button
             type="button"
             onClick={() => setIsSpotlightOpen(true)}
-            title="Быстрый глобальный поиск по базе правил (Ctrl+K): монстры, заклинания, предметы"
+            title={t('header.searchPlaceholder')}
             className="w-full flex items-center justify-between px-3 py-1.5 rounded-glass bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/50 text-xs text-gray-300 transition-all duration-200 group shadow-inner cursor-pointer hover:shadow-[0_0_16px_rgba(245,185,32,0.2)]"
           >
             <div className="flex items-center gap-2 min-w-0 pr-2">
               <Search className="h-3.5 w-3.5 text-[#f5b920] shrink-0 group-hover:scale-110 transition-transform duration-200" />
               <span className="truncate text-gray-400 group-hover:text-gray-200 font-normal select-none">
-                Поиск (Ctrl+K)...
+                {t('header.searchPlaceholder')}
               </span>
             </div>
             <kbd className="flex items-center gap-0.5 px-2 py-0.5 rounded-md bg-black/40 border border-[rgba(255,255,255,0.12)] font-mono text-[10px] text-gray-400 group-hover:text-gold-light group-hover:border-[#f5b920]/40 shadow-sm shrink-0">
@@ -336,16 +351,16 @@ function MainApp() {
           </button>
         </div>
 
-        {/* ПРАВАЯ ЧАСТЬ: Набор инструментов мастера и статус */}
+        {/* ПРАВАЯ ЧАСТЬ: Набор инструментов мастера, смена языка и статус */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
           {/* Отряд героев */}
           <button
             onClick={openPartyModal}
-            title="Постоянный отряд героев (статы, высадка в бой)"
+            title={t('header.party')}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-gray-200 hover:text-white bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
           >
             <Users className="h-3.5 w-3.5 text-emerald-400" />
-            <span className="font-medium hidden sm:inline">Отряд</span>
+            <span className="font-medium hidden sm:inline">{t('header.party')}</span>
             {partyMembers.length > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-emerald-950/80 text-emerald-300 font-mono text-[10px] border border-emerald-600/50 shadow-sm">
                 {partyMembers.length}
@@ -374,10 +389,35 @@ function MainApp() {
             className="hidden"
           />
 
+          {/* Кнопка Discord сообщества */}
+          <a
+            href="https://discord.com/invite/XYQSHWVAuE"
+            target="_blank"
+            rel="noopener noreferrer"
+            title={language === 'en' ? 'Join Discord Community' : 'Присоединиться к Discord сообществу'}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-[#5865F2]/15 hover:bg-[#5865F2]/30 border border-[#5865F2]/40 hover:border-[#5865F2] text-[#93a1f8] hover:text-white transition-all cursor-pointer shadow-sm group select-none"
+          >
+            <DiscordIcon className="h-3.5 w-3.5 text-[#7988f5] group-hover:scale-110 group-hover:text-white transition-all" />
+            <span className="hidden xl:inline font-bold">Discord</span>
+          </a>
+
+          {/* Переключатель языка ENG/RU (По умолчанию ENG) */}
+          <button
+            onClick={toggleLanguage}
+            type="button"
+            title={language === 'en' ? 'Switch to Russian / Переключить на русский' : 'Switch to English / Переключить на английский'}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/50 transition-all cursor-pointer shadow-sm group select-none"
+          >
+            <Globe className="h-3.5 w-3.5 text-[#f5b920] group-hover:scale-110 transition-transform" />
+            <span className={language === 'en' ? 'text-[#f5b920] font-bold' : 'text-gray-400'}>EN</span>
+            <span className="text-gray-600 font-mono text-[10px]">/</span>
+            <span className={language === 'ru' ? 'text-[#f5b920] font-bold' : 'text-gray-400'}>RU</span>
+          </button>
+
           {/* Настройки */}
           <button
             onClick={openSettingsModal}
-            title="Настройки: темы, масштаб UI, авто-бэкапы"
+            title={t('header.settings')}
             className="flex items-center justify-center h-8 w-8 rounded-full text-gray-300 hover:text-white bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-gold/50 transition-all cursor-pointer shadow-sm"
           >
             <Settings className="h-3.5 w-3.5 text-gray-400 hover:text-gold transition-colors" />
@@ -388,8 +428,8 @@ function MainApp() {
             onClick={handleOpenPlayerDisplay}
             title={
               isPlayerScreenActive
-                ? 'Экран игроков транслируется (кликните, чтобы сфокусировать или переоткрыть окно)'
-                : 'Открыть окно для экрана игроков (кликните для запуска)'
+                ? t('header.playerDisplay') + ' (' + t('header.broadcasting') + ')'
+                : t('header.playerDisplay') + ' (' + t('header.off') + ')'
             }
             className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-200 shadow-sm group cursor-pointer flex-shrink-0 whitespace-nowrap ${
               isPlayerScreenActive
@@ -406,15 +446,15 @@ function MainApp() {
                 </span>
               )}
             </div>
-            <span className="hidden xl:inline font-medium">Экран игроков</span>
+            <span className="hidden xl:inline font-medium">{t('header.playerDisplay')}</span>
             {isPlayerScreenActive ? (
               <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                В ЭФИРЕ
+                {t('header.broadcasting')}
               </span>
             ) : (
               <span className="hidden sm:inline text-[10px] font-mono text-gray-500">
-                ВЫКЛ
+                {t('header.off')}
               </span>
             )}
           </button>
@@ -561,13 +601,14 @@ function MainApp() {
             <div className="flex items-center gap-3 text-[#f5b920] mb-3">
               <AlertTriangle className="h-6 w-6" />
               <h3 className="text-base font-bold text-gray-100">
-                Найдена сохранённая сессия боя!
+                {language === 'en' ? 'Saved Combat Session Found!' : 'Найдена сохранённая сессия боя!'}
               </h3>
             </div>
 
             <p className="text-xs text-gray-300 leading-relaxed mb-5">
-              Обнаружено автосохранение от предыдущей сессии ({savedSessionData.combatants?.length || 0} бойцов, раунд {savedSessionData.roundCounter || 1}).
-              Хотите восстановить состояние боя?
+              {language === 'en'
+                ? `Auto-save found from a previous session (${savedSessionData.combatants?.length || 0} combatants, round ${savedSessionData.roundCounter || 1}). Would you like to restore combat state?`
+                : `Обнаружено автосохранение от предыдущей сессии (${savedSessionData.combatants?.length || 0} бойцов, раунд ${savedSessionData.roundCounter || 1}). Хотите восстановить состояние боя?`}
             </p>
 
             <div className="flex justify-end gap-3">
@@ -575,13 +616,13 @@ function MainApp() {
                 onClick={dismissSavedSession}
                 className="min-h-[34px] px-4 py-1.5 rounded-glass border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)] text-xs font-semibold text-gray-300 hover:text-white transition-all cursor-pointer"
               >
-                Начать заново
+                {language === 'en' ? 'Start Fresh' : 'Начать заново'}
               </button>
               <button
                 onClick={restoreSavedSession}
                 className="min-h-[34px] px-5 py-1.5 rounded-glass bg-[#f5b920] hover:bg-[#fac742] active:bg-[#e0a312] text-xs font-bold text-[#0c0d12] shadow-[0_0_16px_rgba(245,185,32,0.35)] transition-all cursor-pointer"
               >
-                Восстановить бой
+                {language === 'en' ? 'Restore Combat' : 'Восстановить бой'}
               </button>
             </div>
           </div>

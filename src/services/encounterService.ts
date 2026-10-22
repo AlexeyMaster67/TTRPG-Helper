@@ -76,13 +76,14 @@ export function getMonsterMultiplier(count: number): number {
   return 4;
 }
 
-export function getDifficultyLabel(diff?: EncounterDifficulty): string {
-  if (!diff) return 'Средне';
-  if (diff === 'Легкий' || diff === 'Легко') return 'Легко';
-  if (diff === 'Средний' || diff === 'Средне') return 'Средне';
-  if (diff === 'Сложный' || diff === 'Сложно') return 'Сложно';
-  if (diff === 'Смертельный' || diff === 'Смертельно') return 'Смертельно';
-  return 'Тривиально';
+export function getDifficultyLabel(diff?: EncounterDifficulty, lang: 'en' | 'ru' = 'ru'): string {
+  const isEn = lang === 'en';
+  if (!diff) return isEn ? 'Medium' : 'Средне';
+  if (diff === 'Легкий' || diff === 'Легко') return isEn ? 'Easy' : 'Легко';
+  if (diff === 'Средний' || diff === 'Средне') return isEn ? 'Medium' : 'Средне';
+  if (diff === 'Сложный' || diff === 'Сложно') return isEn ? 'Hard' : 'Сложно';
+  if (diff === 'Смертельный' || diff === 'Смертельно') return isEn ? 'Deadly' : 'Смертельно';
+  return isEn ? 'Trivial' : 'Тривиально';
 }
 
 export function calculateEncounterDifficulty(

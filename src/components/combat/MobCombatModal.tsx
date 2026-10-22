@@ -3,6 +3,7 @@ import { useCombatStore } from '../../store/combatStore';
 import { cleanRussianText, localizeDamageType } from '../../utils/textUtils';
 import { rollDiceFormula } from '../../engine/rolls';
 import { DamageType } from '../../types/dnd5e';
+import { useTranslation } from '../../i18n';
 import {
   Users,
   X,
@@ -30,8 +31,10 @@ export function getDmgAttackersNeeded(d20Needed: number): number {
 
 export function MobCombatModal() {
   const { isMobModalOpen, setMobModalOpen, combatants, applyDamage, addCombatLog, roundCounter } = useCombatStore();
+  const { language } = useTranslation();
+  const isEn = language === 'en';
 
-  const [mobName, setMobName] = useState('Орда скелетов');
+  const [mobName, setMobName] = useState(isEn ? 'Skeleton Horde' : 'Орда скелетов');
   const [mobCount, setMobCount] = useState(12);
   const [attackBonus, setAttackBonus] = useState(4);
   const [advantageMode, setAdvantageMode] = useState<'normal' | 'advantage' | 'disadvantage'>('normal');
@@ -82,8 +85,8 @@ export function MobCombatModal() {
   const handleSelectAttackerCombatant = (cid: string) => {
     const c = combatants.find((item) => item.id === cid);
     if (!c) return;
-    const name = cleanRussianText(c.nameRu || c.name);
-    setMobName(`Орда: ${name}`);
+    const name = isEn ? (c.name || c.nameRu) : cleanRussianText(c.nameRu || c.name);
+    setMobName(isEn ? `Horde: ${name}` : `Орда: ${name}`);
 
     // Parse attack bonus and damage from statblock
     const firstAction = c.statblock?.actions?.[0];
@@ -103,7 +106,7 @@ export function MobCombatModal() {
 
   const handleApplyDamage = () => {
     if (hitsScored <= 0) {
-      alert('Ни одна атака толпы не пробила защиту цели (0 попаданий).');
+      alert(isEn ? 'No horde attacks hit the target (0 hits).' : 'Ни одна атака толпы не пробила защиту цели (0 попаданий).');
       return;
     }
 
@@ -118,13 +121,19 @@ export function MobCombatModal() {
         rolledAmounts.push(r.total);
         totalDmg += r.total;
       }
-      rollDetails = `${hitsScored} бросков [${rolledAmounts.join(', ')}] = ${totalDmg} урона`;
+      rollDetails = isEn
+        ? `${hitsScored} rolls [${rolledAmounts.join(', ')}] = ${totalDmg} damage`
+        : `${hitsScored} бросков [${rolledAmounts.join(', ')}] = ${totalDmg} урона`;
     } else {
       totalDmg = hitsScored * avgDamage;
-      rollDetails = `${hitsScored} попаданий × ${avgDamage} сред. урона = ${totalDmg} урона`;
+      rollDetails = isEn
+        ? `${hitsScored} hits × ${avgDamage} avg. damage = ${totalDmg} damage`
+        : `${hitsScored} попаданий × ${avgDamage} сред. урона = ${totalDmg} урона`;
     }
 
-    const targetName = target ? cleanRussianText(target.nameRu || target.name) : `Цель с КД ${effectiveAc}`;
+    const targetName = target
+      ? (isEn ? (target.name || target.nameRu) : cleanRussianText(target.nameRu || target.name))
+      : (isEn ? `Target with AC ${effectiveAc}` : `Цель с КД ${effectiveAc}`);
 
     // Apply to combat store target if selected
     if (target) {
@@ -137,8 +146,12 @@ export function MobCombatModal() {
       round: roundCounter || 1,
       actorName: mobName,
       targetName,
-      text: `Атака толпы: [${mobName} ×${mobCount}] атаковала [${targetName}] — ${hitsScored} попаданий, нанесено ${totalDmg} ${localizeDamageType(damageType)} урона!`,
-      details: `Правило DMG: КД ${effectiveAc}, бонус +${attackBonus}, нужно d20: ${d20Needed}+ (1 hit / ${attackersNeeded} мобов). ${rollDetails}`,
+      text: isEn
+        ? `Mob Attack: [${mobName} ×${mobCount}] attacked [${targetName}] — ${hitsScored} hits, dealt ${totalDmg} ${localizeDamageType(damageType, 'en')} damage!`
+        : `Атака толпы: [${mobName} ×${mobCount}] атаковала [${targetName}] — ${hitsScored} попаданий, нанесено ${totalDmg} ${localizeDamageType(damageType, 'ru')} урона!`,
+      details: isEn
+        ? `DMG Rule: AC ${effectiveAc}, bonus +${attackBonus}, d20 needed: ${d20Needed}+ (1 hit / ${attackersNeeded} mobs). ${rollDetails}`
+        : `Правило DMG: КД ${effectiveAc}, бонус +${attackBonus}, нужно d20: ${d20Needed}+ (1 hit / ${attackersNeeded} мобов). ${rollDetails}`,
       value: totalDmg,
     });
 
@@ -150,17 +163,30 @@ export function MobCombatModal() {
   };
 
   const handleCopySummary = async () => {
-    const targetName = target ? cleanRussianText(target.nameRu || target.name) : `КД ${effectiveAc}`;
-    const text = [
-      `РАСЧЁТ АТАКИ ОРДЫ (DMG 5e/2024)`,
-      `Атакующие: ${mobName} (${mobCount} существ, бонус попадания: +${attackBonus})`,
-      `Цель: ${targetName} (КД: ${effectiveAc})`,
-      `Режим: ${advantageMode === 'advantage' ? 'Преимущество (+5)' : advantageMode === 'disadvantage' ? 'Помеха (-5)' : 'Обычный'}`,
-      `Бросок d20 для попадания: ${d20Needed}+`,
-      `Соотношение DMG: 1 попадание на каждые ${attackersNeeded} атакующих`,
-      `Успешных попаданий: ${hitsScored} из ${mobCount}`,
-      `Суммарный урон: ${hitsScored * avgDamage} ${localizeDamageType(damageType)}`,
-    ].join('\n');
+    const targetName = target
+      ? (isEn ? (target.name || target.nameRu) : cleanRussianText(target.nameRu || target.name))
+      : (isEn ? `AC ${effectiveAc}` : `КД ${effectiveAc}`);
+    const text = isEn
+      ? [
+          `MOB ATTACK CALCULATION (DMG 5e/2024)`,
+          `Attackers: ${mobName} (${mobCount} creatures, to-hit bonus: +${attackBonus})`,
+          `Target: ${targetName} (AC: ${effectiveAc})`,
+          `Mode: ${advantageMode === 'advantage' ? 'Advantage (+5)' : advantageMode === 'disadvantage' ? 'Disadvantage (-5)' : 'Normal'}`,
+          `d20 roll to hit: ${d20Needed}+`,
+          `DMG Ratio: 1 hit per ${attackersNeeded} attackers`,
+          `Successful hits: ${hitsScored} of ${mobCount}`,
+          `Total damage: ${hitsScored * avgDamage} ${localizeDamageType(damageType, 'en')}`,
+        ].join('\n')
+      : [
+          `РАСЧЁТ АТАКИ ОРДЫ (DMG 5e/2024)`,
+          `Атакующие: ${mobName} (${mobCount} существ, бонус попадания: +${attackBonus})`,
+          `Цель: ${targetName} (КД: ${effectiveAc})`,
+          `Режим: ${advantageMode === 'advantage' ? 'Преимущество (+5)' : advantageMode === 'disadvantage' ? 'Помеха (-5)' : 'Обычный'}`,
+          `Бросок d20 для попадания: ${d20Needed}+`,
+          `Соотношение DMG: 1 попадание на каждые ${attackersNeeded} атакующих`,
+          `Успешных попаданий: ${hitsScored} из ${mobCount}`,
+          `Суммарный урон: ${hitsScored * avgDamage} ${localizeDamageType(damageType, 'ru')}`,
+        ].join('\n');
 
     try {
       await navigator.clipboard.writeText(text);
@@ -176,7 +202,7 @@ export function MobCombatModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
       <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto bg-[rgba(20,25,36,0.96)] backdrop-blur-xl border border-[#f5b920]/50 rounded-glass-xl shadow-2xl p-5 flex flex-col gap-4 text-xs select-none">
-        {/* Хедер модального окна */}
+        {/* Modal Header */}
         <header className="flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] pb-3">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-full bg-[#f5b920]/15 border border-[#f5b920]/40 text-[#f5b920]">
@@ -184,13 +210,15 @@ export function MobCombatModal() {
             </div>
             <div>
               <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-                <span>Движок орд и толп (Mob Combat)</span>
+                <span>{isEn ? 'Mob Combat Engine' : 'Движок орд и толп (Mob Combat)'}</span>
                 <span className="text-[10px] font-mono text-[#fce79f] bg-[#f5b920]/20 px-2 py-0.5 rounded-full border border-[#f5b920]/40">
-                  DMG Правила
+                  {isEn ? 'DMG Rules' : 'DMG Правила'}
                 </span>
               </h2>
               <p className="text-[11px] text-gray-400">
-                Расчёт массовых атак без спама десятками бросков по таблице DMG (Chapter 8)
+                {isEn
+                  ? 'Mass attack resolution without rolling dozens of dice using DMG Chapter 8 tables'
+                  : 'Расчёт массовых атак без спама десятками бросков по таблице DMG (Chapter 8)'}
               </p>
             </div>
           </div>
@@ -198,21 +226,21 @@ export function MobCombatModal() {
           <button
             onClick={() => setMobModalOpen(false)}
             className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
-            title="Закрыть окно"
+            title={isEn ? 'Close modal' : 'Закрыть окно'}
           >
             <X className="h-5 w-5" />
           </button>
         </header>
 
-        {/* 1. Блок атакующей орды */}
+        {/* 1. Attacking Mob Section */}
         <section className="bg-black/30 p-3.5 rounded-glass border border-[rgba(255,255,255,0.08)] flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <label className="font-bold text-gray-300 flex items-center gap-1.5 text-xs">
               <Swords className="h-3.5 w-3.5 text-[#f5b920]" />
-              <span>Атакующая орда:</span>
+              <span>{isEn ? 'Attacking Mob:' : 'Атакующая орда:'}</span>
             </label>
 
-            {/* Быстрый выбор из Бестиария */}
+            {/* Quick Select from Roster */}
             {combatants.filter((c) => !c.isPlayer).length > 0 && (
               <select
                 onChange={(e) => {
@@ -221,12 +249,12 @@ export function MobCombatModal() {
                 defaultValue=""
                 className="bg-black/50 border border-white/10 rounded-full px-2.5 py-0.5 text-[11px] text-[#fce79f] focus:outline-none"
               >
-                <option value="">Скопировать из очереди боя...</option>
+                <option value="">{isEn ? 'Copy from combat roster...' : 'Скопировать из очереди боя...'}</option>
                 {combatants
                   .filter((c) => !c.isPlayer)
                   .map((c) => (
                     <option key={c.id} value={c.id}>
-                      {cleanRussianText(c.nameRu || c.name)}
+                      {isEn ? (c.name || c.nameRu) : cleanRussianText(c.nameRu || c.name)}
                     </option>
                   ))}
               </select>
@@ -235,7 +263,9 @@ export function MobCombatModal() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
-              <span className="text-[10px] text-gray-400 block mb-1">Название орды:</span>
+              <span className="text-[10px] text-gray-400 block mb-1">
+                {isEn ? 'Mob Name:' : 'Название орды:'}
+              </span>
               <input
                 type="text"
                 value={mobName}
@@ -246,7 +276,7 @@ export function MobCombatModal() {
 
             <div>
               <div className="flex justify-between items-center mb-1">
-                <span className="text-[10px] text-gray-400">Кол-во атакующих:</span>
+                <span className="text-[10px] text-gray-400">{isEn ? 'Mob Count:' : 'Кол-во атакующих:'}</span>
                 <span className="font-mono font-bold text-[#f5b920]">{mobCount}</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -270,7 +300,9 @@ export function MobCombatModal() {
             </div>
 
             <div>
-              <span className="text-[10px] text-gray-400 block mb-1">Бонус атаки (+X):</span>
+              <span className="text-[10px] text-gray-400 block mb-1">
+                {isEn ? 'Attack Bonus (+X):' : 'Бонус атаки (+X):'}
+              </span>
               <input
                 type="number"
                 value={attackBonus}
@@ -280,9 +312,9 @@ export function MobCombatModal() {
             </div>
           </div>
 
-          {/* Режим преимущества */}
+          {/* Advantage Selector */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400">Модификатор:</span>
+            <span className="text-[10px] text-gray-400">{isEn ? 'Modifier:' : 'Модификатор:'}</span>
             <div className="flex items-center p-0.5 bg-black/40 rounded-full border border-white/10">
               <button
                 type="button"
@@ -293,7 +325,7 @@ export function MobCombatModal() {
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                Обычный
+                {isEn ? 'Normal' : 'Обычный'}
               </button>
               <button
                 type="button"
@@ -304,7 +336,7 @@ export function MobCombatModal() {
                     : 'text-gray-400 hover:text-emerald-300'
                 }`}
               >
-                Преимущество (+5)
+                {isEn ? 'Advantage (+5)' : 'Преимущество (+5)'}
               </button>
               <button
                 type="button"
@@ -315,32 +347,34 @@ export function MobCombatModal() {
                     : 'text-gray-400 hover:text-red-300'
                 }`}
               >
-                Помеха (-5)
+                {isEn ? 'Disadvantage (-5)' : 'Помеха (-5)'}
               </button>
             </div>
           </div>
         </section>
 
-        {/* 2. Блок цели и урона */}
+        {/* 2. Target and Damage Section */}
         <section className="bg-black/30 p-3.5 rounded-glass border border-[rgba(255,255,255,0.08)] flex flex-col gap-3">
           <div className="flex items-center gap-1.5 font-bold text-gray-300">
             <Shield className="h-3.5 w-3.5 text-blue-400" />
-            <span>Цель атаки:</span>
+            <span>{isEn ? 'Attack Target:' : 'Цель атаки:'}</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
-              <span className="text-[10px] text-gray-400 block mb-1">Выбрать цель из боя:</span>
+              <span className="text-[10px] text-gray-400 block mb-1">
+                {isEn ? 'Select combatant target:' : 'Выбрать цель из боя:'}
+              </span>
               <select
                 value={targetId}
                 onChange={(e) => setTargetId(e.target.value)}
                 className="w-full bg-black/50 border border-white/10 rounded-full px-3 py-1.5 text-white text-xs focus:border-blue-400 focus:outline-none"
               >
-                <option value="">(Ручной ввод КД цели)</option>
+                <option value="">{isEn ? '(Manual Target AC)' : '(Ручной ввод КД цели)'}</option>
                 {combatants.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.isPlayer ? '[Игрок] ' : '[Монстр] '}
-                    {cleanRussianText(c.nameRu || c.name)} — КД {c.ac} ({c.hp}/{c.maxHp} ОЗ)
+                    {c.isPlayer ? (isEn ? '[Player] ' : '[Игрок] ') : (isEn ? '[Monster] ' : '[Монстр] ')}
+                    {isEn ? (c.name || c.nameRu) : cleanRussianText(c.nameRu || c.name)} — {isEn ? 'AC' : 'КД'} {c.ac} ({c.hp}/{c.maxHp} {isEn ? 'HP' : 'ОЗ'})
                   </option>
                 ))}
               </select>
@@ -348,7 +382,7 @@ export function MobCombatModal() {
 
             <div>
               <span className="text-[10px] text-gray-400 block mb-1">
-                Класс Доспеха (КД цели):
+                {isEn ? 'Armor Class (Target AC):' : 'Класс Доспеха (КД цели):'}
               </span>
               <input
                 type="number"
@@ -362,10 +396,12 @@ export function MobCombatModal() {
             </div>
           </div>
 
-          {/* Параметры урона */}
+          {/* Damage parameters */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 border-t border-white/5">
             <div>
-              <span className="text-[10px] text-gray-400 block mb-1">Формула урона (кости):</span>
+              <span className="text-[10px] text-gray-400 block mb-1">
+                {isEn ? 'Damage Formula (dice):' : 'Формула урона (кости):'}
+              </span>
               <input
                 type="text"
                 value={damageFormula}
@@ -376,7 +412,9 @@ export function MobCombatModal() {
             </div>
 
             <div>
-              <span className="text-[10px] text-gray-400 block mb-1">Средний урон за удар:</span>
+              <span className="text-[10px] text-gray-400 block mb-1">
+                {isEn ? 'Avg Damage per Hit:' : 'Средний урон за удар:'}
+              </span>
               <input
                 type="number"
                 min="1"
@@ -387,68 +425,70 @@ export function MobCombatModal() {
             </div>
 
             <div>
-              <span className="text-[10px] text-gray-400 block mb-1">Тип урона:</span>
+              <span className="text-[10px] text-gray-400 block mb-1">
+                {isEn ? 'Damage Type:' : 'Тип урона:'}
+              </span>
               <select
                 value={damageType}
                 onChange={(e) => setDamageType(e.target.value as DamageType)}
                 className="w-full bg-black/50 border border-white/10 rounded-full px-3 py-1 text-white text-xs focus:outline-none"
               >
-                <option value="slashing">Рубящий</option>
-                <option value="piercing">Колющий</option>
-                <option value="bludgeoning">Дробящий</option>
-                <option value="fire">Огонь</option>
-                <option value="cold">Холод</option>
-                <option value="necrotic">Некротический</option>
-                <option value="radiant">Излучение</option>
-                <option value="poison">Яд</option>
-                <option value="force">Силовое поле</option>
+                <option value="slashing">{localizeDamageType('slashing', language)}</option>
+                <option value="piercing">{localizeDamageType('piercing', language)}</option>
+                <option value="bludgeoning">{localizeDamageType('bludgeoning', language)}</option>
+                <option value="fire">{localizeDamageType('fire', language)}</option>
+                <option value="cold">{localizeDamageType('cold', language)}</option>
+                <option value="necrotic">{localizeDamageType('necrotic', language)}</option>
+                <option value="radiant">{localizeDamageType('radiant', language)}</option>
+                <option value="poison">{localizeDamageType('poison', language)}</option>
+                <option value="force">{localizeDamageType('force', language)}</option>
               </select>
             </div>
           </div>
         </section>
 
-        {/* 3. Итог расчёта по таблице DMG */}
+        {/* 3. DMG Table Calculation Summary */}
         <section className="bg-gradient-to-r from-amber-950/40 via-[rgba(24,30,42,0.8)] to-amber-950/40 border border-[#f5b920]/40 p-4 rounded-glass-xl flex flex-col gap-3 shadow-inner">
           <div className="flex items-center justify-between border-b border-white/10 pb-2">
             <span className="font-bold text-[#f5b920] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
               <Sparkles className="h-4 w-4" />
-              <span>Расчёт по правилам DMG:</span>
+              <span>{isEn ? 'DMG Rule Calculation:' : 'Расчёт по правилам DMG:'}</span>
             </span>
             <span className="text-[11px] font-mono text-gray-300">
-              Нужен d20:{' '}
-              <strong className="text-white font-bold">{d20Needed}+</strong> (КД {effectiveAc} - {effectiveBonus})
+              {isEn ? 'Needs d20: ' : 'Нужен d20: '}
+              <strong className="text-white font-bold">{d20Needed}+</strong> ({isEn ? 'AC' : 'КД'} {effectiveAc} - {effectiveBonus})
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
             <div className="p-2 bg-black/40 rounded border border-white/5">
-              <div className="text-[10px] text-gray-400">Соотношение</div>
+              <div className="text-[10px] text-gray-400">{isEn ? 'Ratio' : 'Соотношение'}</div>
               <div className="font-mono text-xs font-bold text-gray-200">
-                1 hit / {attackersNeeded} мобов
+                {isEn ? `1 hit / ${attackersNeeded} mobs` : `1 hit / ${attackersNeeded} мобов`}
               </div>
             </div>
 
             <div className="p-2 bg-black/40 rounded border border-white/5">
-              <div className="text-[10px] text-gray-400">Атак в орде</div>
+              <div className="text-[10px] text-gray-400">{isEn ? 'Mob Attacks' : 'Атак в орде'}</div>
               <div className="font-mono text-sm font-black text-white">{mobCount}</div>
             </div>
 
             <div className="p-2 bg-black/40 rounded border border-emerald-500/30">
-              <div className="text-[10px] text-emerald-400 font-bold">ПОПАДАНИЙ</div>
+              <div className="text-[10px] text-emerald-400 font-bold">{isEn ? 'HITS' : 'ПОПАДАНИЙ'}</div>
               <div className="font-mono text-lg font-black text-emerald-300">
                 {hitsScored}
               </div>
             </div>
 
             <div className="p-2 bg-black/40 rounded border border-red-500/30">
-              <div className="text-[10px] text-red-400 font-bold">ИТОГОВЫЙ УРОН</div>
+              <div className="text-[10px] text-red-400 font-bold">{isEn ? 'TOTAL DAMAGE' : 'ИТОГОВЫЙ УРОН'}</div>
               <div className="font-mono text-lg font-black text-red-400">
                 {hitsScored * avgDamage}
               </div>
             </div>
           </div>
 
-          {/* Результат последнего удара */}
+          {/* Last Strike Result */}
           {lastResult && (
             <div className="bg-black/50 p-2.5 rounded border border-emerald-500/40 text-[11px] text-emerald-200 flex items-center justify-between">
               <span>{lastResult.details}</span>
@@ -457,23 +497,23 @@ export function MobCombatModal() {
           )}
         </section>
 
-        {/* Футер: Кнопки действий */}
+        {/* Footer Actions */}
         <footer className="flex items-center justify-between gap-2 pt-2 border-t border-[rgba(255,255,255,0.08)]">
           <button
             type="button"
             onClick={handleCopySummary}
             className="flex items-center gap-1.5 min-h-[34px] px-3.5 py-1 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.1)] text-gray-300 hover:text-white transition-all cursor-pointer"
-            title="Скопировать текстовую сводку расчёта"
+            title={isEn ? 'Copy text summary' : 'Скопировать текстовую сводку расчёта'}
           >
             {copied ? (
               <>
                 <Check className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="text-emerald-400 font-bold">Скопировано!</span>
+                <span className="text-emerald-400 font-bold">{isEn ? 'Copied!' : 'Скопировано!'}</span>
               </>
             ) : (
               <>
                 <Copy className="h-3.5 w-3.5 text-[#f5b920]" />
-                <span>Скопировать расчёт</span>
+                <span>{isEn ? 'Copy Calculation' : 'Скопировать расчёт'}</span>
               </>
             )}
           </button>
@@ -484,7 +524,7 @@ export function MobCombatModal() {
               onClick={() => setMobModalOpen(false)}
               className="min-h-[34px] px-4 py-1 rounded-full border border-white/10 hover:bg-white/10 text-gray-300 transition-all cursor-pointer"
             >
-              Отмена
+              {isEn ? 'Cancel' : 'Отмена'}
             </button>
 
             <button
@@ -494,7 +534,7 @@ export function MobCombatModal() {
               className="flex items-center gap-1.5 min-h-[34px] px-5 py-1 rounded-full bg-[#f5b920] hover:bg-[#fac742] active:bg-[#e0a312] text-[#0c0d12] font-black shadow-[0_0_16px_rgba(245,185,32,0.35)] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Flame className="h-4 w-4" />
-              <span>Нанести урон ({hitsScored * avgDamage} ОЗ)</span>
+              <span>{isEn ? `Apply Damage (${hitsScored * avgDamage} HP)` : `Нанести урон (${hitsScored * avgDamage} ОЗ)`}</span>
             </button>
           </div>
         </footer>

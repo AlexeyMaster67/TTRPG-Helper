@@ -2,7 +2,7 @@
  * TTRPG Helper Data Directory Migration Service
  *
  * Automatically detects legacy "%APPDATA%/dnd-ait" (or "com.alexeymaster67.ttrpghelper")
- * and migrates all campaign JSON files, SQLite database (dnd2024.db),
+ * and migrates all campaign JSON files, SQLite database (ttrpghelper.db / dnd2024.db),
  * and backups into "%APPDATA%/ttrpg-helper" with a persistent safety migration log.
  */
 

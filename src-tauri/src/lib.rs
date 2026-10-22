@@ -10,7 +10,21 @@ pub fn run() {
 
             if let Ok(config_dir) = app.path().app_config_dir() {
                 let _ = fs::create_dir_all(&config_dir);
-                let target_db = config_dir.join("dnd2024.db");
+                let target_db = config_dir.join("ttrpghelper.db");
+                let legacy_target_db = config_dir.join("dnd2024.db");
+
+                // Backward-compatibility: if target ttrpghelper.db does not exist (or is 0 bytes),
+                // but legacy dnd2024.db exists in config_dir, copy/rename it to ttrpghelper.db
+                if (!target_db.exists() || target_db.metadata().map(|m| m.len()).unwrap_or(0) == 0)
+                    && legacy_target_db.exists()
+                    && legacy_target_db.metadata().map(|m| m.len()).unwrap_or(0) > 0
+                {
+                    if let Err(e) = fs::copy(&legacy_target_db, &target_db) {
+                        eprintln!("Failed to copy legacy database {:?} to {:?}: {}", legacy_target_db, target_db, e);
+                    } else {
+                        println!("Successfully migrated legacy database from {:?} to {:?}", legacy_target_db, target_db);
+                    }
+                }
 
                 let need_copy = !target_db.exists()
                     || target_db.metadata().map(|m| m.len()).unwrap_or(0) == 0;
@@ -18,14 +32,16 @@ pub fn run() {
                 if need_copy {
                     let mut found_src = None;
 
-                    // 1. Try resource_dir
+                    // 1. Try resource_dir (look for ttrpghelper.db, then legacy dnd2024.db)
                     if let Ok(resource_dir) = app.path().resource_dir() {
                         let candidates = [
+                            resource_dir.join("databases").join("ttrpghelper.db"),
+                            resource_dir.join("ttrpghelper.db"),
                             resource_dir.join("databases").join("dnd2024.db"),
                             resource_dir.join("dnd2024.db"),
                         ];
                         for c in &candidates {
-                            if c.exists() {
+                            if c.exists() && c.metadata().map(|m| m.len()).unwrap_or(0) > 0 {
                                 found_src = Some(c.clone());
                                 break;
                             }
@@ -37,12 +53,15 @@ pub fn run() {
                         if let Ok(exe_path) = std::env::current_exe() {
                             if let Some(exe_dir) = exe_path.parent() {
                                 let candidates = [
+                                    exe_dir.join("databases").join("ttrpghelper.db"),
+                                    exe_dir.join("ttrpghelper.db"),
+                                    exe_dir.join("resources").join("databases").join("ttrpghelper.db"),
                                     exe_dir.join("databases").join("dnd2024.db"),
                                     exe_dir.join("dnd2024.db"),
                                     exe_dir.join("resources").join("databases").join("dnd2024.db"),
                                 ];
                                 for c in &candidates {
-                                    if c.exists() {
+                                    if c.exists() && c.metadata().map(|m| m.len()).unwrap_or(0) > 0 {
                                         found_src = Some(c.clone());
                                         break;
                                     }
@@ -54,11 +73,13 @@ pub fn run() {
                     // 3. Try current working directory (dev mode)
                     if found_src.is_none() {
                         let dev_candidates = [
+                            std::path::PathBuf::from("src-tauri/databases/ttrpghelper.db"),
+                            std::path::PathBuf::from("databases/ttrpghelper.db"),
                             std::path::PathBuf::from("src-tauri/databases/dnd2024.db"),
                             std::path::PathBuf::from("databases/dnd2024.db"),
                         ];
                         for c in &dev_candidates {
-                            if c.exists() {
+                            if c.exists() && c.metadata().map(|m| m.len()).unwrap_or(0) > 0 {
                                 found_src = Some(c.clone());
                                 break;
                             }
@@ -72,7 +93,7 @@ pub fn run() {
                             println!("Successfully seeded database to {:?}", target_db);
                         }
                     } else {
-                        eprintln!("Warning: Initial database dnd2024.db not found in resources!");
+                        eprintln!("Warning: Initial database ttrpghelper.db not found in resources!");
                     }
                 }
             }
@@ -139,9 +160,17 @@ async fn create_database_backup(
     let config_dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
     let _ = fs::create_dir_all(&config_dir);
 
-    let mut target_db = config_dir.join("dnd2024.db");
+    let mut target_db = config_dir.join("ttrpghelper.db");
+    if !target_db.exists() || target_db.metadata().map(|m| m.len()).unwrap_or(0) == 0 {
+        let legacy_db = config_dir.join("dnd2024.db");
+        if legacy_db.exists() && legacy_db.metadata().map(|m| m.len()).unwrap_or(0) > 0 {
+            let _ = fs::copy(&legacy_db, &target_db);
+        }
+    }
     if !target_db.exists() || target_db.metadata().map(|m| m.len()).unwrap_or(0) == 0 {
         let dev_candidates = [
+            std::path::PathBuf::from("src-tauri/databases/ttrpghelper.db"),
+            std::path::PathBuf::from("databases/ttrpghelper.db"),
             std::path::PathBuf::from("src-tauri/databases/dnd2024.db"),
             std::path::PathBuf::from("databases/dnd2024.db"),
         ];
@@ -154,7 +183,7 @@ async fn create_database_backup(
     }
 
     if !target_db.exists() {
-        return Err("База данных dnd2024.db не найдена для создания копии".into());
+        return Err("База данных ttrpghelper.db не найдена для создания копии".into());
     }
 
     let backup_dir = config_dir.join("backups");
@@ -168,7 +197,7 @@ async fn create_database_backup(
         format!("day-{}", days)
     });
 
-    let filename = format!("dnd2024_backup_{}.db", today);
+    let filename = format!("ttrpghelper_backup_{}.db", today);
     let dest_path = backup_dir.join(&filename);
 
     let already_exists = dest_path.exists();
@@ -187,7 +216,7 @@ async fn create_database_backup(
         for entry in entries.flatten() {
             let p = entry.path();
             if let Some(name) = p.file_name().and_then(|n| n.to_str()) {
-                if name.starts_with("dnd2024_backup_") && name.ends_with(".db") {
+                if (name.starts_with("ttrpghelper_backup_") || name.starts_with("dnd2024_backup_")) && name.ends_with(".db") {
                     let mtime = entry
                         .metadata()
                         .and_then(|m| m.modified())
@@ -237,7 +266,7 @@ async fn list_database_backups(app: tauri::AppHandle) -> Result<Vec<BackupEntry>
         for entry in entries.flatten() {
             let p = entry.path();
             if let Some(name) = p.file_name().and_then(|n| n.to_str()) {
-                if name.starts_with("dnd2024_backup_") && name.ends_with(".db") {
+                if (name.starts_with("ttrpghelper_backup_") || name.starts_with("dnd2024_backup_")) && name.ends_with(".db") {
                     if let Ok(meta) = entry.metadata() {
                         let modified_ms = meta
                             .modified()
@@ -301,7 +330,7 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
     // Candidate source legacy directories (checked in order of priority)
     let candidate_sources = [
         appdata_root.join("dnd-ait"),
-        appdata_root.join("com.alexeymaster67.dndait"),
+        appdata_root.join("ttrpg-helper-legacy"),
         appdata_root.join("DnD_AIT"),
     ];
 
@@ -336,11 +365,13 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
 
     // Check if target directory already has databases or completed migration
     let primary_target = &targets[0];
-    let primary_db = primary_target.join("dnd2024.db");
+    let primary_db = primary_target.join("ttrpghelper.db");
+    let legacy_primary_db = primary_target.join("dnd2024.db");
     let migration_marker = primary_target.join("migration_log.json");
 
     if migration_marker.exists()
         || (primary_db.exists() && primary_db.metadata().map(|m| m.len()).unwrap_or(0) > 0)
+        || (legacy_primary_db.exists() && legacy_primary_db.metadata().map(|m| m.len()).unwrap_or(0) > 0)
     {
         return MigrationReport {
             attempted: true,
@@ -371,6 +402,8 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
             if path.is_file() {
                 if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
                     let is_target = file_name.ends_with(".json")
+                        || file_name == "ttrpghelper.db"
+                        || file_name.starts_with("ttrpghelper.db-")
                         || file_name == "dnd2024.db"
                         || file_name.starts_with("dnd2024.db-");
 
@@ -421,7 +454,7 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
         target_dirs: targets.iter().map(|p| p.to_string_lossy().to_string()).collect(),
         copied_files: copied_files.clone(),
         skipped_reason: if copied_files.is_empty() {
-            Some("No eligible files (.json, dnd2024.db, backups) found in source".into())
+            Some("No eligible files (.json, ttrpghelper.db, dnd2024.db, backups) found in source".into())
         } else {
             None
         },
@@ -447,3 +480,4 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
 async fn run_app_migration(app: tauri::AppHandle) -> Result<MigrationReport, String> {
     Ok(perform_app_migration(&app))
 }
+

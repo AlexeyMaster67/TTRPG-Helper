@@ -141,6 +141,7 @@ describe('Settings UI & System Selection Suite', () => {
 
   describe('SettingsModal Render & Left Sidebar Navigation', () => {
     it('renders all 5 sidebar navigation tabs', () => {
+      useSettingsStore.getState().setLanguage('ru');
       const html = renderToString(React.createElement(SettingsModal, { isOpen: true }));
 
       // Left sidebar
@@ -155,6 +156,9 @@ describe('Settings UI & System Selection Suite', () => {
       // Active section is Система НРИ by default
       expect(html).toContain('aria-current="page"');
       expect(html).toContain('SRD 5.2.1');
+
+      // Restore language
+      useSettingsStore.getState().setLanguage('en');
     });
   });
 });

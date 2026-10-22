@@ -15,7 +15,8 @@ import { broadcastService } from '../../services/broadcastService';
 import { audioService } from '../../services/audioService';
 import { useDice3dStore } from '../../store/dice3dStore';
 import { useDiceAnimationStore } from '../../store/diceAnimationStore';
-import { cleanRussianText } from '../../utils/textUtils';
+import { cleanRussianText, localizeStat } from '../../utils/textUtils';
+import { useTranslation } from '../../i18n';
 import { PlayerActionResultPanel } from './PlayerActionResultPanel';
 import { dbService } from '../../services/dbService';
 import { ParsedSpell } from '../../types/database';
@@ -65,6 +66,8 @@ export function StatblockInspector() {
     updateCombatant,
     addDiceLog,
   } = useCombatStore();
+  const { language } = useTranslation();
+  const isEn = language === 'en';
 
   const combatant = combatants.find((c) => c.id === inspectedCombatantId) || null;
   const currentTarget = combatants.find((c) => c.id === currentTargetId) || null;
@@ -156,7 +159,8 @@ export function StatblockInspector() {
       cancelTargetingMode();
     } else {
       setActiveTargetingActionKey(actionKey);
-      startTargetingMode(combatant.id, action, `Выберите цель для «${cleanRussianText(action?.name || 'Атака')}»`);
+      const actionTitle = isEn ? (action?.name || 'Attack') : cleanRussianText(action?.name || 'Атака');
+      startTargetingMode(combatant.id, action, isEn ? `Select target for "${actionTitle}"` : `Выберите цель для «${actionTitle}»`);
     }
   };
 
@@ -194,15 +198,15 @@ export function StatblockInspector() {
     handlePerformAttack(action, actionKey, e);
   };
 
-  // Characteristics scores (СИЛ, ЛОВ, ТЕЛ, ИНТ, МУД, ХАР)
+  // Characteristics scores (STR, DEX, CON, INT, WIS, CHA)
   const stats: AbilityStat[] = React.useMemo(() => [
-    { label: 'СИЛ', key: 'str', fullRu: 'Сила', score: sb?.str ?? 10 },
-    { label: 'ЛОВ', key: 'dex', fullRu: 'Ловкость', score: sb?.dex ?? 10 },
-    { label: 'ТЕЛ', key: 'con', fullRu: 'Телосложение', score: sb?.con ?? 10 },
-    { label: 'ИНТ', key: 'intellect', fullRu: 'Интеллект', score: sb?.intellect ?? 10 },
-    { label: 'МУД', key: 'wis', fullRu: 'Мудрость', score: sb?.wis ?? 10 },
-    { label: 'ХАР', key: 'cha', fullRu: 'Харизма', score: sb?.cha ?? 10 },
-  ], [sb]);
+    { label: localizeStat('str', false, language), key: 'str', fullRu: localizeStat('str', true, language), score: sb?.str ?? 10 },
+    { label: localizeStat('dex', false, language), key: 'dex', fullRu: localizeStat('dex', true, language), score: sb?.dex ?? 10 },
+    { label: localizeStat('con', false, language), key: 'con', fullRu: localizeStat('con', true, language), score: sb?.con ?? 10 },
+    { label: localizeStat('intellect', false, language), key: 'intellect', fullRu: localizeStat('intellect', true, language), score: sb?.intellect ?? 10 },
+    { label: localizeStat('wis', false, language), key: 'wis', fullRu: localizeStat('wis', true, language), score: sb?.wis ?? 10 },
+    { label: localizeStat('cha', false, language), key: 'cha', fullRu: localizeStat('cha', true, language), score: sb?.cha ?? 10 },
+  ], [sb, language]);
 
   const allSaves: SaveStat[] = React.useMemo(() => {
     return stats.map((st) => {
@@ -210,7 +214,8 @@ export function StatblockInspector() {
         sb?.saves?.[st.key.toUpperCase()] ??
         sb?.saves?.[st.key] ??
         sb?.saves?.[st.label] ??
-        (st.label === 'МУД' ? (sb?.saves?.['WIS'] ?? sb?.saves?.['МДР']) : undefined);
+        sb?.saves?.[st.label.toUpperCase()] ??
+        (st.key === 'wis' ? (sb?.saves?.['WIS'] ?? sb?.saves?.['МДР'] ?? sb?.saves?.['МУД']) : undefined);
       const mod = Math.floor((st.score - 10) / 2);
       const bonus = explicitSave !== undefined ? Number(explicitSave) : mod;
       const isProficient = explicitSave !== undefined;
@@ -237,13 +242,19 @@ export function StatblockInspector() {
 
     audioService.playDiceRoll();
 
-    const rollerName = cleanRussianText(combatant.nameRu || combatant.name);
+    const rollerName = isEn
+      ? (combatant.name || combatant.nameRu)
+      : cleanRussianText(combatant.nameRu || combatant.name);
+
+    const secretPrefix = isSecret ? (isEn ? '[Secret] ' : '[Скрытно] ') : '';
+    const checkActionName = `${secretPrefix}${isEn ? 'Check' : 'Проверка'}: ${st.fullRu} (${st.label})`;
+    const critTag = isNat20 ? (isEn ? ' (CRIT 20!)' : ' (КРИТ 20!)') : isNat1 ? (isEn ? ' (FUMBLE 1!)' : ' (ПРОВАЛ 1!)') : '';
 
     addDiceLog({
       id: crypto.randomUUID(),
       timestamp: timeStr,
-      combatantName: isSecret ? `[Скрытно] ${rollerName}` : rollerName,
-      actionName: `${isSecret ? '[Скрытно] ' : ''}Проверка: ${st.fullRu} (${st.label})`,
+      combatantName: `${secretPrefix}${rollerName}`,
+      actionName: checkActionName,
       attackRoll: {
         d20,
         modifier: mod,
@@ -251,12 +262,12 @@ export function StatblockInspector() {
         isNat20,
         isNat1,
       },
-      note: `Проверка: ${st.fullRu} — d20(${d20}) ${mod >= 0 ? `+${mod}` : mod} = ${total}${isNat20 ? ' (КРИТ 20!)' : isNat1 ? ' (ПРОВАЛ 1!)' : ''}`,
+      note: `${isEn ? 'Check' : 'Проверка'}: ${st.fullRu} — d20(${d20}) ${mod >= 0 ? `+${mod}` : mod} = ${total}${critTag}`,
     });
 
     useDiceAnimationStore.getState().triggerRoll({
-      title: `${rollerName}: Проверка ${st.fullRu}`,
-      subtitle: `Характеристика ${st.label}`,
+      title: isEn ? `${rollerName}: Check ${st.fullRu}` : `${rollerName}: Проверка ${st.fullRu}`,
+      subtitle: isEn ? `Ability ${st.label}` : `Характеристика ${st.label}`,
       sides: 20,
       r1: d20,
       kept: d20,
@@ -271,7 +282,7 @@ export function StatblockInspector() {
     if (is3d) {
       useDice3dStore.getState().rollDice3d({
         dice: [{ sides: 20, result: d20 }],
-        title: `${rollerName}: Проверка ${st.fullRu}`,
+        title: isEn ? `${rollerName}: Check ${st.fullRu}` : `${rollerName}: Проверка ${st.fullRu}`,
         total,
         isSecret,
       });
@@ -282,7 +293,7 @@ export function StatblockInspector() {
         type: 'BROADCAST_ROLL',
         payload: {
           id: crypto.randomUUID(),
-          title: `${rollerName}: Проверка ${st.fullRu}`,
+          title: isEn ? `${rollerName}: Check ${st.fullRu}` : `${rollerName}: Проверка ${st.fullRu}`,
           formula: `1d20 ${mod >= 0 ? `+ ${mod}` : `- ${Math.abs(mod)}`}`,
           resultDisplay: `${total} [d20: ${d20}]`,
           total,
@@ -296,7 +307,7 @@ export function StatblockInspector() {
 
     setActiveRollToast({
       id: crypto.randomUUID(),
-      title: `Проверка: ${st.fullRu}`,
+      title: isEn ? `Check: ${st.fullRu}` : `Проверка: ${st.fullRu}`,
       details: `1d20 (${d20}) ${mod >= 0 ? `+ ${mod}` : `- ${Math.abs(mod)}`} = ${total}`,
       total,
       isNat20,
@@ -316,13 +327,19 @@ export function StatblockInspector() {
 
     audioService.playDiceRoll();
 
-    const rollerName = cleanRussianText(combatant.nameRu || combatant.name);
+    const rollerName = isEn
+      ? (combatant.name || combatant.nameRu)
+      : cleanRussianText(combatant.nameRu || combatant.name);
+
+    const secretPrefix = isSecret ? (isEn ? '[Secret] ' : '[Скрытно] ') : '';
+    const saveActionName = `${secretPrefix}${isEn ? 'Saving Throw' : 'Спасбросок'}: ${fullName} (${saveNameRu})`;
+    const critTag = isNat20 ? (isEn ? ' (CRIT 20!)' : ' (КРИТ 20!)') : isNat1 ? (isEn ? ' (FUMBLE 1!)' : ' (ПРОВАЛ 1!)') : '';
 
     addDiceLog({
       id: crypto.randomUUID(),
       timestamp: timeStr,
-      combatantName: isSecret ? `[Скрытно] ${rollerName}` : rollerName,
-      actionName: `${isSecret ? '[Скрытно] ' : ''}Спасбросок: ${fullName} (${saveNameRu})`,
+      combatantName: `${secretPrefix}${rollerName}`,
+      actionName: saveActionName,
       attackRoll: {
         d20,
         modifier: saveBonus,
@@ -330,12 +347,12 @@ export function StatblockInspector() {
         isNat20,
         isNat1,
       },
-      note: `Спасбросок: ${fullName} — d20(${d20}) ${saveBonus >= 0 ? `+${saveBonus}` : saveBonus} = ${total}${isNat20 ? ' (КРИТ 20!)' : isNat1 ? ' (ПРОВАЛ 1!)' : ''}`,
+      note: `${isEn ? 'Saving Throw' : 'Спасбросок'}: ${fullName} — d20(${d20}) ${saveBonus >= 0 ? `+${saveBonus}` : saveBonus} = ${total}${critTag}`,
     });
 
     useDiceAnimationStore.getState().triggerRoll({
-      title: `${rollerName}: Спасбросок ${fullName}`,
-      subtitle: `Спасбросок (${saveNameRu})`,
+      title: isEn ? `${rollerName}: Save ${fullName}` : `${rollerName}: Спасбросок ${fullName}`,
+      subtitle: isEn ? `Saving Throw (${saveNameRu})` : `Спасбросок (${saveNameRu})`,
       sides: 20,
       r1: d20,
       kept: d20,
@@ -350,7 +367,7 @@ export function StatblockInspector() {
     if (is3d) {
       useDice3dStore.getState().rollDice3d({
         dice: [{ sides: 20, result: d20 }],
-        title: `${rollerName}: Спасбросок ${fullName}`,
+        title: isEn ? `${rollerName}: Save ${fullName}` : `${rollerName}: Спасбросок ${fullName}`,
         total,
         isSecret,
       });
@@ -361,7 +378,7 @@ export function StatblockInspector() {
         type: 'BROADCAST_ROLL',
         payload: {
           id: crypto.randomUUID(),
-          title: `${rollerName}: Спасбросок ${fullName}`,
+          title: isEn ? `${rollerName}: Save ${fullName}` : `${rollerName}: Спасбросок ${fullName}`,
           formula: `1d20 ${saveBonus >= 0 ? `+ ${saveBonus}` : `- ${Math.abs(saveBonus)}`}`,
           resultDisplay: `${total} [d20: ${d20}]`,
           total,
@@ -375,7 +392,7 @@ export function StatblockInspector() {
 
     setActiveRollToast({
       id: crypto.randomUUID(),
-      title: `Спасбросок: ${fullName}`,
+      title: isEn ? `Save: ${fullName}` : `Спасбросок: ${fullName}`,
       details: `1d20 (${d20}) ${saveBonus >= 0 ? `+ ${saveBonus}` : `- ${Math.abs(saveBonus)}`} = ${total}`,
       total,
       isNat20,
@@ -457,7 +474,7 @@ export function StatblockInspector() {
       const multiattackActionRef = {
         ...multiattackAction,
         _isMultiattack: true,
-        name: `Серия мультиатаки`,
+        name: isEn ? 'Multiattack Series' : 'Серия мультиатаки',
       };
       handleToggleTargetPicker('multiattack', multiattackActionRef, e);
     }
@@ -472,11 +489,13 @@ export function StatblockInspector() {
         </div>
         <h3 className="tracking-wider uppercase text-sm font-bold text-gray-200 mb-1.5 flex items-center gap-1.5">
           <Sparkles className="h-2.5 w-2.5 text-gold inline" />
-          <span>Инспектор характеристик</span>
+          <span>{isEn ? 'Statblock Inspector' : 'Инспектор характеристик'}</span>
           <Sparkles className="h-2.5 w-2.5 text-gold inline" />
         </h3>
         <p className="text-xs text-gray-400 max-w-xs leading-relaxed font-sans">
-          Выберите существо или персонажа в очереди боя, чтобы просмотреть его характеристики, параметры и проводить мгновенные атаки в один клик.
+          {isEn
+            ? 'Select a creature or character in the turn order to view their stats, parameters, and execute instant attacks in one click.'
+            : 'Выберите существо или персонажа в очереди боя, чтобы просмотреть его характеристики, параметры и проводить мгновенные атаки в один клик.'}
         </p>
       </aside>
     );
@@ -505,12 +524,12 @@ export function StatblockInspector() {
                 <span className="truncate">{activeRollToast.title}</span>
                 {activeRollToast.isNat20 && (
                   <span className="text-xs px-1.5 py-0.2 rounded-glass-sm bg-emerald-900/80 text-emerald-200 border border-emerald-500 font-bold uppercase">
-                    КРИТ!
+                    {isEn ? 'CRIT!' : 'КРИТ!'}
                   </span>
                 )}
                 {activeRollToast.isNat1 && (
                   <span className="text-xs px-1.5 py-0.2 rounded-glass-sm bg-red-900/80 text-rose-200 border border-red-500 font-bold uppercase">
-                    ПРОВАЛ!
+                    {isEn ? 'FUMBLE!' : 'ПРОВАЛ!'}
                   </span>
                 )}
               </div>
@@ -523,7 +542,7 @@ export function StatblockInspector() {
             type="button"
             onClick={() => setActiveRollToast(null)}
             className="min-h-[32px] min-w-[32px] flex items-center justify-center text-gray-400 hover:text-white rounded-glass-sm hover:bg-white/10 flex-shrink-0 cursor-pointer transition-colors"
-            title="Закрыть уведомление"
+            title={isEn ? 'Close notification' : 'Закрыть уведомление'}
           >
             <X className="h-4 w-4" />
           </button>
@@ -589,7 +608,7 @@ export function StatblockInspector() {
               <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
                 <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-gold-light">
                   <Sparkles className="h-2.5 w-2.5 text-gold inline" />
-                  <span>ОСОБЕННОСТИ</span>
+                  <span>{isEn ? 'TRAITS' : 'ОСОБЕННОСТИ'}</span>
                   <Sparkles className="h-2.5 w-2.5 text-gold inline" />
                 </div>
                 <div className="space-y-2.5">
@@ -638,16 +657,16 @@ export function StatblockInspector() {
           <div className="flex items-center gap-1.5">
             <Dices className="h-4 w-4 text-gold" />
             <span className="text-xs font-bold uppercase tracking-wider text-gray-200">
-              Журнал бросков кубиков
+              {isEn ? 'Combat Dice Log' : 'Журнал бросков кубиков'}
             </span>
           </div>
           {diceLog.length > 0 && (
             <button
               onClick={clearDiceLog}
-              title="Очистить журнал"
+              title={isEn ? 'Clear log' : 'Очистить журнал'}
               className="min-h-[28px] px-2.5 py-0.5 rounded-glass-sm text-xs text-gray-400 hover:text-red-400 font-mono font-semibold transition-colors uppercase hover:bg-white/5 cursor-pointer"
             >
-              Очистить
+              {isEn ? 'Clear' : 'Очистить'}
             </button>
           )}
         </div>
@@ -655,7 +674,7 @@ export function StatblockInspector() {
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-2.5 space-y-2">
           {diceLog.length === 0 ? (
             <div className="h-full flex items-center justify-center text-center text-xs text-gray-400 italic">
-              Кликните на атаку или действие для броска попадания и урона
+              {isEn ? 'Click an attack or action to roll hit and damage' : 'Кликните на атаку или действие для броска попадания и урона'}
             </div>
           ) : (
             diceLog.map((entry) => (
@@ -676,7 +695,7 @@ export function StatblockInspector() {
                   {/* Attack roll */}
                   {entry.attackRoll && (
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <span className="text-gray-400">Атака:</span>
+                      <span className="text-gray-400">{isEn ? 'Attack:' : 'Атака:'}</span>
                       <span
                         className={clsx(
                           'font-bold tabular-nums',
@@ -693,12 +712,12 @@ export function StatblockInspector() {
                       </span>
                       {entry.attackRoll.isNat20 && (
                         <span className="text-xs px-1.5 py-0.2 rounded-glass-sm bg-emerald-950 text-emerald-300 font-bold border border-emerald-600 whitespace-nowrap">
-                          КРИТ!
+                          {isEn ? 'CRIT!' : 'КРИТ!'}
                         </span>
                       )}
                       {entry.attackRoll.isNat1 && (
                         <span className="text-xs px-1.5 py-0.2 rounded-glass-sm bg-red-950 text-red-300 font-bold border border-red-600 whitespace-nowrap">
-                          ПРОВАЛ!
+                          {isEn ? 'FUMBLE!' : 'ПРОВАЛ!'}
                         </span>
                       )}
                     </div>
@@ -707,7 +726,7 @@ export function StatblockInspector() {
                   {/* Damage roll */}
                   {entry.damageRoll && (
                     <div className="flex items-center gap-1 flex-shrink-0 min-w-0">
-                      <span className="text-gray-400 flex-shrink-0">Урон:</span>
+                      <span className="text-gray-400 flex-shrink-0">{isEn ? 'Damage:' : 'Урон:'}</span>
                       <span className="font-bold text-red-300 tabular-nums flex-shrink-0">
                         {entry.damageRoll.total}
                       </span>
@@ -723,7 +742,7 @@ export function StatblockInspector() {
                   {/* Weapon mastery trigger */}
                   {entry.weaponMastery && (
                     <span className="text-xs text-amber font-sans flex-shrink-0 whitespace-nowrap">
-                      [{MASTERY_SPECS[entry.weaponMastery]?.nameRu || entry.weaponMastery}]
+                      [{isEn ? (MASTERY_SPECS[entry.weaponMastery]?.nameEn || entry.weaponMastery) : (MASTERY_SPECS[entry.weaponMastery]?.nameRu || entry.weaponMastery)}]
                     </span>
                   )}
                 </div>
@@ -731,7 +750,7 @@ export function StatblockInspector() {
                 {/* Target info if targeted strike */}
                 {entry.targetName && (
                   <div className="flex items-center flex-wrap gap-1.5 text-xs mt-0.5 min-w-0">
-                    <span className="text-gray-400 flex-shrink-0">Цель:</span>
+                    <span className="text-gray-400 flex-shrink-0">{isEn ? 'Target:' : 'Цель:'}</span>
                     <strong
                       className="text-gray-100 truncate max-w-[140px]"
                       title={cleanRussianText(entry.targetName)}
@@ -747,12 +766,12 @@ export function StatblockInspector() {
                             : 'bg-red-950 text-red-300 border border-red-600'
                         )}
                       >
-                        {entry.isHit ? 'ПОПАДАНИЕ' : 'ПРОМАХ'}
+                        {entry.isHit ? (isEn ? 'HIT' : 'ПОПАДАНИЕ') : (isEn ? 'MISS' : 'ПРОМАХ')}
                       </span>
                     )}
                     {entry.effectiveDamage !== undefined && entry.effectiveDamage > 0 && (
                       <span className="font-mono tabular-nums font-bold text-red-300 flex-shrink-0 whitespace-nowrap">
-                        (-{entry.effectiveDamage} ОЗ)
+                        (-{entry.effectiveDamage} {isEn ? 'HP' : 'ОЗ'})
                       </span>
                     )}
                   </div>
@@ -768,15 +787,15 @@ export function StatblockInspector() {
                 {/* Interactive Concentration Prompt Button */}
                 {entry.concentrationPrompt && (
                   <div className="min-h-[32px] mt-1 flex items-center justify-between gap-1.5 bg-amber-950/40 border border-amber-500/40 rounded-glass-sm px-2.5 py-1 text-xs min-w-0">
-                    <span className="text-amber-300 font-medium truncate min-w-0 flex items-center gap-1" title={`Концентрация: СЛ ${entry.concentrationPrompt.dc}`}>
+                    <span className="text-amber-300 font-medium truncate min-w-0 flex items-center gap-1" title={isEn ? `Concentration: DC ${entry.concentrationPrompt.dc}` : `Концентрация: СЛ ${entry.concentrationPrompt.dc}`}>
                       <Zap className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span>Концентрация: <strong>СЛ {entry.concentrationPrompt.dc}</strong></span>
+                      <span>{isEn ? 'Concentration:' : 'Концентрация:'} <strong>{isEn ? 'DC' : 'СЛ'} {entry.concentrationPrompt.dc}</strong></span>
                     </span>
                     <button
                       onClick={() => toggleConcentration(entry.concentrationPrompt!.targetId)}
                       className="min-h-[28px] bg-red-900/60 hover:bg-red-800 text-red-200 border border-red-500/40 px-2 py-0.5 rounded-glass-sm text-xs font-semibold transition-colors cursor-pointer flex-shrink-0 whitespace-nowrap"
                     >
-                      Сбить
+                      {isEn ? 'Break' : 'Сбить'}
                     </button>
                   </div>
                 )}
@@ -784,15 +803,15 @@ export function StatblockInspector() {
                 {/* Interactive Topple Prone Prompt Button */}
                 {entry.topplePrompt && (
                   <div className="min-h-[32px] mt-1 flex items-center justify-between gap-1.5 bg-purple-950/40 border border-purple-500/40 rounded-glass-sm px-2.5 py-1 text-xs min-w-0">
-                    <span className="text-purple-300 font-medium truncate min-w-0 flex items-center gap-1" title={`Опрокидывание: СЛ ${entry.topplePrompt.dc} ТЕЛ`}>
+                    <span className="text-purple-300 font-medium truncate min-w-0 flex items-center gap-1" title={isEn ? `Topple: DC ${entry.topplePrompt.dc} CON` : `Опрокидывание: СЛ ${entry.topplePrompt.dc} ТЕЛ`}>
                       <Shield className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span>Опрокидывание: <strong>СЛ {entry.topplePrompt.dc} ТЕЛ</strong></span>
+                      <span>{isEn ? 'Topple:' : 'Опрокидывание:'} <strong>{isEn ? 'DC' : 'СЛ'} {entry.topplePrompt.dc} {isEn ? 'CON' : 'ТЕЛ'}</strong></span>
                     </span>
                     <button
                       onClick={() => addCondition(entry.topplePrompt!.targetId, { type: 'Prone' })}
                       className="min-h-[28px] bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-500/40 px-2 py-0.5 rounded-glass-sm text-xs font-semibold transition-colors cursor-pointer flex-shrink-0 whitespace-nowrap"
                     >
-                      Сбить с ног
+                      {isEn ? 'Knock Prone' : 'Сбить с ног'}
                     </button>
                   </div>
                 )}

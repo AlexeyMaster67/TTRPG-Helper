@@ -17,6 +17,7 @@ import { useCombatStore } from '../../store/combatStore';
 import { usePartyStore } from '../../store/partyStore';
 import { Combatant } from '../../types/combat';
 import { TurnTimer } from '../combat/TurnTimer';
+import { useTranslation } from '../../i18n';
 
 export const CR_TO_XP: Record<string, number> = {
   '0': 10,
@@ -76,6 +77,7 @@ export interface CombatHeaderProps {
 }
 
 export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
+  const { t, language } = useTranslation();
   const {
     combatants,
     roundCounter,
@@ -105,13 +107,13 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
           {/* Счётчик раунда */}
           <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded-full border border-[rgba(255,255,255,0.08)] flex-shrink-0 shadow-sm">
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider font-sans">
-              Раунд
+              {t('combat.round')}
             </span>
             <div className="flex items-center gap-1 bg-[rgba(20,25,35,0.8)] px-1.5 py-0.5 rounded-full border border-[rgba(255,255,255,0.08)]">
               <button
                 type="button"
                 onClick={() => setRound(Math.max(1, roundCounter - 1))}
-                title="Уменьшить номер раунда"
+                title={language === 'en' ? 'Decrease round' : 'Уменьшить номер раунда'}
                 className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-white rounded-full hover:bg-white/10 font-bold text-xs leading-none transition-colors cursor-pointer"
               >
                 -
@@ -122,7 +124,7 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
               <button
                 type="button"
                 onClick={() => setRound(roundCounter + 1)}
-                title="Увеличить номер раунда"
+                title={language === 'en' ? 'Increase round' : 'Увеличить номер раунда'}
                 className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-white rounded-full hover:bg-white/10 font-bold text-xs leading-none transition-colors cursor-pointer"
               >
                 +
@@ -133,14 +135,14 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
           {/* Счётчик бойцов: живые / всего */}
           <div
             className="flex items-center gap-1.5 bg-black/40 px-2.5 py-1 rounded-full border border-[rgba(255,255,255,0.08)] text-xs font-medium text-gray-300 flex-shrink-0 shadow-sm"
-            title={`Живых участников: ${aliveCombatants} из ${combatants.length}`}
+            title={language === 'en' ? `Active combatants: ${aliveCombatants} of ${combatants.length}` : `Живых участников: ${aliveCombatants} из ${combatants.length}`}
           >
             <span
               className={`w-2 h-2 rounded-full flex-shrink-0 ${
                 aliveCombatants > 0 ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_#10b981]' : 'bg-gray-600'
               }`}
             />
-            <span className="text-gray-400 font-sans text-[11px]">В строю:</span>
+            <span className="text-gray-400 font-sans text-[11px]">{language === 'en' ? 'Active:' : 'В строю:'}</span>
             <span className="font-mono font-bold text-white">{aliveCombatants}</span>
             <span className="text-gray-500 font-mono">/{combatants.length}</span>
           </div>
@@ -148,10 +150,10 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
           {/* Суммарный опыт (XP) */}
           <div
             className="flex items-center gap-1.5 bg-black/40 px-2.5 py-1 rounded-full border border-[rgba(255,255,255,0.08)] text-xs font-medium text-[#fce79f] flex-shrink-0 shadow-sm"
-            title={`Суммарный опыт за побежденных противников: ${totalXp.toLocaleString()} XP`}
+            title={language === 'en' ? `Total encounter XP: ${totalXp.toLocaleString()} XP` : `Суммарный опыт за побежденных противников: ${totalXp.toLocaleString()} XP`}
           >
             <Sparkles className="w-3.5 h-3.5 text-[#f5b920] flex-shrink-0" />
-            <span className="text-gray-400 font-sans text-[11px]">Опыт:</span>
+            <span className="text-gray-400 font-sans text-[11px]">{language === 'en' ? 'XP:' : 'Опыт:'}</span>
             <span className="font-mono font-bold text-[#f5b920]">
               {totalXp.toLocaleString()}
             </span>
@@ -167,18 +169,18 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
             type="button"
             onClick={sortByInitiative}
             disabled={combatants.length === 0}
-            title="Сортировать участников по убыванию инициативы"
+            title={t('combat.sort')}
             className="flex items-center gap-1 min-h-[32px] px-2.5 py-1 text-xs font-medium rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/40 text-gray-300 hover:text-[#f5b920] transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer flex-shrink-0"
           >
             <ArrowDownUp className="h-3.5 w-3.5 flex-shrink-0" />
-            <span>Сортировка</span>
+            <span>{language === 'en' ? 'Sort' : 'Сортировка'}</span>
           </button>
 
           <button
             type="button"
             onClick={resetCombat}
             disabled={combatants.length === 0}
-            title="Очистить очередь боя и сбросить раунды"
+            title={t('combat.clear')}
             className="flex items-center justify-center min-w-[32px] w-8 h-8 rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] hover:border-red-500 hover:bg-red-950/40 text-gray-400 hover:text-red-300 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 cursor-pointer"
           >
             <RotateCcw className="h-3.5 w-3.5" />
@@ -193,12 +195,12 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
           type="button"
           onClick={nextTurn}
           disabled={combatants.length === 0}
-          title="Следующий ход (Горячая клавиша: Пробел)"
+          title={language === 'en' ? 'Next turn (Hotkey: Space)' : 'Следующий ход (Горячая клавиша: Пробел)'}
           className="flex items-center gap-1.5 min-h-[32px] px-3.5 py-1 text-xs font-black rounded-full bg-[#f5b920] hover:bg-[#fac742] active:bg-[#e0a312] text-[#0c0d12] shadow-[0_0_16px_rgba(245,185,32,0.35)] hover:shadow-[0_0_22px_rgba(245,185,32,0.5)] disabled:opacity-40 disabled:cursor-not-allowed transition-all whitespace-nowrap cursor-pointer flex-shrink-0"
         >
-          <span>Ход</span>
+          <span>{language === 'en' ? 'Turn' : 'Ход'}</span>
           <kbd className="text-[10px] px-1 py-0.2 rounded-full bg-black/30 font-mono text-black font-extrabold leading-none border border-black/20">
-            Пробел
+            {language === 'en' ? 'Space' : 'Пробел'}
           </kbd>
           <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
         </button>
@@ -208,11 +210,11 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
           type="button"
           onClick={prevTurn}
           disabled={combatants.length === 0}
-          title="Предыдущий ход в очереди"
+          title={language === 'en' ? 'Previous turn' : 'Предыдущий ход в очереди'}
           className="flex items-center gap-1 min-h-[32px] px-2.5 py-1 text-xs font-semibold rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.08)] text-gray-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all whitespace-nowrap cursor-pointer flex-shrink-0"
         >
           <ChevronLeft className="h-3.5 w-3.5 flex-shrink-0" />
-          <span>Пред.</span>
+          <span>{language === 'en' ? 'Prev' : 'Пред.'}</span>
         </button>
 
         {/* Undo последнего действия (Ctrl+Z) */}
@@ -220,7 +222,7 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
           <button
             type="button"
             onClick={undoLastAction}
-            title="Отменить последнее действие (Ctrl+Z)"
+            title={language === 'en' ? 'Undo last action (Ctrl+Z)' : 'Отменить последнее действие (Ctrl+Z)'}
             className="flex items-center justify-center min-w-[32px] w-8 h-8 rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/60 text-gray-400 hover:text-[#f5b920] transition-all flex-shrink-0 cursor-pointer"
           >
             <Undo2 className="h-3.5 w-3.5" />
@@ -232,7 +234,7 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
           <button
             type="button"
             onClick={redoLastAction}
-            title="Повторить отменённое действие (Ctrl+Y)"
+            title={language === 'en' ? 'Redo action (Ctrl+Y)' : 'Повторить отменённое действие (Ctrl+Y)'}
             className="flex items-center justify-center min-w-[32px] w-8 h-8 rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/60 text-gray-400 hover:text-[#f5b920] transition-all flex-shrink-0 cursor-pointer"
           >
             <Redo2 className="h-3.5 w-3.5" />
@@ -244,11 +246,11 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
           <button
             type="button"
             onClick={onAddPlayer}
-            title="Добавить нового персонажа игрока в бой"
+            title={language === 'en' ? 'Add player character' : 'Добавить нового персонажа игрока в бой'}
             className="flex items-center gap-1 min-h-[32px] px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-950/50 border border-emerald-600/60 text-emerald-300 hover:bg-emerald-900/60 hover:text-emerald-100 transition-all whitespace-nowrap cursor-pointer flex-shrink-0"
           >
             <UserPlus className="h-3.5 w-3.5 flex-shrink-0" />
-            <span>+ Игрок</span>
+            <span>{language === 'en' ? '+ Player' : '+ Игрок'}</span>
           </button>
         )}
 
@@ -256,33 +258,33 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
         <button
           type="button"
           onClick={() => usePartyStore.getState().deployPartyToCombat(true)}
-          title="Высадить всех персонажей постоянного отряда в бой"
+          title={language === 'en' ? 'Deploy party to combat' : 'Высадить всех персонажей постоянного отряда в бой'}
           className="flex items-center gap-1 min-h-[32px] px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-900/40 border border-emerald-500/50 text-emerald-200 hover:bg-emerald-800/60 hover:text-white transition-all whitespace-nowrap cursor-pointer flex-shrink-0"
         >
           <Users className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
-          <span>Отряд</span>
+          <span>{language === 'en' ? 'Party' : 'Отряд'}</span>
         </button>
 
         {/* Движок орд и толп */}
         <button
           type="button"
           onClick={() => setMobModalOpen(true)}
-          title="Движок орд и толп: расчёт атак толпы по правилам DMG (Chapter 8)"
+          title={language === 'en' ? 'Mob combat rules (DMG Chapter 8)' : 'Движок орд и толп: расчёт атак толпы по правилам DMG (Chapter 8)'}
           className="flex items-center gap-1.5 min-h-[32px] px-3 py-1 text-xs font-semibold rounded-full bg-purple-950/40 border border-purple-500/50 text-purple-200 hover:bg-purple-900/60 hover:border-purple-400 hover:text-white transition-all whitespace-nowrap cursor-pointer flex-shrink-0"
         >
           <Swords className="h-3.5 w-3.5 text-purple-400 flex-shrink-0" />
-          <span>Орда</span>
+          <span>{language === 'en' ? 'Mob' : 'Орда'}</span>
         </button>
 
         {/* Журнал событий боя */}
         <button
           type="button"
           onClick={() => setCombatLogOpen(true)}
-          title="Журнал событий боя: хронология, урон, криты, спасы и экспорт в .txt"
+          title={language === 'en' ? 'Combat Log: damage, crits, saves, export' : 'Журнал событий боя: хронология, урон, криты, спасы и экспорт в .txt'}
           className="flex items-center gap-1.5 min-h-[32px] px-3 py-1 text-xs font-semibold rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] hover:border-[#f5b920]/60 text-gray-300 hover:text-[#f5b920] transition-all whitespace-nowrap cursor-pointer flex-shrink-0"
         >
           <ScrollText className="h-3.5 w-3.5 text-[#f5b920] flex-shrink-0" />
-          <span>Журнал</span>
+          <span>{language === 'en' ? 'Log' : 'Журнал'}</span>
           {combatLog.length > 0 && (
             <span className="font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#f5b920]/20 text-[#fce79f] border border-[#f5b920]/40 leading-none">
               {combatLog.length}
@@ -294,22 +296,22 @@ export function CombatHeader({ onAddPlayer }: CombatHeaderProps) {
         <button
           type="button"
           onClick={() => usePartyStore.getState().openShortRestModal()}
-          title="Короткий отдых (1ч): бросить кости хитов, восстановить ячейки колдуна и способности"
+          title={language === 'en' ? 'Short Rest (1h): spend Hit Dice, recover pact slots' : 'Короткий отдых (1ч): бросить кости хитов, восстановить ячейки колдуна и способности'}
           className="flex items-center gap-1.5 min-h-[32px] px-3 py-1 text-xs font-semibold rounded-full bg-amber-950/50 border border-amber-600/70 text-amber-300 hover:bg-amber-900/70 hover:border-amber-400 hover:shadow-[0_0_12px_rgba(245,158,11,0.25)] transition-all whitespace-nowrap cursor-pointer flex-shrink-0"
         >
           <Flame className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
-          <span>Отдых 1ч</span>
+          <span>{language === 'en' ? 'Short Rest' : 'Отдых 1ч'}</span>
         </button>
 
         {/* Долгий отдых (8 часов) */}
         <button
           type="button"
           onClick={() => usePartyStore.getState().longRest()}
-          title="Долгий отдых (8ч): 100% здоровье, ячейки заклинаний, сброс истощения"
+          title={language === 'en' ? 'Long Rest (8h): restore HP, spell slots, reset exhaustion' : 'Долгий отдых (8ч): 100% здоровье, ячейки заклинаний, сброс истощения'}
           className="flex items-center gap-1.5 min-h-[32px] px-3 py-1 text-xs font-semibold rounded-full bg-blue-950/50 border border-blue-600/70 text-blue-300 hover:bg-blue-900/70 hover:border-blue-400 hover:shadow-[0_0_12px_rgba(59,130,246,0.25)] transition-all whitespace-nowrap cursor-pointer flex-shrink-0"
         >
           <Moon className="h-3.5 w-3.5 text-blue-400 flex-shrink-0" />
-          <span>Отдых 8ч</span>
+          <span>{language === 'en' ? 'Long Rest' : 'Отдых 8ч'}</span>
         </button>
       </div>
     </header>

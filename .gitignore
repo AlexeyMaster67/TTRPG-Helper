@@ -28,3 +28,6 @@ src-tauri/gen/android/app/src/main/jniLibs/
 src-tauri/gen/android/app/src/main/assets/
 src-tauri/gen/android/.tauri/
 src-tauri/gen/android/local.properties
+
+# Root screenshot artifacts
+/*.png

@@ -1,4 +1,5 @@
 import { AlertTriangle } from 'lucide-react';
+import { useTranslation } from '../../../i18n';
 
 export interface MultiattackStepLog {
   actionName: string;
@@ -31,6 +32,9 @@ export function DamagePreview({
   concentrationCheckDc,
   multiattackLogs = [],
 }: DamagePreviewProps) {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
+
   if (!hasCalculated) return null;
 
   return (
@@ -47,7 +51,7 @@ export function DamagePreview({
         </h3>
         {isHit && (
           <span className="text-base sm:text-lg font-mono font-black text-gold px-2.5 py-0.5 rounded bg-surface border border-gold/30 shrink-0">
-            {finalCalculatedDamage} урона
+            {finalCalculatedDamage} {isEn ? 'damage' : 'урона'}
           </span>
         )}
       </div>
@@ -65,11 +69,23 @@ export function DamagePreview({
         <div className="flex items-center gap-2 p-2 rounded bg-purple-950/40 border border-purple-800 text-xs text-purple-200 break-words leading-relaxed">
           <AlertTriangle className="h-4 w-4 text-purple-400 flex-shrink-0" />
           <span>
-            Цель удерживает <strong>концентрацию</strong>! Необходим спасбросок Телосложения{' '}
-            <strong className="text-purple-300 underline font-mono font-bold">
-              Сл. {concentrationCheckDc}
-            </strong>
-            .
+            {isEn ? (
+              <>
+                Target is concentrating! Constitution saving throw required:{' '}
+                <strong className="text-purple-300 underline font-mono font-bold">
+                  DC {concentrationCheckDc}
+                </strong>
+                .
+              </>
+            ) : (
+              <>
+                Цель удерживает <strong>концентрацию</strong>! Необходим спасбросок Телосложения{' '}
+                <strong className="text-purple-300 underline font-mono font-bold">
+                  Сл. {concentrationCheckDc}
+                </strong>
+                .
+              </>
+            )}
           </span>
         </div>
       )}
@@ -78,7 +94,7 @@ export function DamagePreview({
       {multiattackLogs.length > 0 && (
         <div className="mt-2 space-y-1.5 bg-surface/60 p-2.5 rounded border border-border-subtle text-[11px] font-mono">
           <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">
-            Разбор целей и результатов:
+            {isEn ? 'Targets & Results Breakdown:' : 'Разбор целей и результатов:'}
           </div>
           {multiattackLogs.map((l, i) => (
             <div key={i} className="flex flex-wrap items-center justify-between gap-1.5 border-b border-border-subtle/40 pb-1.5 last:border-none last:pb-0">
@@ -86,7 +102,9 @@ export function DamagePreview({
                 #{i + 1} <strong>{l.actionName}</strong>: {l.d20Log}
               </span>
               <span className={`shrink-0 font-bold ${l.damage > 0 ? 'text-gold' : l.isHit ? 'text-emerald-400' : 'text-gray-400'}`}>
-                {l.damage > 0 ? `${l.damage} ур. (${l.notes})` : l.notes || '0 ур.'}
+                {l.damage > 0
+                  ? (isEn ? `${l.damage} dmg (${l.notes})` : `${l.damage} ур. (${l.notes})`)
+                  : (l.notes || (isEn ? '0 dmg' : '0 ур.'))}
               </span>
             </div>
           ))}
