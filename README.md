@@ -57,14 +57,16 @@
 
 Архитектура приложения разделяет визуальный интерфейс, универсальную модель существа [`UniversalCreature`](src/types/system.ts#L97-L117) и изолированные системные движки правил [`SystemRuleEngine`](src/types/system.ts#L162-L179):
 
-| Игровая система | Версия / Редакция | Статус | Ключевые механики ядра | Цветовая тема |
+| Игровая система | Базовый документ / Лицензия | Статус | Ключевые механики ядра | Цветовая тема |
 | :--- | :--- | :---: | :--- | :--- |
-| **D&D 5e (SRD 5.2.1)** | CC-BY Open Gaming | **Готово** | Преимущество / Помеха, слоты магии, 16 состояний, концентрация, спасброски от смерти | Warm Fantasy Gold |
-| **D&D 5e (2024)** | 2024 Revised Rules | **Бета** | Мастерство оружия (Weapon Mastery), состояние Dazed, числовое истощение (-2/ур), расы 2024 | Warm Fantasy Gold |
-| **D&D 5e (2014)** | 2014 Classic Rules | **Готово** | Классические классы, бестиарий, традиционная шкала усталости (Exhaustion 1–6) | Warm Fantasy Gold |
+| **D&D (SRD 5.2.1 / 2024)** | WotC SRD 5.2.1 (CC-BY-4.0) | **Готово** | Правила редакции 2024 года: свойства оружия (Weapon Mastery), состояния Dazed/Incapacitated, числовое истощение (-2/ур), бестиарий и заклинания SRD | Warm Fantasy Gold |
+| **D&D (SRD 5.1 / 2014)** | WotC SRD 5.1 (CC-BY-4.0) | **Готово** | Классическая пятая редакция: базовые классы, слоты заклинаний, классический бестиарий SRD и правила усталости (Exhaustion 1–6) | Warm Fantasy Gold |
 | **Pathfinder 2e** | Remastered (ORC License) | **Бета** | Экономика 3 действий за раунд, 4 степени успеха (+/-10 и Nat 20/1), инициатива по Восприятию/Скрытности, MAP | Stately Slate Bronze |
 | **Cyberpunk RED** | Core Rules (R. Talsorian) | **В разработке** | Инициатива REF + 1d10, броня SP по зонам (Голова/Тело) с абляцией при пробитии, Humanity, пороги ранений | Neon Cyberpunk |
 | **Custom / Homebrew** | Пользовательские правила | **Бета** | Произвольные дайсы, настраиваемые пулы ресурсов, гибкие треки состояний | Адаптивная |
+
+> [!NOTE] Полная открытость правил D&D (Creative Commons)
+> Все игровые правила, заклинания, статблоки монстров и механики D&D в приложении TTRPG Helper основаны **исключительно на официальных открытых документах System Reference Document (SRD 5.2.1 и SRD 5.1)**, опубликованных компанией Wizards of the Coast LLC под свободной безотзывной лицензией **Creative Commons Attribution 4.0 International (CC-BY-4.0)**. Приложение не содержит закрытых материалов Product Identity (Beholder, Mind Flayer и др.).
 
 ---
 
@@ -327,6 +329,11 @@ flowchart TD
 ---
 
 ## Правовая информация и политика фанатского контента (Legal & Fan Content)
+
+### Соответствие официальному SRD 5.2.1 (Creative Commons Attribution)
+> **Официальное уведомление SRD 5.2.1 / 5.1:**  
+> *This work includes material taken from the System Reference Document 5.2.1 (“SRD 5.2.1”) and System Reference Document 5.1 (“SRD 5.1”) by Wizards of the Coast LLC, available under the Creative Commons Attribution 4.0 International License (CC-BY-4.0).*  
+> Игровые механики, заклинания и бестиарий D&D в приложении основаны исключительно на открытых материалах SRD 5.2.1 (переиздание 2024 года) и SRD 5.1 (классическая редакция 2014 года), распространяемых без роялти по всему миру.
 
 ### Wizards of the Coast Fan Content Policy
 > **Wizards of the Coast Notice:**  
