@@ -31,3 +31,4 @@ src-tauri/gen/android/local.properties
 
 # Root screenshot artifacts
 /*.png
+release_notes_*.md

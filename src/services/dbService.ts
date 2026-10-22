@@ -162,7 +162,7 @@ export class DatabaseService {
     const db = await this.load();
     if (!db) {
       try {
-        const rawList = (await import('../../dnd2024_monsters.json')).default as any[];
+        const rawList = (await import('../../ttrpg_monsters.json')).default as any[];
         const trimmed = query.trim().toLowerCase();
         let filtered = rawList;
 
@@ -259,7 +259,7 @@ export class DatabaseService {
     const db = await this.load();
     if (!db) {
       try {
-        const rawList = (await import('../../dnd2024_monsters.json')).default as any[];
+        const rawList = (await import('../../ttrpg_monsters.json')).default as any[];
         const found = rawList.find((m) => m.id === id);
         return found ? this.parseMonsterRow(found) : null;
       } catch (e) {
@@ -285,7 +285,7 @@ export class DatabaseService {
     const db = await this.load();
     if (!db) {
       try {
-        const rawList = (await import('../../dnd2024_spells.json')).default as any[];
+        const rawList = (await import('../../ttrpg_spells.json')).default as any[];
         const trimmed = query.trim().toLowerCase();
         let filtered = rawList;
         if (trimmed) {
@@ -355,7 +355,7 @@ export class DatabaseService {
     const db = await this.load();
     if (!db) {
       try {
-        const rawList = (await import('../../dnd2024_spells.json')).default as any[];
+        const rawList = (await import('../../ttrpg_spells.json')).default as any[];
         const found = rawList.find((s) => s.id === id);
         return found ? this.parseSpellRow(found) : null;
       } catch (e) {
@@ -376,7 +376,7 @@ export class DatabaseService {
     const db = await this.load();
     if (!db) {
       try {
-        const rawList = (await import('../../dnd2024_items.json')).default as any[];
+        const rawList = (await import('../../ttrpg_items.json')).default as any[];
         const trimmed = query.trim().toLowerCase();
         let filtered = rawList;
 
@@ -447,7 +447,7 @@ export class DatabaseService {
     const db = await this.load();
     if (!db) {
       try {
-        const rawList = (await import('../../dnd2024_items.json')).default as any[];
+        const rawList = (await import('../../ttrpg_items.json')).default as any[];
         const found = rawList.find((it) => it.id === id);
         return found ? this.parseItemRow(found) : null;
       } catch (e) {
@@ -472,7 +472,7 @@ export class DatabaseService {
     const db = await this.load();
     if (!db) {
       try {
-        const rawList = (await import('../../dnd2024_items.json')).default as any[];
+        const rawList = (await import('../../ttrpg_items.json')).default as any[];
         let filtered = rawList;
 
         if (rarity && rarity !== 'all' && rarity !== 'Any') {
@@ -542,7 +542,7 @@ export class DatabaseService {
     const db = await this.load();
     if (!db) {
       try {
-        const rawList = (await import('../../dnd2024_items.json')).default as any[];
+        const rawList = (await import('../../ttrpg_items.json')).default as any[];
         let filtered = rawList;
 
         if (filter.query && filter.query.trim()) {
@@ -635,3 +635,4 @@ export class DatabaseService {
 }
 
 export const dbService = DatabaseService.getInstance();
+
