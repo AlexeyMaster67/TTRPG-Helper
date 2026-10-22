@@ -1273,6 +1273,237 @@ export function localizeSenses(senses?: string | null, lang?: 'en' | 'ru'): stri
     .replace(/фт\.+/g, 'фт.');
 }
 
+export function localizeDefenses(defenses?: string | null, lang?: 'en' | 'ru'): string {
+  const effectiveLang = resolveLanguage(lang);
+  if (!defenses) return '';
+  if (effectiveLang === 'en') {
+    return String(defenses).trim()
+      .replace(/дробящий/gi, 'bludgeoning')
+      .replace(/колющий/gi, 'piercing')
+      .replace(/рубящий/gi, 'slashing')
+      .replace(/огонь/gi, 'fire')
+      .replace(/холод/gi, 'cold')
+      .replace(/электричество|молния/gi, 'lightning')
+      .replace(/звук|гром/gi, 'thunder')
+      .replace(/яд/gi, 'poison')
+      .replace(/кислота/gi, 'acid')
+      .replace(/психический/gi, 'psychic')
+      .replace(/некротический/gi, 'necrotic')
+      .replace(/излучение/gi, 'radiant')
+      .replace(/силовое поле/gi, 'force')
+      .replace(/от немагических атак/gi, 'from nonmagical attacks')
+      .replace(/кроме серебряного оружия/gi, 'except silvered weapons')
+      .replace(/кроме адамантинового оружия/gi, 'except adamantine weapons')
+      .replace(/магический/gi, 'magical')
+      .replace(/немагический/gi, 'nonmagical')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+  return cleanRussianText(defenses)
+    .replace(/bludgeoning/gi, 'дробящий')
+    .replace(/piercing/gi, 'колющий')
+    .replace(/slashing/gi, 'рубящий')
+    .replace(/fire/gi, 'огонь')
+    .replace(/cold/gi, 'холод')
+    .replace(/lightning/gi, 'электричество')
+    .replace(/thunder/gi, 'звук')
+    .replace(/poison/gi, 'яд')
+    .replace(/acid/gi, 'кислота')
+    .replace(/psychic/gi, 'психический')
+    .replace(/necrotic/gi, 'некротический')
+    .replace(/radiant/gi, 'излучение')
+    .replace(/force/gi, 'силовое поле')
+    .replace(/from nonmagical attacks/gi, 'от немагических атак');
+}
+
+export function localizeConditionImmunities(conds?: string | null, lang?: 'en' | 'ru'): string {
+  const effectiveLang = resolveLanguage(lang);
+  if (!conds) return '';
+  if (effectiveLang === 'en') {
+    return String(conds).trim()
+      .replace(/ослепление|ослеплённый|ослепленный/gi, 'blinded')
+      .replace(/очарование|очарованный/gi, 'charmed')
+      .replace(/глухота|глухой/gi, 'deafened')
+      .replace(/испуг|испуганный/gi, 'frightened')
+      .replace(/захват|захваченный/gi, 'grappled')
+      .replace(/недееспособность|недееспособный/gi, 'incapacitated')
+      .replace(/невидимость|невидимый/gi, 'invisible')
+      .replace(/паралич|парализованный/gi, 'paralyzed')
+      .replace(/окаменение|окаменевший/gi, 'petrified')
+      .replace(/отравление|отравленный/gi, 'poisoned')
+      .replace(/сбивание с ног|сбит с ног/gi, 'prone')
+      .replace(/опутывание|опутанный/gi, 'restrained')
+      .replace(/оглушение|оглушённый|оглушенный/gi, 'stunned')
+      .replace(/бессознательность|бессознательный/gi, 'unconscious')
+      .replace(/истощение/gi, 'exhaustion')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+  return cleanRussianText(conds)
+    .replace(/blinded/gi, 'ослепление')
+    .replace(/charmed/gi, 'очарование')
+    .replace(/deafened/gi, 'глухота')
+    .replace(/frightened/gi, 'испуг')
+    .replace(/grappled/gi, 'захват')
+    .replace(/incapacitated/gi, 'недееспособность')
+    .replace(/invisible/gi, 'невидимость')
+    .replace(/paralyzed/gi, 'паралич')
+    .replace(/petrified/gi, 'окаменение')
+    .replace(/poisoned/gi, 'отравление')
+    .replace(/prone/gi, 'сбивание с ног')
+    .replace(/restrained/gi, 'опутывание')
+    .replace(/stunned/gi, 'оглушение')
+    .replace(/unconscious/gi, 'бессознательность')
+    .replace(/exhaustion/gi, 'истощение');
+}
+
+export function localizeLanguages(languages?: string | null, lang?: 'en' | 'ru'): string {
+  const effectiveLang = resolveLanguage(lang);
+  if (!languages) return '';
+  if (effectiveLang === 'en') {
+    return String(languages).trim()
+      .replace(/общий/gi, 'Common')
+      .replace(/драконий/gi, 'Draconic')
+      .replace(/эльфийский/gi, 'Elvish')
+      .replace(/дварфский/gi, 'Dwarvish')
+      .replace(/великаний/gi, 'Giant')
+      .replace(/гномий/gi, 'Gnomish')
+      .replace(/гоблинский/gi, 'Goblin')
+      .replace(/полуросликов/gi, 'Halfling')
+      .replace(/орочий/gi, 'Orc')
+      .replace(/бездны/gi, 'Abyssal')
+      .replace(/небесный/gi, 'Celestial')
+      .replace(/инфернальный/gi, 'Infernal')
+      .replace(/первородный/gi, 'Primordial')
+      .replace(/сильван/gi, 'Sylvan')
+      .replace(/подземный/gi, 'Undercommon')
+      .replace(/телепатия/gi, 'telepathy')
+      .replace(/(\d+)\s*фт\.?/gi, '$1 ft.')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+  return cleanRussianText(languages)
+    .replace(/\bCommon\b/gi, 'общий')
+    .replace(/\bDraconic\b/gi, 'драконий')
+    .replace(/\bElvish\b/gi, 'эльфийский')
+    .replace(/\bDwarvish\b/gi, 'дварфский')
+    .replace(/\bGiant\b/gi, 'великаний')
+    .replace(/\bGnomish\b/gi, 'гномий')
+    .replace(/\bGoblin\b/gi, 'гоблинский')
+    .replace(/\bHalfling\b/gi, 'полуросликов')
+    .replace(/\bOrc\b/gi, 'орочий')
+    .replace(/\bAbyssal\b/gi, 'бездны')
+    .replace(/\bCelestial\b/gi, 'небесный')
+    .replace(/\bInfernal\b/gi, 'инфернальный')
+    .replace(/\bPrimordial\b/gi, 'первородный')
+    .replace(/\bSylvan\b/gi, 'сильван')
+    .replace(/\bUndercommon\b/gi, 'подземный')
+    .replace(/\btelepathy\b/gi, 'телепатия')
+    .replace(/\bft\.?\b/gi, 'фт.');
+}
+
+export function localizeSize(size?: string | null, lang?: 'en' | 'ru'): string {
+  const effectiveLang = resolveLanguage(lang);
+  if (!size) return effectiveLang === 'en' ? 'Medium' : 'Средний';
+  const clean = size.trim();
+  const lower = clean.toLowerCase();
+  const mapEn: Record<string, string> = {
+    tiny: 'Tiny',
+    small: 'Small',
+    medium: 'Medium',
+    large: 'Large',
+    huge: 'Huge',
+    gargantuan: 'Gargantuan',
+    крошечный: 'Tiny',
+    маленький: 'Small',
+    средний: 'Medium',
+    большой: 'Large',
+    огромный: 'Huge',
+    громадный: 'Gargantuan',
+  };
+  const mapRu: Record<string, string> = {
+    tiny: 'Крошечный',
+    small: 'Маленький',
+    medium: 'Средний',
+    large: 'Большой',
+    huge: 'Огромный',
+    gargantuan: 'Громадный',
+    крошечный: 'Крошечный',
+    маленький: 'Маленький',
+    средний: 'Средний',
+    большой: 'Большой',
+    огромный: 'Огромный',
+    громадный: 'Громадный',
+  };
+  if (effectiveLang === 'en') {
+    return mapEn[lower] || clean;
+  }
+  return mapRu[lower] || clean;
+}
+
+export function localizeAlignment(alignment?: string | null, lang?: 'en' | 'ru'): string {
+  const effectiveLang = resolveLanguage(lang);
+  if (!alignment) return '';
+  const clean = alignment.trim();
+  const lower = clean.toLowerCase();
+  const alignEn: Record<string, string> = {
+    'законно-добрый': 'Lawful Good',
+    'нейтрально-добрый': 'Neutral Good',
+    'хаотично-добрый': 'Chaotic Good',
+    'законно-нейтральный': 'Lawful Neutral',
+    'нейтральный': 'Neutral',
+    'истинно-нейтральный': 'True Neutral',
+    'хаотично-нейтральный': 'Chaotic Neutral',
+    'законно-злой': 'Lawful Evil',
+    'нейтрально-злой': 'Neutral Evil',
+    'хаотично-злой': 'Chaotic Evil',
+    'без мировоззрения': 'Unaligned',
+    'любое мировоззрение': 'Any Alignment',
+    'lawful good': 'Lawful Good',
+    'neutral good': 'Neutral Good',
+    'chaotic good': 'Chaotic Good',
+    'lawful neutral': 'Lawful Neutral',
+    'neutral': 'Neutral',
+    'true neutral': 'True Neutral',
+    'chaotic neutral': 'Chaotic Neutral',
+    'lawful evil': 'Lawful Evil',
+    'neutral evil': 'Neutral Evil',
+    'chaotic evil': 'Chaotic Evil',
+    'unaligned': 'Unaligned',
+    'any alignment': 'Any Alignment',
+  };
+  const alignRu: Record<string, string> = {
+    'lawful good': 'Законно-добрый',
+    'neutral good': 'Нейтрально-добрый',
+    'chaotic good': 'Хаотично-добрый',
+    'lawful neutral': 'Законно-нейтральный',
+    'neutral': 'Нейтральный',
+    'true neutral': 'Истинно-нейтральный',
+    'chaotic neutral': 'Хаотично-нейтральный',
+    'lawful evil': 'Законно-злой',
+    'neutral evil': 'Нейтрально-злой',
+    'chaotic evil': 'Хаотично-злой',
+    'unaligned': 'Без мировоззрения',
+    'any alignment': 'Любое мировоззрение',
+    'законно-добрый': 'Законно-добрый',
+    'нейтрально-добрый': 'Нейтрально-добрый',
+    'хаотично-добрый': 'Хаотично-добрый',
+    'законно-нейтральный': 'Законно-нейтральный',
+    'нейтральный': 'Нейтральный',
+    'истинно-нейтральный': 'Истинно-нейтральный',
+    'хаотично-нейтральный': 'Хаотично-нейтральный',
+    'законно-злой': 'Законно-злой',
+    'нейтрально-злой': 'Нейтрально-злой',
+    'хаотично-злой': 'Хаотично-злой',
+    'без мировоззрения': 'Без мировоззрения',
+    'любое мировоззрение': 'Любое мировоззрение',
+  };
+  if (effectiveLang === 'en') {
+    return alignEn[lower] || clean;
+  }
+  return alignRu[lower] || clean;
+}
+
 /**
  * Standard Russian grammatical pluralization (1 клетка, 2 клетки, 5 клеток)
  */

@@ -1,8 +1,10 @@
 import React from 'react';
 import { usePartyStore } from '../../store/partyStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { Sparkles, X } from 'lucide-react';
 
 export const ToastNotification: React.FC = () => {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const toastMessage = usePartyStore((s) => s.toastNotification);
   const clearToast = usePartyStore((s) => s.clearToast);
 
@@ -23,7 +25,7 @@ export const ToastNotification: React.FC = () => {
       <button
         type="button"
         onClick={clearToast}
-        aria-label="Закрыть уведомление"
+        aria-label={isEn ? 'Close notification' : 'Закрыть уведомление'}
         className="p-1 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
       >
         <X className="w-4 h-4" />

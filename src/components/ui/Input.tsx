@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { X } from 'lucide-react';
+import { useSettingsStore } from '../../store/settingsStore';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;
@@ -9,6 +10,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, icon, onClear, value, disabled, ...props }, ref) => {
+    const isEn = useSettingsStore((s) => s.language === 'en');
     return (
       <div className="relative flex items-center w-full">
         {icon && (
@@ -37,7 +39,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type="button"
             onClick={onClear}
             className="absolute right-2.5 p-1 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            title="Очистить"
+            title={isEn ? 'Clear' : 'Очистить'}
           >
             <X className="w-3.5 h-3.5" />
           </button>

@@ -20,6 +20,7 @@ import { GeneratedLoot, LootMagicItem, LootMode } from '../../types/loot';
 import { lootService } from '../../services/lootService';
 import { usePartyStore } from '../../store/partyStore';
 import { useCombatStore } from '../../store/combatStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { DMG_MAGIC_TABLES_META, DmgMagicTableId } from '../../data/dmgMagicTables';
 import { localizeRarity, localizeItemType } from '../../utils/textUtils';
 
@@ -29,6 +30,7 @@ interface LootGeneratorModalProps {
 }
 
 export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, onClose }) => {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const partyMembers = usePartyStore((s) => s.members);
   const updateMember = usePartyStore((s) => s.updateMember);
   const addTreasury = usePartyStore((s) => s.addTreasury);
@@ -129,7 +131,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
     const member = partyMembers.find((m) => m.id === memberId);
     if (!member) return;
 
-    const currentNotes = member.notes ? `${member.notes}\n• [Инвентарь]: ${item.name}` : `• [Инвентарь]: ${item.name}`;
+    const currentNotes = member.notes ? `${member.notes}\n• [Inventory]: ${item.name}` : `• [Inventory]: ${item.name}`;
     updateMember(member.id, { notes: currentNotes });
     setAssignedItemNotice(`Предмет "${item.name}" добавлен в заметки ${member.name}!`);
     setTimeout(() => setAssignedItemNotice(null), 3000);
@@ -164,7 +166,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
             </div>
             <div className="min-w-0">
               <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 flex-wrap">
-                <span>Генератор сокровищ и кубик d100</span>
+                <span>{isEn ? "Loot Generator & d100 Die" : "Генератор сокровищ и кубик d100"}</span>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 shrink-0">
                   D&D 2024 / DMG
                 </span>
@@ -203,13 +205,13 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
 
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-sm font-bold text-white">Кубик десятков d100</h3>
+                  <h3 className="text-sm font-bold text-white">{isEn ? "d100 Tens Die" : "Кубик десятков d100"}</h3>
                   <span className="text-[11px] text-amber-400/90 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 font-mono">
-                    Грани: 10, 20, 30 ... 100
+                    {isEn ? "Faces: 10, 20, 30 ... 100" : "Грани: 10, 20, 30 ... 100"}
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  Каждая грань определяет строку в таблицах добычи DMG или ранг предмета
+                  {isEn ? "Each face determines a row in DMG loot tables or item rank" : "Каждая грань определяет строку в таблицах добычи DMG или ранг предмета"}
                 </p>
               </div>
             </div>
@@ -257,7 +259,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                 className="px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all shadow-sm shrink-0"
               >
                 <Dices className={`w-4 h-4 ${isRollingDie ? 'animate-spin' : ''}`} />
-                Бросить
+                {isEn ? 'Roll' : 'Бросить'}
               </button>
             </div>
           </div>
@@ -276,7 +278,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                   }`}
                 >
                   <Coins className="w-3.5 h-3.5" />
-                  Индивидуальная (КО)
+                  {isEn ? "Individual (CR)" : "Индивидуальная (КО)"}
                 </button>
                 <button
                   type="button"
@@ -288,7 +290,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                   }`}
                 >
                   <Gem className="w-3.5 h-3.5" />
-                  Сокровищница (Тиры 1–4)
+                  {isEn ? "Hoard (Tiers 1–4)" : "Сокровищница (Тиры 1–4)"}
                 </button>
                 <button
                   type="button"
@@ -300,7 +302,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                   }`}
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  Таблицы магии DMG (A–I)
+                  {isEn ? "DMG Magic Tables (A–I)" : "Таблицы магии DMG (A–I)"}
                 </button>
                 <button
                   type="button"
@@ -312,14 +314,14 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                   }`}
                 >
                   <Swords className="w-3.5 h-3.5" />
-                  Добыча из боя ({enemyCombatants.length} врагов)
+                  {isEn ? `Encounter Loot (${enemyCombatants.length} foes)` : `Добыча из боя (${enemyCombatants.length} врагов)`}
                 </button>
               </div>
 
               {/* Party Player Count */}
               <div className="flex items-center gap-2 bg-zinc-950 px-3 py-1.5 rounded-xl border border-zinc-800 text-xs">
                 <Users className="w-3.5 h-3.5 text-zinc-400" />
-                <span className="text-zinc-400">Героев в отряде:</span>
+                <span className="text-zinc-400">{isEn ? "Party Members:" : "Героев в отряде:"}</span>
                 <button
                   type="button"
                   onClick={() => setPlayerCount((c) => Math.max(1, c - 1))}
@@ -344,23 +346,23 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-zinc-800/60">
               {mode === 'individual' && (
                 <div>
-                  <label className="text-xs text-zinc-400 mb-1 block">Класс опасности (КО / CR):</label>
+                  <label className="text-xs text-zinc-400 mb-1 block">{isEn ? "Challenge Rating (CR):" : "Класс опасности (КО / CR):"}</label>
                   <select
                     value={selectedCr}
                     onChange={(e) => setSelectedCr(Number(e.target.value))}
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-amber-500"
                   >
-                    <option value="0.25">КО 1/4 (Гоблины, скелеты, крысы)</option>
-                    <option value="1">КО 1 (Лютоволк, шпион, гарпия)</option>
-                    <option value="2">КО 2 (Огр, разбойник-капитан, пегас)</option>
-                    <option value="3">КО 3 (Рыцарь, мумия, василиск)</option>
-                    <option value="4">КО 4 (Эттин, ламия, призрак)</option>
-                    <option value="5">КО 5 (Тролль, гладиатор, элементаль)</option>
-                    <option value="8">КО 8 (Молодой зелёный дракон)</option>
-                    <option value="10">КО 10 (Аболет, дева, каменный голем)</option>
-                    <option value="12">КО 12 (Архимаг, военачальник)</option>
-                    <option value="15">КО 15 (Пурпурный червь, мумия-лорд)</option>
-                    <option value="17">КО 17+ (Взрослый красный дракон, лич)</option>
+                    <option value="0.25">{isEn ? "CR 1/4 (Goblins, skeletons, rats)" : "КО 1/4 (Гоблины, скелеты, крысы)"}</option>
+                    <option value="1">{isEn ? "CR 1 (Dire wolf, spy, harpy)" : "КО 1 (Лютоволк, шпион, гарпия)"}</option>
+                    <option value="2">{isEn ? "CR 2 (Ogre, bandit captain, pegasus)" : "КО 2 (Огр, разбойник-капитан, пегас)"}</option>
+                    <option value="3">{isEn ? "CR 3 (Knight, mummy, basilisk)" : "КО 3 (Рыцарь, мумия, василиск)"}</option>
+                    <option value="4">{isEn ? "CR 4 (Ettin, lamia, ghost)" : "КО 4 (Эттин, ламия, призрак)"}</option>
+                    <option value="5">{isEn ? "CR 5 (Troll, gladiator, elemental)" : "КО 5 (Тролль, гладиатор, элементаль)"}</option>
+                    <option value="8">{isEn ? "CR 8 (Young green dragon)" : "КО 8 (Молодой зелёный дракон)"}</option>
+                    <option value="10">{isEn ? "CR 10 (Aboleth, stone golem)" : "КО 10 (Аболет, дева, каменный голем)"}</option>
+                    <option value="12">{isEn ? "CR 12 (Archmage, warlord)" : "КО 12 (Архимаг, военачальник)"}</option>
+                    <option value="15">{isEn ? "CR 15 (Purple worm, mummy lord)" : "КО 15 (Пурпурный червь, мумия-лорд)"}</option>
+                    <option value="17">{isEn ? "CR 17+ (Adult red dragon, lich)" : "КО 17+ (Взрослый красный дракон, лич)"}</option>
                   </select>
                 </div>
               )}
@@ -368,35 +370,35 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
               {mode === 'hoard' && (
                 <>
                   <div>
-                    <label className="text-xs text-zinc-400 mb-1 block">Тир сокровищницы:</label>
+                    <label className="text-xs text-zinc-400 mb-1 block">{isEn ? "Hoard Tier:" : "Тир сокровищницы:"}</label>
                     <select
                       value={selectedTier}
                       onChange={(e) => setSelectedTier(Number(e.target.value))}
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-amber-500"
                     >
-                      <option value="1">Тир 1 (КО 0–4) — Начальный уровень (Самоцветы 10/50 зм, искусство 25 зм, Таблицы A–G)</option>
-                      <option value="2">Тир 2 (КО 5–10) — Герои королевства (Самоцветы 50/100 зм, искусство 250 зм, Таблицы A–H)</option>
-                      <option value="3">Тир 3 (КО 11–16) — Защитники мира (Самоцветы 500 зм, искусство 750 зм, Таблицы C–H)</option>
-                      <option value="4">Тир 4 (КО 17+) — Легенды мультивселенной (Самоцветы 1000 зм, искусство 750 зм, Таблица I)</option>
+                      <option value="1">{isEn ? "Tier 1 (CR 0–4) — Local Heroes (Gems 10/50 gp, art 25 gp, Tables A–G)" : "Тир 1 (КО 0–4) — Начальный уровень (Самоцветы 10/50 зм, искусство 25 зм, Таблицы A–G)"}</option>
+                      <option value="2">{isEn ? "Tier 2 (CR 5–10) — Heroes of the Realm (Gems 50/100 gp, art 250 gp, Tables A–H)" : "Тир 2 (КО 5–10) — Герои королевства (Самоцветы 50/100 зм, искусство 250 зм, Таблицы A–H)"}</option>
+                      <option value="3">{isEn ? "Tier 3 (CR 11–16) — Masters of the Realm (Gems 500 gp, art 750 gp, Tables C–H)" : "Тир 3 (КО 11–16) — Защитники мира (Самоцветы 500 зм, искусство 750 зм, Таблицы C–H)"}</option>
+                      <option value="4">{isEn ? "Tier 4 (CR 17+) — Masters of the World (Gems 1000 gp, art 750 gp, Table I)" : "Тир 4 (КО 17+) — Легенды мультивселенной (Самоцветы 1000 зм, искусство 750 зм, Таблица I)"}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs text-zinc-400 mb-1 block">Категория магии (приоритет):</label>
+                    <label className="text-xs text-zinc-400 mb-1 block">{isEn ? "Magic Category (Priority):" : "Категория магии (приоритет):"}</label>
                     <select
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value)}
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-amber-500"
                     >
-                      <option value="Any">Любая категория (по правилам DMG)</option>
-                      <option value="Weapon">Оружие</option>
-                      <option value="Armor">Доспехи и щиты</option>
-                      <option value="Potion">Зелья</option>
-                      <option value="Scroll">Свитки</option>
-                      <option value="Wondrous Item">Чудесные предметы</option>
-                      <option value="Ring">Кольца</option>
-                      <option value="Wand">Волшебные палочки</option>
-                      <option value="Rod">Жезлы</option>
-                      <option value="Staff">Посохи</option>
+                      <option value="Any">{isEn ? "Any category (DMG standard)" : "Любая категория (по правилам DMG)"}</option>
+                      <option value="Weapon">{isEn ? "Weapon" : "Оружие"}</option>
+                      <option value="Armor">{isEn ? "Armor & Shields" : "Доспехи и щиты"}</option>
+                      <option value="Potion">{isEn ? "Potions" : "Зелья"}</option>
+                      <option value="Scroll">{isEn ? "Scrolls" : "Свитки"}</option>
+                      <option value="Wondrous Item">{isEn ? "Wondrous Items" : "Чудесные предметы"}</option>
+                      <option value="Ring">{isEn ? "Rings" : "Кольца"}</option>
+                      <option value="Wand">{isEn ? "Wands" : "Волшебные палочки"}</option>
+                      <option value="Rod">{isEn ? "Rods" : "Жезлы"}</option>
+                      <option value="Staff">{isEn ? "Staves" : "Посохи"}</option>
                     </select>
                   </div>
                 </>
@@ -404,7 +406,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
 
               {mode === 'magic_table' && (
                 <div className="md:col-span-2">
-                  <label className="text-xs text-zinc-400 mb-1 block">Официальная таблица предметов DMG:</label>
+                  <label className="text-xs text-zinc-400 mb-1 block">{isEn ? "Official DMG Magic Item Table:" : "Официальная таблица предметов DMG:"}</label>
                   <select
                     value={selectedMagicTable}
                     onChange={(e) => setSelectedMagicTable(e.target.value as DmgMagicTableId)}
@@ -427,9 +429,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                 <div className="md:col-span-2 flex items-center gap-2.5 text-xs text-zinc-400 bg-zinc-950 p-2.5 rounded-xl border border-zinc-800">
                   <Swords className="w-5 h-5 text-rose-400 shrink-0" />
                   <span>
-                    Добыча рассчитывается от силы {enemyCombatants.length} противников в бою. Бросок d100 ({d100Value})
-                    определяет удачу обыска: от скудных остатков (d100 &lt; 30) до скрытых тайников командира с самоцветами
-                    (d100 &gt; 90).
+                    {isEn ? `Loot is calculated from the strength of ${enemyCombatants.length} defeated foes. The d100 (${d100Value}) roll determines fortune: from meager scraps (d100 < 30) to commander's hidden caches with gems (d100 > 90).` : `Добыча рассчитывается от силы ${enemyCombatants.length} противников в бою. Бросок d100 (${d100Value}) определяет удачу обыска: от скудных остатков (d100 < 30) до скрытых тайников командира с самоцветами (d100 > 90).`}
                   </span>
                 </div>
               )}
@@ -442,7 +442,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                   className="w-full bg-gold hover:bg-gold-light text-[#12181c] font-black py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-gold-glow transition-all active:scale-[0.98] disabled:opacity-50"
                 >
                   <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                  Сгенерировать добычу по d100 ({d100Value})
+                  {isEn ? `Generate Loot with d100 (${d100Value})` : `Сгенерировать добычу по d100 (${d100Value})`}
                 </button>
               </div>
             </div>
@@ -465,7 +465,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="font-bold shrink-0 flex items-center gap-1.5">
                       <Target className="h-3.5 w-3.5 text-amber-400 inline" />
-                      <span>Результат d100 ({lootResult.d100Roll ?? d100Value}):</span>
+                      <span>{isEn ? `d100 Result (${lootResult.d100Roll ?? d100Value}):` : `Результат d100 (${lootResult.d100Roll ?? d100Value}):`}</span>
                     </span>
                     <span className="break-words">{lootResult.bracketInfo}</span>
                   </div>
@@ -478,23 +478,23 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                 {/* Total Value */}
                 <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex flex-col justify-between min-w-0">
                   <div className="text-xs text-zinc-400 flex items-center justify-between">
-                    <span>Общая ценность</span>
+                    <span>{isEn ? "Total Value" : "Общая ценность"}</span>
                     <Coins className="w-4 h-4 text-amber-400 shrink-0" />
                   </div>
                   <div className="mt-2 text-2xl font-black text-amber-400 tracking-tight">
-                    ~{lootResult.totalGpEquivalent} <span className="text-sm font-semibold">зм</span>
+                    ~{lootResult.totalGpEquivalent} <span className="text-sm font-semibold">{isEn ? 'gp' : 'зм'}</span>
                   </div>
                   <div className="text-[11px] text-zinc-500 mt-1">
-                    Режим: {lootResult.tierOrCr}
+                    {isEn ? "Mode: " : "Режим: "}{lootResult.tierOrCr}
                   </div>
                 </div>
 
                 {/* Coins details */}
                 <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 md:col-span-2 flex flex-col justify-between min-w-0">
                   <div className="text-xs text-zinc-400 flex items-center justify-between mb-2 flex-wrap gap-1">
-                    <span>Выпавшие монеты</span>
+                    <span>{isEn ? "Coin Drops" : "Выпавшие монеты"}</span>
                     <span className="text-[11px] text-zinc-500">
-                      Все номиналы D&D 2024
+                      {isEn ? "All D&D 2024 denominations" : "Все номиналы D&D 2024"}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -538,7 +538,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                       lootResult.coins.cp === 0 &&
                       lootResult.coins.pp === 0 &&
                       lootResult.coins.ep === 0 && (
-                        <span className="text-xs text-zinc-500 italic">Монет не выпало</span>
+                        <span className="text-xs text-zinc-500 italic">{isEn ? "No coins dropped" : "Монет не выпало"}</span>
                       )}
                   </div>
                 </div>
@@ -551,7 +551,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                     <Users className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
                     <div className="text-xs font-medium text-zinc-200 min-w-0 break-words leading-relaxed">
                       <span className="text-emerald-400 font-semibold mr-1.5">
-                        Делёж на {lootResult.partySplit.playerCount} участников:
+                        {isEn ? `Split across ${lootResult.partySplit.playerCount} party members:` : `Делёж на ${lootResult.partySplit.playerCount} участников:`}
                       </span>
                       <span className="break-words leading-relaxed">{lootResult.partySplit.summaryRu}</span>
                     </div>
@@ -570,12 +570,12 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                     {addedToTreasury ? (
                       <>
                         <Check className="w-3.5 h-3.5 text-emerald-300" />
-                        Внесено в казну
+                        {isEn ? 'Deposited to Treasury' : 'Внесено в казну'}
                       </>
                     ) : (
                       <>
                         <PlusCircle className="w-3.5 h-3.5" />
-                        Пополнить казну отряда
+                        {isEn ? 'Deposit to Treasury' : 'Пополнить казну отряда'}
                       </>
                     )}
                   </button>
@@ -587,7 +587,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
               lootResult.valuables.length === 0 &&
               lootResult.trinkets.length === 0 ? (
                 <div className="p-4 rounded-xl bg-zinc-900/30 border border-zinc-800/60 text-center text-xs text-zinc-500 italic">
-                  Магических артефактов и самоцветов при этом броске d100 не выпало.
+                  {isEn ? "No magic items or gemstones dropped on this d100 roll." : "Магических артефактов и самоцветов при этом броске d100 не выпало."}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -596,7 +596,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                     <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-4 space-y-3 min-w-0">
                       <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
-                        Магические предметы ({lootResult.magicItems.length})
+                        {isEn ? `Magic Items (${lootResult.magicItems.length})` : `Магические предметы (${lootResult.magicItems.length})`}
                       </h3>
 
                       <div className="space-y-2.5">
@@ -629,26 +629,26 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                               )}
                               {item.attunement && (
                                 <span className="bg-amber-950/40 text-amber-300 px-2 py-0.5 rounded border border-amber-600/30 whitespace-nowrap leading-tight">
-                                  Требует настройки
+                                  {isEn ? "Requires Attunement" : "Требует настройки"}
                                 </span>
                               )}
                               {item.cost_gp && (
                                 <span className="text-amber-400 font-bold ml-auto shrink-0 whitespace-nowrap leading-tight">
-                                  {item.cost_gp} зм
+                                  {item.cost_gp} {isEn ? 'gp' : 'зм'}
                                 </span>
                               )}
                             </div>
 
                             {item.tableSource && (
                               <div className="text-[10px] text-zinc-500 italic bg-zinc-900/60 p-1.5 rounded border border-zinc-800/60 break-words leading-tight">
-                                Источник: {item.tableSource}
+                                {isEn ? "Source: " : "Источник: "}{item.tableSource}
                               </div>
                             )}
 
                             {item.desc && (
                               <p
                                 className="text-xs text-zinc-300 leading-relaxed mt-1 break-words line-clamp-2 hover:line-clamp-none cursor-pointer transition-all"
-                                title="Нажмите, чтобы развернуть/свернуть описание"
+                                title={isEn ? "Click to expand/collapse description" : "Нажмите, чтобы развернуть/свернуть описание"}
                               >
                                 {item.desc}
                               </p>
@@ -659,7 +659,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                               <div className="pt-2 border-t border-zinc-800/80 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 min-w-0">
                                 <span className="text-[11px] text-zinc-400 flex items-center gap-1 shrink-0">
                                   <Users className="w-3 h-3 text-zinc-400" />
-                                  Передать герою:
+                                  {isEn ? "Give to hero:" : "Передать герою:"}
                                 </span>
                                 <select
                                   onChange={(e) => {
@@ -672,7 +672,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                                   className="w-full sm:w-auto max-w-full sm:max-w-[220px] min-w-0 truncate bg-zinc-900 border border-zinc-700/80 text-[11px] text-zinc-200 rounded-lg px-2 py-1 focus:outline-none focus:border-amber-500"
                                 >
                                   <option value="" disabled>
-                                    Выбрать персонажа...
+                                    {isEn ? "Select character..." : "Выбрать персонажа..."}
                                   </option>
                                   {partyMembers.map((m) => (
                                     <option key={m.id} value={m.id}>
@@ -695,7 +695,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                         <div className="space-y-2">
                           <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
                             <Gem className="w-4 h-4 text-cyan-400 shrink-0" />
-                            Драгоценные камни и искусство ({lootResult.valuables.length})
+                            {isEn ? `Gemstones & Art Objects (${lootResult.valuables.length})` : `Драгоценные камни и искусство (${lootResult.valuables.length})`}
                           </h3>
 
                           <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
@@ -713,7 +713,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                                   <span className="break-words leading-tight">{val.name}</span>
                                 </span>
                                 <span className="font-mono font-bold text-amber-400 shrink-0 ml-auto whitespace-nowrap">
-                                  {val.valueGp} зм
+                                  {val.valueGp} {isEn ? 'gp' : 'зм'}
                                 </span>
                               </div>
                             ))}
@@ -726,7 +726,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
                         <div className="space-y-2 pt-2 border-t border-zinc-800/60">
                           <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
                             <Backpack className="w-4 h-4 text-amber-600 shrink-0" />
-                            Безделушки в карманах ({lootResult.trinkets.length})
+                            {isEn ? `Pocket Trinkets (${lootResult.trinkets.length})` : `Безделушки в карманах (${lootResult.trinkets.length})`}
                           </h3>
                           <div className="space-y-1">
                             {lootResult.trinkets.map((t, idx) => (
@@ -756,7 +756,7 @@ export const LootGeneratorModal: React.FC<LootGeneratorModalProps> = ({ isOpen, 
               onClick={onClose}
               className="px-4 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium transition-colors"
             >
-              Закрыть
+              {isEn ? 'Close' : 'Закрыть'}
             </button>
           </div>
         </div>

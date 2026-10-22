@@ -48,6 +48,8 @@ export function CombatantConditionToggles({
   onToggleConcentration,
   onAddCondition,
 }: CombatantConditionTogglesProps) {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
   const [isConditionPickerOpen, setIsConditionPickerOpen] = useState(false);
   const [selectedConditionType, setSelectedConditionType] = useState<ConditionType>('Blinded');
   const [selectedConditionDuration, setSelectedConditionDuration] = useState<ConditionDurationOption>('permanent');
@@ -152,11 +154,11 @@ export function CombatantConditionToggles({
         <button
           type="button"
           onClick={() => setIsConditionPickerOpen((prev) => !prev)}
-          title="Добавить состояние с настройкой длительности..."
+          title={isEn ? "Add condition with duration settings..." : "Добавить состояние с настройкой длительности..."}
           className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-card border border-border-subtle text-gray-400 hover:text-gold-light hover:border-gold/40 transition-all flex items-center gap-0.5 cursor-pointer leading-none"
         >
           <span>+</span>
-          <span className="text-[8px] opacity-70">Сост.</span>
+          <span className="text-[8px] opacity-70">{isEn ? 'Cond.' : 'Сост.'}</span>
         </button>
 
         {isConditionPickerOpen && (
@@ -165,7 +167,7 @@ export function CombatantConditionToggles({
             className="absolute right-0 top-full mt-1 z-50 w-64 rounded-md border border-gold/60 bg-[#161d23] shadow-2xl p-2.5 flex flex-col gap-2 ring-1 ring-black/70 animate-in fade-in duration-100 text-left"
           >
             <div className="flex items-center justify-between pb-1 border-b border-[#2e3b46]">
-              <span className="text-[11px] font-bold text-gray-200">Добавить состояние:</span>
+              <span className="text-[11px] font-bold text-gray-200">{isEn ? 'Add Condition:' : 'Добавить состояние:'}</span>
               <button
                 type="button"
                 onClick={() => setIsConditionPickerOpen(false)}
@@ -178,7 +180,7 @@ export function CombatantConditionToggles({
             {/* Condition Select */}
             <div>
               <label className="text-[9px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                Состояние:
+                {isEn ? 'Condition:' : 'Состояние:'}
               </label>
               <select
                 value={selectedConditionType}
@@ -189,7 +191,7 @@ export function CombatantConditionToggles({
                   const info = CONDITIONS_2024_DATA[c];
                   return (
                     <option key={c} value={c} className="bg-[#12181c] text-gray-200">
-                      {info?.nameRu || c} ({info?.nameEn})
+                      {isEn ? `${info?.nameEn || c} (${info?.nameRu})` : `${info?.nameRu || c} (${info?.nameEn})`}
                     </option>
                   );
                 })}
@@ -199,7 +201,7 @@ export function CombatantConditionToggles({
             {/* Duration Selector */}
             <div>
               <label className="text-[9px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                Длительность:
+                {isEn ? 'Duration:' : 'Длительность:'}
               </label>
               <div className="grid grid-cols-2 gap-1 text-[10px]">
                 <button
@@ -211,9 +213,9 @@ export function CombatantConditionToggles({
                       ? 'bg-gold/25 border-gold text-gold-light font-bold'
                       : 'bg-[#1a232b] border-[#2e3b46] text-gray-300 hover:text-white'
                   )}
-                  title="Бессрочно (до ручного снятия)"
+                  title={isEn ? "Permanent (until removed manually)" : "Бессрочно (до ручного снятия)"}
                 >
-                  Бессрочно
+                  {isEn ? 'Permanent' : 'Бессрочно'}
                 </button>
                 <button
                   type="button"
@@ -224,9 +226,9 @@ export function CombatantConditionToggles({
                       ? 'bg-gold/25 border-gold text-gold-light font-bold'
                       : 'bg-[#1a232b] border-[#2e3b46] text-gray-300 hover:text-white'
                   )}
-                  title="До конца следующего хода"
+                  title={isEn ? "Until end of next turn" : "До конца следующего хода"}
                 >
-                  До конца хода
+                  {isEn ? 'End of Turn' : 'До конца хода'}
                 </button>
                 <button
                   type="button"
@@ -237,9 +239,9 @@ export function CombatantConditionToggles({
                       ? 'bg-gold/25 border-gold text-gold-light font-bold'
                       : 'bg-[#1a232b] border-[#2e3b46] text-gray-300 hover:text-white'
                   )}
-                  title="1 раунд (до начала следующего раунда)"
+                  title={isEn ? "1 round (until start of next round)" : "1 раунд (до начала следующего раунда)"}
                 >
-                  1 раунд
+                  {isEn ? '1 Round' : '1 раунд'}
                 </button>
                 <button
                   type="button"
@@ -250,9 +252,9 @@ export function CombatantConditionToggles({
                       ? 'bg-gold/25 border-gold text-gold-light font-bold'
                       : 'bg-[#1a232b] border-[#2e3b46] text-gray-300 hover:text-white'
                   )}
-                  title="1 минута (10 раундов боя)"
+                  title={isEn ? "1 minute (10 combat rounds)" : "1 минута (10 раундов боя)"}
                 >
-                  1 мин (10 р.)
+                  {isEn ? '1 Min (10 r.)' : '1 мин (10 р.)'}
                 </button>
               </div>
             </div>
@@ -262,7 +264,7 @@ export function CombatantConditionToggles({
               onClick={handleApplyConditionWithDuration}
               className="w-full mt-1 py-1 rounded bg-gold hover:bg-gold-light text-[#12181c] font-black text-xs transition-colors shadow-sm cursor-pointer"
             >
-              Применить состояние
+              {isEn ? 'Apply Condition' : 'Применить состояние'}
             </button>
           </div>
         )}

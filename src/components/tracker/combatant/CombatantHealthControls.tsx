@@ -30,6 +30,7 @@ export function CombatantHealthControls({
   setIsHpPopoverOpen,
 }: CombatantHealthControlsProps) {
   const { language } = useTranslation();
+  const isEn = language === 'en';
   const [customHpVal, setCustomHpVal] = useState('');
   const [popoverPlacement, setPopoverPlacement] = useState<'top' | 'bottom'>('bottom');
   const [popoverAlign, setPopoverAlign] = useState<'right' | 'left'>('right');
@@ -104,7 +105,7 @@ export function CombatantHealthControls({
         e.stopPropagation();
         setIsHpPopoverOpen((prev) => !prev);
       }}
-      title="Кликните для быстрых дельт, урона и лечения"
+      title={isEn ? "Click for quick deltas, damage and healing" : "Кликните для быстрых дельт, урона и лечения"}
       className={clsx("relative w-[124px] sm:w-[136px] flex-shrink-0 cursor-pointer rounded p-0.5 hover:bg-white/[0.04] transition-all", isHpPopoverOpen && "z-50")}
     >
       {isDying ? (
@@ -120,7 +121,7 @@ export function CombatantHealthControls({
           </span>
           <button
             onClick={onRollDeathSave}
-            title="Бросок спасброска от смерти"
+            title={isEn ? "Roll death saving throw" : "Бросок спасброска от смерти"}
             className="px-1.5 py-0.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded text-[9px] font-black uppercase tracking-wider shadow-sm active:scale-95"
           >
             d20

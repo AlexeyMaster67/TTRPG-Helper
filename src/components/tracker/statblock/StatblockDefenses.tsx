@@ -40,7 +40,7 @@ export function StatblockDefenses({ combatant }: StatblockDefensesProps) {
           <Shield className="h-3 w-3 text-gold flex-shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1 break-words [overflow-wrap:anywhere] leading-snug">
             <strong className="text-gray-200 font-bold">{isEn ? 'Damage Vulnerabilities: ' : 'Уязвимости к урону: '}</strong>
-            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeDefenses(sb.damage_vulnerabilities)}</span>
+            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeDefenses(sb.damage_vulnerabilities, language)}</span>
           </div>
         </div>
       )}
@@ -50,7 +50,7 @@ export function StatblockDefenses({ combatant }: StatblockDefensesProps) {
           <Shield className="h-3 w-3 text-gold flex-shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1 break-words [overflow-wrap:anywhere] leading-snug">
             <strong className="text-gray-200 font-bold">{isEn ? 'Damage Resistances: ' : 'Сопротивления к урону: '}</strong>
-            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeDefenses(sb.damage_resistances)}</span>
+            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeDefenses(sb.damage_resistances, language)}</span>
           </div>
         </div>
       )}
@@ -60,7 +60,7 @@ export function StatblockDefenses({ combatant }: StatblockDefensesProps) {
           <Shield className="h-3 w-3 text-gold flex-shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1 break-words [overflow-wrap:anywhere] leading-snug">
             <strong className="text-gray-200 font-bold">{isEn ? 'Damage Immunities: ' : 'Иммунитеты к урону: '}</strong>
-            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeDefenses(sb.damage_immunities)}</span>
+            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeDefenses(sb.damage_immunities, language)}</span>
           </div>
         </div>
       )}
@@ -70,7 +70,7 @@ export function StatblockDefenses({ combatant }: StatblockDefensesProps) {
           <Shield className="h-3 w-3 text-gold flex-shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1 break-words [overflow-wrap:anywhere] leading-snug">
             <strong className="text-gray-200 font-bold">{isEn ? 'Condition Immunities: ' : 'Иммунитеты к состояниям: '}</strong>
-            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeConditionImmunities(sb.condition_immunities)}</span>
+            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeConditionImmunities(sb.condition_immunities, language)}</span>
           </div>
         </div>
       )}
@@ -80,7 +80,7 @@ export function StatblockDefenses({ combatant }: StatblockDefensesProps) {
           <Shield className="h-3 w-3 text-gold flex-shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1 break-words [overflow-wrap:anywhere] leading-snug">
             <strong className="text-gray-200 font-bold">{isEn ? 'Senses: ' : 'Чувства: '}</strong>
-            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeSenses(sb.senses)}</span>
+            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeSenses(sb.senses, language)}</span>
           </div>
         </div>
       )}
@@ -90,7 +90,7 @@ export function StatblockDefenses({ combatant }: StatblockDefensesProps) {
           <Shield className="h-3 w-3 text-gold flex-shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1 break-words [overflow-wrap:anywhere] leading-snug">
             <strong className="text-gray-200 font-bold">{isEn ? 'Languages: ' : 'Языки: '}</strong>
-            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeLanguages(sb.languages)}</span>
+            <span className="text-gray-300 break-words [overflow-wrap:anywhere]">{localizeLanguages(sb.languages, language)}</span>
           </div>
         </div>
       )}

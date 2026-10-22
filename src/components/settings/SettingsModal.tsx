@@ -58,7 +58,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [activeTab, setActiveTab] = useState<SettingsTabId>('system');
 
   // General tab states (Campaign Pack & Backups)
-  const [campaignName, setCampaignName] = useState('Кампания D&D');
+  const isEn = language === 'en';
+  const [campaignName, setCampaignName] = useState(language === 'en' ? 'D&D Campaign' : 'Кампания D&D');
   const [isExporting, setIsExporting] = useState(false);
   const [importPendingPack, setImportPendingPack] = useState<CampaignPack | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
@@ -110,13 +111,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       const text = await file.text();
       const validation = campaignPackService.validateCampaignPack(text);
       if (!validation.valid || !validation.pack) {
-        setImportError(validation.error || 'Неверный формат пакета кампании');
+        setImportError(validation.error || (isEn ? 'Invalid campaign pack format' : 'Неверный формат пакета кампании'));
         setImportPendingPack(null);
       } else {
         setImportPendingPack(validation.pack);
       }
     } catch (err) {
-      setImportError(`Ошибка чтения файла: ${err instanceof Error ? err.message : String(err)}`);
+      setImportError(isEn ? `File read error: ${err instanceof Error ? err.message : String(err)}` : `Ошибка чтения файла: ${err instanceof Error ? err.message : String(err)}`);
     }
     e.target.value = '';
   };
@@ -128,7 +129,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setImportSuccess(summary);
       setImportPendingPack(null);
     } catch (err) {
-      setImportError(`Ошибка при импорте: ${err instanceof Error ? err.message : String(err)}`);
+      setImportError(isEn ? `Import error: ${err instanceof Error ? err.message : String(err)}` : `Ошибка при импорте: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -140,7 +141,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setBackupStatusMessage(res.message);
       await loadBackupsList();
     } catch {
-      setBackupStatusMessage('Ошибка создания копии базы данных');
+      setBackupStatusMessage(isEn ? 'Error creating database backup' : 'Ошибка создания копии базы данных');
     } finally {
       setIsCreatingBackup(false);
     }
@@ -203,7 +204,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         >
           <div className="flex items-center justify-between px-3 py-2 md:pb-4">
             <span className="font-extrabold text-lg text-white tracking-tight">
-              Настройки
+              {language === 'en' ? 'Settings' : 'Настройки'}
             </span>
             <button
               type="button"
@@ -260,7 +261,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           {/* Quick System Badge at Bottom of Sidebar */}
           <div className="hidden md:flex flex-col mt-auto pt-4 border-t border-white/[0.08] text-[11px] text-gray-400 px-2 space-y-1">
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
-              Текущая тема:
+              {language === 'en' ? 'Current Theme:' : 'Текущая тема:'}
             </span>
             <div className="flex items-center gap-1.5 text-gray-300 font-mono text-xs">
               <span className="w-2 h-2 rounded-full bg-[#f5b920] shadow-[0_0_8px_rgba(245,185,32,0.5)]" />

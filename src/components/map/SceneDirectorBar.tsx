@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSceneStore, VttScene } from '../../store/sceneStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import {
   Film,
   Map,
@@ -17,6 +18,8 @@ import {
 import { useMapStore } from '../../store/mapStore';
 
 export function SceneDirectorBar() {
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
   const {
     scenes,
     activeSceneId,
@@ -62,7 +65,7 @@ export function SceneDirectorBar() {
   };
 
   const handleOpenCreateModal = () => {
-    setNewSceneName(`Сцена ${scenes.length + 1}`);
+    setNewSceneName(isEn ? `Scene ${scenes.length + 1}` : `Сцена ${scenes.length + 1}`);
     setNewSceneImageUrl('');
     setNewSceneIsVideo(false);
     setIsCreateModalOpen(true);
@@ -112,7 +115,7 @@ export function SceneDirectorBar() {
         <div className="flex items-center gap-1.5 flex-shrink-0 pr-1 border-r border-white/10">
           <Film className="h-3.5 w-3.5 text-gold" />
           <span className="text-[11px] font-bold uppercase tracking-wider text-gold-light font-serif hidden sm:inline">
-            Режиссёр сцен
+            {isEn ? 'Scene Director' : 'Режиссёр сцен'}
           </span>
           <span className="text-[10px] font-mono text-gray-400 px-1 py-0.2 rounded bg-surface/70 border border-white/5">
             {scenes.length}
@@ -135,7 +138,7 @@ export function SceneDirectorBar() {
                     ? 'bg-gold/20 text-gold-light border-gold/70 shadow-[0_0_10px_rgba(245,185,32,0.25)] ring-1 ring-gold/30'
                     : 'bg-[#18202b]/80 text-gray-300 border-[rgba(255,255,255,0.08)] hover:bg-[#1e2837] hover:border-gold/40 hover:text-white'
                 }`}
-                title={`Сцена: ${scene.name} (клик для переключения)`}
+                title={isEn ? `Scene: ${scene.name} (click to switch)` : `Сцена: ${scene.name} (клик для переключения)`}
               >
                 {/* Thumbnail / Icon */}
                 <div className="w-4 h-4 rounded overflow-hidden bg-black/40 flex items-center justify-center flex-shrink-0 border border-white/10">
@@ -164,7 +167,7 @@ export function SceneDirectorBar() {
                   className={`p-0.5 rounded hover:bg-black/40 transition-colors ${
                     isActive ? 'text-gold-light/80 hover:text-gold-light' : 'text-gray-400 hover:text-white opacity-0 group-hover:opacity-100'
                   }`}
-                  title="Опции сцены"
+                  title={isEn ? 'Scene options' : 'Опции сцены'}
                 >
                   <MoreVertical className="h-3 w-3" />
                 </button>
@@ -180,10 +183,10 @@ export function SceneDirectorBar() {
             type="button"
             onClick={() => useMapStore.getState().openProceduralModal()}
             className="h-7 px-2 rounded-md text-[11px] font-semibold flex items-center gap-1 bg-gold/15 hover:bg-gold/25 text-gold-light border border-gold/40 transition-all shadow-sm"
-            title="Процедурный генератор карт и подземелий"
+            title={isEn ? 'Procedural map & dungeon generator' : 'Процедурный генератор карт и подземелий'}
           >
             <Wand2 className="h-3 w-3 text-gold" />
-            <span className="hidden md:inline">Генератор</span>
+            <span className="hidden md:inline">{isEn ? 'Generator' : 'Генератор'}</span>
           </button>
 
           {/* Add Scene */}
@@ -191,10 +194,10 @@ export function SceneDirectorBar() {
             type="button"
             onClick={handleOpenCreateModal}
             className="h-7 px-2 rounded-md text-[11px] font-semibold flex items-center gap-1 bg-gold/15 hover:bg-gold/25 text-gold-light border border-gold/40 transition-all shadow-sm"
-            title="Создать новую сцену"
+            title={isEn ? 'Create new scene' : 'Создать новую сцену'}
           >
             <Plus className="h-3 w-3 text-gold" />
-            <span className="hidden sm:inline">Сцена</span>
+            <span className="hidden sm:inline">{isEn ? 'Scene' : 'Сцена'}</span>
           </button>
 
           {/* Sync / Save map to active scene */}
@@ -206,17 +209,17 @@ export function SceneDirectorBar() {
                 ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/70 shadow-sm'
                 : 'bg-surface/80 hover:bg-surface text-gray-300 hover:text-white border-[rgba(255,255,255,0.08)]'
             }`}
-            title="Синхронизировать текущее состояние карты в активную сцену"
+            title={isEn ? 'Sync current map state to active scene' : 'Синхронизировать текущее состояние карты в активную сцену'}
           >
             {isSavedFeedback ? (
               <>
                 <Check className="h-3 w-3 text-emerald-400" />
-                <span className="hidden sm:inline">Сохранено</span>
+                <span className="hidden sm:inline">{isEn ? 'Saved' : 'Сохранено'}</span>
               </>
             ) : (
               <>
                 <Save className="h-3 w-3 text-gray-400" />
-                <span className="hidden sm:inline">Синхр</span>
+                <span className="hidden sm:inline">{isEn ? 'Sync' : 'Синхр'}</span>
               </>
             )}
           </button>
@@ -241,7 +244,7 @@ export function SceneDirectorBar() {
                   className="w-full text-left px-2 py-1.5 rounded hover:bg-white/10 text-gray-200 flex items-center gap-2 transition-colors"
                 >
                   <Edit2 className="h-3.5 w-3.5 text-blue-400" />
-                  <span>Переименовать</span>
+                  <span>{isEn ? 'Rename' : 'Переименовать'}</span>
                 </button>
                 <button
                   type="button"
@@ -252,7 +255,7 @@ export function SceneDirectorBar() {
                   className="w-full text-left px-2 py-1.5 rounded hover:bg-white/10 text-gray-200 flex items-center gap-2 transition-colors"
                 >
                   <Copy className="h-3.5 w-3.5 text-amber-400" />
-                  <span>Дублировать</span>
+                  <span>{isEn ? 'Duplicate' : 'Дублировать'}</span>
                 </button>
                 <div className="h-px bg-white/10 my-1" />
                 <button
@@ -264,7 +267,7 @@ export function SceneDirectorBar() {
                   className="w-full text-left px-2 py-1.5 rounded hover:bg-red-950/60 text-red-300 flex items-center gap-2 transition-colors"
                 >
                   <Trash2 className="h-3.5 w-3.5 text-red-400" />
-                  <span>Удалить сцену</span>
+                  <span>{isEn ? 'Delete Scene' : 'Удалить сцену'}</span>
                 </button>
               </>
             );
@@ -280,7 +283,7 @@ export function SceneDirectorBar() {
               <div className="flex items-center gap-2">
                 <Film className="h-4 w-4 text-gold" />
                 <h3 className="text-sm font-bold font-serif text-gold-light uppercase tracking-wide">
-                  Новая сцена
+                  {isEn ? 'New Scene' : 'Новая сцена'}
                 </h3>
               </div>
               <button
@@ -295,13 +298,13 @@ export function SceneDirectorBar() {
             <form onSubmit={handleCreateSubmit} className="space-y-3 text-xs">
               <div>
                 <label className="block text-gray-300 font-medium mb-1">
-                  Название сцены
+                  {isEn ? 'Scene Name' : 'Название сцены'}
                 </label>
                 <input
                   type="text"
                   value={newSceneName}
                   onChange={(e) => setNewSceneName(e.target.value)}
-                  placeholder="Например: Таверна 'Пьяный Дракон', Подземелье"
+                  placeholder={isEn ? 'e.g. Tavern "Drunken Dragon", Dungeon' : "Например: Таверна 'Пьяный Дракон', Подземелье"}
                   required
                   autoFocus
                   className="w-full bg-[#0d1218] border border-white/15 focus:border-gold rounded-lg px-3 py-2 text-gray-100 placeholder-gray-500 focus:outline-none"
@@ -310,17 +313,19 @@ export function SceneDirectorBar() {
 
               <div>
                 <label className="block text-gray-300 font-medium mb-1">
-                  URL изображения / видео (необязательно)
+                  {isEn ? 'Image / Video URL (optional)' : 'URL изображения / видео (необязательно)'}
                 </label>
                 <input
                   type="text"
                   value={newSceneImageUrl}
                   onChange={(e) => setNewSceneImageUrl(e.target.value)}
-                  placeholder="https://... или data:image/..."
+                  placeholder={isEn ? 'https://... or data:image/...' : 'https://... или data:image/...'}
                   className="w-full bg-[#0d1218] border border-white/15 focus:border-gold rounded-lg px-3 py-2 text-gray-100 placeholder-gray-500 focus:outline-none font-mono text-[11px]"
                 />
                 <p className="text-[10px] text-gray-400 mt-1">
-                  Если оставить пустым, будет использована текущая карта или пустой холст.
+                  {isEn
+                    ? 'If left empty, the current map or an empty canvas will be used.'
+                    : 'Если оставить пустым, будет использована текущая карта или пустой холст.'}
                 </p>
               </div>
 
@@ -333,7 +338,7 @@ export function SceneDirectorBar() {
                   className="rounded border-white/20 bg-[#0d1218] text-gold focus:ring-gold"
                 />
                 <label htmlFor="newSceneIsVideo" className="text-gray-300 cursor-pointer">
-                  Живая анимированная видео-карта (MP4 / WebM)
+                  {isEn ? 'Live animated video map (MP4 / WebM)' : 'Живая анимированная видео-карта (MP4 / WebM)'}
                 </label>
               </div>
 
@@ -341,8 +346,10 @@ export function SceneDirectorBar() {
                 <div className="flex items-center gap-2">
                   <Wand2 className="h-4 w-4 text-gold flex-shrink-0" />
                   <div>
-                    <p className="text-xs font-bold text-gold-light">Процедурный генератор</p>
-                    <p className="text-[10px] text-gray-400">BSP-склепы или пещеры с авто-расстановкой стен</p>
+                    <p className="text-xs font-bold text-gold-light">{isEn ? 'Procedural Generator' : 'Процедурный генератор'}</p>
+                    <p className="text-[10px] text-gray-400">
+                      {isEn ? 'BSP crypts or caves with auto-walls' : 'BSP-склепы или пещеры с авто-расстановкой стен'}
+                    </p>
                   </div>
                 </div>
                 <button
@@ -353,7 +360,7 @@ export function SceneDirectorBar() {
                   }}
                   className="px-2.5 py-1 rounded bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/50 text-[11px] font-semibold transition-all flex-shrink-0"
                 >
-                  Открыть
+                  {isEn ? 'Open' : 'Открыть'}
                 </button>
               </div>
 
@@ -363,13 +370,13 @@ export function SceneDirectorBar() {
                   onClick={() => setIsCreateModalOpen(false)}
                   className="px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
                 >
-                  Отмена
+                  {isEn ? 'Cancel' : 'Отмена'}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-1.5 rounded-lg bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/70 font-semibold transition-all shadow-sm"
                 >
-                  Создать сцену
+                  {isEn ? 'Create Scene' : 'Создать сцену'}
                 </button>
               </div>
             </form>
@@ -385,7 +392,7 @@ export function SceneDirectorBar() {
               <div className="flex items-center gap-2">
                 <Edit2 className="h-4 w-4 text-gold" />
                 <h3 className="text-sm font-bold font-serif text-gold-light uppercase tracking-wide">
-                  Переименовать сцену
+                  {isEn ? 'Rename Scene' : 'Переименовать сцену'}
                 </h3>
               </div>
               <button
@@ -400,7 +407,7 @@ export function SceneDirectorBar() {
             <form onSubmit={handleRenameSubmit} className="space-y-3 text-xs">
               <div>
                 <label className="block text-gray-300 font-medium mb-1">
-                  Новое название
+                  {isEn ? 'New Name' : 'Новое название'}
                 </label>
                 <input
                   type="text"
@@ -418,13 +425,13 @@ export function SceneDirectorBar() {
                   onClick={() => setRenameSceneTarget(null)}
                   className="px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
                 >
-                  Отмена
+                  {isEn ? 'Cancel' : 'Отмена'}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-1.5 rounded-lg bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/70 font-semibold transition-all shadow-sm"
                 >
-                  Сохранить
+                  {isEn ? 'Save' : 'Сохранить'}
                 </button>
               </div>
             </form>

@@ -127,7 +127,7 @@ describe('Dice2dRollCard Component', () => {
       />
     );
 
-    expect(html).toContain('Преимущество');
+    expect(html).toMatch(/Преимущество|Advantage/);
     expect(html).toContain('19');
     expect(html).toContain('4');
   });
@@ -153,7 +153,7 @@ describe('Dice2dRollCard Component', () => {
       />
     );
 
-    expect(html).toContain('КРИТИЧЕСКИЙ УСПЕХ (20)!');
+    expect(html).toMatch(/КРИТИЧЕСКИЙ УСПЕХ \(20\)!|CRITICAL SUCCESS \(20\)!/);
   });
 
   it('renders a multi-dice pool (e.g. 4d6 damage) with all 4 dice and formula', () => {

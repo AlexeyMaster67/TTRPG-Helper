@@ -261,13 +261,13 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
     }
   };
 
-  // Clean subtitle for combatant (CR / Level) - Never display English "Player (Lvl...)"
+  // Clean subtitle for combatant (CR / Level)
   const getCombatantSubtitle = () => {
     if (combatant.isPlayer) {
       const raw = (combatant.cr || combatant.statblock?.cr || '').trim();
       const lvlMatch = raw.match(/(?:lvl|ур\.?|уровень)\s*(\d+)/i);
       if (lvlMatch) {
-        return `Игрок (Ур. ${lvlMatch[1]})`;
+        return isEn ? `Player (Lvl ${lvlMatch[1]})` : `Игрок (Ур. ${lvlMatch[1]})`;
       }
       const party = usePartyStore.getState();
       const pMember = party.members.find(
@@ -276,18 +276,18 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
           m.name.toLowerCase() === combatant.name.toLowerCase()
       );
       if (pMember?.level) {
-        return `Игрок (Ур. ${pMember.level})`;
+        return isEn ? `Player (Lvl ${pMember.level})` : `Игрок (Ур. ${pMember.level})`;
       }
-      return 'Игрок (Ур. 5)';
+      return isEn ? 'Player (Lvl 5)' : 'Игрок (Ур. 5)';
     }
     const rawCr = (combatant.cr || combatant.statblock?.cr || '').trim();
     if (rawCr) {
       if (/player/i.test(rawCr)) {
         const lvlMatch = rawCr.match(/(?:lvl|ур\.?|уровень)\s*(\d+)/i);
-        return lvlMatch ? `Игрок (Ур. ${lvlMatch[1]})` : 'Игрок';
+        return lvlMatch ? (isEn ? `Player (Lvl ${lvlMatch[1]})` : `Игрок (Ур. ${lvlMatch[1]})`) : (isEn ? 'Player' : 'Игрок');
       }
       const cleanCr = rawCr.replace(/^cr\s*/i, '').trim();
-      return `КО ${cleanCr}`;
+      return isEn ? `CR ${cleanCr}` : `КО ${cleanCr}`;
     }
     return null;
   };
@@ -429,10 +429,10 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
                   ? 'bg-purple-950/80 border-purple-500/80 text-purple-200 font-bold shadow-sm'
                   : 'bg-[#161d22] border-[#374450]/80 text-gray-300 hover:text-white hover:border-gold/60'
               )}
-              title="Эффекты и ауры: кликните для наложения пресетов или создания эффекта"
+              title={isEn ? "Effects and auras: click to apply presets or create effect" : "Эффекты и ауры: кликните для наложения пресетов или создания эффекта"}
             >
               <Sparkles className="h-2.5 w-2.5 text-purple-400 flex-shrink-0" />
-              <span>Эффекты</span>
+              <span>{isEn ? 'Effects' : 'Эффекты'}</span>
               {combatantEffects.length > 0 && (
                 <span className="px-1 py-0.2 rounded-full bg-purple-500/30 text-purple-200 text-[8px] font-bold">
                   {combatantEffects.length}
@@ -454,7 +454,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
                     tokenScale: CREATURE_SIZE_SCALE[newSize] || 1.0,
                   });
                 }}
-                title="Размер существа и сетка токена: Medium (1x1), Large (2x2), Huge (3x3), Gargantuan (4x4)"
+                title={isEn ? "Creature size & token grid: Medium (1x1), Large (2x2), Huge (3x3), Gargantuan (4x4)" : "Размер существа и сетка токена: Medium (1x1), Large (2x2), Huge (3x3), Gargantuan (4x4)"}
                 className="bg-[#161d22] text-gold-light hover:text-white border border-[#374450]/80 hover:border-gold/60 rounded px-1 py-0.5 text-[9px] font-mono font-bold cursor-pointer outline-none transition-colors leading-none"
               >
                 <option value="Medium" className="bg-[#141b21] text-gray-200">1×1</option>
@@ -468,9 +468,9 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
             {combatant.speed && (
               <span
                 className="text-gray-400 truncate font-sans max-w-[70px] sm:max-w-[100px] leading-tight flex-shrink min-w-0"
-                title={`Скорость: ${combatant.speed}`}
+                title={isEn ? `Speed: ${combatant.speed.replace(/фт\.?/g, 'ft.')}` : `Скорость: ${combatant.speed}`}
               >
-                {combatant.speed}
+                {isEn ? combatant.speed.replace(/фт\.?/g, 'ft.') : combatant.speed}
               </span>
             )}
           </div>

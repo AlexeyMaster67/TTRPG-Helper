@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { useCombatStore } from '../../store/combatStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { useCombatNumpadState } from '../../hooks/useCombatNumpadHotkeys';
 import { cleanRussianText } from '../../utils/textUtils';
 import { Zap, Skull, Check, CornerDownLeft, X, ArrowUpDown, Swords, Heart, Shield } from 'lucide-react';
 
 export function CombatQuickInputHud() {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const { combatants, inspectedCombatantId, currentTurnIndex } = useCombatStore();
   const { buffer, feedback } = useCombatNumpadState();
 
@@ -25,7 +27,7 @@ export function CombatQuickInputHud() {
     return 'damage'; // '-' or raw digits default to damage
   }, [buffer]);
 
-  const targetName = target ? cleanRussianText(target.nameRu || target.name) : 'Не выбран';
+  const targetName = target ? (isEn ? (target.name || target.nameRu || '') : cleanRussianText(target.nameRu || target.name)) : (isEn ? 'None selected' : 'Не выбран');
   const hasActiveInput = buffer.trim().length > 0;
 
   // Don't render anything if no combatants
@@ -33,20 +35,20 @@ export function CombatQuickInputHud() {
 
   return (
     <aside
-      aria-label="Быстрый цифровой ввод боя"
+      aria-label={isEn ? "Combat Quick Numpad Input" : "Быстрый цифровой ввод боя"}
       className="relative flex-shrink-0 px-3 py-1.5 bg-[rgba(14,18,25,0.85)] backdrop-blur-md border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between gap-2 text-xs select-none shadow-[0_-4px_16px_rgba(0,0,0,0.4)] transition-all duration-200"
     >
       {/* Слева: Выбранная цель и индикатор */}
       <div className="flex items-center gap-2 min-w-0">
         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[11px] text-gray-300">
           <Zap className="w-3 h-3 text-[#f5b920] animate-pulse" />
-          <span className="text-gray-400">Цель:</span>
+          <span className="text-gray-400">{isEn ? "Target:" : "Цель:"}</span>
           <strong className="text-white font-bold truncate max-w-[120px] sm:max-w-[160px]">
             {targetName}
           </strong>
           {target && (
             <span className="font-mono text-[10px] text-gray-400 tabular-nums">
-              ({target.hp}/{target.maxHp} ОЗ)
+              ({target.hp}/{target.maxHp} {isEn ? "HP" : "ОЗ"})
             </span>
           )}
         </div>
@@ -79,19 +81,19 @@ export function CombatQuickInputHud() {
             {operation === 'damage' && (
               <>
                 <Swords className="w-3 h-3 text-red-400 inline" />
-                <span>Урон</span>
+                <span>{isEn ? "Damage" : "Урон"}</span>
               </>
             )}
             {operation === 'heal' && (
               <>
                 <Heart className="w-3 h-3 text-emerald-400 inline" />
-                <span>Исцеление</span>
+                <span>{isEn ? "Healing" : "Исцеление"}</span>
               </>
             )}
             {operation === 'temp_hp' && (
               <>
                 <Shield className="w-3 h-3 text-blue-400 inline" />
-                <span>Врем. ОЗ</span>
+                <span>{isEn ? "Temp HP" : "Врем. ОЗ"}</span>
               </>
             )}
           </span>
@@ -111,7 +113,7 @@ export function CombatQuickInputHud() {
               <span>Enter</span>
               <CornerDownLeft className="w-2.5 h-2.5" />
             </kbd>
-            <span className="text-[10px] text-gray-400 hidden sm:inline">применить</span>
+            <span className="text-[10px] text-gray-400 hidden sm:inline">{isEn ? "apply" : "применить"}</span>
           </div>
           <div className="flex items-center gap-1 text-[10px] text-gray-400">
             <kbd className="px-1 py-0.5 rounded bg-white/10 font-mono text-white text-[9px] flex items-center gap-0.5">
@@ -127,21 +129,21 @@ export function CombatQuickInputHud() {
             <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 font-mono text-[10px] text-red-300">
               -14
             </kbd>
-            <span className="text-gray-400">урон</span>
+            <span className="text-gray-400">{isEn ? "damage" : "урон"}</span>
           </span>
           <span className="text-gray-600">•</span>
           <span className="flex items-center gap-1">
             <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 font-mono text-[10px] text-emerald-300">
               +10
             </kbd>
-            <span className="text-gray-400">лечение</span>
+            <span className="text-gray-400">{isEn ? "heal" : "лечение"}</span>
           </span>
           <span className="text-gray-600">•</span>
           <span className="flex items-center gap-1">
             <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 font-mono text-[10px] text-blue-300">
               /5
             </kbd>
-            <span className="text-gray-400">врем. ОЗ</span>
+            <span className="text-gray-400">{isEn ? "temp HP" : "врем. ОЗ"}</span>
           </span>
           <span className="text-gray-600">•</span>
           <span className="flex items-center gap-1">
@@ -149,15 +151,15 @@ export function CombatQuickInputHud() {
               <Skull className="w-2.5 h-2.5" />
               <span>X/Del</span>
             </kbd>
-            <span className="text-gray-400">нокаут</span>
+            <span className="text-gray-400">{isEn ? "knockout" : "нокаут"}</span>
           </span>
           <span className="text-gray-600">•</span>
           <span className="flex items-center gap-1">
             <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 font-mono text-[10px] text-[#fce79f] flex items-center gap-0.5">
               <ArrowUpDown className="w-2.5 h-2.5" />
-              <span>Стрелки</span>
+              <span>{isEn ? "Arrows" : "Стрелки"}</span>
             </kbd>
-            <span className="text-gray-400">выбор</span>
+            <span className="text-gray-400">{isEn ? "select" : "выбор"}</span>
           </span>
         </div>
       )}

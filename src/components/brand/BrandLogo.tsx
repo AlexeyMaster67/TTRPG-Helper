@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSettingsStore } from '../../store/settingsStore';
 
 interface BrandLogoProps {
   className?: string;
@@ -14,6 +15,8 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   className = 'h-8',
   showBadge = true,
 }) => {
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
   return (
     <div className="flex items-center gap-2 select-none group cursor-default">
       {/* Dynamic Theme Vector Brand Logo */}
@@ -69,7 +72,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
             </span>
           </div>
           <span className="text-[10px] font-medium tracking-wider text-gray-400 hidden xl:block -mt-0.5">
-            Центр управления
+            {isEn ? 'Command Center' : 'Центр управления'}
           </span>
         </div>
       )}

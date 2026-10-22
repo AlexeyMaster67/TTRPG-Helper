@@ -40,6 +40,7 @@ import {
   Folder,
 } from 'lucide-react';
 import clsx from 'clsx';
+import { useSettingsStore } from '../../store/settingsStore';
 
 interface SoundboardDrawerProps {
   isOpen: boolean;
@@ -51,6 +52,7 @@ type FilterCategory = 'all' | 'combat' | 'town' | 'dungeon' | 'nature' | 'sfx';
 interface CategoryOption {
   id: FilterCategory;
   label: string;
+  labelEn: string;
   category: TrackCategory;
   subcategory?: string;
   icon: React.ReactNode;
@@ -61,6 +63,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   {
     id: 'combat',
     label: 'Бой',
+    labelEn: 'Combat',
     category: 'combat',
     icon: <Swords className="h-3.5 w-3.5" />,
     color: 'text-red-400 border-red-500/40 bg-red-950/40',
@@ -68,6 +71,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   {
     id: 'town',
     label: 'Таверна / Город',
+    labelEn: 'Tavern / City',
     category: 'music',
     subcategory: 'town',
     icon: <Music className="h-3.5 w-3.5" />,
@@ -76,6 +80,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   {
     id: 'dungeon',
     label: 'Исследование / Подземелье',
+    labelEn: 'Exploration / Dungeon',
     category: 'ambient',
     subcategory: 'dungeon',
     icon: <Key className="h-3.5 w-3.5" />,
@@ -84,6 +89,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   {
     id: 'nature',
     label: 'Природа / Амбиент',
+    labelEn: 'Nature / Ambient',
     category: 'ambient',
     subcategory: 'nature',
     icon: <Trees className="h-3.5 w-3.5" />,
@@ -92,6 +98,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   {
     id: 'sfx',
     label: 'Спецэффекты (SFX)',
+    labelEn: 'Sound Effects (SFX)',
     category: 'sfx',
     icon: <Zap className="h-3.5 w-3.5" />,
     color: 'text-purple-300 border-purple-500/40 bg-purple-950/40',
@@ -106,6 +113,7 @@ function formatTime(seconds: number): string {
 }
 
 export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const [activeTab, setActiveTab] = useState<'player' | 'sfx'>('player');
 
   // AudioService synced state
@@ -274,18 +282,18 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
 
   const getTrackBadge = (track: CustomAudioTrack) => {
     if (track.category === 'combat') {
-      return { label: 'Бой', icon: <Swords className="h-3.5 w-3.5" />, color: 'text-red-400 bg-red-950/60 border-red-800/60' };
+      return { label: isEn ? 'Combat' : 'Бой', icon: <Swords className="h-3.5 w-3.5" />, color: 'text-red-400 bg-red-950/60 border-red-800/60' };
     }
     if (track.category === 'sfx') {
       return { label: 'SFX', icon: <Zap className="h-3.5 w-3.5" />, color: 'text-purple-300 bg-purple-950/60 border-purple-800/60' };
     }
     if (track.subcategory === 'dungeon' || /подземелье|dungeon|cave/i.test(track.name)) {
-      return { label: 'Подземелье', icon: <Key className="h-3.5 w-3.5" />, color: 'text-cyan-300 bg-cyan-950/60 border-cyan-800/60' };
+      return { label: isEn ? 'Dungeon' : 'Подземелье', icon: <Key className="h-3.5 w-3.5" />, color: 'text-cyan-300 bg-cyan-950/60 border-cyan-800/60' };
     }
     if (track.category === 'ambient' || track.subcategory === 'nature') {
-      return { label: 'Природа', icon: <Trees className="h-3.5 w-3.5" />, color: 'text-emerald-300 bg-emerald-950/60 border-emerald-800/60' };
+      return { label: isEn ? 'Nature' : 'Природа', icon: <Trees className="h-3.5 w-3.5" />, color: 'text-emerald-300 bg-emerald-950/60 border-emerald-800/60' };
     }
-    return { label: 'Таверна / Город', icon: <Music className="h-3.5 w-3.5" />, color: 'text-amber-300 bg-amber-950/60 border-amber-800/60' };
+    return { label: isEn ? 'Tavern / City' : 'Таверна / Город', icon: <Music className="h-3.5 w-3.5" />, color: 'text-amber-300 bg-amber-950/60 border-amber-800/60' };
   };
 
   return (
@@ -299,9 +307,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
       {isDragging && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/85 backdrop-blur-xl border-4 border-dashed border-[#f5b920] animate-pulse pointer-events-none">
           <Upload className="w-16 h-16 text-[#f5b920] mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Отпустите аудиофайлы здесь</h3>
+          <h3 className="text-xl font-bold text-white mb-2">{isEn ? "Drop audio files here" : "Отпустите аудиофайлы здесь"}</h3>
           <p className="text-sm text-gold-light">
-            Файлы добавятся в категорию: «{CATEGORY_OPTIONS.find((c) => c.id === uploadCategory)?.label}»
+            {isEn ? "Files will be added to: " : "Файлы добавятся в категорию: "}«{CATEGORY_OPTIONS.find((c) => c.id === uploadCategory)?.[isEn ? "labelEn" : "label"]}»
           </p>
         </div>
       )}
@@ -328,7 +336,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
             </div>
             <div>
               <h2 className="text-sm font-bold text-white flex items-center gap-1.5">
-                <span>Звуковая панель & Плеер</span>
+                <span>{isEn ? "Soundboard & Player" : "Звуковая панель & Плеер"}</span>
                 <span
                   className={clsx(
                     'text-[10px] font-mono px-2 py-0.5 rounded-full border',
@@ -347,7 +355,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                 </span>
               </h2>
               <p className="text-[11px] text-gray-400">
-                100% оффлайн локальный аудиоплеер, плейлисты и Web Audio SFX
+                {isEn ? "100% offline local audio player, playlists, and Web Audio SFX" : "100% оффлайн локальный аудиоплеер, плейлисты и Web Audio SFX"}
               </p>
             </div>
           </div>
@@ -356,7 +364,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-glass text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            title="Закрыть панель (Ctrl+B)"
+            title={isEn ? "Close drawer (Ctrl+B)" : "Закрыть панель (Ctrl+B)"}
           >
             <X className="w-5 h-5" />
           </button>
@@ -367,7 +375,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
               <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
-                Общая громкость
+                {isEn ? "Master Volume" : "Общая громкость"}
               </span>
               <button
                 type="button"
@@ -378,14 +386,14 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                     ? 'bg-gold/20 text-gold border-gold/40'
                     : 'bg-black/30 text-gray-400 border-white/5 hover:text-white'
                 )}
-                title="Настроить баланс громкости по категориям"
+                title={isEn ? "Adjust volume balance by category" : "Настроить баланс громкости по категориям"}
               >
                 <SlidersHorizontal className="w-3 h-3" />
-                <span>Микшер</span>
+                <span>{isEn ? "Mixer" : "Микшер"}</span>
               </button>
             </div>
             <span className="font-mono text-gold-light font-bold">
-              {isMuted ? 'Выключен' : `${Math.round(volume * 100)}%`}
+              {isMuted ? (isEn ? 'Muted' : 'Выключен') : `${Math.round(volume * 100)}%`}
             </span>
           </div>
 
@@ -399,7 +407,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   ? 'bg-red-950/70 text-red-400 border border-red-700/60 shadow-[0_0_8px_rgba(239,68,68,0.3)]'
                   : 'bg-card text-gray-300 hover:text-white border border-border-subtle'
               )}
-              title={isMuted ? 'Включить звук' : 'Заглушить'}
+              title={isMuted ? (isEn ? 'Unmute' : 'Включить звук') : (isEn ? 'Mute' : 'Заглушить')}
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
@@ -419,10 +427,10 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                 type="button"
                 onClick={handleStopAll}
                 className="px-2.5 py-1 rounded bg-red-950/80 border border-red-700/60 text-red-300 text-xs font-bold hover:bg-red-900 flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
-                title="Остановить все воспроизведения"
+                title={isEn ? "Stop all playback" : "Остановить все воспроизведения"}
               >
                 <Square className="w-3 h-3 fill-current" />
-                <span className="text-[10px]">СТОП ВСЁ</span>
+                <span className="text-[10px]">{isEn ? "STOP ALL" : "СТОП ВСЁ"}</span>
               </button>
             )}
           </div>
@@ -432,9 +440,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
             <div className="mt-2 pt-2 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2 animate-in fade-in duration-150">
               {(
                 [
-                  { id: 'combat', label: 'Бой' },
-                  { id: 'music', label: 'Таверна' },
-                  { id: 'ambient', label: 'Амбиент' },
+                  { id: 'combat', label: isEn ? 'Combat' : 'Бой' },
+                  { id: 'music', label: isEn ? 'Tavern' : 'Таверна' },
+                  { id: 'ambient', label: isEn ? 'Ambient' : 'Амбиент' },
                   { id: 'sfx', label: 'SFX' },
                 ] as const
               ).map((cat) => (
@@ -475,7 +483,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
             )}
           >
             <FolderOpen className="w-3.5 h-3.5 text-gold" />
-            <span>Плеер и Музыка ({customTracks.length})</span>
+            <span>{isEn ? "Player & Music" : "Плеер и Музыка"} ({customTracks.length})</span>
           </button>
 
           <button
@@ -489,7 +497,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
             )}
           >
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>Быстрые SFX и Эффекты</span>
+            <span>{isEn ? "Quick SFX & Effects" : "Быстрые SFX и Эффекты"}</span>
           </button>
         </div>
 
@@ -504,10 +512,10 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   <div>
                     <h3 className="text-xs font-bold text-white flex items-center gap-1.5">
                       <Upload className="w-4 h-4 text-gold" />
-                      <span>Добавить локальные треки</span>
+                      <span>{isEn ? "Add Local Tracks" : "Добавить локальные треки"}</span>
                     </h3>
                     <p className="text-[11px] text-gray-400 mt-0.5">
-                      MP3, WAV, OGG, WebM, FLAC, M4A — сохраняются в память IndexedDB
+                      {isEn ? "MP3, WAV, OGG, WebM, FLAC, M4A — saved locally to IndexedDB" : "MP3, WAV, OGG, WebM, FLAC, M4A — сохраняются в память IndexedDB"}
                     </p>
                   </div>
 
@@ -517,14 +525,14 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                     className="px-3.5 py-1.5 rounded bg-[#f5b920] hover:bg-[#fac742] active:bg-[#e0a312] text-black font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
                   >
                     <FolderOpen className="w-4 h-4" />
-                    <span>Выбрать файлы на ПК</span>
+                    <span>{isEn ? "Choose Files on PC" : "Выбрать файлы на ПК"}</span>
                   </button>
                 </div>
 
                 {/* Upload Category Selector */}
                 <div className="pt-2 border-t border-white/5">
                   <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold block mb-1.5">
-                    Категория для новых треков:
+                    {isEn ? "Category for new tracks:" : "Категория для новых треков:"}
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {CATEGORY_OPTIONS.map((opt) => (
@@ -540,7 +548,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                         )}
                       >
                         <span>{opt.icon}</span>
-                        <span>{opt.label}</span>
+                        <span>{isEn ? opt.labelEn : opt.label}</span>
                       </button>
                     ))}
                   </div>
@@ -550,7 +558,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                 <div className="p-2 rounded bg-black/30 border border-dashed border-white/10 text-center">
                   <span className="text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
                     <Lightbulb className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
-                    <span>Или просто перетащите аудиофайлы мышью прямо в это окно</span>
+                    <span>{isEn ? "Or drag and drop audio files directly into this window" : "Или просто перетащите аудиофайлы мышью прямо в это окно"}</span>
                   </span>
                 </div>
               </div>
@@ -564,7 +572,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Поиск по названию трека или тегу..."
+                    placeholder={isEn ? "Search by track name or tag..." : "Поиск по названию трека или тегу..."}
                     className="w-full pl-8 pr-7 py-1.5 rounded bg-[#10141d] border border-white/10 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-gold"
                   />
                   {searchQuery && (
@@ -590,7 +598,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                         : 'bg-[#18202b] text-gray-300 hover:bg-[#202937] hover:text-white border-white/5'
                     )}
                   >
-                    <span>Все</span>
+                    <span>{isEn ? "All" : "Все"}</span>
                     <span className="opacity-75 text-[10px]">({counts.all})</span>
                   </button>
 
@@ -609,7 +617,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                         )}
                       >
                         <span>{opt.icon}</span>
-                        <span>{opt.label}</span>
+                        <span>{isEn ? opt.labelEn : opt.label}</span>
                         <span className="opacity-75 text-[10px]">({count})</span>
                       </button>
                     );
@@ -624,8 +632,8 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                     <Music className="w-8 h-8 text-gray-500 mx-auto" />
                     <p className="text-xs text-gray-400">
                       {customTracks.length === 0
-                        ? 'Саундборд пуст. Добавьте локальные треки с ПК через кнопку выше.'
-                        : 'Нет треков в выбранной категории или по запросу.'}
+                        ? (isEn ? 'Soundboard is empty. Add local tracks from PC using the button above.' : 'Саундборд пуст. Добавьте локальные треки с ПК через кнопку выше.')
+                        : (isEn ? 'No tracks found in selected category or search query.' : 'Нет треков в выбранной категории или по запросу.')}
                     </p>
                   </div>
                 ) : (
@@ -658,7 +666,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                                 ? 'bg-[#f5b920] text-black shadow-md'
                                 : 'bg-white/10 hover:bg-white/20 text-white'
                             )}
-                            title={isActive && isCustomPlaying ? 'Пауза' : 'Воспроизвести'}
+                            title={isActive && isCustomPlaying ? (isEn ? 'Pause' : 'Пауза') : (isEn ? 'Play' : 'Воспроизвести')}
                           >
                             {isActive && isCustomPlaying ? (
                               <Pause className="w-3.5 h-3.5 fill-current" />
@@ -711,7 +719,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                                 ? 'bg-gold/20 text-gold-light'
                                 : 'text-gray-500 hover:text-gray-300'
                             )}
-                            title={track.isLooping ? 'Повтор включен' : 'Повтор выключен'}
+                            title={track.isLooping ? (isEn ? 'Loop enabled' : 'Повтор включен') : (isEn ? 'Loop disabled' : 'Повтор выключен')}
                           >
                             <Repeat className="w-3.5 h-3.5" />
                           </button>
@@ -723,7 +731,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                               audioService.deleteTrack(track.id);
                             }}
                             className="p-1.5 rounded text-gray-500 hover:text-red-400 hover:bg-red-950/40 transition-colors cursor-pointer"
-                            title="Удалить трек из саундборда"
+                            title={isEn ? "Delete track from soundboard" : "Удалить трек из саундборда"}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -741,7 +749,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5 flex items-center gap-1.5">
                   <Zap className="w-3.5 h-3.5 text-gold" />
-                  <span>Быстрые звуки за столом (SFX)</span>
+                  <span>{isEn ? "Tabletop Quick Sounds (SFX)" : "Быстрые звуки за столом (SFX)"}</span>
                 </h3>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -753,9 +761,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   >
                     <div className="flex items-center gap-1.5 text-red-400 font-bold text-xs">
                       <Award className="w-4 h-4 text-red-400 group-hover:scale-110 transition-transform" />
-                      <span>Крит (Нат 20)</span>
+                      <span>{isEn ? "Crit (Nat 20)" : "Крит (Нат 20)"}</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Победные фанфары</span>
+                    <span className="text-[10px] text-gray-400">{isEn ? "Victory fanfare" : "Победные фанфары"}</span>
                   </button>
 
                   {/* 2. Провал (Natural 1 sad horn) */}
@@ -766,9 +774,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   >
                     <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
                       <ShieldAlert className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-                      <span>Провал (Нат 1)</span>
+                      <span>{isEn ? "Fail (Nat 1)" : "Провал (Нат 1)"}</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Печальная труба</span>
+                    <span className="text-[10px] text-gray-400">{isEn ? "Sad horn" : "Печальная труба"}</span>
                   </button>
 
                   {/* 3. Удар меча */}
@@ -779,9 +787,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   >
                     <div className="flex items-center gap-1.5 text-blue-300 font-bold text-xs">
                       <Swords className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
-                      <span>Удар меча</span>
+                      <span>{isEn ? "Sword Strike" : "Удар меча"}</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Звон стали и лязг</span>
+                    <span className="text-[10px] text-gray-400">{isEn ? "Steel clatter & clash" : "Звон стали и лязг"}</span>
                   </button>
 
                   {/* 4. Магический взрыв */}
@@ -792,9 +800,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   >
                     <div className="flex items-center gap-1.5 text-purple-300 font-bold text-xs">
                       <Sparkles className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
-                      <span>Магич. взрыв</span>
+                      <span>{isEn ? "Magic Burst" : "Магич. взрыв"}</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Грохот и искры</span>
+                    <span className="text-[10px] text-gray-400">{isEn ? "Thunder & sparks" : "Грохот и искры"}</span>
                   </button>
 
                   {/* 5. Драконий рык */}
@@ -805,9 +813,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   >
                     <div className="flex items-center gap-1.5 text-orange-400 font-bold text-xs">
                       <Flame className="w-4 h-4 text-orange-400 group-hover:scale-110 transition-transform" />
-                      <span>Драконий рык</span>
+                      <span>{isEn ? "Dragon Roar" : "Драконий рык"}</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Грозный утробный рев</span>
+                    <span className="text-[10px] text-gray-400">{isEn ? "Fierce guttural roar" : "Грозный утробный рев"}</span>
                   </button>
 
                   {/* 6. Монеты */}
@@ -818,9 +826,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   >
                     <div className="flex items-center gap-1.5 text-yellow-300 font-bold text-xs">
                       <Coins className="w-4 h-4 text-yellow-400 group-hover:scale-110 transition-transform" />
-                      <span>Монеты</span>
+                      <span>{isEn ? "Coins" : "Монеты"}</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Звон золота в мешочке</span>
+                    <span className="text-[10px] text-gray-400">{isEn ? "Gold coin pouch chimes" : "Звон золота в мешочке"}</span>
                   </button>
 
                   {/* 7. Уведомление */}
@@ -831,9 +839,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   >
                     <div className="flex items-center gap-1.5 text-cyan-300 font-bold text-xs">
                       <Bell className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
-                      <span>Уведомление</span>
+                      <span>{isEn ? "Notification" : "Уведомление"}</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Кристальный звон</span>
+                    <span className="text-[10px] text-gray-400">{isEn ? "Crystal bell chime" : "Кристальный звон"}</span>
                   </button>
 
                   {/* 8. Таймер */}
@@ -844,9 +852,9 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   >
                     <div className="flex items-center gap-1.5 text-emerald-300 font-bold text-xs">
                       <Clock className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
-                      <span>Таймер</span>
+                      <span>{isEn ? "Timer" : "Таймер"}</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Тиканье и гонг</span>
+                    <span className="text-[10px] text-gray-400">{isEn ? "Ticking & gong" : "Тиканье и гонг"}</span>
                   </button>
                 </div>
               </div>
@@ -856,12 +864,12 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                 <div className="flex items-center justify-between mb-2.5">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
                     <Music className="w-3.5 h-3.5 text-purple-400" />
-                    <span>Процедурные эмбиенты (Синтез)</span>
+                    <span>{isEn ? "Procedural Ambients (Synthesis)" : "Процедурные эмбиенты (Синтез)"}</span>
                   </h3>
                   {currentAmbient && (
                     <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-mono">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      Играет
+                      {isEn ? 'Playing' : 'Играет'}
                     </span>
                   )}
                 </div>
@@ -908,7 +916,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                               </h4>
                               {isActive && (
                                 <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-purple-950 text-purple-300 border border-purple-700">
-                                  АКТИВЕН
+                                  {isEn ? 'ACTIVE' : 'АКТИВЕН'}
                                 </span>
                               )}
                             </div>
@@ -978,7 +986,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
               <button
                 type="button"
                 onClick={() => audioService.toggleLoop(currentCustomTrack.id)}
-                title={currentCustomTrack.isLooping ? 'Повтор включен' : 'Повтор выключен'}
+                title={currentCustomTrack.isLooping ? (isEn ? 'Loop enabled' : 'Повтор включен') : (isEn ? 'Loop disabled' : 'Повтор выключен')}
                 className={clsx(
                   'p-1.5 rounded transition-colors cursor-pointer',
                   currentCustomTrack.isLooping
@@ -994,7 +1002,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   type="button"
                   onClick={() => audioService.playPrevTrack()}
                   className="p-1.5 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-all cursor-pointer"
-                  title="Предыдущий трек"
+                  title={isEn ? "Previous track" : "Предыдущий трек"}
                 >
                   <SkipBack className="w-4 h-4" />
                 </button>
@@ -1007,7 +1015,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                       : audioService.resumeTrack()
                   }
                   className="w-8 h-8 rounded-full bg-[#f5b920] hover:bg-[#fac742] text-black font-bold flex items-center justify-center shadow-md transition-transform active:scale-95 cursor-pointer"
-                  title={isCustomPlaying ? 'Пауза' : 'Воспроизведение'}
+                  title={isCustomPlaying ? (isEn ? 'Pause' : 'Пауза') : (isEn ? 'Play' : 'Воспроизведение')}
                 >
                   {isCustomPlaying ? (
                     <Pause className="w-4 h-4 fill-current" />
@@ -1020,7 +1028,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
                   type="button"
                   onClick={() => audioService.playNextTrack()}
                   className="p-1.5 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-all cursor-pointer"
-                  title="Следующий трек"
+                  title={isEn ? "Next track" : "Следующий трек"}
                 >
                   <SkipForward className="w-4 h-4" />
                 </button>
@@ -1029,7 +1037,7 @@ export function SoundboardDrawer({ isOpen, onClose }: SoundboardDrawerProps) {
               <button
                 type="button"
                 onClick={() => audioService.stopTrack()}
-                title="Остановить трек"
+                title={isEn ? "Stop track" : "Остановить трек"}
                 className="p-1.5 rounded text-gray-400 hover:text-rose-400 transition-colors cursor-pointer"
               >
                 <Square className="w-4 h-4 fill-current" />

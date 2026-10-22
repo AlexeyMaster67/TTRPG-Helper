@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Animated2dDie } from './Animated2dDie';
 import { Dices, X, Sparkles, AlertCircle, Check } from 'lucide-react';
 import { audioService } from '../../services/audioService';
+import { useTranslation } from '../../i18n';
+import { localizeMonsterName } from '../../utils/textUtils';
 
 export interface SingleDieResult {
   id?: string;
@@ -43,6 +45,8 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
   isPlayerView = false,
   initialRolling = true,
 }) => {
+  const { language } = useTranslation();
+  const isEn = language === 'en';
   const [isRolling, setIsRolling] = useState(initialRolling);
 
   const {
@@ -103,15 +107,18 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
   }
 
   // Header display text
+  const locRollerName = rollerName ? (isEn ? (localizeMonsterName(rollerName, 'en') || rollerName) : rollerName) : undefined;
+  const locTargetName = targetName ? (isEn ? (localizeMonsterName(targetName, 'en') || targetName) : targetName) : undefined;
+
   const displayTitle = title
-    ? title
-    : rollerName
+    ? (isEn ? (localizeMonsterName(title, 'en') || title) : title)
+    : locRollerName
     ? hasDicePool
-      ? `${rollerName}: Бросок`
-      : `${rollerName}: d${sides}`
+      ? `${locRollerName}: ${isEn ? 'Roll' : 'Бросок'}`
+      : `${locRollerName}: d${sides}`
     : hasDicePool
-    ? 'Бросок кубиков'
-    : `Бросок d${sides}`;
+    ? (isEn ? 'Dice Roll' : 'Бросок кубиков')
+    : (isEn ? `d${sides} Roll` : `Бросок d${sides}`);
 
   // Die size calculation for pool
   const poolCount = hasDicePool ? dice.length : 1;
@@ -136,7 +143,7 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
           </div>
           {(subtitle || targetName) && (
             <span className="text-[10px] text-gray-400 truncate pl-5">
-              {subtitle || `Цель: ${targetName}`}
+              {subtitle || (locTargetName ? (isEn ? `Target: ${locTargetName}` : `Цель: ${locTargetName}`) : undefined)}
             </span>
           )}
         </div>
@@ -150,14 +157,14 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
                   : 'bg-rose-950/80 text-rose-300 border-rose-500/60 shadow-crimson-glow'
               }`}
             >
-              {isAdvantage ? 'Преимущество' : 'Помеха'}
+              {isAdvantage ? (isEn ? 'Advantage' : 'Преимущество') : (isEn ? 'Disadvantage' : 'Помеха')}
             </span>
           )}
 
           <button
             onClick={onClose}
             className="min-h-[26px] min-w-[26px] h-6 w-6 flex items-center justify-center text-text-muted hover:text-white rounded hover:bg-white/10 transition-colors cursor-pointer"
-            title="Закрыть"
+            title={isEn ? "Close" : "Закрыть"}
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -168,14 +175,14 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
       {!isRolling && isNat20 && (
         <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/60 rounded-full py-1 px-3 shadow-emerald-glow animate-pulse">
           <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
-          <span>КРИТИЧЕСКИЙ УСПЕХ (20)!</span>
+          <span>{isEn ? "CRITICAL SUCCESS (20)!" : "КРИТИЧЕСКИЙ УСПЕХ (20)!"}</span>
         </div>
       )}
 
       {!isRolling && isNat1 && (
         <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-rose-300 bg-rose-950/80 border border-rose-500/60 rounded-full py-1 px-3 shadow-crimson-glow animate-bounce">
           <AlertCircle className="h-3.5 w-3.5 text-rose-300" />
-          <span>КРИТИЧЕСКИЙ ПРОВАЛ (1)!</span>
+          <span>{isEn ? "CRITICAL FAILURE (1)!" : "КРИТИЧЕСКИЙ ПРОВАЛ (1)!"}</span>
         </div>
       )}
 
@@ -197,7 +204,7 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
                   size={poolDieSize}
                 />
                 {!isRolling && d.isDiscarded && (
-                  <span className="text-[9px] font-mono text-gray-500 line-through">сброшен</span>
+                  <span className="text-[9px] font-mono text-gray-500 line-through">{isEn ? "dropped" : "сброшен"}</span>
                 )}
               </div>
             ))}
@@ -237,11 +244,11 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
                 >
                   {!r1Discarded ? (
                     <span className="inline-flex items-center gap-0.5">
-                      <Check className="h-2.5 w-2.5" /> Выбран
+                      <Check className="h-2.5 w-2.5" /> {isEn ? "Kept" : "Выбран"}
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-0.5">
-                      <X className="h-2.5 w-2.5" /> Сброшен
+                      <X className="h-2.5 w-2.5" /> {isEn ? "Dropped" : "Сброшен"}
                     </span>
                   )}
                 </span>
@@ -268,11 +275,11 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
                 >
                   {!r2Discarded ? (
                     <span className="inline-flex items-center gap-0.5">
-                      <Check className="h-2.5 w-2.5" /> Выбран
+                      <Check className="h-2.5 w-2.5" /> {isEn ? "Kept" : "Выбран"}
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-0.5">
-                      <X className="h-2.5 w-2.5" /> Сброшен
+                      <X className="h-2.5 w-2.5" /> {isEn ? "Dropped" : "Сброшен"}
                     </span>
                   )}
                 </span>
@@ -308,7 +315,7 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
                 </>
               ) : (
                 <>
-                  Итог:{' '}
+                  {isEn ? 'Total:' : 'Итог:'}{' '}
                   <span className="font-bold text-gold text-sm">{total}</span>
                 </>
               )}
@@ -334,7 +341,7 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
           ) : isDualRoll ? (
             /* Dual roll without modifier: clean total highlight */
             <div className="text-xs font-mono text-gray-300 bg-black/50 px-3 py-1 rounded-lg border border-glass-border">
-              Итог: <span className="font-bold text-gold text-sm">{total}</span>
+              {isEn ? 'Total:' : 'Итог:'} <span className="font-bold text-gold text-sm">{total}</span>
               {damageType && (
                 <span className="text-amber-300 ml-1.5 font-sans font-semibold">
                   {damageType}
@@ -344,7 +351,7 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
           ) : damageType ? (
             /* Single die without modifier but with damage type */
             <div className="text-xs font-mono text-gray-300 bg-black/50 px-3 py-1 rounded-lg border border-glass-border">
-              Итог: <span className="font-bold text-gold text-sm">{total}</span>
+              {isEn ? 'Total:' : 'Итог:'} <span className="font-bold text-gold text-sm">{total}</span>
               <span className="text-amber-300 ml-1.5 font-sans font-semibold">
                 {damageType}
               </span>

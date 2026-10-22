@@ -101,7 +101,13 @@ const initialThemeBySystem =
 const initialFallbackTheme =
   initialSettings.fallbackTheme || initialSettings.globalTheme || 'dnd5e';
 
-export const useSettingsStore = create<SettingsState>((set, get) => ({
+export const useSettingsStore = create<SettingsState>((set, get, api) => {
+  // Ensure SSR / renderToString tests get the live state rather than frozen initial state
+  if (api) {
+    api.getInitialState = () => get();
+  }
+
+  return {
   language: initialLanguage,
   uiScale: initialUiScale,
   isModalOpen: false,
@@ -165,4 +171,5 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   openModal: () => set({ isModalOpen: true }),
   closeModal: () => set({ isModalOpen: false }),
   toggleModal: () => set((state) => ({ isModalOpen: !state.isModalOpen })),
-}));
+  };
+});
