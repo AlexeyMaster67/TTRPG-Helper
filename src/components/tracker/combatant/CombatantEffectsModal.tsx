@@ -22,7 +22,8 @@ import {
   createEffectFromPreset,
   calculateEffectiveStats,
 } from '../../../engine/effectStackEngine';
-import { cleanRussianText } from '../../../utils/textUtils';
+import { cleanRussianText, localizeMonsterName } from '../../../utils/textUtils';
+import { useSettingsStore } from '../../../store/settingsStore';
 
 export interface CombatantEffectsModalProps {
   combatant: Combatant;
@@ -125,7 +126,12 @@ export function CombatantEffectsModal({ combatant, isOpen, onClose }: CombatantE
     setAuraEnabled(false);
   };
 
-  const displayName = cleanRussianText(combatant.nameRu || combatant.name);
+  const { language } = useSettingsStore();
+  const displayName = language === 'en'
+    ? (combatant.name && !/[а-яА-ЯёЁ]/.test(combatant.name)
+        ? combatant.name
+        : (localizeMonsterName(combatant.nameRu || combatant.name, 'en') || combatant.name || ''))
+    : cleanRussianText(combatant.nameRu || combatant.name);
 
   return (
     <div

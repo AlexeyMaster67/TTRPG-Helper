@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.4-gold.svg?style=flat-square" alt="Version 2.0.3" />
+  <img src="https://img.shields.io/badge/version-2.0.6-gold.svg?style=flat-square" alt="Version 2.0.3" />
   <a href="https://discord.gg/XYQSHWVAuE"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2.svg?style=flat-square&logo=discord&logoColor=white" alt="Discord Community" /></a>
   <img src="https://img.shields.io/badge/license-MIT%20%2F%20CC--BY--4.0-blue.svg?style=flat-square" alt="License MIT / CC-BY" />
   <img src="https://img.shields.io/badge/offline--first-100%25%20Local-emerald.svg?style=flat-square" alt="100% Offline" />
@@ -369,5 +369,6 @@ Join the official **TTRPG Helper** Discord community to chat with other GMs, fin
     <img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join Discord Community" height="42" />
   </a>
 </p>
+
 
 

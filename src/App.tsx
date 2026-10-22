@@ -37,6 +37,7 @@ import { runAppDataMigration } from './services/appMigrationService';
 import { runSaveMigration } from './services/saveMigrationService';
 import { importCharacterFromTtrpgh } from './services/ttrpghFormat';
 import { useTranslation } from './i18n';
+import { openExternal } from './utils/openExternal';
 
 function DiscordIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
@@ -390,16 +391,15 @@ function MainApp() {
           />
 
           {/* Кнопка Discord сообщества */}
-          <a
-            href="https://discord.com/invite/XYQSHWVAuE"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => openExternal('https://discord.com/invite/XYQSHWVAuE')}
             title={language === 'en' ? 'Join Discord Community' : 'Присоединиться к Discord сообществу'}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-[#5865F2]/15 hover:bg-[#5865F2]/30 border border-[#5865F2]/40 hover:border-[#5865F2] text-[#93a1f8] hover:text-white transition-all cursor-pointer shadow-sm group select-none"
           >
             <DiscordIcon className="h-3.5 w-3.5 text-[#7988f5] group-hover:scale-110 group-hover:text-white transition-all" />
             <span className="hidden xl:inline font-bold">Discord</span>
-          </a>
+          </button>
 
           {/* Переключатель языка ENG/RU (По умолчанию ENG) */}
           <button

@@ -6,7 +6,8 @@ import { DamageType, CreatureSize, CREATURE_SIZE_SCALE } from '../../types/dnd5e
 import { useCombatStore } from '../../store/combatStore';
 import { broadcastService } from '../../services/broadcastService';
 import { audioService } from '../../services/audioService';
-import { cleanRussianText } from '../../utils/textUtils';
+import { cleanRussianText, localizeMonsterName } from '../../utils/textUtils';
+import { useTranslation } from '../../i18n';
 import { parseActionDetails } from '../../utils/attackParser';
 import { usePartyStore } from '../../store/partyStore';
 import { useDice3dStore } from '../../store/dice3dStore';
@@ -60,6 +61,14 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
     { ac: combatant.ac, speed: combatant.speed },
     combatantEffects
   );
+
+  const { language } = useTranslation();
+  const isEn = language === 'en';
+  const cardDisplayName: string = isEn
+    ? (combatant.name && !/[а-яА-ЯёЁ]/.test(combatant.name)
+        ? combatant.name
+        : (localizeMonsterName(combatant.nameRu || combatant.name, 'en') || combatant.name || ''))
+    : cleanRussianText(combatant.nameRu || combatant.name || '');
 
   const [isEditingInit, setIsEditingInit] = useState(false);
   const [tempInit, setTempInit] = useState(String(combatant.initiative));
@@ -148,7 +157,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
     if (res) {
       const isSecret = useDice3dStore.getState().isSecretRoll;
       useDiceAnimationStore.getState().triggerRoll({
-        title: `${cleanRussianText(combatant.nameRu || combatant.name)}: Спасбросок от смерти`,
+        title: `${cardDisplayName}: Спасбросок от смерти`,
         subtitle: res.revived ? 'Встал с 1 ОЗ!' : res.isDead ? 'Смерть персонажа' : res.successesAdded > 0 ? 'Успех' : 'Провал',
         sides: 20,
         r1: res.roll,
@@ -158,13 +167,13 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
         mode: 'normal',
         isNat20: res.roll === 20,
         isNat1: res.roll === 1,
-        rollerName: cleanRussianText(combatant.nameRu || combatant.name),
+        rollerName: cardDisplayName,
       });
 
       if (useDice3dStore.getState().is3dEnabled) {
         useDice3dStore.getState().rollDice3d({
           dice: [{ sides: 20, result: res.roll }],
-          title: `${cleanRussianText(combatant.nameRu || combatant.name)}: Спасбросок от смерти`,
+          title: `${cardDisplayName}: Спасбросок от смерти`,
           total: res.roll,
           isSecret,
         });
@@ -174,7 +183,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
           type: 'BROADCAST_ROLL',
           payload: {
             id: crypto.randomUUID(),
-            title: `${cleanRussianText(combatant.nameRu || combatant.name)}: Спасбросок от смерти`,
+            title: `${cardDisplayName}: Спасбросок от смерти`,
             formula: '1d20',
             resultDisplay: `d20: ${res.roll} (${res.revived ? 'Встал с 1 ОЗ!' : res.isDead ? 'Смерть' : res.successesAdded > 0 ? 'Успех' : 'Провал'})`,
             total: res.roll,
@@ -199,7 +208,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
     addDiceLog({
       id: crypto.randomUUID(),
       timestamp: timeStr,
-      combatantName: isSecret ? `[Скрытно] ${cleanRussianText(combatant.nameRu || combatant.name)}` : cleanRussianText(combatant.nameRu || combatant.name),
+      combatantName: isSecret ? `[Скрытно] ${cardDisplayName}` : cardDisplayName,
       actionName: `${isSecret ? '[Скрытно] ' : ''}Спасбросок (${nameRu})`,
       attackRoll: {
         d20,
@@ -212,7 +221,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
     });
 
     useDiceAnimationStore.getState().triggerRoll({
-      title: `${cleanRussianText(combatant.nameRu || combatant.name)}: Спасбросок ${nameRu}`,
+      title: `${cardDisplayName}: Спасбросок ${nameRu}`,
       subtitle: `Спасбросок (${nameRu})`,
       sides: 20,
       r1: d20,
@@ -222,13 +231,13 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
       mode: 'normal',
       isNat20: d20 === 20,
       isNat1: d20 === 1,
-      rollerName: cleanRussianText(combatant.nameRu || combatant.name),
+      rollerName: cardDisplayName,
     });
 
     if (useDice3dStore.getState().is3dEnabled) {
       useDice3dStore.getState().rollDice3d({
         dice: [{ sides: 20, result: d20 }],
-        title: `${cleanRussianText(combatant.nameRu || combatant.name)}: Спасбросок ${nameRu}`,
+        title: `${cardDisplayName}: Спасбросок ${nameRu}`,
         total,
         isSecret,
       });
@@ -239,7 +248,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
         type: 'BROADCAST_ROLL',
         payload: {
           id: crypto.randomUUID(),
-          title: `${cleanRussianText(combatant.nameRu || combatant.name)}: Спасбросок ${nameRu}`,
+          title: `${cardDisplayName}: Спасбросок ${nameRu}`,
           formula: `1d20 ${bonus >= 0 ? `+ ${bonus}` : `- ${Math.abs(bonus)}`}`,
           resultDisplay: `${total} [d20: ${d20}]`,
           total,
@@ -349,7 +358,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
               type: 'BROADCAST_NPC_SHOWCASE',
               payload: {
                 id: combatant.id,
-                name: cleanRussianText(combatant.nameRu || combatant.name),
+                name: cardDisplayName,
                 nameRu: combatant.nameRu ? cleanRussianText(combatant.nameRu) : undefined,
                 avatarUrl: combatant.tokenUrl,
                 creatureType: cleanRussianText(combatant.creatureType),

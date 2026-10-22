@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { useCombatStore } from '../../store/combatStore';
 import { useTokenForgeStore } from '../../store/tokenForgeStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import {
   DND_LIGHT_PRESETS,
   AMBIENT_LIGHT_CONFIG,
@@ -140,6 +141,8 @@ export const WEATHER_OPTIONS: { id: WeatherEffect; label: string; icon: string; 
 ];
 
 export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarProps) {
+  const { language } = useSettingsStore();
+  const isEn = language === 'en';
   const {
     scale,
     gridCellSize,
@@ -326,11 +329,24 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
             <>
               {/* Group 1: Navigation & Mode */}
               <div className="flex items-center gap-0.5 bg-surface/85 border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/40 shadow-md backdrop-blur-md rounded-glass-lg p-0.5 sm:p-1 flex-shrink-0 transition-all">
+                {/* [ Загрузить карту / Load Map ] */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  title={isEn ? "Load map from device (.png, .jpg, .webp, .mp4, .webm)" : "Загрузить карту с устройства (.png, .jpg, .webp, .mp4, .webm)"}
+                  className="px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-[#f5b920]/20 text-[#f5b920] border border-[#f5b920]/50 hover:bg-[#f5b920]/30 hover:border-[#f5b920] shadow-sm transition-all cursor-pointer whitespace-nowrap"
+                >
+                  <Upload className="h-3.5 w-3.5 text-[#f5b920] flex-shrink-0" />
+                  <span>{isEn ? 'Load Map' : 'Загрузить карту'}</span>
+                </button>
+
+                <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
+
                 {/* [ Выбор ] */}
                 <button
                   type="button"
                   onClick={() => setActiveTool('select')}
-                  title="Выбор и перемещение токенов (V)"
+                  title={isEn ? "Select and move tokens (V)" : "Выбор и перемещение токенов (V)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                     activeTool === 'select'
                       ? 'bg-gold/20 text-gold-light border border-gold/60 shadow-sm'
@@ -338,14 +354,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <MousePointer className="h-3.5 w-3.5" />
-                  <span>Выбор</span>
+                  <span>{isEn ? 'Select' : 'Выбор'}</span>
                 </button>
 
                 {/* [ Рука/Панорама ] */}
                 <button
                   type="button"
                   onClick={() => setActiveTool('pan')}
-                  title="Панорама / перемещение карты (H или зажать пробел)"
+                  title={isEn ? "Pan map (H or hold Space)" : "Панорама / перемещение карты (H или зажать пробел)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                     activeTool === 'pan'
                       ? 'bg-gold/20 text-gold-light border border-gold/60 shadow-sm'
@@ -353,7 +369,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <Hand className="h-3.5 w-3.5" />
-                  <span>Панорама</span>
+                  <span>{isEn ? 'Pan' : 'Панорама'}</span>
                 </button>
 
                 <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
@@ -1525,7 +1541,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   className="px-2 py-1 rounded-lg text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-600/60 transition-colors flex items-center gap-1 shadow-sm cursor-pointer"
                 >
                   <Monitor className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline font-sans text-[11px] font-bold">Игрокам</span>
+                  <span className="hidden sm:inline font-sans text-[11px] font-bold">{isEn ? 'Players' : 'Игрокам'}</span>
                 </button>
               )}
             </div>
@@ -1537,23 +1553,23 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={openProceduralModal}
-                  title="Процедурный генератор карт и подземелий (BSP и пещеры)"
+                  title={isEn ? "Procedural map & dungeon generator" : "Процедурный генератор карт и подземелий (BSP и пещеры)"}
                   className="px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 text-gold hover:text-gold-light hover:bg-gold/15 hover:border-gold/40 border border-gold/30 transition-all shadow-sm"
                 >
                   <Wand2 className="h-3.5 w-3.5 text-gold" />
-                  <span className="hidden xl:inline">Генератор карт</span>
-                  <span className="hidden sm:inline xl:hidden">Генератор</span>
+                  <span className="hidden xl:inline">{isEn ? 'Map Generator' : 'Генератор карт'}</span>
+                  <span className="hidden sm:inline xl:hidden">{isEn ? 'Generator' : 'Генератор'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  title="Загрузить изображение карты или видео (.png, .jpg, .webp, .mp4, .webm)"
-                  className="px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 text-gray-300 hover:text-gold-light hover:bg-gold/10 hover:border-gold/30 border border-transparent transition-all"
+                  title={isEn ? "Load map from device (.png, .jpg, .webp, .mp4, .webm)" : "Загрузить изображение карты или видео (.png, .jpg, .webp, .mp4, .webm)"}
+                  className="px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 text-gold-light bg-gold/15 hover:bg-gold/25 border border-gold/40 hover:border-gold transition-all shadow-sm cursor-pointer"
                 >
                   <Upload className="h-3.5 w-3.5 text-gold" />
-                  <span className="hidden xl:inline">Загрузить карту</span>
-                  <span className="hidden sm:inline xl:hidden">Карта</span>
+                  <span className="hidden xl:inline">{isEn ? 'Load Map' : 'Загрузить карту'}</span>
+                  <span className="hidden sm:inline xl:hidden">{isEn ? 'Map' : 'Карта'}</span>
                 </button>
                 <input
                   type="file"

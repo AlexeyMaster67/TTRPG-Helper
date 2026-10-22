@@ -30,6 +30,7 @@ import {
 } from '../../types/map';
 import { useCombatStore } from '../../store/combatStore';
 import { usePartyStore } from '../../store/partyStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { importCharacterFromTtrpgh } from '../../services/ttrpghFormat';
 import {
   computeVisibilityPolygon,
@@ -1151,6 +1152,15 @@ export function getCoveredCells(
 export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<any>(null);
+  const emptyMapFileInputRef = useRef<HTMLInputElement>(null);
+  const { language } = useSettingsStore();
+
+  const handleEmptyMapFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleUseAsMap(file);
+    }
+  };
 
   const [containerSize, setContainerSize] = useState({ width: 1200, height: 750 });
 
@@ -2438,6 +2448,46 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
             : 'cursor-default'
         }`}
       >
+        {/* Empty State: Load Map Prompt when no map is loaded */}
+        {!imageUrl && isMasterView && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 pointer-events-none">
+            <div className="bg-[#0f141c]/95 border border-gold/40 rounded-2xl p-6 sm:p-8 max-w-md text-center shadow-2xl backdrop-blur-md pointer-events-auto flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-200">
+              <div className="w-16 h-16 rounded-2xl bg-gold/15 border border-gold/40 flex items-center justify-center text-gold shadow-[0_0_24px_rgba(245,185,32,0.25)]">
+                <Upload className="w-8 h-8" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                  {language === 'en' ? 'Load Battle Map' : 'Загрузить тактическую карту'}
+                </h3>
+                <p className="text-xs text-gray-400 leading-relaxed max-w-xs">
+                  {language === 'en'
+                    ? 'Select an image or video from your device, or drag and drop it anywhere on the canvas.'
+                    : 'Выберите изображение или видео с вашего устройства, или просто перетащите файл на карту.'}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => emptyMapFileInputRef.current?.click()}
+                  className="px-4 py-2.5 rounded-xl bg-[#f5b920] hover:bg-[#fac742] text-[#0c0d12] font-black text-xs flex items-center gap-2 shadow-[0_0_16px_rgba(245,185,32,0.35)] transition-all cursor-pointer"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>{language === 'en' ? 'Load Map from Device' : 'Загрузить карту с устройства'}</span>
+                </button>
+              </div>
+              <span className="text-[10px] text-gray-500 font-mono">
+                PNG, JPG, WEBP, MP4, WEBM
+              </span>
+              <input
+                type="file"
+                ref={emptyMapFileInputRef}
+                onChange={handleEmptyMapFileChange}
+                accept="image/*,video/mp4,video/webm"
+                className="hidden"
+              />
+            </div>
+          </div>
+        )}
         <Stage
           ref={stageRef}
           width={containerSize.width}

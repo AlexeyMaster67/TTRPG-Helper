@@ -436,7 +436,7 @@ export function BestiaryLibrary() {
     const speed = formatSpeed(monster.speed, language);
 
     addCombatant({
-      name: activeName,
+      name: monsterNameEn || activeName,
       nameRu: monsterNameRu,
       cr: monster.cr,
       creatureType: activeType,
