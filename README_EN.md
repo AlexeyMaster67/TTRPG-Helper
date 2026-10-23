@@ -12,6 +12,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-2.0.7-gold.svg?style=flat-square" alt="Version 2.0.3" />
   <a href="https://discord.gg/XYQSHWVAuE"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2.svg?style=flat-square&logo=discord&logoColor=white" alt="Discord Community" /></a>
+  <a href="https://www.reddit.com/r/TTRPGHelper/"><img src="https://img.shields.io/badge/Reddit-r%2FTTRPGHelper-FF4500?style=flat-square&logo=reddit&logoColor=white" alt="Reddit Community" /></a>
   <img src="https://img.shields.io/badge/license-MIT%20%2F%20CC--BY--4.0-blue.svg?style=flat-square" alt="License MIT / CC-BY" />
   <img src="https://img.shields.io/badge/offline--first-100%25%20Local-emerald.svg?style=flat-square" alt="100% Offline" />
   <img src="https://img.shields.io/badge/platform-Windows%20x64-indigo.svg?style=flat-square" alt="Platform" />
@@ -362,11 +363,15 @@ If you are a copyright holder and believe that any material in this repository i
 
 ## Community & Support
 
-Join the official **TTRPG Helper** Discord community to chat with other GMs, find games, discuss systems (D&D 2024, Pathfinder 2e, Cyberpunk RED), and connect directly with the developer:
+Join the official **TTRPG Helper** Discord and Reddit community to chat with other GMs, find games, discuss systems (D&D 2024, Pathfinder 2e, Cyberpunk RED), and connect directly with the developer:
 
 <p align="center">
   <a href="https://discord.gg/XYQSHWVAuE">
     <img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join Discord Community" height="42" />
+  </a>
+  &nbsp;
+  <a href="https://www.reddit.com/r/TTRPGHelper/">
+    <img src="https://img.shields.io/badge/Reddit-r%2FTTRPGHelper-FF4500?style=for-the-badge&logo=reddit&logoColor=white" alt="Reddit Community" height="42" />
   </a>
 </p>
 
