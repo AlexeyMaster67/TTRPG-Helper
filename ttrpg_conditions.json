@@ -3,90 +3,112 @@
     "name": "Сбит с ног",
     "nameEn": "Prone",
     "badgeColor": "#F59E0B",
-    "description": "Сбит с ног (Prone): Существо передвигается только ползком. Совершает броски атак с помехой. Броски атак по существу совершаются с преимуществом, если атакующий находится в пределах 5 футов, иначе — с помехой."
+    "description": "Сбит с ног (Prone): Существо передвигается только ползком. Совершает броски атак с помехой. Броски атак по существу совершаются с преимуществом, если атакующий находится в пределах 5 футов, иначе — с помехой.",
+    "descriptionEn": "Prone: The creature's only movement option is to crawl. The creature has Disadvantage on attack rolls. Attack rolls against the creature have Advantage if the attacker is within 5 feet; otherwise, the attack roll has Disadvantage."
   },
   {
     "name": "Опутанный",
     "nameEn": "Restrained",
     "badgeColor": "#D97706",
-    "description": "Опутанный (Restrained): Скорость существа равна 0. Броски атак существа и спасброски Ловкости совершаются с помехой. Броски атак по существу совершаются с преимуществом."
+    "description": "Опутанный (Restrained): Скорость существа равна 0. Броски атак существа и спасброски Ловкости совершаются с помехой. Броски атак по существу совершаются с преимуществом.",
+    "descriptionEn": "Restrained: The creature's speed is 0. Attack rolls against the creature have Advantage, and the creature's attack rolls have Disadvantage. The creature has Disadvantage on Dexterity saving throws."
   },
   {
     "name": "Ослеплённый",
     "nameEn": "Blinded",
     "badgeColor": "#6B7280",
-    "description": "Ослеплённый (Blinded): Существо ничего не видит и автоматически проваливает проверки характеристик, требующие зрения. Броски атак существа совершаются с помехой, броски атак по нему — с преимуществом."
+    "description": "Ослеплённый (Blinded): Существо ничего не видит и автоматически проваливает проверки характеристик, требующие зрения. Броски атак существа совершаются с помехой, броски атак по нему — с преимуществом.",
+    "descriptionEn": "Blinded: The creature can't see and automatically fails ability checks requiring sight. Attack rolls against the creature have Advantage, and the creature's attack rolls have Disadvantage."
   },
   {
     "name": "Глухой",
     "nameEn": "Deafened",
     "badgeColor": "#4B5563",
-    "description": "Глухой (Deafened): Существо ничего не слышит и автоматически проваливает проверки характеристик, требующие слуха."
+    "description": "Глухой (Deafened): Существо ничего не слышит и автоматически проваливает проверки характеристик, требующие слуха.",
+    "descriptionEn": "Deafened: The creature can't hear and automatically fails ability checks requiring hearing."
   },
   {
     "name": "Отравленный",
     "nameEn": "Poisoned",
     "badgeColor": "#10B981",
-    "description": "Отравленный (Poisoned): Существо совершает броски атак и проверки характеристик с помехой."
+    "description": "Отравленный (Poisoned): Существо совершает броски атак и проверки характеристик с помехой.",
+    "descriptionEn": "Poisoned: The creature has Disadvantage on attack rolls and ability checks."
   },
   {
     "name": "Испуганный",
     "nameEn": "Frightened",
     "badgeColor": "#EC4899",
-    "description": "Испуганный (Frightened): Проверки характеристик и броски атак с помехой, пока источник страха находится в пределах зоны видимости. Существо не может добровольно приблизиться к источнику страха."
+    "description": "Испуганный (Frightened): Проверки характеристик и броски атак с помехой, пока источник страха находится в пределах зоны видимости. Существо не может добровольно приблизиться к источнику страха.",
+    "descriptionEn": "Frightened: The creature has Disadvantage on ability checks and attack rolls while the source of fear is within line of sight. It cannot willingly move closer to the source of its fear."
   },
   {
     "name": "Захваченный",
     "nameEn": "Grappled",
     "badgeColor": "#8B5CF6",
-    "description": "Захваченный (Grappled): Скорость существа равна 0 и не может увеличиваться за счёт бонусов. Состояние прекращается, если захвативший недееспособен или перемещён."
+    "description": "Захваченный (Grappled): Скорость существа равна 0 и не может увеличиваться за счёт бонусов. Состояние прекращается, если захвативший недееспособен или перемещён.",
+    "descriptionEn": "Grappled: The creature's speed is 0. Attack rolls against it have Advantage from others if grappler maintains control. Condition ends if the grappler becomes incapacitated or is moved out of reach."
   },
   {
     "name": "Очарованный",
     "nameEn": "Charmed",
     "badgeColor": "#F43F5E",
-    "description": "Очарованный (Charmed): Существо не может атаковать пленителя или причинять ему вред. Пленитель совершает социальные проверки при взаимодействии с существом с преимуществом."
+    "description": "Очарованный (Charmed): Существо не может атаковать пленителя или причинять ему вред. Пленитель совершает социальные проверки при взаимодействии с существом с преимуществом.",
+    "descriptionEn": "Charmed: The creature can't attack the charmer or target it with harmful abilities or magical effects. The charmer has Advantage on ability checks to interact socially with the creature."
   },
   {
     "name": "Недееспособный",
     "nameEn": "Incapacitated",
     "badgeColor": "#EF4444",
-    "description": "Недееспособный (Incapacitated): Существо не может совершать действия, бонусные действия и реакции. Концентрация на заклинаниях немедленно прерывается."
+    "description": "Недееспособный (Incapacitated): Существо не может совершать действия, бонусные действия и реакции. Концентрация на заклинаниях немедленно прерывается.",
+    "descriptionEn": "Incapacitated: The creature can't take actions, bonus actions, or reactions. Its Concentration is immediately broken."
   },
   {
     "name": "Оглушённый",
     "nameEn": "Stunned",
     "badgeColor": "#E11D48",
-    "description": "Оглушённый (Stunned): Существо недееспособен, не может двигаться и может говорить лишь запинаясь. Автоматический провал спасбросков Силы и Ловкости. Броски атак по нему совершаются с преимуществом."
+    "description": "Оглушённый (Stunned): Существо недееспособен, не может двигаться и может говорить лишь запинаясь. Автоматический провал спасбросков Силы и Ловкости. Броски атак по нему совершаются с преимуществом.",
+    "descriptionEn": "Stunned: The creature is incapacitated, can't move, and speaks only falteringly. Automatically fails Strength and Dexterity saves. Attack rolls against it have Advantage."
   },
   {
     "name": "Парализованный",
     "nameEn": "Paralyzed",
     "badgeColor": "#DC2626",
-    "description": "Парализованный (Paralyzed): Существо недееспособно, не может двигаться и говорить. Автоматический провал спасбросков Силы и Ловкости. Атаки по нему с преимуществом; любая успешная атака в пределах 5 футов является критическим попаданием."
+    "description": "Парализованный (Paralyzed): Существо недееспособно, не может двигаться и говорить. Автоматический провал спасбросков Силы и Ловкости. Атаки по нему с преимуществом; любая успешная атака в пределах 5 футов является критическим попаданием.",
+    "descriptionEn": "Paralyzed: The creature is incapacitated and can't move or speak. Automatically fails Strength and Dexterity saves. Attack rolls against it have Advantage. Any hit within 5 feet is a Critical Hit."
   },
   {
     "name": "Бессознательный",
     "nameEn": "Unconscious",
     "badgeColor": "#991B1B",
-    "description": "Бессознательный (Unconscious): Существо недееспособно, падает ничком и роняет всё, что держит. Провал спасбросков Силы и Ловкости. Атаки с преимуществом; успешная атака в пределах 5 футов — критическое попадание."
+    "description": "Бессознательный (Unconscious): Существо недееспособно, падает ничком и роняет всё, что держит. Провал спасбросков Силы и Ловкости. Атаки с преимуществом; успешная атака в пределах 5 футов — критическое попадание.",
+    "descriptionEn": "Unconscious: The creature is incapacitated, falls prone, and drops whatever it is holding. Automatically fails Strength and Dexterity saves. Attack rolls against it have Advantage. Hits within 5 feet are Critical Hits."
   },
   {
     "name": "Невидимый",
     "nameEn": "Invisible",
     "badgeColor": "#3B82F6",
-    "description": "Невидимый (Invisible): Существо невозможно увидеть обычным зрением. Броски атак существа совершаются с преимуществом, а броски атак по нему совершаются с помехой."
+    "description": "Невидимый (Invisible): Существо невозможно увидеть обычным зрением. Броски атак существа совершаются с преимуществом, а броски атак по нему совершаются с помехой.",
+    "descriptionEn": "Invisible: The creature is impossible to see without magic or special senses. Attack rolls against the creature have Disadvantage, and the creature's attack rolls have Advantage."
   },
   {
     "name": "Окаменевший",
     "nameEn": "Petrified",
     "badgeColor": "#78716C",
-    "description": "Окаменевший (Petrified): Существо превращено в твёрдый неодушевлённый камень и недееспособно. Вес увеличивается в 10 раз. Иммунитет к яду и болезням, сопротивление ко всем видам урона."
+    "description": "Окаменевший (Petrified): Существо превращено в твёрдый неодушевлённый камень и недееспособно. Вес увеличивается в 10 раз. Иммунитет к яду и болезням, сопротивление ко всем видам урона.",
+    "descriptionEn": "Petrified: The creature is transformed into solid stone and incapacitated. Weight increases tenfold. Resistance to all damage, immune to poison and disease."
   },
   {
     "name": "Ошеломлённый",
     "nameEn": "Dazed",
     "badgeColor": "#A855F7",
-    "description": "Ошеломлённый (Dazed, D&D 2024): Существо может в свой ход совершить только перемещение или одно действие (но не то и другое). Не может совершать бонусные действия и реакции."
+    "description": "Ошеломлённый (Dazed, D&D 2024): Существо может в свой ход совершить только перемещение или одно действие (но не то и другое). Не может совершать бонусные действия и реакции.",
+    "descriptionEn": "Dazed (D&D 2024): The creature can take either an action or move on its turn, not both. It cannot take bonus actions or reactions."
+  },
+  {
+    "name": "Истощение",
+    "nameEn": "Exhaustion",
+    "badgeColor": "#B45309",
+    "description": "Истощение (Exhaustion, D&D 2024): Штраф -2 за каждый уровень истощения ко всем броскам d20, скорость снижается на 5 фт. за уровень. На 6 уровне наступает смерть.",
+    "descriptionEn": "Exhaustion (D&D 2024): -2 penalty per exhaustion level to all d20 tests (attacks, checks, saves), speed reduced by 5 ft per level. Level 6 is fatal."
   }
 ]

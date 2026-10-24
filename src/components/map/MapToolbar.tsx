@@ -76,59 +76,73 @@ export const AOE_DAMAGE_COLORS = [
 export const QUICK_PRESETS = [
   {
     name: 'Огненный шар (20 фт)',
+    nameEn: 'Fireball (20 ft.)',
     icon: '',
     shape: 'circle' as AoeShape,
     sizeFeet: 20,
     color: '#EF4444',
     desc: 'Сфера 20 фт (4 кл.) [Огонь]',
+    descEn: 'Sphere 20 ft. (4 cells) [Fire]',
   },
   {
     name: 'Аура / Стражи (15 фт)',
+    nameEn: 'Spirit Guardians / Aura (15 ft.)',
     icon: '',
     shape: 'circle' as AoeShape,
     sizeFeet: 15,
     color: '#F59E0B',
     desc: 'Сфера 15 фт (3 кл.) [Излучение]',
+    descEn: 'Sphere 15 ft. (3 cells) [Radiant]',
   },
   {
     name: 'Конус холода (60 фт)',
+    nameEn: 'Cone of Cold (60 ft.)',
     icon: '',
     shape: 'cone' as AoeShape,
     sizeFeet: 60,
     color: '#3B82F6',
     desc: 'Конус 60 фт (12 кл.) [Холод]',
+    descEn: 'Cone 60 ft. (12 cells) [Cold]',
   },
   {
     name: 'Руки возгорания (15 фт)',
+    nameEn: 'Burning Hands (15 ft.)',
     icon: '',
     shape: 'cone' as AoeShape,
     sizeFeet: 15,
     color: '#F97316',
     desc: 'Конус 15 фт (3 кл.) [Огонь]',
+    descEn: 'Cone 15 ft. (3 cells) [Fire]',
   },
   {
     name: 'Молния (100x5 фт)',
+    nameEn: 'Lightning Bolt (100x5 ft.)',
     icon: '',
     shape: 'line' as AoeShape,
     sizeFeet: 100,
     color: '#EAB308',
     desc: 'Линия 100x5 фт (20 кл.) [Молния]',
+    descEn: 'Line 100x5 ft. (20 cells) [Lightning]',
   },
   {
     name: 'Паутина / Куб (20 фт)',
+    nameEn: 'Web / Cube (20 ft.)',
     icon: '',
     shape: 'cube' as AoeShape,
     sizeFeet: 20,
     color: '#10B981',
     desc: 'Куб 20 фт (4x4 кл.) [Контроль]',
+    descEn: 'Cube 20 ft. (4x4 cells) [Control]',
   },
   {
     name: 'Громовая волна (15 фт)',
+    nameEn: 'Thunderwave (15 ft.)',
     icon: '',
     shape: 'cube' as AoeShape,
     sizeFeet: 15,
     color: '#8B5CF6',
     desc: 'Куб 15 фт (3x3 кл.) [Звук / Сила]',
+    descEn: 'Cube 15 ft. (3x3 cells) [Thunder / Force]',
   },
 ];
 
@@ -322,7 +336,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
           {!isMasterView && (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold-light text-xs font-semibold select-none shadow-sm">
               <Hand className="h-3.5 w-3.5 text-gold animate-pulse flex-shrink-0" />
-              <span>{isEn ? 'Pan mode active (drag to move)' : 'Панорама карты активна (перемещайте зажатой мышью)'}</span>
+              <span>{isEn ? 'Pan mode active (drag to move)' : 'Режим обзора активен (перемещайте зажатой мышью)'}</span>
             </div>
           )}
           {isMasterView && (
@@ -361,7 +375,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => setActiveTool('pan')}
-                  title={isEn ? "Pan map (H or hold Space)" : "Панорама / перемещение карты (H или зажать пробел)"}
+                  title={isEn ? "Pan map (H or hold Space)" : "Обзор / перемещение карты (H или зажать пробел)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                     activeTool === 'pan'
                       ? 'bg-gold/20 text-gold-light border border-gold/60 shadow-sm'
@@ -369,7 +383,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <Hand className="h-3.5 w-3.5" />
-                  <span>{isEn ? 'Pan' : 'Панорама'}</span>
+                  <span>{isEn ? 'Pan' : 'Обзор'}</span>
                 </button>
 
                 <div className="h-4 w-px bg-[rgba(255,255,255,0.08)] mx-0.5" />
@@ -378,11 +392,11 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => useCombatStore.getState().autoArrangeCombatantsOnMap()}
-                  title={isEn ? "Automatically arrange combatants on map (players left, enemies right)" : "Автоматически расставить токены участников боя на карте (игроки слева, враги справа)"}
+                  title={isEn ? "Automatically arrange combatants on map (players left, enemies right)" : "Автоматическое размещение участников боя на карте (игроки слева, враги справа)"}
                   className="px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-gray-300 hover:text-gold-light hover:bg-gold/10 hover:border-gold/30 border border-transparent"
                 >
                   <Users className="h-3.5 w-3.5 text-emerald-400" />
-                  <span className="hidden xl:inline">{isEn ? 'Deploy' : 'Расставить'}</span>
+                  <span className="hidden xl:inline">{isEn ? 'Deploy' : 'Размещение'}</span>
                 </button>
 
                 {/* [ Добавить независимый токен ] */}
@@ -510,16 +524,16 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                               >
                                 <button
                                   type="button"
-                                  onClick={() => handleApplyTemplate(preset, 'center')}
+                                  onClick={() => handleApplyTemplate({ ...preset, label: isEn ? preset.nameEn : preset.name }, 'center')}
                                   className="flex items-center gap-2 flex-1 text-left min-w-0"
-                                  title="Добавить в центр экрана"
+                                  title={isEn ? "Add to viewport center" : "Добавить в центр экрана"}
                                 >
                                   <span className="text-base flex-shrink-0">{preset.icon}</span>
                                   <div className="min-w-0">
                                     <div className="text-xs font-semibold text-gray-200 group-hover:text-gold-light truncate">
-                                      {preset.name}
+                                      {isEn ? (preset.nameEn || preset.name) : preset.name}
                                     </div>
-                                    <div className="text-[10px] text-gray-400">{preset.desc}</div>
+                                    <div className="text-[10px] text-gray-400">{isEn ? (preset.descEn || preset.desc) : preset.desc}</div>
                                   </div>
                                 </button>
                                 <div className="flex items-center gap-1 flex-shrink-0">
@@ -530,7 +544,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                   <button
                                     type="button"
                                     onClick={() => handleApplyTemplate(preset, 'center')}
-                                    title="Поместить в центр видимой области"
+                                    title={isEn ? "Place in center of visible area" : "Поместить в центр видимой области"}
                                     className="p-1 rounded bg-[#1e293b] hover:bg-[#334155] text-gold-light border border-gold/30 text-[10px] font-medium flex items-center gap-0.5"
                                   >
                                     <MapPin className="h-3 w-3" />
@@ -539,7 +553,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                   <button
                                     type="button"
                                     onClick={() => handleApplyTemplate(preset, 'placement')}
-                                    title="Разместить кликом на карте"
+                                    title={isEn ? "Place with click on map" : "Разместить кликом на карте"}
                                     className="p-1 rounded bg-[#1e293b] hover:bg-[#334155] text-purple-300 border border-purple-500/30 text-[10px] font-medium flex items-center gap-0.5"
                                   >
                                     <Crosshair className="h-3 w-3" />
@@ -649,7 +663,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                   type="color"
                                   value={customColor}
                                   onChange={(e) => setCustomColor(e.target.value)}
-                                  title="Выбрать свой цвет"
+                                  title={isEn ? "Choose custom color" : "Выбрать свой цвет"}
                                   className="w-6 h-6 rounded cursor-pointer border border-slate-700 bg-transparent p-0"
                                 />
                               </div>
@@ -750,7 +764,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <Pencil className="h-3.5 w-3.5 text-gold" />
-                  <span>{isEn ? 'Draw' : 'Рисовать'}</span>
+                  <span>{isEn ? 'Draw' : 'Рисование'}</span>
                 </button>
 
                 {/* [ ⌫ Ластик ] */}
@@ -863,7 +877,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'pin' ? 'select' : 'pin')}
-                  title={isEn ? "GM Pin: interactive note or trap (P)" : "Булавка Мастера: кликните по карте для размещения интерактивной заметки/ловушки (P)"}
+                  title={isEn ? "GM Pin: interactive note or trap (P)" : "Метка Мастера: кликните по карте для размещения интерактивной заметки/ловушки (P)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     activeTool === 'pin'
                       ? 'bg-amber-500/25 text-amber-300 border border-amber-500/60 shadow-sm'
@@ -871,7 +885,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <MapPin className="h-3.5 w-3.5 text-amber-400" />
-                  <span>{isEn ? "Pin" : "Булавка"}</span>
+                  <span>{isEn ? "Pin" : "Метка"}</span>
                   {pins.length > 0 && (
                     <span className="font-mono text-[10px] text-amber-300/80">({pins.length})</span>
                   )}
@@ -880,7 +894,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <button
                     type="button"
                     onClick={clearPins}
-                    title={isEn ? "Delete all pins from map" : "Удалить все булавки с карты"}
+                    title={isEn ? "Delete all pins from map" : "Удалить все метки с карты"}
                     className="p-1 rounded-lg text-gray-400 hover:text-red-300 hover:bg-red-950/40 border border-transparent transition-colors"
                   >
                     <Trash2 className="h-3 w-3 text-red-400" />
@@ -923,7 +937,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => setActiveTool(activeTool === 'secret_door' ? 'select' : 'secret_door')}
-                  title={isEn ? "Secret door: visible to GM, hidden as normal wall to players" : "Тайная дверь: видна Мастеру фиолетовым пунктиром с символом 'S', на экране игроков скрыта как обычная стена"}
+                  title={isEn ? "Secret door: visible to GM, hidden as normal wall to players" : "Тайник: виден Мастеру фиолетовым пунктиром с символом 'S', на экране игроков скрыт как обычная стена"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     activeTool === 'secret_door'
                       ? 'bg-purple-600/30 text-purple-200 border border-purple-500/60 shadow-sm'
@@ -931,7 +945,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <EyeOff className="h-3.5 w-3.5 text-purple-400" />
-                  <span>{isEn ? "Secret" : "Тайная"}</span>
+                  <span>{isEn ? "Secret" : "Тайник"}</span>
                 </button>
 
                 {/* [ Окно ] */}
@@ -976,7 +990,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                     <button
                       type="button"
                       onClick={() => setActiveTool(activeTool === 'light' ? 'select' : 'light')}
-                      title={isEn ? "Light Tool: click on map to place a light source (L)" : "Инструмент «Свет»: клик по карте ставит светильник (L)"}
+                      title={isEn ? "Light Tool: click on map to place a light source (L)" : "Освещение: клик по карте ставит светильник (L)"}
                       className={`px-1.5 py-1 rounded-l-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                         activeTool === 'light'
                           ? 'bg-amber-950/90 border border-amber-500 text-amber-200 shadow-sm'
@@ -984,7 +998,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                       }`}
                     >
                       <Flame className={`h-3.5 w-3.5 ${isLightingEnabled ? 'text-amber-400' : 'text-gray-400'}`} />
-                      <span>{isEn ? "Light" : "Свет"}</span>
+                      <span>{isEn ? "Light" : "Освещение"}</span>
                       {lights.length > 0 && (
                         <span className="font-mono text-[10px] text-amber-400/90">({lights.length})</span>
                       )}
@@ -1045,8 +1059,8 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                     : 'bg-[#18202c]/60 text-gray-300 border-slate-700/50 hover:bg-[#1f2937]'
                                 }`}
                               >
-                                <div className="font-semibold">{conf.name}</div>
-                                <div className="text-[9px] text-gray-400 truncate">{conf.description}</div>
+                                <div className="font-semibold">{isEn ? (conf.nameEn || conf.name) : conf.name}</div>
+                                <div className="text-[9px] text-gray-400 truncate">{isEn ? (conf.descriptionEn || conf.description) : conf.description}</div>
                               </button>
                             );
                           })}
@@ -1089,8 +1103,8 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                                     style={{ backgroundColor: preset.color }}
                                   />
                                   <div className="min-w-0">
-                                    <div className="text-xs font-semibold truncate">{preset.name}</div>
-                                    <div className="text-[10px] text-gray-400 truncate">{preset.description}</div>
+                                    <div className="text-xs font-semibold truncate">{isEn ? (preset.nameEn || preset.name) : preset.name}</div>
+                                    <div className="text-[10px] text-gray-400 truncate">{isEn ? (preset.descriptionEn || preset.description) : preset.description}</div>
                                   </div>
                                 </button>
 
@@ -1147,7 +1161,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={toggleLighting}
-                  title={isLightingEnabled ? 'Динамический свет активен: кликните чтобы выключить' : 'Динамический свет выключен: кликните чтобы включить'}
+                  title={isEn ? (isLightingEnabled ? 'Dynamic light active: click to disable' : 'Dynamic light disabled: click to enable') : (isLightingEnabled ? 'Динамический свет активен: кликните чтобы выключить' : 'Динамический свет выключен: кликните чтобы включить')}
                   className={`p-1 rounded-lg text-xs transition-colors border ${
                     isLightingEnabled
                       ? 'bg-amber-950/60 border-amber-500/70 text-amber-300'
@@ -1164,7 +1178,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={toggleFog}
-                  title={isFogEnabled ? 'Выключить туман войны (карта полностью открыта)' : 'Включить туман войны (скрыть неисследованные области от игроков)'}
+                  title={isEn ? (isFogEnabled ? "Disable Fog of War (map fully revealed)" : "Enable Fog of War (hide unexplored areas from players)") : (isFogEnabled ? "Выключить туман войны (карта полностью открыта)" : "Включить туман войны (скрыть неисследованные области от игроков)")}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     isFogEnabled
                       ? 'bg-purple-900/40 text-purple-200 border border-purple-500/60 shadow-sm'
@@ -1172,7 +1186,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <CloudFog className={`h-3.5 w-3.5 ${isFogEnabled ? 'text-purple-400' : 'text-gray-400'}`} />
-                  <span>Туман</span>
+                  <span>{isEn ? 'Fog' : 'Туман'}</span>
                   {isFogEnabled && (
                     <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse ml-0.5" />
                   )}
@@ -1186,14 +1200,14 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                     <button
                       type="button"
                       onClick={() => setActiveTool(activeTool === 'fog' ? 'select' : 'fog')}
-                      title="Инструмент редактирования тумана: кликайте или тяните по карте"
+                      title={isEn ? "Fog editor tool: click or drag across map" : "Инструмент редактирования тумана: кликайте или тяните по карте"}
                       className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                         activeTool === 'fog'
                           ? 'bg-gold/20 text-gold-light border border-gold/60 shadow-sm'
                           : 'text-gray-300 hover:text-gold-light hover:bg-gold/10 hover:border-gold/30 border border-transparent'
                       }`}
                     >
-                      <span>Редактор</span>
+                      <span>{isEn ? "Editor" : "Редактор"}</span>
                     </button>
 
                     {/* Mode Toggle: Reveal (Открыть) vs Conceal (Скрыть) */}
@@ -1204,7 +1218,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                           setFogToolMode('reveal');
                           if (activeTool !== 'fog') setActiveTool('fog');
                         }}
-                        title="Открыть область для игроков (Reveal)"
+                        title={isEn ? "Reveal area to players (Reveal)" : "Открыть область для игроков (Reveal)"}
                         className={`px-1.5 py-0.5 rounded text-[11px] font-semibold flex items-center gap-1 transition-all ${
                           fogToolMode === 'reveal' && activeTool === 'fog'
                             ? 'bg-sky-600/40 text-sky-200 border border-sky-400/60'
@@ -1212,7 +1226,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                         }`}
                       >
                         <Eye className="h-3 w-3 text-sky-400" />
-                        <span className="hidden lg:inline">Открыть</span>
+                        <span className="hidden lg:inline">{isEn ? "Reveal" : "Открыть"}</span>
                       </button>
 
                       <button
@@ -1221,7 +1235,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                           setFogToolMode('conceal');
                           if (activeTool !== 'fog') setActiveTool('fog');
                         }}
-                        title="Скрыть область туманом (Conceal)"
+                        title={isEn ? "Conceal area with fog (Conceal)" : "Скрыть область туманом (Conceal)"}
                         className={`px-1.5 py-0.5 rounded text-[11px] font-semibold flex items-center gap-1 transition-all ${
                           fogToolMode === 'conceal' && activeTool === 'fog'
                             ? 'bg-purple-900/50 text-purple-200 border border-purple-500/60'
@@ -1229,7 +1243,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                         }`}
                       >
                         <EyeOff className="h-3 w-3 text-purple-400" />
-                        <span className="hidden lg:inline">Скрыть</span>
+                        <span className="hidden lg:inline">{isEn ? "Conceal" : "Скрыть"}</span>
                       </button>
                     </div>
 
@@ -1241,7 +1255,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                           setFogShapeType('brush');
                           if (activeTool !== 'fog') setActiveTool('fog');
                         }}
-                        title="Круглая кисть тумана"
+                        title={isEn ? "Circular fog brush" : "Круглая кисть тумана"}
                         className={`p-1 rounded text-[11px] transition-all ${
                           fogShapeType === 'brush'
                             ? 'bg-slate-700 text-gold'
@@ -1256,7 +1270,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                           setFogShapeType('rect');
                           if (activeTool !== 'fog') setActiveTool('fog');
                         }}
-                        title="Прямоугольная область тумана"
+                        title={isEn ? "Rectangular fog area" : "Прямоугольная область тумана"}
                         className={`p-1 rounded text-[11px] transition-all ${
                           fogShapeType === 'rect'
                             ? 'bg-slate-700 text-gold'
@@ -1275,7 +1289,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                             key={size}
                             type="button"
                             onClick={() => setFogBrushSize(size)}
-                            title={`Размер кисти: ${size}px`}
+                            title={`${isEn ? "Brush size: " : "Размер кисти: "}${size}px`}
                             className={`px-1 py-0.5 rounded text-[10px] font-mono transition-all ${
                               fogBrushSize === size
                                 ? 'bg-gold/30 text-gold-light border border-gold/60 font-bold'
@@ -1293,7 +1307,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                       <button
                         type="button"
                         onClick={undoLastFog}
-                        title="Отменить последнее действие тумана (Ctrl+Z)"
+                        title={isEn ? "Undo last fog action (Ctrl+Z)" : "Отменить последнее действие тумана (Ctrl+Z)"}
                         className="p-1 rounded-lg text-gray-400 hover:text-gold hover:bg-gold/10 transition-colors"
                       >
                         <Undo2 className="h-3 w-3" />
@@ -1304,18 +1318,18 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                     <button
                       type="button"
                       onClick={revealAllFog}
-                      title="Открыть всю карту для игроков (убрать весь туман)"
+                      title={isEn ? "Reveal entire map to players (clear all fog)" : "Открыть всю карту для игроков (убрать весь туман)"}
                       className="px-1.5 py-0.5 rounded text-[10px] text-sky-400 hover:text-sky-300 hover:bg-sky-950/40 border border-sky-800/40 transition-colors"
                     >
-                      Открыть всё
+                      {isEn ? "Reveal All" : "Открыть всё"}
                     </button>
                     <button
                       type="button"
                       onClick={concealAllFog}
-                      title="Затянуть всю карту сплошным туманом"
+                      title={isEn ? "Conceal entire map with dense fog" : "Затянуть всю карту сплошным туманом"}
                       className="px-1.5 py-0.5 rounded text-[10px] text-purple-400 hover:text-purple-300 hover:bg-purple-950/40 border border-purple-800/40 transition-colors"
                     >
-                      Скрыть всё
+                      {isEn ? "Conceal All" : "Скрыть всё"}
                     </button>
                   </>
                 )}
@@ -1333,7 +1347,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
               <button
                 type="button"
                 onClick={toggleWhiteBackground}
-                title="Переключить фон карты (светлый фон идеален для проекторов и ТВ)"
+                title={isEn ? "Toggle map background (light background is ideal for projectors and TV)" : "Переключить фон карты (светлый фон идеален для проекторов и ТВ)"}
                 className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                   isWhiteBackground
                     ? 'bg-amber-100 border border-amber-300 text-amber-950 hover:bg-amber-200 shadow-sm'
@@ -1343,12 +1357,12 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 {isWhiteBackground ? (
                   <>
                     <Moon className="h-3.5 w-3.5 text-slate-800" />
-                    <span>Тёмный</span>
+                    <span>{isEn ? "Dark" : "Тёмный"}</span>
                   </>
                 ) : (
                   <>
                     <Sun className="h-3.5 w-3.5 text-amber-400" />
-                    <span>Светлый</span>
+                    <span>{isEn ? "Light" : "Светлый"}</span>
                   </>
                 )}
               </button>
@@ -1360,7 +1374,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                 <button
                   type="button"
                   onClick={() => setIsWeatherOpen((prev) => !prev)}
-                  title="Атмосферная погода и эффекты частиц (60 кадров/сек)"
+                  title={isEn ? "Atmospheric weather & particle effects (60 FPS)" : "Атмосферная погода и эффекты частиц (60 кадров/сек)"}
                   className={`px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                     weatherEffect !== 'none'
                       ? 'bg-gold/20 text-gold-light border border-gold/60 shadow-sm'
@@ -1368,7 +1382,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   }`}
                 >
                   <Sparkles className="h-3.5 w-3.5 text-gold/80" />
-                  <span className="hidden sm:inline">{WEATHER_OPTIONS.find((w) => w.id === weatherEffect)?.name || 'Ясно'}</span>
+                  <span className="hidden sm:inline">{WEATHER_OPTIONS.find((w) => w.id === weatherEffect)?.[isEn ? 'labelEn' : 'name'] || (isEn ? 'Clear' : 'Ясно')}</span>
                   <ChevronDown className={`h-3 w-3 text-gold/70 transition-transform duration-150 ${isWeatherOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -1378,8 +1392,8 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="text-[10px] font-bold text-gray-400 uppercase px-2.5 pt-1 pb-1 tracking-wider border-b border-slate-700/60 flex items-center justify-between font-serif">
-                      <span className="text-gold-light">Погода карты</span>
-                      <span className="text-gold/80 text-[9px] font-mono">60 кадров/сек</span>
+                      <span className="text-gold-light">{isEn ? "Map Weather" : "Погода карты"}</span>
+                      <span className="text-gold/80 text-[9px] font-mono">{isEn ? "60 FPS" : "60 кадров/сек"}</span>
                     </div>
                     {WEATHER_OPTIONS.map((opt) => (
                       <button
@@ -1451,7 +1465,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <button
                     type="button"
                     onClick={() => setGridType('square')}
-                    title="Квадратная сетка (Square 5 ft)"
+                    title={isEn ? "Square grid (Square 5 ft.)" : "Квадратная сетка (Square 5 ft)"}
                     className={`px-1 py-0.5 rounded text-[10px] font-semibold transition-colors ${
                       gridType === 'square'
                         ? 'bg-gold/25 text-gold-light font-bold border border-gold/60 shadow-xs'
@@ -1463,26 +1477,26 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <button
                     type="button"
                     onClick={() => setGridType('hex-pointy')}
-                    title="Гексагональная вертикальная сетка (Pointy-topped hex)"
+                    title={isEn ? "Hexagonal vertical grid (Pointy-topped hex)" : "Гексагональная вертикальная сетка (Pointy-topped hex)"}
                     className={`px-1 py-0.5 rounded text-[10px] font-semibold transition-colors ${
                       gridType === 'hex-pointy'
                         ? 'bg-gold/25 text-gold-light font-bold border border-gold/60 shadow-xs'
                         : 'text-gray-400 hover:text-gray-200 border border-transparent'
                     }`}
                   >
-                    {isEn ? "⬡ Hex V" : "⬡ Гекс V"}
+                    {isEn ? "⬡ Hex V" : "⬡ Гекс В"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setGridType('hex-flat')}
-                    title="Гексагональная горизонтальная сетка (Flat-topped hex)"
+                    title={isEn ? "Hexagonal horizontal grid (Flat-topped hex)" : "Гексагональная горизонтальная сетка (Flat-topped hex)"}
                     className={`px-1 py-0.5 rounded text-[10px] font-semibold transition-colors ${
                       gridType === 'hex-flat'
                         ? 'bg-gold/25 text-gold-light font-bold border border-gold/60 shadow-xs'
                         : 'text-gray-400 hover:text-gray-200 border border-transparent'
                     }`}
                   >
-                    {isEn ? "⬢ Hex H" : "⬢ Гекс H"}
+                    {isEn ? "⬢ Hex H" : "⬢ Гекс Г"}
                   </button>
                 </div>
 
@@ -1542,11 +1556,11 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                       payload: { panX, panY, scale },
                     });
                   }}
-                  title="Отправить текущий ракурс и масштаб карты на экран игроков"
+                  title={isEn ? "Send current view and zoom to player display" : "Отправить текущий ракурс и масштаб карты на экран игроков"}
                   className="px-2 py-1 rounded-lg text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-600/60 transition-colors flex items-center gap-1 shadow-sm cursor-pointer"
                 >
                   <Monitor className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline font-sans text-[11px] font-bold">{isEn ? 'Players' : 'Игрокам'}</span>
+                  <span className="hidden sm:inline font-sans text-[11px] font-bold">{isEn ? 'Players' : 'Игроки'}</span>
                 </button>
               )}
             </div>

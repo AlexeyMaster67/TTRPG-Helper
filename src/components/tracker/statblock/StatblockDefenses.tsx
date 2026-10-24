@@ -95,13 +95,13 @@ export function StatblockDefenses({ combatant }: StatblockDefensesProps) {
         </div>
       )}
 
-      {combatant.cr && (
+      {(combatant.cr || sb?.cr) && (
         <div className="flex items-start gap-1.5 min-w-0">
           <Shield className="h-3 w-3 text-gold flex-shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1 break-words [overflow-wrap:anywhere] leading-snug">
             <strong className="text-gray-200 font-bold">{isEn ? 'Challenge: ' : 'Опасность: '}</strong>
             <span className="font-mono tabular-nums text-gold-light font-bold">
-              {combatant.cr} {(sb as any)?.xp ? `(${Number((sb as any).xp).toLocaleString()} ${isEn ? 'XP' : 'опыта'})` : ''}
+              {combatant.cr || sb?.cr} {(sb as any)?.xp ? `(${Number((sb as any).xp).toLocaleString()} ${isEn ? 'XP' : 'опыта'})` : ''}
             </span>
             {sb?.pb && (
               <span className="font-mono tabular-nums text-gray-400 text-xs ml-2 inline-block whitespace-nowrap">

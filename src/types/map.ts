@@ -208,3 +208,21 @@ export interface TacticalMapState {
   isProceduralModalOpen?: boolean;
 }
 
+export function getTokenScale(c: any): number {
+  if (c?.size) {
+    const s = String(c.size).toLowerCase();
+    if (s.includes('gargantuan') || s.includes('громадный')) return 4.0;
+    if (s.includes('huge') || s.includes('огромный')) return 3.0;
+    if (s.includes('large') || s.includes('большой')) return 2.0;
+    if (s.includes('medium') || s.includes('средний')) return 1.0;
+    if (s.includes('small') || s.includes('маленький')) return 0.85;
+    if (s.includes('tiny') || s.includes('крошечный')) return 0.6;
+  }
+  if (typeof c?.tokenScale === 'number' && c.tokenScale > 0) return c.tokenScale;
+  const size = (c?.statblock?.size || c?.statblock?.size_ru || '').toLowerCase();
+  if (size.includes('gargantuan') || size.includes('громадный')) return 4.0;
+  if (size.includes('huge') || size.includes('огромный')) return 3.0;
+  if (size.includes('large') || size.includes('большой')) return 2.0;
+  return 1.0;
+}
+

@@ -6,7 +6,7 @@ import { DamageType, CreatureSize, CREATURE_SIZE_SCALE } from '../../types/dnd5e
 import { useCombatStore } from '../../store/combatStore';
 import { broadcastService } from '../../services/broadcastService';
 import { audioService } from '../../services/audioService';
-import { cleanRussianText, localizeMonsterName } from '../../utils/textUtils';
+import { cleanRussianText, localizeMonsterName, formatSpeed } from '../../utils/textUtils';
 import { useTranslation } from '../../i18n';
 import { parseActionDetails } from '../../utils/attackParser';
 import { usePartyStore } from '../../store/partyStore';
@@ -156,9 +156,17 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
     const res = rollDeathSave(combatant.id);
     if (res) {
       const isSecret = useDice3dStore.getState().isSecretRoll;
+      const deathTitle = isEn ? `${cardDisplayName}: Death Save` : `${cardDisplayName}: Спасбросок от смерти`;
+      const deathSubtitle = isEn
+        ? (res.revived ? 'Revived with 1 HP!' : res.isDead ? 'Character died' : res.successesAdded > 0 ? 'Success' : 'Failure')
+        : (res.revived ? 'Встал с 1 ОЗ!' : res.isDead ? 'Смерть персонажа' : res.successesAdded > 0 ? 'Успех' : 'Провал');
+      const deathResultDisplay = isEn
+        ? (res.revived ? 'Revived with 1 HP!' : res.isDead ? 'Dead' : res.successesAdded > 0 ? 'Success' : 'Failure')
+        : (res.revived ? 'Встал с 1 ОЗ!' : res.isDead ? 'Смерть' : res.successesAdded > 0 ? 'Успех' : 'Провал');
+
       useDiceAnimationStore.getState().triggerRoll({
-        title: `${cardDisplayName}: Спасбросок от смерти`,
-        subtitle: res.revived ? 'Встал с 1 ОЗ!' : res.isDead ? 'Смерть персонажа' : res.successesAdded > 0 ? 'Успех' : 'Провал',
+        title: deathTitle,
+        subtitle: deathSubtitle,
         sides: 20,
         r1: res.roll,
         kept: res.roll,
@@ -173,7 +181,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
       if (useDice3dStore.getState().is3dEnabled) {
         useDice3dStore.getState().rollDice3d({
           dice: [{ sides: 20, result: res.roll }],
-          title: `${cardDisplayName}: Спасбросок от смерти`,
+          title: deathTitle,
           total: res.roll,
           isSecret,
         });
@@ -183,9 +191,9 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
           type: 'BROADCAST_ROLL',
           payload: {
             id: crypto.randomUUID(),
-            title: `${cardDisplayName}: Спасбросок от смерти`,
+            title: deathTitle,
             formula: '1d20',
-            resultDisplay: `d20: ${res.roll} (${res.revived ? 'Встал с 1 ОЗ!' : res.isDead ? 'Смерть' : res.successesAdded > 0 ? 'Успех' : 'Провал'})`,
+            resultDisplay: `d20: ${res.roll} (${deathResultDisplay})`,
             total: res.roll,
             isCritical: res.roll === 20,
             isCriticalMiss: res.roll === 1,
@@ -202,14 +210,22 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
     const total = d20 + bonus;
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const isSecret = useDice3dStore.getState().isSecretRoll;
+    const statNameEn = _statName.toUpperCase();
+    const saveTitle = isEn ? `${cardDisplayName}: ${statNameEn} Save` : `${cardDisplayName}: Спасбросок ${nameRu}`;
+    const actionLabel = isEn
+      ? `${isSecret ? '[Secret] ' : ''}Saving Throw (${statNameEn})`
+      : `${isSecret ? '[Скрытно] ' : ''}Спасбросок (${nameRu})`;
+    const rollNote = isEn
+      ? `${statNameEn} Save: d20(${d20}) ${bonus >= 0 ? `+${bonus}` : bonus} = ${total}`
+      : `Спасбросок ${nameRu}: d20(${d20}) ${bonus >= 0 ? `+${bonus}` : bonus} = ${total}`;
 
     audioService.playDiceRoll();
 
     addDiceLog({
       id: crypto.randomUUID(),
       timestamp: timeStr,
-      combatantName: isSecret ? `[Скрытно] ${cardDisplayName}` : cardDisplayName,
-      actionName: `${isSecret ? '[Скрытно] ' : ''}Спасбросок (${nameRu})`,
+      combatantName: isSecret ? (isEn ? `[Secret] ${cardDisplayName}` : `[Скрытно] ${cardDisplayName}`) : cardDisplayName,
+      actionName: actionLabel,
       attackRoll: {
         d20,
         modifier: bonus,
@@ -217,12 +233,12 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
         isNat20: d20 === 20,
         isNat1: d20 === 1,
       },
-      note: `Спасбросок ${nameRu}: d20(${d20}) ${bonus >= 0 ? `+${bonus}` : bonus} = ${total}`,
+      note: rollNote,
     });
 
     useDiceAnimationStore.getState().triggerRoll({
-      title: `${cardDisplayName}: Спасбросок ${nameRu}`,
-      subtitle: `Спасбросок (${nameRu})`,
+      title: saveTitle,
+      subtitle: isEn ? `Saving Throw (${statNameEn})` : `Спасбросок (${nameRu})`,
       sides: 20,
       r1: d20,
       kept: d20,
@@ -237,7 +253,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
     if (useDice3dStore.getState().is3dEnabled) {
       useDice3dStore.getState().rollDice3d({
         dice: [{ sides: 20, result: d20 }],
-        title: `${cardDisplayName}: Спасбросок ${nameRu}`,
+        title: saveTitle,
         total,
         isSecret,
       });
@@ -248,7 +264,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
         type: 'BROADCAST_ROLL',
         payload: {
           id: crypto.randomUUID(),
-          title: `${cardDisplayName}: Спасбросок ${nameRu}`,
+          title: saveTitle,
           formula: `1d20 ${bonus >= 0 ? `+ ${bonus}` : `- ${Math.abs(bonus)}`}`,
           resultDisplay: `${total} [d20: ${d20}]`,
           total,
@@ -370,9 +386,9 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
           onRemove={() => removeCombatant(combatant.id)}
         />
 
-        {/* Tier 2 (Bottom Tier): [КО / Игрок] [КД] [1×1 Сетка] [Скорость] ... [HealthBar with ОЗ] [Реакция] [Концентрация] [+ Состояние] */}
+        {/* Tier 2 (Bottom Tier): [ПО / Игрок] [КД] [1×1 Сетка] [Скорость] ... [HealthBar with ОЗ] [Реакция] [Концентрация] [+ Состояние] */}
         <div className="pt-1 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between gap-2 min-w-0">
-          {/* Слева: Защита и параметры (КО/Игрок, КД, Размер, Скорость) */}
+          {/* Слева: Защита и параметры (ПО/Игрок, КД, Размер, Скорость) */}
           <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-mono min-w-0 flex-1 overflow-hidden">
             {subtitle && (
               <span
@@ -380,7 +396,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
                   'font-bold flex-shrink-0 whitespace-nowrap',
                   combatant.isPlayer ? 'text-emerald-400/90 font-sans' : 'text-amber-300/90'
                 )}
-                title={combatant.isPlayer ? 'Персонаж игрока' : 'Класс Опасности (CR)'}
+                title={combatant.isPlayer ? (isEn ? 'Player character' : 'Персонаж игрока') : (isEn ? 'Challenge Rating (CR)' : 'Показатель опасности (ПО)')}
               >
                 {subtitle}
               </span>
@@ -389,7 +405,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
             {/* КД со значком щита (неразрушающий динамический расчет) */}
             <span
               className="inline-flex items-center gap-1 text-gray-200 bg-[#161d22] px-1.5 py-0.5 rounded border border-[#374450]/80 shadow-sm flex-shrink-0 leading-none whitespace-nowrap"
-              title={`Класс Доспеха (КД): ${effectiveStats.effectiveAc}${effectiveStats.acBonus !== 0 ? ` (Базовый: ${combatant.ac}, Модификатор: ${effectiveStats.acBonus > 0 ? `+${effectiveStats.acBonus}` : effectiveStats.acBonus})` : ''}`}
+              title={isEn ? `Armor Class (AC): ${effectiveStats.effectiveAc}${effectiveStats.acBonus !== 0 ? ` (Base: ${combatant.ac}, Modifier: ${effectiveStats.acBonus > 0 ? `+${effectiveStats.acBonus}` : effectiveStats.acBonus})` : ''}` : `Класс Доспеха (КД): ${effectiveStats.effectiveAc}${effectiveStats.acBonus !== 0 ? ` (Базовый: ${combatant.ac}, Модификатор: ${effectiveStats.acBonus > 0 ? `+${effectiveStats.acBonus}` : effectiveStats.acBonus})` : ''}`}
             >
               <Shield className="h-2.5 w-2.5 text-gold flex-shrink-0" />
               <strong
@@ -468,9 +484,9 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
             {combatant.speed && (
               <span
                 className="text-gray-400 truncate font-sans max-w-[70px] sm:max-w-[100px] leading-tight flex-shrink min-w-0"
-                title={isEn ? `Speed: ${combatant.speed.replace(/фт\.?/g, 'ft.')}` : `Скорость: ${combatant.speed}`}
+                title={isEn ? `Speed: ${formatSpeed(combatant.speed, 'en')}` : `Скорость: ${formatSpeed(combatant.speed, 'ru')}`}
               >
-                {isEn ? combatant.speed.replace(/фт\.?/g, 'ft.') : combatant.speed}
+                {formatSpeed(combatant.speed, isEn ? 'en' : 'ru')}
               </span>
             )}
           </div>
@@ -515,7 +531,13 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
               if (currentTargetId) {
                 executeTargetedStrike(combatant.id, currentTargetId, firstAtk);
               } else {
-                startTargetingMode(combatant.id, firstAtk, `Выберите цель для «${cleanRussianText(firstAtk.name)}»`);
+                startTargetingMode(
+                  combatant.id,
+                  firstAtk,
+                  isEn
+                    ? `Select target for "${firstAtk.name_en || firstAtk.name}"`
+                    : `Выберите цель для «${cleanRussianText(firstAtk.name)}»`
+                );
               }
             } else {
               openTargetedAttack(combatant.id);
@@ -550,16 +572,16 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
               <span className="font-semibold font-sans truncate max-w-[110px]">{eff.name}</span>
               {eff.modifiers?.acBonus && (
                 <span className="text-emerald-400 font-bold">
-                  {eff.modifiers.acBonus > 0 ? `+${eff.modifiers.acBonus}` : eff.modifiers.acBonus} КД
+                  {eff.modifiers.acBonus > 0 ? `+${eff.modifiers.acBonus}` : eff.modifiers.acBonus} {isEn ? 'AC' : 'КД'}
                 </span>
               )}
               {eff.aura?.enabled && (
                 <span className="text-amber-300">
-                  Аура {eff.aura.radiusFeet} фт.
+                  {isEn ? `Aura ${eff.aura.radiusFeet} ft.` : `Аура ${eff.aura.radiusFeet} фт.`}
                 </span>
               )}
               <span className="text-gray-400 text-[9px]">
-                {eff.durationRounds === 'permanent' ? 'Пост.' : `${eff.durationRounds} р.`}
+                {eff.durationRounds === 'permanent' ? (isEn ? 'Perm.' : 'Пост.') : (isEn ? `${eff.durationRounds} r.` : `${eff.durationRounds} р.`)}
               </span>
               <button
                 type="button"
@@ -568,7 +590,7 @@ export function CombatantCard({ combatant, isActiveTurn, isInspected }: Combatan
                   removeEffectFromCombatant(combatant.id, eff.id);
                 }}
                 className="text-gray-400 hover:text-white p-0.5 ml-0.5"
-                title="Снять эффект"
+                title={isEn ? "Remove effect" : "Снять эффект"}
               >
                 <X className="h-2.5 w-2.5" />
               </button>

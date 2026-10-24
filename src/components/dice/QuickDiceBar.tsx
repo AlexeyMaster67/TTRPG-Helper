@@ -175,10 +175,12 @@ export const QuickDiceBar: React.FC = () => {
 
     const activeCombatant = combatants.find((c) => c.id === activeCombatantId);
     const rollerName = activeCombatant
-      ? activeCombatant.nameRu || activeCombatant.name
+      ? (isEn ? (activeCombatant.name || activeCombatant.nameRu) : (activeCombatant.nameRu || activeCombatant.name))
       : undefined;
 
-    const title = rollerName ? `${rollerName}: d${sides}` : `Бросок d${sides}`;
+    const title = rollerName
+      ? `${rollerName}: d${sides}`
+      : (isEn ? `d${sides} Roll` : `Бросок d${sides}`);
 
     const rollData: Dice2dRollData = {
       id: crypto.randomUUID(),
@@ -217,9 +219,9 @@ export const QuickDiceBar: React.FC = () => {
       id: crypto.randomUUID(),
       timestamp: timeStr,
       combatantName: isSecretRoll
-        ? `[Скрытно] ${rollerName || 'Быстрый бросок'}`
-        : rollerName || 'Быстрый бросок',
-      actionName: `${isSecretRoll ? '[Скрытно] ' : ''}Бросок d${sides}${modStr}`,
+        ? (isEn ? `[Secret] ${rollerName || 'Quick Roll'}` : `[Скрытно] ${rollerName || 'Быстрый бросок'}`)
+        : rollerName || (isEn ? 'Quick Roll' : 'Быстрый бросок'),
+      actionName: `${isSecretRoll ? (isEn ? '[Secret] ' : '[Скрытно] ') : ''}${isEn ? `Roll d${sides}${modStr}` : `Бросок d${sides}${modStr}`}`,
       attackRoll:
         sides === 20
           ? {
@@ -235,14 +237,14 @@ export const QuickDiceBar: React.FC = () => {
           ? {
               formula: `1d${sides}${modStr}`,
               total,
-              damageType: 'Универсальный',
+              damageType: isEn ? 'Universal' : 'Универсальный',
               details: formulaStr,
             }
           : undefined,
       note: isNat20
-        ? `КРИТИЧЕСКИЙ УСПЕХ! ${formulaStr}`
+        ? (isEn ? `CRITICAL HIT! ${formulaStr}` : `КРИТИЧЕСКИЙ УСПЕХ! ${formulaStr}`)
         : isNat1
-        ? `КРИТИЧЕСКИЙ ПРОВАЛ! ${formulaStr}`
+        ? (isEn ? `CRITICAL MISS! ${formulaStr}` : `КРИТИЧЕСКИЙ ПРОВАЛ! ${formulaStr}`)
         : formulaStr,
     });
   };
@@ -300,7 +302,7 @@ export const QuickDiceBar: React.FC = () => {
             onPointerUp={handlePointerUp}
             onDoubleClick={handleResetPosition}
             className="flex h-8 w-6 min-h-[32px] items-center justify-center rounded-lg text-text-muted/70 hover:text-gold hover:bg-white/10 transition-colors cursor-grab active:cursor-grabbing touch-none select-none flex-shrink-0"
-            title="Зажмите для перемещения панели (двойной клик — сброс в центр)"
+            title={isEn ? "Drag to move bar (double click to reset to center)" : "Зажмите для перемещения панели (двойной клик — сброс в центр)"}
           >
             <GripVertical className="h-4 w-4" />
           </div>
@@ -356,21 +358,21 @@ export const QuickDiceBar: React.FC = () => {
             <button
               onClick={() => setModifier((m) => m - 1)}
               className="h-8 w-8 min-h-[32px] min-w-[32px] rounded-lg flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
-              title="Уменьшить модификатор"
+              title={isEn ? "Decrease modifier" : "Уменьшить модификатор"}
             >
               <Minus className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setModifier(0)}
               className="min-h-[32px] px-2.5 rounded-lg font-mono tabular-nums text-xs font-bold text-gold-light hover:text-white hover:bg-white/5 transition-all cursor-pointer flex items-center justify-center"
-              title="Сбросить модификатор в 0"
+              title={isEn ? "Reset modifier to 0" : "Сбросить модификатор в 0"}
             >
               {modifier >= 0 ? `+${modifier}` : modifier}
             </button>
             <button
               onClick={() => setModifier((m) => m + 1)}
               className="h-8 w-8 min-h-[32px] min-w-[32px] rounded-lg flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
-              title="Увеличить модификатор"
+              title={isEn ? "Increase modifier" : "Увеличить модификатор"}
             >
               <Plus className="h-3.5 w-3.5" />
             </button>
@@ -392,7 +394,11 @@ export const QuickDiceBar: React.FC = () => {
                       ? 'border border-gold/70 text-gold-light bg-gold/15 bg-gradient-to-b from-gold/25 to-gold/10 hover:border-gold hover:shadow-gold-glow shadow-[0_0_12px_rgba(245,185,32,0.2)]'
                       : 'bg-card border border-glass-border text-text-primary hover:border-gold/50 hover:text-gold-light hover:bg-gold/10 hover:shadow-gold-glow'
                   }`}
-                  title={`Бросить d${sides}${modifier !== 0 ? ` (${modifier >= 0 ? `+${modifier}` : modifier})` : ''}`}
+                  title={
+                    isEn
+                      ? `Roll d${sides}${modifier !== 0 ? ` (${modifier >= 0 ? `+${modifier}` : modifier})` : ''}`
+                      : `Бросить d${sides}${modifier !== 0 ? ` (${modifier >= 0 ? `+${modifier}` : modifier})` : ''}`
+                  }
                 >
                   <span>d{sides}</span>
                 </button>
@@ -418,7 +424,7 @@ export const QuickDiceBar: React.FC = () => {
             }
           >
             {isSecretRoll ? <EyeOff className="h-3.5 w-3.5 text-rose-300" /> : <Eye className="h-3.5 w-3.5 text-text-muted" />}
-            <span className="text-[11px] font-mono">{isSecretRoll ? (isEn ? 'Secret' : 'Скрытно') : (isEn ? 'Public' : 'Видно')}</span>
+            <span className="text-[11px] font-mono">{isSecretRoll ? (isEn ? 'Secret' : 'Скрытно') : (isEn ? 'Public' : 'Публичный')}</span>
           </button>
 
           {/* Player Screen Broadcasting Toggle */}

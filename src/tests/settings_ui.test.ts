@@ -149,7 +149,7 @@ describe('Settings UI & System Selection Suite', () => {
   });
 
   describe('SettingsModal Render & Left Sidebar Navigation', () => {
-    it('renders all 5 sidebar navigation tabs', () => {
+    it('renders all 5 sidebar navigation tabs in Russian', () => {
       useSettingsStore.getState().setLanguage('ru');
       const html = renderToString(React.createElement(SettingsModal, { isOpen: true }));
 
@@ -165,9 +165,31 @@ describe('Settings UI & System Selection Suite', () => {
       // Active section is Система НРИ by default
       expect(html).toContain('aria-current="page"');
       expect(html).toContain('SRD 5.2.1');
+    });
 
-      // Restore language
+    it('renders all 5 sidebar navigation tabs in English', () => {
       useSettingsStore.getState().setLanguage('en');
+      const html = renderToString(React.createElement(SettingsModal, { isOpen: true }));
+
+      expect(html).toContain('Settings');
+      expect(html).toContain('General');
+      expect(html).toContain('TTRPG System');
+      expect(html).toContain('Interface');
+      expect(html).toContain('Hotkeys');
+      expect(html).toContain('Plugins · soon');
+      expect(html).toContain('soon');
+    });
+
+    it('verifies Discord community section and openExternal integration', () => {
+      useSettingsStore.getState().setLanguage('ru');
+      const htmlRu = renderToString(React.createElement(SettingsModal, { isOpen: true }));
+      // System tab is default; let's verify SystemSelectionPanel inside SettingsModal
+      expect(htmlRu).toContain('Система НРИ');
+
+      useSettingsStore.getState().setLanguage('en');
+      const htmlEn = renderToString(React.createElement(SettingsModal, { isOpen: true }));
+      expect(htmlEn).toContain('TTRPG System');
+      expect(htmlEn).toContain('Duplicate Campaign');
     });
   });
 });

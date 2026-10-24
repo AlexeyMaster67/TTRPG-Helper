@@ -105,9 +105,9 @@ export function CombatantConditionToggles({
           onToggleReaction();
         }}
         title={
-          combatant.reactionUsed
-            ? 'Реакция израсходована (клик, чтобы восстановить)'
-            : 'Реакция готова (клик, чтобы потратить)'
+          isEn
+            ? (combatant.reactionUsed ? 'Reaction spent (click to restore)' : 'Reaction ready (click to spend)')
+            : (combatant.reactionUsed ? 'Реакция израсходована (клик, чтобы восстановить)' : 'Реакция готова (клик, чтобы потратить)')
         }
         className={clsx(
           'p-1.5 rounded-sm transition-all flex items-center justify-center',
@@ -130,9 +130,9 @@ export function CombatantConditionToggles({
           onToggleConcentration();
         }}
         title={
-          combatant.isConcentrating
-            ? 'Концентрация активна (клик, чтобы снять)'
-            : 'Концентрация не удерживается (клик, чтобы активировать)'
+          isEn
+            ? (combatant.isConcentrating ? 'Concentration active (click to remove)' : 'Concentration inactive (click to activate)')
+            : (combatant.isConcentrating ? 'Концентрация активна (клик, чтобы снять)' : 'Концентрация не удерживается (клик, чтобы активировать)')
         }
         className={clsx(
           'p-1.5 rounded-sm border transition-all flex items-center justify-center',
@@ -328,7 +328,7 @@ export function CombatantConditions({
                 e.stopPropagation();
                 onRemoveCondition(cond.type);
               }}
-              title="Снять состояние"
+              title={isEn ? "Remove condition" : "Снять состояние"}
               className="ml-0.5 p-0.5 rounded-full hover:bg-rose-600 hover:text-white text-gray-400 opacity-70 group-hover/cond:opacity-100 transition-all flex items-center justify-center cursor-pointer"
             >
               <X className="h-2.5 w-2.5" />

@@ -174,6 +174,7 @@ function CombatantTokenNode({
   onPositionChange: (x: number, y: number) => void;
   onHover: (combatant: any | null, pos?: { x: number; y: number }) => void;
 }) {
+  const language = useSettingsStore((s) => s.language);
   const groupRef = useRef<any>(null);
   const haloGroupRef = useRef<any>(null);
   const beaconGroupRef = useRef<any>(null);
@@ -417,7 +418,7 @@ function CombatantTokenNode({
             listening={false}
           />
           <KonvaText
-            text={`${Math.round(scaleMod)}×${Math.round(scaleMod)} (${Math.round(scaleMod) ** 2} кл)`}
+            text={`${Math.round(scaleMod)}×${Math.round(scaleMod)} (${Math.round(scaleMod) ** 2} ${language === "en" ? "sq" : "кл"})`}
             x={-tokenRadius + 6}
             y={-tokenRadius + 7}
             fontSize={9}
@@ -3001,7 +3002,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                         listening={false}
                       />
                       <KonvaText
-                        text={pin.title || 'Заметка'}
+                        text={pin.title || (language === 'en' ? 'Note' : 'Заметка')}
                         fontSize={10}
                         fontFamily="sans-serif"
                         fontStyle="bold"
@@ -3027,7 +3028,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
               const rot = template.rotation || 0;
               const color = template.color || '#EF4444';
               const targets = aoeTargetMap[template.id] || [];
-              const label = template.label || `${template.sizeFeet} фт.`;
+              const label = template.label || `${template.sizeFeet} ${language === 'en' ? 'ft.' : 'фт.'}`;
 
               return (
                 <KonvaGroup
@@ -3146,7 +3147,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                       listening={false}
                     />
                     <KonvaText
-                      text={`${label} (${targets.length} ${pluralizeRussian(targets.length, 'цель', 'цели', 'целей')})`}
+                      text={`${label} (${targets.length} ${language === 'en' ? (targets.length === 1 ? 'target' : 'targets') : pluralizeRussian(targets.length, 'цель', 'цели', 'целей')})`}
                       fontSize={10}
                       fontFamily="sans-serif"
                       fontStyle="bold"
@@ -3298,7 +3299,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                     )}
                     <KonvaCircle radius={6} fill="#C5A059" stroke="#000" strokeWidth={1} />
                     <KonvaText
-                      text={`${pendingAoe.label || `${pendingAoe.sizeFeet} фт.`} [ЛКМ: Установить | Колёсико: Поворот | ПКМ/Esc: Отмена]`}
+                      text={`${pendingAoe.label || `${pendingAoe.sizeFeet} ${language === 'en' ? 'ft.' : 'фт.'}`} [${language === 'en' ? 'LMB: Place • Wheel: Rotate • RMB/Esc: Cancel' : 'ЛКМ: Установить • Колесо: Поворот • ПКМ/Esc: Отмена'}]`}
                       fontSize={11}
                       fontFamily="sans-serif"
                       fontStyle="bold"
@@ -3782,7 +3783,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
 
             if (!displayRuler) return null;
 
-            const badgeText = `${displayRuler.feet} фт. (${displayRuler.cells} кл.)`;
+            const badgeText = `${displayRuler.feet} ${language === 'en' ? 'ft.' : 'фт.'} (${displayRuler.cells} ${language === 'en' ? 'cells' : 'кл.'})`;
             const badgeWidth = Math.max(140, Math.round(badgeText.length * 8.5) + 24);
             const badgeHeight = 26;
 
@@ -3913,14 +3914,14 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
             }}
           >
             <div className="font-semibold text-text-primary text-[12px] truncate max-w-[180px]">
-              {cleanRussianText(hoveredInfo.combatant.nameRu || hoveredInfo.combatant.name || 'Существо')}
+              {cleanRussianText(language === 'en' ? (hoveredInfo.combatant.name || hoveredInfo.combatant.nameRu || 'Creature') : (hoveredInfo.combatant.nameRu || hoveredInfo.combatant.name || 'Существо'))}
             </div>
             <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-0.5 font-mono">
               <span>
-                КД: <strong className="text-gold">{hoveredInfo.combatant.ac}</strong>
+                {language === 'en' ? 'AC: ' : 'КД: '}<strong className="text-gold">{hoveredInfo.combatant.ac}</strong>
               </span>
               <span>
-                ХП:{' '}
+                {language === 'en' ? 'HP: ' : 'ХП: '}
                 <strong
                   className={
                     hoveredInfo.combatant.hp > (hoveredInfo.combatant.maxHp / 2)
@@ -3934,7 +3935,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                 </strong>
               </span>
               {hoveredInfo.combatant.tempHp ? (
-                <span className="text-cyan-400">+{hoveredInfo.combatant.tempHp} вр. ХП</span>
+                <span className="text-cyan-400">+{hoveredInfo.combatant.tempHp} {language === 'en' ? 'temp HP' : 'вр. ХП'}</span>
               ) : null}
             </div>
           </div>
@@ -3945,16 +3946,16 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
           <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-red-950/90 border border-red-500/50 rounded-lg px-4 py-1.5 shadow-2xl backdrop-blur-md flex items-center gap-3 animate-pulse">
             <span className="text-red-400 font-bold text-xs flex items-center gap-1.5">
               <Crosshair className="h-3.5 w-3.5 text-red-400 animate-spin" />
-              <span>ВЫБОР ЦЕЛИ:</span>
+              <span>{language === 'en' ? 'TARGETING MODE:' : 'ВЫБОР ЦЕЛИ:'}</span>
             </span>
             <span className="text-gray-200 text-xs font-medium">
-              Кликните по токену или строке в трекере для нанесения удара
+              {language === 'en' ? 'Click token or row in tracker to strike' : 'Кликните по токену или строке в трекере для нанесения удара'}
             </span>
             <button
               onClick={() => cancelTargetingMode()}
               className="text-[10px] bg-red-900/60 hover:bg-red-800 border border-red-500/40 text-red-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
             >
-              Отмена (Esc)
+              {language === 'en' ? 'Cancel (Esc)' : 'Отмена (Esc)'}
             </button>
           </div>
         )}
@@ -3964,7 +3965,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
           <div className="absolute inset-0 z-50 bg-gold/15 border-2 border-dashed border-gold rounded-xl pointer-events-none flex items-center justify-center backdrop-blur-[2px] transition-all">
             <div className="bg-surface/95 border border-gold px-6 py-3.5 rounded-glass-xl text-gold-light font-bold text-sm shadow-2xl flex items-center gap-3">
               <Upload className="h-5 w-5 animate-bounce text-gold" />
-              <span>Перетащите карту или токен на игровое поле</span>
+              <span>{language === 'en' ? 'Drop map or token onto battlemap' : 'Перетащите карту или токен на игровое поле'}</span>
             </div>
           </div>
         )}
@@ -3977,7 +3978,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                 <Upload className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-gray-100">Импорт ассета</h3>
+                <h3 className="text-base font-bold text-gray-100">{language === 'en' ? 'Asset Import' : 'Импорт ассета'}</h3>
                 <p className="text-xs text-gray-400 mt-1 truncate">
                   {dragDropTarget.file.name}
                 </p>
@@ -3989,7 +3990,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                   className="w-full py-2.5 px-3 rounded-glass-lg bg-gold hover:bg-gold-light text-surface font-bold text-xs flex items-center justify-center gap-2 shadow-gold-glow transition-all"
                 >
                   <MapIcon className="h-4 w-4" />
-                  <span>Установить как карту поля боя</span>
+                  <span>{language === 'en' ? 'Set as battle map background' : 'Установить как карту поля боя'}</span>
                 </button>
                 <button
                   type="button"
@@ -3997,7 +3998,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                   className="w-full py-2.5 px-3 rounded-glass-lg bg-surface-subtle hover:bg-surface-overlay text-gray-100 border border-glass-border font-semibold text-xs flex items-center justify-center gap-2 transition-all"
                 >
                   <Users className="h-4 w-4" />
-                  <span>Создать токен участника боя</span>
+                  <span>{language === 'en' ? 'Create combatant token' : 'Создать токен участника боя'}</span>
                 </button>
                 <button
                   type="button"
@@ -4005,7 +4006,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                   className="w-full py-2.5 px-3 rounded-glass-lg bg-surface-subtle hover:bg-surface-overlay text-gray-100 border border-glass-border font-semibold text-xs flex items-center justify-center gap-2 transition-all"
                 >
                   <MapPinIcon className="h-4 w-4" />
-                  <span>Создать независимый токен карты</span>
+                  <span>{language === 'en' ? 'Create standalone map token' : 'Создать независимый токен карты'}</span>
                 </button>
                 <button
                   type="button"
@@ -4031,7 +4032,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
             <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2.5">
               <div className="flex items-center gap-1.5 font-bold text-gold text-sm">
                 <MapPinIcon className="h-4 w-4" />
-                <span>Булавка мастера</span>
+                <span>{language === 'en' ? 'GM Map Pin' : 'Метка Мастера'}</span>
               </div>
               <button
                 type="button"
@@ -4045,26 +4046,26 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
             <div className="space-y-2.5">
               <div>
                 <label className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1">
-                  Название / Комната
+                  {language === 'en' ? 'Title / Room' : 'Название / Комната'}
                 </label>
                 <input
                   type="text"
                   value={selectedPin.title}
                   onChange={(e) => updatePin(selectedPin.id, { title: e.target.value })}
-                  placeholder="Например: Зал сокровищ (Комната 4)"
+                  placeholder={language === "en" ? "e.g. Treasure Vault (Room 4)" : "Например: Зал сокровищ (Комната 4)"}
                   className="w-full px-2.5 py-1.5 rounded-lg bg-surface-subtle border border-glass-border text-gray-100 focus:border-gold outline-none text-xs"
                 />
               </div>
 
               <div>
                 <label className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-1">
-                  Описание, ловушки и добыча
+                  {language === 'en' ? 'Description, traps & loot' : 'Описание, ловушки и добыча'}
                 </label>
                 <textarea
                   rows={4}
                   value={selectedPin.description}
                   onChange={(e) => updatePin(selectedPin.id, { description: e.target.value })}
-                  placeholder="Секреты, СЛ проверки, сокровища, скрытые двери..."
+                  placeholder={language === "en" ? "Secrets, DC checks, treasures, hidden doors..." : "Секреты, СЛ проверки, сокровища, скрытые двери..."}
                   className="w-full px-2.5 py-1.5 rounded-lg bg-surface-subtle border border-glass-border text-gray-100 focus:border-gold outline-none resize-none text-xs"
                 />
               </div>
@@ -4077,7 +4078,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                     onChange={(e) => updatePin(selectedPin.id, { isSecret: e.target.checked })}
                     className="rounded text-gold focus:ring-0 bg-surface-subtle border-glass-border"
                   />
-                  <span className="text-gray-300 font-medium">Скрыто от экрана игроков</span>
+                  <span className="text-gray-300 font-medium">{language === "en" ? "Hidden from player display" : "Скрыто от экрана игроков"}</span>
                 </label>
               </div>
 
@@ -4121,10 +4122,10 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                     ? 'bg-blue-600/30 text-blue-300 border border-blue-500/50'
                     : 'text-gray-400 hover:text-white'
                 }`}
-                title="Стена"
+                title={language === 'en' ? 'Wall' : 'Стена'}
               >
                 <ToyBrick className="h-3 w-3" />
-                <span>Стена</span>
+                <span>{language === 'en' ? 'Wall' : 'Стена'}</span>
               </button>
 
               <button
@@ -4135,10 +4136,10 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                     ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
                     : 'text-gray-400 hover:text-white'
                 }`}
-                title="Дверь"
+                title={language === 'en' ? 'Door' : 'Дверь'}
               >
                 <DoorClosed className="h-3 w-3" />
-                <span>Дверь</span>
+                <span>{language === 'en' ? 'Door' : 'Дверь'}</span>
               </button>
 
               <button
@@ -4149,10 +4150,10 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                     ? 'bg-purple-600/30 text-purple-300 border border-purple-500/50'
                     : 'text-gray-400 hover:text-white'
                 }`}
-                title="Тайная дверь"
+                title={language === 'en' ? 'Secret door' : 'Тайная дверь'}
               >
                 <EyeOff className="h-3 w-3" />
-                <span>Тайная</span>
+                <span>{language === 'en' ? 'Secret' : 'Тайник'}</span>
               </button>
 
               <button
@@ -4163,10 +4164,10 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                     ? 'bg-cyan-600/30 text-cyan-300 border border-cyan-500/50'
                     : 'text-gray-400 hover:text-white'
                 }`}
-                title="Окно"
+                title={language === 'en' ? 'Window' : 'Окно'}
               >
                 <AppWindow className="h-3 w-3" />
-                <span>Окно</span>
+                <span>{language === 'en' ? 'Window' : 'Окно'}</span>
               </button>
             </div>
 
@@ -4181,10 +4182,10 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                       ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/50'
                       : 'text-gray-400 hover:text-white'
                   }`}
-                  title="Открыть"
+                  title={language === 'en' ? 'Open' : 'Открыть'}
                 >
                   <DoorOpen className="h-3 w-3" />
-                  <span>Открыта</span>
+                  <span>{language === 'en' ? 'Open' : 'Открыта'}</span>
                 </button>
 
                 <button
@@ -4195,10 +4196,10 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                       ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
                       : 'text-gray-400 hover:text-white'
                   }`}
-                  title="Закрыть"
+                  title={language === 'en' ? 'Close' : 'Закрыть'}
                 >
                   <DoorClosed className="h-3 w-3" />
-                  <span>Закрыта</span>
+                  <span>{language === 'en' ? 'Closed' : 'Закрыта'}</span>
                 </button>
 
                 <button
@@ -4209,10 +4210,10 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                       ? 'bg-red-600/30 text-red-300 border border-red-500/50'
                       : 'text-gray-400 hover:text-white'
                   }`}
-                  title="Запереть"
+                  title={language === 'en' ? 'Lock' : 'Запереть'}
                 >
                   <Lock className="h-3 w-3" />
-                  <span>Заперта</span>
+                  <span>{language === 'en' ? 'Locked' : 'Заперта'}</span>
                 </button>
               </div>
             )}
@@ -4222,10 +4223,10 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
               type="button"
               onClick={() => removeWall(selectedWall.id)}
               className="text-red-400 hover:text-red-300 hover:bg-red-500/15 px-2 py-1 rounded-lg flex items-center gap-1 transition-colors border border-transparent hover:border-red-500/30"
-              title="Удалить барьер"
+              title={language === 'en' ? 'Delete barrier' : 'Удалить барьер'}
             >
               <Trash2 className="h-3 w-3" />
-              <span>Удалить</span>
+              <span>{language === 'en' ? 'Delete' : 'Удалить'}</span>
             </button>
 
             {/* Close button */}
@@ -4233,7 +4234,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
               type="button"
               onClick={() => setSelectedWallId(null)}
               className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
-              title="Закрыть"
+              title={language === 'en' ? 'Close' : 'Закрыть'}
             >
               <X className="h-3 w-3" />
             </button>
@@ -4252,7 +4253,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
             <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
               <div className="flex items-center gap-1.5 text-gold-light font-bold font-serif">
                 <Flame className="h-4 w-4 text-gold" />
-                <span>Светильник</span>
+                <span>{language === "en" ? "Light Source" : "Светильник"}</span>
               </div>
               <button
                 type="button"
@@ -4370,29 +4371,35 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
         )}
 
         {/* Floating Hint Overlay */}
-        <div className="absolute bottom-3 left-3 bg-surface/90 border border-border-subtle rounded px-2.5 py-1 text-[11px] text-gray-400 font-mono pointer-events-none flex items-center gap-3 flex-wrap">
+        <div className="absolute bottom-3 left-3 bg-surface/90 border border-border-subtle rounded px-2.5 py-1 text-[11px] text-gray-400 font-mono pointer-events-none flex items-center gap-2 flex-wrap">
           <span>
-            {language === 'en' ? 'Wheel: ' : 'Колёсико: '}
+            {language === 'en' ? 'Wheel: ' : 'Колесо: '}
             <strong className="text-gray-200">{language === 'en' ? 'Zoom' : 'Масштаб'}</strong>
           </span>
+          <span className="text-gray-600">•</span>
           <span>
             Shift: <strong className="text-gray-200">{language === 'en' ? 'Ruler' : 'Линейка'}</strong>
           </span>
+          <span className="text-gray-600">•</span>
           <span>
-            {language === 'en' ? "RMB / 'T': " : "ПКМ / 'T': "}
-            <strong className="text-gold">{language === 'en' ? 'Target' : 'Выбрать цель'}</strong>
+            {language === 'en' ? "MMB / 'T': " : "СКМ / 'T': "}
+            <strong className="text-gold">{language === 'en' ? 'Target' : 'Цель'}</strong>
           </span>
+          <span className="text-gray-600">•</span>
           <span>
             {language === 'en' ? 'Click: ' : 'Клик: '}
             <strong className="text-gold">{language === 'en' ? 'Info / Attack' : 'Инфо / Атака'}</strong>
           </span>
+          <span className="text-gray-600">•</span>
           <span>
-            {language === 'en' ? 'Wheel on AoE: ' : 'Колёсико на AoE: '}
+            {language === 'en' ? 'Wheel on AoE: ' : 'Колесо на AoE: '}
             <strong className="text-purple-300">{language === 'en' ? 'Rotate' : 'Поворот'}</strong>
           </span>
+          <span className="text-gray-600">•</span>
           <span>
             D / E: <strong className="text-gold">{language === 'en' ? 'Draw / Eraser' : 'Рисование / Ластик'}</strong>
           </span>
+          <span className="text-gray-600">•</span>
           <span>
             Ctrl+Z: <strong className="text-gray-200">{language === 'en' ? 'Undo' : 'Отмена'}</strong>
           </span>

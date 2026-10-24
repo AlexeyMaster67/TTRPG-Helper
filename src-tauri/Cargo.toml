@@ -1,8 +1,8 @@
 [package]
 name = "ttrpg-helper"
-version = "2.0.7"
+version = "2.0.8"
 description = "TTRPG Helper Desktop Companion"
-authors = ["AlexeyMaster67"]
+authors = ["TheZavo"]
 edition = "2021"
 
 [lib]
@@ -23,6 +23,3 @@ toml = "0.8"
 [features]
 default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
-
-
-

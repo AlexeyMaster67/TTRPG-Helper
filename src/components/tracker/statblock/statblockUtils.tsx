@@ -89,6 +89,208 @@ export function localizeConditionImmunities(conds?: string, lang?: 'en' | 'ru'):
   return textUtilsLocalizeConditionImmunities(conds, lang);
 }
 
+const SIZE_WORDS_TO_EN: Record<string, string> = {
+  крошечный: 'Tiny',
+  крошечная: 'Tiny',
+  крошечное: 'Tiny',
+  маленький: 'Small',
+  маленькая: 'Small',
+  маленькое: 'Small',
+  средний: 'Medium',
+  средняя: 'Medium',
+  среднее: 'Medium',
+  большой: 'Large',
+  большая: 'Large',
+  большое: 'Large',
+  огромный: 'Huge',
+  огромная: 'Huge',
+  огромное: 'Huge',
+  громадный: 'Gargantuan',
+  громадная: 'Gargantuan',
+  громадное: 'Gargantuan',
+  tiny: 'Tiny',
+  small: 'Small',
+  medium: 'Medium',
+  large: 'Large',
+  huge: 'Huge',
+  gargantuan: 'Gargantuan',
+};
+
+const FEMININE_TYPES_RU = new Set([
+  'нежить',
+  'фея',
+  'бестия',
+  'аберрация',
+  'слизь',
+]);
+
+const NEUTER_TYPES_RU = new Set([
+  'чудовище',
+  'растение',
+  'исчадие',
+  'животное',
+  'насекомое',
+]);
+
+function getGenderedRuSize(sizeKey: string, typeNameRu: string): string {
+  const normSize = SIZE_WORDS_TO_EN[sizeKey.toLowerCase()] || 'Medium';
+  const firstWordType = typeNameRu.trim().toLowerCase().split(/[\s(]/)[0];
+
+  const isFem = FEMININE_TYPES_RU.has(firstWordType);
+  const isNeut = NEUTER_TYPES_RU.has(firstWordType);
+
+  if (isFem) {
+    switch (normSize) {
+      case 'Tiny': return 'Крошечная';
+      case 'Small': return 'Маленькая';
+      case 'Medium': return 'Средняя';
+      case 'Large': return 'Большая';
+      case 'Huge': return 'Огромная';
+      case 'Gargantuan': return 'Громадная';
+    }
+  }
+
+  if (isNeut) {
+    switch (normSize) {
+      case 'Tiny': return 'Крошечное';
+      case 'Small': return 'Маленькое';
+      case 'Medium': return 'Среднее';
+      case 'Large': return 'Большое';
+      case 'Huge': return 'Огромное';
+      case 'Gargantuan': return 'Громадное';
+    }
+  }
+
+  switch (normSize) {
+    case 'Tiny': return 'Крошечный';
+    case 'Small': return 'Маленький';
+    case 'Medium': return 'Средний';
+    case 'Large': return 'Большой';
+    case 'Huge': return 'Огромный';
+    case 'Gargantuan': return 'Громадный';
+    default: return 'Средний';
+  }
+}
+
+const KNOWN_ALIGNMENT_PATTERNS = [
+  /законно[- ]добр/i,
+  /нейтрально[- ]добр/i,
+  /хаотично[- ]добр/i,
+  /законно[- ]нейтральн/i,
+  /истинно[- ]нейтральн/i,
+  /\bнейтральн/i,
+  /хаотично[- ]нейтральн/i,
+  /законно[- ]зл/i,
+  /нейтрально[- ]зл/i,
+  /хаотично[- ]зл/i,
+  /без мировоззрения/i,
+  /любое мировоззрение/i,
+  /любое недоброе/i,
+  /любое незлое/i,
+  /любое хаотичное/i,
+  /любое законное/i,
+  /lawful\s+good/i,
+  /neutral\s+good/i,
+  /chaotic\s+good/i,
+  /lawful\s+neutral/i,
+  /true\s+neutral/i,
+  /\bneutral\b/i,
+  /chaotic\s+neutral/i,
+  /lawful\s+evil/i,
+  /neutral\s+evil/i,
+  /chaotic\s+evil/i,
+  /unaligned/i,
+  /any\s+alignment/i,
+  /any\s+non-good/i,
+  /any\s+non-evil/i,
+  /any\s+non-lawful/i,
+  /any\s+chaotic/i,
+];
+
+function isAlignmentString(val: string): boolean {
+  const trimmed = val.trim();
+  if (!trimmed) return false;
+  return KNOWN_ALIGNMENT_PATTERNS.some((pattern) => pattern.test(trimmed));
+}
+
+export function formatCreatureSubtitle(
+  combatant: { isPlayer?: boolean; creatureType?: string; size?: string; statblock?: any },
+  lang: 'en' | 'ru' = 'en'
+): string {
+  if (combatant.isPlayer) {
+    return lang === 'en' ? 'Player Character' : 'Персонаж игрока';
+  }
+
+  const sb = combatant.statblock;
+  let rawType = combatant.creatureType || sb?.creature_type_ru || sb?.creature_type || sb?.type || '';
+  let explicitSize = combatant.size || sb?.size || '';
+  let explicitAlignment = sb?.alignment || '';
+
+  // Handle alignment containing comma-separated redundant translations (e.g. "законно-злой, lawful evil")
+  if (explicitAlignment.includes(',')) {
+    const alignParts = explicitAlignment.split(',').map((p: string) => p.trim()).filter(Boolean);
+    const found = alignParts.find((p: string) => isAlignmentString(p));
+    if (found) {
+      explicitAlignment = found;
+    }
+  }
+
+  let detectedAlignment = '';
+  let detectedSize = '';
+
+  // Parse rawType which might look like "Средняя нежить, законно-злой" or "Medium undead, lawful evil"
+  const rawParts = rawType.split(',').map((p: string) => p.trim()).filter(Boolean);
+  const remainingTypeParts: string[] = [];
+
+  for (const part of rawParts) {
+    if (isAlignmentString(part)) {
+      if (!detectedAlignment) {
+        detectedAlignment = part;
+      }
+    } else {
+      remainingTypeParts.push(part);
+    }
+  }
+
+  let cleanedType = remainingTypeParts.join(', ').trim();
+
+  // Check if first word of cleanedType is a size word
+  if (cleanedType) {
+    const words = cleanedType.split(/\s+/);
+    const firstWordClean = words[0]?.toLowerCase().replace(/[.,;:]/g, '');
+    if (firstWordClean && SIZE_WORDS_TO_EN[firstWordClean]) {
+      detectedSize = SIZE_WORDS_TO_EN[firstWordClean];
+      cleanedType = words.slice(1).join(' ').trim();
+    }
+  }
+
+  const finalAlignmentRaw = explicitAlignment || detectedAlignment || '';
+  const finalSizeKey = explicitSize || detectedSize || 'Medium';
+
+  if (lang === 'en') {
+    const sizeEn = textUtilsLocalizeSize(finalSizeKey, 'en');
+    const typeEn = cleanedType
+      ? localizeTypeUtils(cleanedType, 'en').toLowerCase()
+      : 'creature';
+    const alignEn = finalAlignmentRaw
+      ? textUtilsLocalizeAlignment(finalAlignmentRaw, 'en').toLowerCase()
+      : '';
+
+    return `${sizeEn} ${typeEn}${alignEn ? `, ${alignEn}` : ''}`;
+  }
+
+  // Russian formatting
+  const typeRu = cleanedType
+    ? localizeTypeUtils(cleanedType, 'ru').toLowerCase()
+    : 'существо';
+  const sizeRu = getGenderedRuSize(finalSizeKey, typeRu);
+  const alignRu = finalAlignmentRaw
+    ? textUtilsLocalizeAlignment(finalAlignmentRaw, 'ru').toLowerCase()
+    : '';
+
+  return `${sizeRu} ${typeRu}${alignRu ? `, ${alignRu}` : ''}`;
+}
+
 export function translateSpellCastingTime(val?: string, lang?: 'en' | 'ru'): string {
   if (!val) return lang === 'en' ? '1 action' : '1 действие';
   if (lang === 'en') {

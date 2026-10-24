@@ -67,7 +67,7 @@ export function StatblockSurvival({ combatant }: StatblockSurvivalProps) {
       {/* 3. Speed */}
       <div className="flex flex-col justify-center min-w-0 max-w-[95px] flex-shrink-0 pl-2 border-l border-white/10">
         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider leading-none">
-          {language === 'en' ? 'Speed' : 'Скорость'}
+          {language === 'en' ? 'SPEED' : 'СКОРОСТЬ'}
         </span>
         <span
           className="font-mono tabular-nums text-xs font-medium text-gray-100 truncate block mt-1"
@@ -80,7 +80,7 @@ export function StatblockSurvival({ combatant }: StatblockSurvivalProps) {
       {/* 4. Initiative */}
       <div className="flex flex-col justify-center items-end flex-shrink-0 pl-2 border-l border-white/10">
         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider leading-none">
-          {language === 'en' ? 'Init.' : 'Иниц.'}
+          {language === 'en' ? 'INIT.' : 'ИНИЦ.'}
         </span>
         <div
           className="min-h-[30px] flex items-center justify-center px-2 py-0.5 mt-1 rounded-glass-sm bg-black/50 border border-white/10"

@@ -262,26 +262,27 @@ function MainApp() {
       style={{ zoom: `${uiScale}%` }}
       className="flex h-screen w-screen flex-col bg-canvas text-gray-100 font-sans overflow-hidden select-none p-2 sm:p-2.5 gap-2.5"
     >
-      {/* Верхняя панель: Плавающий стеклянный остров управления (h-14, rounded-glass-xl) */}
-      <header className="h-14 bg-[rgba(18,22,30,0.78)] backdrop-blur-md border border-[rgba(255,255,255,0.08)] rounded-glass-xl px-3 sm:px-4 flex items-center justify-between flex-shrink-0 z-30 shadow-[0_12px_32px_-4px_rgba(0,0,0,0.65)] gap-2 lg:gap-4 select-none">
+      {/* Верхняя панель: Плавающий стеклянный остров управления (min-h-14, rounded-glass-xl) */}
+      <header className="min-h-[52px] h-auto py-1.5 sm:py-0 sm:h-14 bg-[rgba(18,22,30,0.78)] backdrop-blur-md border border-[rgba(255,255,255,0.08)] rounded-glass-xl px-2.5 sm:px-3 lg:px-4 flex items-center justify-between flex-wrap gap-y-2 gap-x-1.5 sm:gap-x-2 flex-shrink-0 z-30 shadow-[0_12px_32px_-4px_rgba(0,0,0,0.65)] select-none">
         {/* ЛЕВАЯ ЧАСТЬ: Логотип + Название + Золотой бейдж + Переключатель режимов */}
-        <div className="flex items-center gap-2.5 sm:gap-3.5 flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 min-w-0">
           <BrandLogo />
 
-          <div className="h-5 w-px bg-[rgba(255,255,255,0.08)] hidden sm:block" />
+          <div className="h-5 w-px bg-[rgba(255,255,255,0.08)] hidden md:block" />
 
           {/* Переключатель режимов (Pill-табы) */}
           <nav
             role="tablist"
-            aria-label="Режимы интерфейса"
-            className="flex items-center p-1 rounded-full bg-[rgba(14,18,25,0.7)] border border-[rgba(255,255,255,0.08)] shadow-inner gap-1"
+            aria-label={language === 'en' ? 'Interface Modes' : 'Режимы интерфейса'}
+            className="flex items-center p-1 rounded-full bg-[rgba(14,18,25,0.7)] border border-[rgba(255,255,255,0.08)] shadow-inner gap-0.5 sm:gap-1"
           >
             <button
               onClick={() => setActiveTab('combat')}
               role="tab"
               aria-selected={activeTab === 'combat'}
               title={t('header.combat')}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+              aria-label={t('header.combat')}
+              className={`relative flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                 activeTab === 'combat'
                   ? 'bg-[#1e2634] text-white font-semibold border border-[#f5b920]/60 shadow-[0_0_14px_rgba(245,185,32,0.25)]'
                   : 'text-gray-400 hover:text-gray-200 hover:bg-[rgba(255,255,255,0.05)] border border-transparent'
@@ -299,7 +300,8 @@ function MainApp() {
               role="tab"
               aria-selected={activeTab === 'map'}
               title={t('header.map')}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+              aria-label={t('header.map')}
+              className={`relative flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                 activeTab === 'map'
                   ? 'bg-[#1e2634] text-white font-semibold border border-[#f5b920]/60 shadow-[0_0_14px_rgba(245,185,32,0.25)]'
                   : 'text-gray-400 hover:text-gray-200 hover:bg-[rgba(255,255,255,0.05)] border border-transparent'
@@ -317,7 +319,8 @@ function MainApp() {
               role="tab"
               aria-selected={activeTab === 'split'}
               title={t('header.splitDescription')}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+              aria-label={t('header.split')}
+              className={`relative flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                 activeTab === 'split'
                   ? 'bg-[#1e2634] text-white font-semibold border border-[#f5b920]/60 shadow-[0_0_14px_rgba(245,185,32,0.25)]'
                   : 'text-gray-400 hover:text-gray-200 hover:bg-[rgba(255,255,255,0.05)] border border-transparent'
@@ -332,12 +335,13 @@ function MainApp() {
           </nav>
         </div>
 
-        {/* ЦЕНТР: Стеклянная строка глобального поиска */}
-        <div className="hidden lg:flex flex-1 max-w-[300px] min-w-[120px] mx-1 sm:mx-2 shrink">
+        {/* ЦЕНТР: Стеклянная строка глобального поиска (видима на экранах >= xl) */}
+        <div className="hidden xl:flex flex-1 max-w-[240px] 2xl:max-w-[280px] min-w-[80px] mx-1 sm:mx-2 shrink">
           <button
             type="button"
             onClick={() => setIsSpotlightOpen(true)}
             title={t('header.searchPlaceholder')}
+            aria-label={t('header.searchPlaceholder')}
             className="w-full flex items-center justify-between px-3 py-1.5 rounded-glass bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/50 text-xs text-gray-300 transition-all duration-200 group shadow-inner cursor-pointer hover:shadow-[0_0_16px_rgba(245,185,32,0.2)]"
           >
             <div className="flex items-center gap-2 min-w-0 pr-2">
@@ -353,15 +357,27 @@ function MainApp() {
         </div>
 
         {/* ПРАВАЯ ЧАСТЬ: Набор инструментов мастера, смена языка и статус */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+        <div className="flex items-center gap-1 sm:gap-1.5 2xl:gap-2 flex-shrink-0 flex-wrap sm:flex-nowrap">
+          {/* Компактная кнопка поиска для экранов < xl */}
+          <button
+            type="button"
+            onClick={() => setIsSpotlightOpen(true)}
+            title={t('header.searchPlaceholder')}
+            aria-label={t('header.searchPlaceholder')}
+            className="flex xl:hidden items-center justify-center h-8 w-8 rounded-full text-gray-300 hover:text-white bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/50 transition-all cursor-pointer shadow-sm"
+          >
+            <Search className="h-3.5 w-3.5 text-[#f5b920]" />
+          </button>
+
           {/* Отряд героев */}
           <button
             onClick={openPartyModal}
             title={t('header.party')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-gray-200 hover:text-white bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
+            aria-label={t('header.party')}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs text-gray-200 hover:text-white bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
           >
             <Users className="h-3.5 w-3.5 text-emerald-400" />
-            <span className="font-medium hidden sm:inline">{t('header.party')}</span>
+            <span className="font-medium hidden md:inline">{t('header.party')}</span>
             {partyMembers.length > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-emerald-950/80 text-emerald-300 font-mono text-[10px] border border-emerald-600/50 shadow-sm">
                 {partyMembers.length}
@@ -395,18 +411,20 @@ function MainApp() {
             type="button"
             onClick={() => openExternal('https://discord.com/invite/XYQSHWVAuE')}
             title={language === 'en' ? 'Join Discord Community' : 'Присоединиться к Discord сообществу'}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-[#5865F2]/15 hover:bg-[#5865F2]/30 border border-[#5865F2]/40 hover:border-[#5865F2] text-[#93a1f8] hover:text-white transition-all cursor-pointer shadow-sm group select-none"
+            aria-label={language === 'en' ? 'Join Discord Community' : 'Присоединиться к Discord сообществу'}
+            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-full text-xs font-semibold bg-[#5865F2]/15 hover:bg-[#5865F2]/30 border border-[#5865F2]/40 hover:border-[#5865F2] text-[#93a1f8] hover:text-white transition-all cursor-pointer shadow-sm group select-none"
           >
             <DiscordIcon className="h-3.5 w-3.5 text-[#7988f5] group-hover:scale-110 group-hover:text-white transition-all" />
-            <span className="hidden xl:inline font-bold">Discord</span>
+            <span className="hidden 2xl:inline font-bold">Discord</span>
           </button>
 
-          {/* Переключатель языка ENG/RU (По умолчанию ENG) */}
+          {/* Переключатель языка ENG/RU */}
           <button
             onClick={toggleLanguage}
             type="button"
-            title={language === 'en' ? 'Switch to Russian / Переключить на русский' : 'Switch to English / Переключить на английский'}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/50 transition-all cursor-pointer shadow-sm group select-none"
+            title={language === 'en' ? 'Switch to Russian' : 'Переключить на английский'}
+            aria-label={language === 'en' ? 'Switch to Russian' : 'Переключить на английский'}
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-full text-xs font-semibold bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-[#f5b920]/50 transition-all cursor-pointer shadow-sm group select-none"
           >
             <Globe className="h-3.5 w-3.5 text-[#f5b920] group-hover:scale-110 transition-transform" />
             <span className={language === 'en' ? 'text-[#f5b920] font-bold' : 'text-gray-400'}>EN</span>
@@ -418,6 +436,7 @@ function MainApp() {
           <button
             onClick={openSettingsModal}
             title={t('header.settings')}
+            aria-label={t('header.settings')}
             className="flex items-center justify-center h-8 w-8 rounded-full text-gray-300 hover:text-white bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] hover:border-gold/50 transition-all cursor-pointer shadow-sm"
           >
             <Settings className="h-3.5 w-3.5 text-gray-400 hover:text-gold transition-colors" />
@@ -431,7 +450,8 @@ function MainApp() {
                 ? t('header.playerDisplay') + ' (' + t('header.broadcasting') + ')'
                 : t('header.playerDisplay') + ' (' + t('header.off') + ')'
             }
-            className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-200 shadow-sm group cursor-pointer flex-shrink-0 whitespace-nowrap ${
+            aria-label={t('header.playerDisplay')}
+            className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-full border text-xs font-semibold transition-all duration-200 shadow-sm group cursor-pointer flex-shrink-0 whitespace-nowrap ${
               isPlayerScreenActive
                 ? 'bg-emerald-950/60 border-emerald-500/70 text-emerald-200 hover:bg-emerald-900/60 shadow-[0_0_14px_rgba(16,185,129,0.3)]'
                 : 'bg-[rgba(14,18,25,0.7)] hover:bg-[rgba(24,30,42,0.85)] border-[rgba(255,255,255,0.08)] hover:border-gray-500 text-gray-300 hover:text-white'
@@ -446,7 +466,7 @@ function MainApp() {
                 </span>
               )}
             </div>
-            <span className="hidden xl:inline font-medium">{t('header.playerDisplay')}</span>
+            <span className="hidden 2xl:inline font-medium">{t('header.playerDisplay')}</span>
             {isPlayerScreenActive ? (
               <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -500,52 +520,55 @@ function MainApp() {
         <main className="flex-1 overflow-y-auto p-6 space-y-6 max-w-6xl mx-auto w-full min-h-0 rounded-glass-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(18,22,30,0.78)] backdrop-blur-md shadow-glass">
           <div>
             <h1 className="text-xl font-bold text-gray-100 mb-1 flex items-center gap-2">
-              <Layers className="h-5 w-5 text-gold" /> Витрина дизайн-токенов: D&D 2024
+              <Layers className="h-5 w-5 text-gold" />{' '}
+              {language === 'en' ? 'Design Tokens Showcase: D&D 2024' : 'Витрина дизайн-токенов: D&D 2024'}
             </h1>
             <p className="text-xs text-gray-400">
-              Тёмный швейцарский стиль, glass-панели с размытием, радиусы 14–20px, 100% автономные локальные шрифты Inter и JetBrains Mono.
+              {language === 'en'
+                ? 'Dark Swiss style, blurred glass panels, 14–20px radiuses, 100% offline local Inter and JetBrains Mono fonts.'
+                : 'Тёмный швейцарский стиль, glass-панели с размытием, радиусы 14–20px, 100% автономные локальные шрифты Inter и JetBrains Mono.'}
             </p>
           </div>
 
           {/* Palette */}
           <section className="space-y-3">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400 border-b border-border-subtle pb-1">
-              1. Цветовые токены
+              {language === 'en' ? '1. Color Tokens' : '1. Цветовые токены'}
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               <div className="p-3 rounded-sm border border-border-subtle bg-canvas space-y-1">
                 <div className="h-8 rounded-sm bg-canvas border border-white/20" />
-                <div className="text-xs font-semibold">Холст (Фон)</div>
+                <div className="text-xs font-semibold">{language === 'en' ? 'Canvas (Background)' : 'Холст (Фон)'}</div>
                 <div className="font-mono text-[10px] text-gray-400">#090A0D</div>
               </div>
 
               <div className="p-3 rounded-sm border border-border-subtle bg-surface space-y-1">
                 <div className="h-8 rounded-sm bg-surface border border-white/20" />
-                <div className="text-xs font-semibold">Поверхность</div>
+                <div className="text-xs font-semibold">{language === 'en' ? 'Surface' : 'Поверхность'}</div>
                 <div className="font-mono text-[10px] text-gray-400">#12141A</div>
               </div>
 
               <div className="p-3 rounded-sm border border-border-subtle bg-card space-y-1">
                 <div className="h-8 rounded-sm bg-card border border-white/20" />
-                <div className="text-xs font-semibold">Карточка</div>
+                <div className="text-xs font-semibold">{language === 'en' ? 'Card' : 'Карточка'}</div>
                 <div className="font-mono text-[10px] text-gray-400">#16181F</div>
               </div>
 
               <div className="p-3 rounded-sm border border-border-subtle bg-card space-y-1">
                 <div className="h-8 rounded-sm bg-gold" />
-                <div className="text-xs font-semibold text-gold-light">Золото (Акцент)</div>
+                <div className="text-xs font-semibold text-gold-light">{language === 'en' ? 'Gold (Accent)' : 'Золото (Акцент)'}</div>
                 <div className="font-mono text-[10px] text-gold">#C5A059</div>
               </div>
 
               <div className="p-3 rounded-sm border border-border-subtle bg-card space-y-1">
                 <div className="h-8 rounded-sm bg-crimson" />
-                <div className="text-xs font-semibold text-red-300">Багрянец (Урон)</div>
+                <div className="text-xs font-semibold text-red-300">{language === 'en' ? 'Crimson (Damage)' : 'Багрянец (Урон)'}</div>
                 <div className="font-mono text-[10px] text-red-400">#8B2626</div>
               </div>
 
               <div className="p-3 rounded-sm border border-border-subtle bg-card space-y-1">
                 <div className="h-8 rounded-sm bg-emerald" />
-                <div className="text-xs font-semibold text-emerald-300">Изумруд (Лечение)</div>
+                <div className="text-xs font-semibold text-emerald-300">{language === 'en' ? 'Emerald (Heal)' : 'Изумруд (Лечение)'}</div>
                 <div className="font-mono text-[10px] text-emerald-400">#10B981</div>
               </div>
             </div>
@@ -554,7 +577,7 @@ function MainApp() {
           {/* Weapon Mastery */}
           <section className="space-y-3">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400 border-b border-border-subtle pb-1">
-              2. Свойства оружия (Мастерство оружия 2024)
+              {language === 'en' ? '2. Weapon Mastery (D&D 2024)' : '2. Свойства оружия (Мастерство оружия 2024)'}
             </h2>
             <div className="flex flex-wrap gap-2.5 p-4 rounded-sm border border-border-subtle bg-card">
               <MasteryBadge property="Slow" showFullName />
@@ -571,19 +594,19 @@ function MainApp() {
           {/* HealthBar Showcase */}
           <section className="space-y-3">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400 border-b border-border-subtle pb-1">
-              3. Шкала здоровья (HealthBar)
+              {language === 'en' ? '3. Health Bar (HealthBar)' : '3. Шкала здоровья (HealthBar)'}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 rounded-sm border border-border-subtle bg-card">
               <div className="space-y-1.5">
-                <span className="text-[11px] text-gray-400">Полное здоровье (&gt; 50%):</span>
+                <span className="text-[11px] text-gray-400">{language === 'en' ? 'Full Health (> 50%):' : 'Полное здоровье (> 50%):'}</span>
                 <HealthBar current={85} max={100} temp={0} size="md" />
               </div>
               <div className="space-y-1.5">
-                <span className="text-[11px] text-gray-400">Ранение + Врем. ХП:</span>
+                <span className="text-[11px] text-gray-400">{language === 'en' ? 'Bloodied + Temp HP:' : 'Ранение + Врем. ХП:'}</span>
                 <HealthBar current={28} max={65} temp={12} size="md" />
               </div>
               <div className="space-y-1.5">
-                <span className="text-[11px] text-gray-400">Критический статус (&lt;= 20%):</span>
+                <span className="text-[11px] text-gray-400">{language === 'en' ? 'Critical Health (<= 20%):' : 'Критический статус (<= 20%):'}</span>
                 <HealthBar current={6} max={50} temp={0} size="md" />
               </div>
             </div>

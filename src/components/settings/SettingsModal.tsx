@@ -58,8 +58,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [activeTab, setActiveTab] = useState<SettingsTabId>('system');
 
   // General tab states (Campaign Pack & Backups)
-  const isEn = language === 'en';
-  const [campaignName, setCampaignName] = useState(language === 'en' ? 'D&D Campaign' : 'Кампания D&D');
+  const isRu = language === 'ru';
+  const [campaignName, setCampaignName] = useState(language === 'ru' ? 'Кампания D&D' : 'D&D Campaign');
   const [isExporting, setIsExporting] = useState(false);
   const [importPendingPack, setImportPendingPack] = useState<CampaignPack | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
@@ -111,13 +111,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       const text = await file.text();
       const validation = campaignPackService.validateCampaignPack(text);
       if (!validation.valid || !validation.pack) {
-        setImportError(validation.error || (isEn ? 'Invalid campaign pack format' : 'Неверный формат пакета кампании'));
+        setImportError(validation.error || (isRu ? 'Неверный формат пакета кампании' : 'Invalid campaign pack format'));
         setImportPendingPack(null);
       } else {
         setImportPendingPack(validation.pack);
       }
     } catch (err) {
-      setImportError(isEn ? `File read error: ${err instanceof Error ? err.message : String(err)}` : `Ошибка чтения файла: ${err instanceof Error ? err.message : String(err)}`);
+      setImportError(isRu ? `Ошибка чтения файла: ${err instanceof Error ? err.message : String(err)}` : `File read error: ${err instanceof Error ? err.message : String(err)}`);
     }
     e.target.value = '';
   };
@@ -129,7 +129,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setImportSuccess(summary);
       setImportPendingPack(null);
     } catch (err) {
-      setImportError(isEn ? `Import error: ${err instanceof Error ? err.message : String(err)}` : `Ошибка при импорте: ${err instanceof Error ? err.message : String(err)}`);
+      setImportError(isRu ? `Ошибка при импорте: ${err instanceof Error ? err.message : String(err)}` : `Import error: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -138,10 +138,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     setBackupStatusMessage(null);
     try {
       const res = await backupService.createBackup(true);
-      setBackupStatusMessage(res.message);
+      setBackupStatusMessage(isRu ? (res.message || 'Резервная копия успешно создана') : 'Database backup created successfully');
       await loadBackupsList();
     } catch {
-      setBackupStatusMessage(isEn ? 'Error creating database backup' : 'Ошибка создания копии базы данных');
+      setBackupStatusMessage(isRu ? 'Ошибка создания копии базы данных' : 'Error creating database backup');
     } finally {
       setIsCreatingBackup(false);
     }
@@ -154,29 +154,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const navItems: { id: SettingsTabId; label: string; icon: React.ReactNode; badge?: string }[] = [
     {
       id: 'general',
-      label: language === 'en' ? 'General' : 'Общие',
+      label: isRu ? 'Общие' : 'General',
       icon: <Sliders className="w-4 h-4" />,
     },
     {
       id: 'system',
-      label: language === 'en' ? 'TTRPG System' : 'Система НРИ',
+      label: isRu ? 'Система НРИ' : 'TTRPG System',
       icon: <Dices className="w-4 h-4" />,
     },
     {
       id: 'interface',
-      label: language === 'en' ? 'Interface' : 'Интерфейс',
+      label: isRu ? 'Интерфейс' : 'Interface',
       icon: <Monitor className="w-4 h-4" />,
     },
     {
       id: 'hotkeys',
-      label: language === 'en' ? 'Hotkeys' : 'Горячие клавиши',
+      label: isRu ? 'Горячие клавиши' : 'Hotkeys',
       icon: <Keyboard className="w-4 h-4" />,
     },
     {
       id: 'plugins',
-      label: language === 'en' ? 'Plugins · soon' : 'Плагины · скоро',
+      label: isRu ? 'Плагины · скоро' : 'Plugins · soon',
       icon: <Blocks className="w-4 h-4" />,
-      badge: language === 'en' ? 'soon' : 'скоро',
+      badge: isRu ? 'скоро' : 'soon',
     },
   ];
 
@@ -184,7 +184,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Параметры и настройки"
+      aria-label={isRu ? 'Параметры и настройки' : 'Settings and preferences'}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-5 select-none animate-in fade-in duration-200"
       onClick={closeModal}
     >
@@ -199,17 +199,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       >
         {/* ================= LEFT SIDEBAR NAVIGATION ================= */}
         <nav
-          aria-label="Разделы настроек"
+          aria-label={isRu ? 'Разделы настроек' : 'Settings sections'}
           className="w-full md:w-[230px] md:flex-shrink-0 p-3 md:p-4 bg-white/[0.04] border-b md:border-b-0 md:border-r border-white/[0.08] backdrop-blur-[14px] flex flex-col gap-1.5"
         >
           <div className="flex items-center justify-between px-3 py-2 md:pb-4">
             <span className="font-extrabold text-lg text-white tracking-tight">
-              {language === 'en' ? 'Settings' : 'Настройки'}
+              {isRu ? 'Настройки' : 'Settings'}
             </span>
             <button
               type="button"
               onClick={closeModal}
-              title="Закрыть настройки"
+              title={isRu ? 'Закрыть настройки' : 'Close settings'}
               className="md:hidden p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -261,7 +261,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           {/* Quick System Badge at Bottom of Sidebar */}
           <div className="hidden md:flex flex-col mt-auto pt-4 border-t border-white/[0.08] text-[11px] text-gray-400 px-2 space-y-1">
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
-              {language === 'en' ? 'Current Theme:' : 'Текущая тема:'}
+              {isRu ? 'Текущая тема:' : 'Current Theme:'}
             </span>
             <div className="flex items-center gap-1.5 text-gray-300 font-mono text-xs">
               <span className="w-2 h-2 rounded-full bg-[#f5b920] shadow-[0_0_8px_rgba(245,185,32,0.5)]" />
@@ -280,7 +280,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <button
               type="button"
               onClick={closeModal}
-              title="Закрыть настройки (Esc)"
+              title={isRu ? 'Закрыть настройки (Esc)' : 'Close settings (Esc)'}
               className="p-2 rounded-[12px] bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-gray-300 hover:text-white transition-all cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -303,12 +303,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-white m-0">
-                  {language === 'en' ? 'General Settings' : 'Общие настройки'}
+                  {isRu ? 'Общие настройки' : 'General Settings'}
                 </h1>
                 <p className="mt-2 text-sm text-[#a0a0b0] leading-relaxed max-w-2xl m-0">
-                  {language === 'en'
-                    ? 'Language preferences, UI scaling, campaign packs and database backups.'
-                    : 'Масштаб интерфейса, язык, портативные пакеты кампаний и резервные копии базы данных.'}
+                  {isRu
+                    ? 'Масштаб интерфейса, язык, портативные пакеты кампаний и резервные копии базы данных.'
+                    : 'Language preferences, UI scaling, campaign packs and database backups.'}
                 </p>
               </div>
 
@@ -318,18 +318,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4 text-[#f5b920]" />
                     <h3 className="text-sm font-bold text-white m-0">
-                      {language === 'en' ? 'Language / Язык интерфейса' : 'Язык интерфейса / Language'}
+                      {isRu ? 'Язык интерфейса / Language' : 'Language / Язык интерфейса'}
                     </h3>
                   </div>
                   <span className="font-mono text-xs font-bold text-[#fce79f] px-2.5 py-0.5 rounded-full bg-[#f5b920]/15 border border-[#f5b920]/40">
-                    {language === 'en' ? 'English (SRD 5.2.1)' : 'Русский (D&D 2024)'}
+                    {isRu ? 'Русский (D&D 2024)' : 'English (SRD 5.2.1)'}
                   </span>
                 </div>
 
                 <p className="text-xs text-[#a0a0b0] leading-relaxed m-0">
-                  {language === 'en'
-                    ? 'Choose your preferred language. English is the default international standard adhering strictly to SRD 5.2.1 and official rulebooks.'
-                    : 'Выберите предпочитаемый язык. Английский язык является международным стандартом по умолчанию и строго следует SRD 5.2.1 и официальным книгам правил.'}
+                  {isRu
+                    ? 'Выберите предпочитаемый язык. Английский язык является международным стандартом по умолчанию и строго следует SRD 5.2.1 и официальным книгам правил.'
+                    : 'Choose your preferred language. English is the default international standard adhering strictly to SRD 5.2.1 and official rulebooks.'}
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -348,7 +348,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         <span className="font-bold text-sm text-white">English</span>
                         <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">DEFAULT</span>
                       </div>
-                      <div className="text-xs text-gray-400 mt-1">Official SRD 5.2.1 & Western Release</div>
+                      <div className="text-xs text-gray-400 mt-1">
+                        {isRu ? 'Официальный SRD 5.2.1 и западный релиз' : 'Official SRD 5.2.1 & Western Release'}
+                      </div>
                     </div>
                     {language === 'en' && <Check className="w-5 h-5 text-[#f5b920] flex-shrink-0" />}
                   </button>
@@ -367,7 +369,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-white">Русский</span>
                       </div>
-                      <div className="text-xs text-gray-400 mt-1">Полный официальный перевод правил и бестиария</div>
+                      <div className="text-xs text-gray-400 mt-1">
+                        {isRu ? 'Полный перевод правил и бестиария' : 'Full translation of rules and bestiary'}
+                      </div>
                     </div>
                     {language === 'ru' && <Check className="w-5 h-5 text-[#f5b920] flex-shrink-0" />}
                   </button>
@@ -380,7 +384,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   <div className="flex items-center gap-2">
                     <Sliders className="w-4 h-4 text-[#f5b920]" />
                     <h3 className="text-sm font-bold text-white m-0">
-                      Масштабирование всего интерфейса (UI Scale)
+                      {isRu ? 'Масштабирование всего интерфейса (UI Scale)' : 'Interface Scaling (UI Scale)'}
                     </h3>
                   </div>
                   <div className="flex items-center gap-2">
@@ -391,7 +395,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <button
                         type="button"
                         onClick={resetUiScale}
-                        title="Сбросить масштаб на 100%"
+                        title={isRu ? 'Сбросить масштаб на 100%' : 'Reset scale to 100%'}
                         className="p-1 rounded text-gray-400 hover:text-white hover:bg-white/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
@@ -402,7 +406,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </div>
 
                 <p className="text-xs text-[#a0a0b0] leading-relaxed m-0">
-                  Мгновенно масштабирует боевой трекер, тактическую карту, шрифты и панели под ваш экран — комфортно как на ноутбуке (80–90%), так и на 2K/4K мониторах (125–150%).
+                  {isRu
+                    ? 'Мгновенно масштабирует боевой трекер, тактическую карту, шрифты и панели под ваш экран — комфортно как на ноутбуке (80–90%), так и на 2K/4K мониторах (125–150%).'
+                    : 'Instantly scales the combat tracker, tactical battlemap, fonts, and panels for your display — comfortable on laptops (80–90%) and 2K/4K displays (125–150%).'}
                 </p>
 
                 <div className="space-y-2 pt-1">
@@ -412,18 +418,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     max="150"
                     step="1"
                     value={uiScale}
+                    aria-label={isRu ? 'Масштаб интерфейса' : 'UI Scale'}
                     onChange={(e) => setUiScale(Number(e.target.value))}
                     className="w-full h-2 bg-[#121620] rounded-lg appearance-none cursor-pointer accent-[#f5b920]"
                   />
                   <div className="flex justify-between text-[10px] font-mono text-gray-500">
-                    <span>80% (Компактный)</span>
-                    <span>100% (Стандарт)</span>
-                    <span>150% (Крупный)</span>
+                    <span>{isRu ? '80% (Компактный)' : '80% (Compact)'}</span>
+                    <span>{isRu ? '100% (Стандарт)' : '100% (Standard)'}</span>
+                    <span>{isRu ? '150% (Крупный)' : '150% (Large)'}</span>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-[11px] text-[#a0a0b0] font-medium mr-1">Быстрый выбор:</span>
+                  <span className="text-[11px] text-[#a0a0b0] font-medium mr-1">
+                    {isRu ? 'Быстрый выбор:' : 'Presets:'}
+                  </span>
                   {scalePresets.map((scale) => (
                     <button
                       key={scale}
@@ -448,28 +457,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   <div className="flex items-center gap-2">
                     <Package className="w-4 h-4 text-emerald-400" />
                     <h3 className="text-sm font-bold text-white m-0">
-                      Единый пакет кампании (.ait-pack)
+                      {isRu ? 'Единый пакет кампании (.ait-pack)' : 'Unified Campaign Pack (.ait-pack)'}
                     </h3>
                   </div>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/60">
-                    Полный перенос
+                    {isRu ? 'Полный перенос' : 'Full Transfer'}
                   </span>
                 </div>
 
                 <p className="text-xs text-[#a0a0b0] leading-relaxed m-0">
-                  Упаковывает героев отряда, кастомных монстров из бестиария, бои и метки карты в единый архив.
+                  {isRu
+                    ? 'Упаковывает героев отряда, кастомных монстров из бестиария, бои и метки карты в единый архив.'
+                    : 'Packs party heroes, custom bestiary monsters, encounters, and map pins into a single archive.'}
                 </p>
 
                 {importError && (
                   <div className="p-3 rounded-[12px] bg-rose-950/70 border border-rose-600/60 flex items-start gap-2.5 text-xs text-rose-200">
                     <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <span className="font-bold">Ошибка: </span>
+                      <span className="font-bold">{isRu ? 'Ошибка: ' : 'Error: '}</span>
                       {importError}
                     </div>
                     <button
                       type="button"
                       onClick={() => setImportError(null)}
+                      title={isRu ? 'Скрыть ошибку' : 'Dismiss error'}
                       className="text-rose-400 hover:text-white text-xs font-bold p-0.5 flex items-center justify-center cursor-pointer"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -481,12 +493,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   <div className="p-3 rounded-[12px] bg-emerald-950/70 border border-emerald-600/60 flex items-start gap-2.5 text-xs text-emerald-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <div className="font-bold mb-0.5">Импорт успешно завершён!</div>
+                      <div className="font-bold mb-0.5">
+                        {isRu ? 'Импорт успешно завершён!' : 'Import completed successfully!'}
+                      </div>
                       <p className="text-gray-300 m-0">{importSuccess.message}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setImportSuccess(null)}
+                      title={isRu ? 'Скрыть уведомление' : 'Dismiss notice'}
                       className="text-emerald-400 hover:text-white text-xs font-bold p-0.5 flex items-center justify-center cursor-pointer"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -499,7 +514,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <div className="flex items-center justify-between border-b border-white/10 pb-2">
                       <div className="flex items-center gap-2 text-emerald-300 font-bold text-xs">
                         <FileText className="w-4 h-4" />
-                        <span>Файл: «{importPendingPack.metadata.campaignName}»</span>
+                        <span>{isRu ? `Файл: «${importPendingPack.metadata.campaignName}»` : `File: "${importPendingPack.metadata.campaignName}"`}</span>
                       </div>
                       <span className="text-[10px] font-mono text-gray-400">
                         v{importPendingPack.metadata.version}
@@ -508,25 +523,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                       <div className="p-2 rounded bg-white/5 border border-white/5">
-                        <span className="text-gray-400 block text-[10px]">Героев:</span>
+                        <span className="text-gray-400 block text-[10px]">{isRu ? 'Героев:' : 'Heroes:'}</span>
                         <span className="font-bold text-white text-sm">
                           {importPendingPack.metadata.counts.partyMembers}
                         </span>
                       </div>
                       <div className="p-2 rounded bg-white/5 border border-white/5">
-                        <span className="text-gray-400 block text-[10px]">Монстров:</span>
+                        <span className="text-gray-400 block text-[10px]">{isRu ? 'Монстров:' : 'Monsters:'}</span>
                         <span className="font-bold text-white text-sm">
                           {importPendingPack.metadata.counts.customMonsters}
                         </span>
                       </div>
                       <div className="p-2 rounded bg-white/5 border border-white/5">
-                        <span className="text-gray-400 block text-[10px]">Боёв:</span>
+                        <span className="text-gray-400 block text-[10px]">{isRu ? 'Боёв:' : 'Encounters:'}</span>
                         <span className="font-bold text-white text-sm">
                           {importPendingPack.metadata.counts.encounters}
                         </span>
                       </div>
                       <div className="p-2 rounded bg-white/5 border border-white/5">
-                        <span className="text-gray-400 block text-[10px]">Меток:</span>
+                        <span className="text-gray-400 block text-[10px]">{isRu ? 'Меток:' : 'Pins:'}</span>
                         <span className="font-bold text-white text-sm">
                           {importPendingPack.metadata.counts.pins}
                         </span>
@@ -540,7 +555,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         className="flex-1 min-w-[140px] py-2 px-3 rounded-[10px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px]"
                       >
                         <Layers className="w-3.5 h-3.5" />
-                        <span>Объединить</span>
+                        <span>{isRu ? 'Объединить' : 'Merge'}</span>
                       </button>
 
                       <button
@@ -549,7 +564,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         className="flex-1 min-w-[140px] py-2 px-3 rounded-[10px] bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px]"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Заменить полностью</span>
+                        <span>{isRu ? 'Заменить полностью' : 'Replace All'}</span>
                       </button>
 
                       <button
@@ -557,7 +572,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         onClick={() => setImportPendingPack(null)}
                         className="py-2 px-3 rounded-[10px] bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-medium cursor-pointer min-h-[36px]"
                       >
-                        Отмена
+                        {isRu ? 'Отмена' : 'Cancel'}
                       </button>
                     </div>
                   </div>
@@ -565,12 +580,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   <div className="p-3.5 rounded-[12px] bg-white/[0.02] border border-white/5 space-y-2.5">
-                    <span className="text-xs font-bold text-gray-200 block">Экспорт кампании:</span>
+                    <span className="text-xs font-bold text-gray-200 block">
+                      {isRu ? 'Экспорт кампании:' : 'Export Campaign:'}
+                    </span>
                     <input
                       type="text"
                       value={campaignName}
                       onChange={(e) => setCampaignName(e.target.value)}
-                      placeholder="Название кампании..."
+                      placeholder={isRu ? 'Название кампании...' : 'Campaign name...'}
                       className="w-full px-3 py-2 rounded-[8px] bg-[#10141d] border border-white/10 text-xs text-white focus:outline-none focus:border-[#f5b920] min-h-[36px]"
                     />
                     <button
@@ -580,15 +597,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       className="w-full py-2 px-3 rounded-[10px] bg-[#f5b920] hover:bg-[#fac742] text-black font-bold text-xs shadow-[0_0_12px_rgba(245,185,32,0.25)] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 min-h-[36px]"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      <span>{isExporting ? 'Сохранение...' : 'Скачать пакет (.ait-pack)'}</span>
+                      <span>{isExporting ? (isRu ? 'Сохранение...' : 'Saving...') : (isRu ? 'Скачать пакет (.ait-pack)' : 'Download Pack (.ait-pack)')}</span>
                     </button>
                   </div>
 
                   <div className="p-3.5 rounded-[12px] bg-white/[0.02] border border-white/5 flex flex-col justify-between space-y-2.5">
                     <div>
-                      <span className="text-xs font-bold text-gray-200 block mb-1">Импорт кампании:</span>
+                      <span className="text-xs font-bold text-gray-200 block mb-1">
+                        {isRu ? 'Импорт кампании:' : 'Import Campaign:'}
+                      </span>
                       <p className="text-[11px] text-[#a0a0b0] m-0">
-                        Загрузить файл .ait-pack или .json с другого компьютера.
+                        {isRu
+                          ? 'Загрузить файл .ait-pack или .json с другого компьютера.'
+                          : 'Load a .ait-pack or .json file from another computer.'}
                       </p>
                     </div>
 
@@ -606,7 +627,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         className="w-full py-2 px-3 rounded-[10px] bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-[#f5b920]/50 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px]"
                       >
                         <Upload className="w-3.5 h-3.5 text-[#f5b920]" />
-                        <span>Выбрать файл кампании...</span>
+                        <span>{isRu ? 'Выбрать файл кампании...' : 'Choose Campaign File...'}</span>
                       </button>
                     </div>
                   </div>
@@ -619,16 +640,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   <div className="flex items-center gap-2">
                     <Database className="w-4 h-4 text-blue-400" />
                     <h3 className="text-sm font-bold text-white m-0">
-                      Резервные копии базы данных (SQLite)
+                      {isRu ? 'Резервные копии базы данных (SQLite)' : 'Database Backups (SQLite)'}
                     </h3>
                   </div>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-950/80 text-blue-300 border border-blue-700/60">
-                    Ротация 7 копий
+                    {isRu ? 'Ротация 7 копий' : '7-day rotation'}
                   </span>
                 </div>
 
                 <p className="text-xs text-[#a0a0b0] leading-relaxed m-0">
-                  Автоматическое создание копий при запуске приложения в подпапке backups.
+                  {isRu
+                    ? 'Автоматическое создание копий при запуске приложения в подпапке backups.'
+                    : 'Automatic backup creation upon application startup in the backups directory.'}
                 </p>
 
                 {backupStatusMessage && (
@@ -637,6 +660,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <button
                       type="button"
                       onClick={() => setBackupStatusMessage(null)}
+                      title={isRu ? 'Скрыть сообщение' : 'Dismiss message'}
                       className="text-blue-400 hover:text-white text-xs font-bold ml-2 cursor-pointer p-0.5 flex items-center justify-center"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -646,7 +670,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                 <div className="flex items-center justify-between pt-1">
                   <div className="text-xs text-gray-300">
-                    Копий на диске:{' '}
+                    {isRu ? 'Копий на диске:' : 'Backups on disk:'}{' '}
                     <span className="font-mono font-bold text-white">{backups.length}</span>
                   </div>
                   <button
@@ -656,7 +680,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     className="py-1.5 px-3 rounded-[10px] bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 min-h-[36px]"
                   >
                     <HardDrive className="w-3.5 h-3.5" />
-                    <span>{isCreatingBackup ? 'Создание...' : 'Создать копию сейчас'}</span>
+                    <span>{isCreatingBackup ? (isRu ? 'Создание...' : 'Creating...') : (isRu ? 'Создать копию сейчас' : 'Create Backup Now')}</span>
                   </button>
                 </div>
 
@@ -672,8 +696,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                           <span className="text-gray-200 truncate">{b.name}</span>
                         </div>
                         <div className="flex items-center gap-3 text-gray-400 shrink-0 text-[11px]">
-                          <span>{(b.size_bytes / (1024 * 1024)).toFixed(2)} МБ</span>
-                          <span>{new Date(b.modified_ms).toLocaleDateString('ru-RU')}</span>
+                          <span>{(b.size_bytes / (1024 * 1024)).toFixed(2)} {isRu ? 'МБ' : 'MB'}</span>
+                          <span>{new Date(b.modified_ms).toLocaleDateString(isRu ? 'ru-RU' : 'en-US')}</span>
                         </div>
                       </div>
                     ))}
@@ -689,18 +713,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
                     </svg>
                     <h3 className="text-sm font-bold text-white m-0">
-                      {language === 'en' ? 'Official Discord Community' : 'Официальное Discord сообщество'}
+                      {isRu ? 'Официальное Discord сообщество' : 'Official Discord Community'}
                     </h3>
                   </div>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#5865F2]/20 text-[#a3b1fa] border border-[#5865F2]/40">
-                    Online Community
+                    {isRu ? 'Онлайн-сообщество' : 'Online Community'}
                   </span>
                 </div>
 
                 <p className="text-xs text-[#a0a0b0] leading-relaxed m-0">
-                  {language === 'en'
-                    ? 'Join our tabletop community for homebrew packs, updates, discussion, feedback, and technical support.'
-                    : 'Присоединяйтесь к нашему сообществу: хоумбрю-пакеты, обсуждения, обновления, обратная связь и помощь.'}
+                  {isRu
+                    ? 'Присоединяйтесь к нашему сообществу: хоумбрю-пакеты, обсуждения, обновления, обратная связь и помощь.'
+                    : 'Join our tabletop community for homebrew packs, updates, discussion, feedback, and technical support.'}
                 </p>
 
                 <div className="pt-1">
@@ -709,7 +733,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     onClick={() => openExternal('https://discord.com/invite/XYQSHWVAuE')}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-xs transition-all shadow-md cursor-pointer"
                   >
-                    <span>{language === 'en' ? 'Open Discord Channel' : 'Перейти в наш Дискорд'}</span>
+                    <span>{isRu ? 'Перейти в наш Дискорд' : 'Open Discord Channel'}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -722,10 +746,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-white m-0">
-                  Интерфейс и оформление
+                  {isRu ? 'Интерфейс и оформление' : 'Interface & Appearance'}
                 </h1>
                 <p className="mt-2 text-sm text-[#a0a0b0] leading-relaxed max-w-2xl m-0">
-                  Настройки динамических визуальных тем оформления, адаптации шрифтов и контрастности.
+                  {isRu
+                    ? 'Настройки динамических визуальных тем оформления, адаптации шрифтов и контрастности.'
+                    : 'Settings for dynamic visual themes, font adaptation, and contrast.'}
                 </p>
               </div>
 
@@ -735,13 +761,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   <div className="flex items-center gap-2">
                     <Palette className="w-4 h-4 text-[#f5b920]" />
                     <h3 className="text-sm font-bold text-white m-0">
-                      Автоматическая тема по системе НРИ
+                      {isRu ? 'Автоматическая тема по системе НРИ' : 'Automatic theme based on game system'}
                     </h3>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={themeBySystem}
+                      aria-label={isRu ? 'Автоматическая тема по системе НРИ' : 'Automatic theme based on game system'}
                       onChange={(e) => {
                         const val = e.target.checked;
                         setThemeBySystem(val);
@@ -757,19 +784,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </div>
 
                 <p className="text-xs text-[#a0a0b0] leading-relaxed m-0">
-                  При включении тема оформления автоматически переключается между Warm Fantasy (D&D 5e), Neon Cyber (Cyberpunk RED) и Stately Slate (Pathfinder 2e) в зависимости от выбранных правил кампании.
+                  {isRu
+                    ? 'При включении тема оформления автоматически переключается между Warm Fantasy (D&D 5e), Neon Cyber (Cyberpunk RED) и Stately Slate (Pathfinder 2e) в зависимости от выбранных правил кампании.'
+                    : 'When enabled, the visual theme automatically switches between Warm Fantasy (D&D 5e), Neon Cyber (Cyberpunk RED), and Stately Slate (Pathfinder 2e) depending on the active campaign rules.'}
                 </p>
 
                 {/* Theme Selector */}
                 <div className="pt-2 border-t border-white/[0.06] space-y-2">
                   <label className="text-xs font-semibold text-gray-300 block">
-                    {themeBySystem ? 'Запасная тема (если система не задана):' : 'Фиксированная тема:'}
+                    {themeBySystem
+                      ? (isRu ? 'Запасная тема (если система не задана):' : 'Fallback theme (if no system selected):')
+                      : (isRu ? 'Фиксированная тема:' : 'Fixed theme:')}
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
-                      { id: 'dnd5e', name: 'D&D 5e (Warm Gold)', color: '#f5b920' },
-                      { id: 'cyberpunk-red', name: 'Cyberpunk RED (Neon Cyber)', color: '#fcee0a' },
-                      { id: 'pathfinder2e', name: 'Pathfinder 2e (Stately Slate)', color: '#c28f47' },
+                      { id: 'dnd5e', name: isRu ? 'D&D 5e (Золотое фэнтези)' : 'D&D 5e (Warm Gold)', color: '#f5b920' },
+                      { id: 'cyberpunk-red', name: isRu ? 'Cyberpunk RED (Неоновый кибер)' : 'Cyberpunk RED (Neon Cyber)', color: '#fcee0a' },
+                      { id: 'pathfinder2e', name: isRu ? 'Pathfinder 2e (Благородный сланец)' : 'Pathfinder 2e (Stately Slate)', color: '#c28f47' },
                     ].map((th) => {
                       const isSelected = (!themeBySystem && effectiveTheme === th.id) || (themeBySystem && fallbackTheme === th.id);
                       return (
@@ -811,45 +842,57 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-white m-0">
-                  Горячие клавиши
+                  {isRu ? 'Горячие клавиши' : 'Hotkeys'}
                 </h1>
                 <p className="mt-2 text-sm text-[#a0a0b0] leading-relaxed max-w-2xl m-0">
-                  Быстрое управление инициативой, ходами и бросками без отрыва от клавиатуры.
+                  {isRu
+                    ? 'Быстрое управление инициативой, ходами и бросками без отрыва от клавиатуры.'
+                    : 'Quickly manage initiative, turns, and rolls without leaving your keyboard.'}
                 </p>
               </div>
 
               <section className="p-5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="p-3 rounded-[12px] bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                    <span className="text-gray-300">Следующий ход в трекере инициативы</span>
+                    <span className="text-gray-300">
+                      {isRu ? 'Следующий ход в трекере инициативы' : 'Next turn in initiative tracker'}
+                    </span>
                     <kbd className="px-2 py-1 rounded bg-[#10141d] border border-white/20 font-mono font-bold text-[#fce79f]">
-                      Пробел (Space)
+                      {isRu ? 'Пробел (Space)' : 'Space'}
                     </kbd>
                   </div>
 
                   <div className="p-3 rounded-[12px] bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                    <span className="text-gray-300">Глобальный поиск (Spotlight Search)</span>
+                    <span className="text-gray-300">
+                      {isRu ? 'Глобальный поиск (Spotlight Search)' : 'Global search (Spotlight)'}
+                    </span>
                     <kbd className="px-2 py-1 rounded bg-[#10141d] border border-white/20 font-mono font-bold text-[#fce79f]">
                       Ctrl + K
                     </kbd>
                   </div>
 
                   <div className="p-3 rounded-[12px] bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                    <span className="text-gray-300">Отмена последнего боевого действия</span>
+                    <span className="text-gray-300">
+                      {isRu ? 'Отмена последнего боевого действия' : 'Undo last combat action'}
+                    </span>
                     <kbd className="px-2 py-1 rounded bg-[#10141d] border border-white/20 font-mono font-bold text-[#fce79f]">
                       Ctrl + Z
                     </kbd>
                   </div>
 
                   <div className="p-3 rounded-[12px] bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                    <span className="text-gray-300">Повтор отменённого действия (Redo)</span>
+                    <span className="text-gray-300">
+                      {isRu ? 'Повтор отменённого действия (Redo)' : 'Redo last action'}
+                    </span>
                     <kbd className="px-2 py-1 rounded bg-[#10141d] border border-white/20 font-mono font-bold text-[#fce79f]">
                       Ctrl + Y
                     </kbd>
                   </div>
 
                   <div className="p-3 rounded-[12px] bg-white/[0.02] border border-white/5 flex items-center justify-between sm:col-span-2">
-                    <span className="text-gray-300">Цифровой блок Numpad для быстрых действий урона / бросков</span>
+                    <span className="text-gray-300">
+                      {isRu ? 'Цифровой блок Numpad для быстрых действий урона / бросков' : 'Numpad numeric keys for quick damage / dice rolls'}
+                    </span>
                     <div className="flex gap-1">
                       <kbd className="px-1.5 py-1 rounded bg-[#10141d] border border-white/20 font-mono font-bold text-[#fce79f]">
                         Num 1-9
@@ -866,10 +909,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-white m-0">
-                  Плагины и расширения
+                  {isRu ? 'Плагины и расширения' : 'Plugins & Extensions'}
                 </h1>
                 <p className="mt-2 text-sm text-[#a0a0b0] leading-relaxed max-w-2xl m-0">
-                  Модульная экосистема для подключения кастомных систем, скриптов автоматизации и конвертеров.
+                  {isRu
+                    ? 'Модульная экосистема для подключения кастомных систем, скриптов автоматизации и конвертеров.'
+                    : 'Modular ecosystem for custom game systems, automation scripts, and converters.'}
                 </p>
               </div>
 
@@ -879,14 +924,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white m-0">
-                    Поддержка плагинов в разработке
+                    {isRu ? 'Поддержка плагинов в разработке' : 'Plugin support under development'}
                   </h3>
                   <p className="text-xs text-[#a0a0b0] max-w-md mx-auto mt-2 leading-relaxed">
-                    Скоро появится возможность подключать собственные модули правил, пакеты правил Foundry VTT, пользовательские таблицы лута и кастомные темы интерфейса.
+                    {isRu
+                      ? 'Скоро появится возможность подключать собственные модули правил, пакеты правил Foundry VTT, пользовательские таблицы лута и кастомные темы интерфейса.'
+                      : 'Coming soon: connect custom rulesets, Foundry VTT rule packages, custom loot tables, and UI themes.'}
                   </p>
                 </div>
                 <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-white/5 text-gray-400 border border-white/10">
-                  Запланировано в версии 2.1
+                  {isRu ? 'Запланировано в версии 2.1' : 'Planned for version 2.1'}
                 </span>
               </section>
             </div>

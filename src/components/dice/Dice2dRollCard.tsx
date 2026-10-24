@@ -3,7 +3,7 @@ import { Animated2dDie } from './Animated2dDie';
 import { Dices, X, Sparkles, AlertCircle, Check } from 'lucide-react';
 import { audioService } from '../../services/audioService';
 import { useTranslation } from '../../i18n';
-import { localizeMonsterName } from '../../utils/textUtils';
+import { localizeMonsterName, localizeDamageType } from '../../utils/textUtils';
 
 export interface SingleDieResult {
   id?: string;
@@ -109,6 +109,11 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
   // Header display text
   const locRollerName = rollerName ? (isEn ? (localizeMonsterName(rollerName, 'en') || rollerName) : rollerName) : undefined;
   const locTargetName = targetName ? (isEn ? (localizeMonsterName(targetName, 'en') || targetName) : targetName) : undefined;
+  const locDamageType = damageType
+    ? damageType.toLowerCase() === 'универсальный' || damageType.toLowerCase() === 'universal'
+      ? (isEn ? 'Universal' : 'Универсальный')
+      : localizeDamageType(damageType, language as 'en' | 'ru')
+    : undefined;
 
   const displayTitle = title
     ? (isEn ? (localizeMonsterName(title, 'en') || title) : title)
@@ -175,14 +180,14 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
       {!isRolling && isNat20 && (
         <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/60 rounded-full py-1 px-3 shadow-emerald-glow animate-pulse">
           <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
-          <span>{isEn ? "CRITICAL SUCCESS (20)!" : "КРИТИЧЕСКИЙ УСПЕХ (20)!"}</span>
+          <span>{isEn ? "CRITICAL SUCCESS (NAT 20)!" : "КРИТИЧЕСКИЙ УСПЕХ (NAT 20)!"}</span>
         </div>
       )}
 
       {!isRolling && isNat1 && (
         <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-rose-300 bg-rose-950/80 border border-rose-500/60 rounded-full py-1 px-3 shadow-crimson-glow animate-bounce">
           <AlertCircle className="h-3.5 w-3.5 text-rose-300" />
-          <span>{isEn ? "CRITICAL FAILURE (1)!" : "КРИТИЧЕСКИЙ ПРОВАЛ (1)!"}</span>
+          <span>{isEn ? "CRITICAL FAILURE (NAT 1)!" : "КРИТИЧЕСКИЙ ПРОВАЛ (NAT 1)!"}</span>
         </div>
       )}
 
@@ -315,13 +320,13 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
                 </>
               ) : (
                 <>
-                  {isEn ? 'Total:' : 'Итог:'}{' '}
+                  {isEn ? 'Total:' : 'Итого:'}{' '}
                   <span className="font-bold text-gold text-sm">{total}</span>
                 </>
               )}
-              {damageType && (
+              {locDamageType && (
                 <span className="text-amber-300 ml-1.5 font-sans font-semibold">
-                  {damageType}
+                  {locDamageType}
                 </span>
               )}
             </div>
@@ -332,28 +337,28 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
               <span>{modifier > 0 ? ` + ${modifier}` : ` - ${Math.abs(modifier)}`}</span>
               <span className="text-gray-400"> = </span>
               <span className="font-bold text-gold text-sm">{total}</span>
-              {damageType && (
+              {locDamageType && (
                 <span className="text-amber-300 ml-1.5 font-sans font-semibold">
-                  {damageType}
+                  {locDamageType}
                 </span>
               )}
             </div>
           ) : isDualRoll ? (
             /* Dual roll without modifier: clean total highlight */
             <div className="text-xs font-mono text-gray-300 bg-black/50 px-3 py-1 rounded-lg border border-glass-border">
-              {isEn ? 'Total:' : 'Итог:'} <span className="font-bold text-gold text-sm">{total}</span>
-              {damageType && (
+              {isEn ? 'Total:' : 'Итого:'} <span className="font-bold text-gold text-sm">{total}</span>
+              {locDamageType && (
                 <span className="text-amber-300 ml-1.5 font-sans font-semibold">
-                  {damageType}
+                  {locDamageType}
                 </span>
               )}
             </div>
-          ) : damageType ? (
+          ) : locDamageType ? (
             /* Single die without modifier but with damage type */
             <div className="text-xs font-mono text-gray-300 bg-black/50 px-3 py-1 rounded-lg border border-glass-border">
-              {isEn ? 'Total:' : 'Итог:'} <span className="font-bold text-gold text-sm">{total}</span>
+              {isEn ? 'Total:' : 'Итого:'} <span className="font-bold text-gold text-sm">{total}</span>
               <span className="text-amber-300 ml-1.5 font-sans font-semibold">
-                {damageType}
+                {locDamageType}
               </span>
             </div>
           ) : null /* Single die without modifier and without damageType: NO DUPLICATION! */}

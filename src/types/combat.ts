@@ -22,6 +22,7 @@ export interface Combatant {
   nameRu?: string;
   cr?: string;
   creatureType?: string;
+  creatureTypeRu?: string;
   size: CreatureSize;
   tokenScale: number; // Tiny: 0.6, Small: 0.85, Medium: 1.0, Large: 2.0, Huge: 3.0, Gargantuan: 4.0
   tokenUrl?: string;
@@ -94,6 +95,7 @@ export function createDefaultCombatant(
     nameRu: partial.nameRu || sb?.name_ru,
     cr: partial.cr || sb?.cr,
     creatureType: partial.creatureType || (sb ? (sb.creature_type_ru || sb.creature_type) : undefined),
+    creatureTypeRu: partial.creatureTypeRu || sb?.creature_type_ru,
     size,
     tokenScale,
     tokenUrl: partial.tokenUrl || partial.avatarUrl,

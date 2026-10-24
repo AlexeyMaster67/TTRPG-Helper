@@ -115,7 +115,7 @@ export function SceneDirectorBar() {
         <div className="flex items-center gap-1.5 flex-shrink-0 pr-1 border-r border-white/10">
           <Film className="h-3.5 w-3.5 text-gold" />
           <span className="text-[11px] font-bold uppercase tracking-wider text-gold-light font-serif hidden sm:inline">
-            {isEn ? 'Scene Director' : 'Режиссёр сцен'}
+            {isEn ? 'SCENE DIRECTOR' : 'РЕЖИССЕР СЦЕН'}
           </span>
           <span className="text-[10px] font-mono text-gray-400 px-1 py-0.2 rounded bg-surface/70 border border-white/5">
             {scenes.length}
@@ -197,7 +197,7 @@ export function SceneDirectorBar() {
             title={isEn ? 'Create new scene' : 'Создать новую сцену'}
           >
             <Plus className="h-3 w-3 text-gold" />
-            <span className="hidden sm:inline">{isEn ? 'Scene' : 'Сцена'}</span>
+            <span className="hidden sm:inline">{isEn ? '+ Scene' : '+ Сцена'}</span>
           </button>
 
           {/* Sync / Save map to active scene */}
@@ -219,7 +219,7 @@ export function SceneDirectorBar() {
             ) : (
               <>
                 <Save className="h-3 w-3 text-gray-400" />
-                <span className="hidden sm:inline">{isEn ? 'Sync' : 'Синхр'}</span>
+                <span className="hidden sm:inline">{isEn ? 'Sync' : 'Синхр.'}</span>
               </>
             )}
           </button>

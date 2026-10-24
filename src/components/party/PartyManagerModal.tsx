@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePartyStore } from '../../store/partyStore';
-import { useTranslation } from '../../i18n';
+import { useSettingsStore } from '../../store/settingsStore';
 import { PartyMember } from '../../types/party';
 import {
   Users,
@@ -109,8 +109,9 @@ export const NOTE_TEMPLATES_EN = [
 ];
 
 export function PartyManagerModal() {
-  const { language } = useTranslation();
-  const isEn = language === 'en';
+  const language = useSettingsStore((s) => s.language);
+  const isRu = language === 'ru';
+  const isEn = !isRu;
 
   const dndClasses = isEn ? DND_CLASSES_EN : DND_CLASSES_RU;
   const dndSpecies = isEn ? DND_SPECIES_EN : DND_SPECIES_RU;
@@ -340,6 +341,7 @@ export function PartyManagerModal() {
           <button
             onClick={closeModal}
             className="p-1.5 rounded-glass hover:bg-white/10 text-gray-400 hover:text-gray-100 text-sm transition-colors shrink-0 cursor-pointer"
+            title={isEn ? 'Close' : 'Закрыть'}
           >
             <X className="h-4 w-4" />
           </button>
@@ -560,6 +562,7 @@ export function PartyManagerModal() {
                   setEditingId(null);
                 }}
                 className="text-gray-400 hover:text-white text-xs p-1 rounded"
+                title={isEn ? 'Close' : 'Закрыть'}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -755,7 +758,7 @@ export function PartyManagerModal() {
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => openCharacterSheet(m.id)}
-                    title={isEn ? 'Open interactive character sheet' : 'Открыть интерактивный лист персонажа D&D Beyond'}
+                    title={isEn ? 'Open interactive character sheet' : 'Открыть интерактивный лист персонажа'}
                     className="px-2.5 py-1 rounded-glass bg-gold/15 hover:bg-gold/30 border border-gold/40 text-gold-light text-xs font-semibold flex items-center gap-1 transition-all shadow-sm cursor-pointer"
                   >
                     <BookOpen className="h-3.5 w-3.5 text-gold" />

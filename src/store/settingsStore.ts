@@ -84,7 +84,7 @@ const initialSettings = getStoredSettings();
 const initialLanguage: 'en' | 'ru' =
   initialSettings.language === 'ru' || initialSettings.language === 'en'
     ? initialSettings.language
-    : 'en';
+    : 'ru';
 
 const initialUiScale =
   typeof initialSettings.uiScale === 'number' &&

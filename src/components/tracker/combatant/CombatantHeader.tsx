@@ -104,7 +104,7 @@ export function CombatantHeader({
                 e.stopPropagation();
                 onStartEditingInit();
               }}
-              title="Нажмите, чтобы ввести инициативу"
+              title={isEn ? "Click to set initiative" : "Нажмите, чтобы ввести инициативу"}
               className={clsx(
                 'flex flex-col items-center justify-center w-7 h-7 rounded-full border font-mono tabular-nums flex-shrink-0 cursor-pointer transition-all active:scale-95 group/init',
                 isActiveTurn
@@ -124,7 +124,11 @@ export function CombatantHeader({
               e.stopPropagation();
               onToggleTarget();
             }}
-            title={isTarget ? 'Цель захвачена (Кликните для снятия)' : 'ПКМ или клик: выбрать как цель'}
+            title={
+              isEn
+                ? (isTarget ? 'Target locked (Click to unlock)' : 'Right-click or click: select as target')
+                : (isTarget ? 'Цель захвачена (Кликните для снятия)' : 'ПКМ или клик: выбрать как цель')
+            }
             className={clsx(
               'p-0.5 rounded-sm text-xs transition-colors flex-shrink-0 cursor-pointer flex items-center justify-center',
               isTarget
@@ -148,7 +152,7 @@ export function CombatantHeader({
                 faction,
               });
             }}
-            title="Открыть в Кузнице токенов (кликните для смены окантовки и кадрирования)"
+            title={isEn ? "Open in Token Forge (click to edit border and crop)" : "Открыть в Кузнице токенов (кликните для смены окантовки и кадрирования)"}
           >
             <div
               className={clsx(
@@ -172,7 +176,7 @@ export function CombatantHeader({
                   'absolute -bottom-1 -right-1 min-w-[15px] h-[15px] px-0.5 flex items-center justify-center rounded-full font-mono text-[8px] font-black border leading-none shadow-md ring-1 z-10 whitespace-nowrap',
                   CLONE_BADGE_STYLE
                 )}
-                title={`Клон #${cloneNumber}`}
+                title={isEn ? `Clone #${cloneNumber}` : `Клон #${cloneNumber}`}
               >
                 #{cloneNumber}
               </span>

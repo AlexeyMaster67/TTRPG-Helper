@@ -153,7 +153,7 @@ describe('Dice2dRollCard Component', () => {
       />
     );
 
-    expect(html).toMatch(/КРИТИЧЕСКИЙ УСПЕХ \(20\)!|CRITICAL SUCCESS \(20\)!/);
+    expect(html).toMatch(/КРИТИЧЕСКИЙ УСПЕХ \((NAT )?20\)!|CRITICAL SUCCESS \((NAT )?20\)!/);
   });
 
   it('renders a multi-dice pool (e.g. 4d6 damage) with all 4 dice and formula', () => {

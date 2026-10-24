@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { usePartyStore } from '../../store/partyStore';
 import { useTokenForgeStore } from '../../store/tokenForgeStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { SPECIES_2024_DATA, Species2024, SpeciesLineage } from '../../data/species2024Data';
 import { CLASSES_2024_DATA, Class2024 } from '../../data/classes2024Data';
 import { BACKGROUNDS_2024_DATA, Background2024 } from '../../data/backgrounds2024Data';
@@ -39,6 +40,7 @@ import {
 } from 'lucide-react';
 import { downloadTtrpghFile } from '../../services/ttrpghFormat';
 
+
 const STAT_NAMES_RU: Record<keyof CharacterStats, string> = {
   str: 'СИЛА (STR)',
   dex: 'ЛОВКОСТЬ (DEX)',
@@ -48,7 +50,19 @@ const STAT_NAMES_RU: Record<keyof CharacterStats, string> = {
   cha: 'ХАРИЗМА (CHA)',
 };
 
+const STAT_NAMES_EN: Record<keyof CharacterStats, string> = {
+  str: 'STRENGTH (STR)',
+  dex: 'DEXTERITY (DEX)',
+  con: 'CONSTITUTION (CON)',
+  int: 'INTELLIGENCE (INT)',
+  wis: 'WISDOM (WIS)',
+  cha: 'CHARISMA (CHA)',
+};
+
 export function CharacterBuilderModal() {
+  const language = useSettingsStore((s) => s.language);
+  const isRu = language === 'ru';
+
   const { isCharacterBuilderOpen, closeCharacterBuilder, addMember, showToast } = usePartyStore();
   const { openForge, savedTokens } = useTokenForgeStore();
 
@@ -176,8 +190,8 @@ export function CharacterBuilderModal() {
         spd = ancestor.speed;
       }
     }
-    return `${spd} фт.`;
-  }, [currentSpecies, currentLineage, selectedSpeciesId, hexbloodAncestralSpeciesId]);
+    return `${spd} ${isRu ? 'фт.' : 'ft.'}`;
+  }, [currentSpecies, currentLineage, selectedSpeciesId, hexbloodAncestralSpeciesId, isRu]);
 
   // Darkvision
   const effectiveDarkvision = useMemo(() => {
@@ -293,15 +307,15 @@ export function CharacterBuilderModal() {
     // Build weapons
     const weaponsList: CharacterWeapon[] = selectedWeaponIds.map((wid, idx) => {
       const wData = WEAPONS_2024_DATA.find((w) => w.id === wid) || WEAPONS_2024_DATA[0];
-      const isFinesse = wData.properties.some((p) => p.includes('Фехтовальное'));
-      const isRanged = wData.properties.some((p) => p.includes('Боеприпас'));
+      const isFinesse = wData.properties.some((p) => p.includes('Фехтовальное') || p.includes('Finesse'));
+      const isRanged = wData.properties.some((p) => p.includes('Боеприпас') || p.includes('Ammunition'));
       const attackStatMod = isRanged || (isFinesse && dexMod > strMod) ? dexMod : strMod;
       const totalAttackBonus = attackStatMod + pb;
       const damageBonus = attackStatMod >= 0 ? `+${attackStatMod}` : `${attackStatMod}`;
 
       return {
         id: `w-${Date.now()}-${idx}`,
-        name: wData.nameRu,
+        name: isRu ? wData.nameRu : wData.nameEn,
         attackBonus: formatModifier(totalAttackBonus),
         damage: `${wData.damage}${damageBonus}`,
         damageType: wData.damageType,
@@ -314,41 +328,68 @@ export function CharacterBuilderModal() {
     const equipmentList: EquipmentItem[] = [
       {
         id: `eq-${Date.now()}-1`,
-        name: currentArmor.nameRu,
+        name: isRu ? currentArmor.nameRu : currentArmor.nameEn,
         quantity: 1,
-        notes: `КД ${currentArmor.baseAc}`,
+        notes: isRu ? `КД ${currentArmor.baseAc}` : `AC ${currentArmor.baseAc}`,
       },
     ];
 
     if (hasShield) {
       equipmentList.push({
         id: `eq-${Date.now()}-2`,
-        name: 'Щит',
+        name: isRu ? 'Щит' : 'Shield',
         quantity: 1,
-        notes: '+2 КД',
+        notes: isRu ? '+2 КД' : '+2 AC',
       });
     }
 
     // Build notes with traits
+    const speciesDisplayName = isRu
+      ? `${currentSpecies.nameRu}${currentLineage ? ` (${currentLineage.nameRu})` : ''}`
+      : `${currentSpecies.nameEn}${currentLineage ? ` (${currentLineage.nameEn || currentLineage.nameRu})` : ''}`;
+
+    const backgroundDisplayName = isRu
+      ? `${currentBackground.nameRu} (Черта: ${currentBackground.featNameRu})`
+      : `${currentBackground.nameEn} (Feat: ${currentBackground.featNameEn || currentBackground.featNameRu})`;
+
+    const darkvisionText =
+      effectiveDarkvision > 0
+        ? isRu
+          ? `Тёмное зрение: ${effectiveDarkvision} фт.`
+          : `Darkvision: ${effectiveDarkvision} ft.`
+        : isRu
+        ? 'Без тёмного зрения'
+        : 'No darkvision';
+
     const notesParts: string[] = [
-      `Вид: ${currentSpecies.nameRu}${currentLineage ? ` (${currentLineage.nameRu})` : ''}`,
-      `Предыстория: ${currentBackground.nameRu} (Черта: ${currentBackground.featNameRu})`,
-      effectiveDarkvision > 0 ? `Тёмное зрение: ${effectiveDarkvision} фт.` : 'Без тёмного зрения',
-      `Скорость: ${effectiveSpeed}`,
+      `${isRu ? 'Вид' : 'Species'}: ${speciesDisplayName}`,
+      `${isRu ? 'Предыстория' : 'Background'}: ${backgroundDisplayName}`,
+      darkvisionText,
+      `${isRu ? 'Скорость' : 'Speed'}: ${effectiveSpeed}`,
     ];
 
     if (currentSpecies.resistances && currentSpecies.resistances.length > 0) {
-      notesParts.push(`Сопротивления: ${currentSpecies.resistances.join(', ')}`);
+      notesParts.push(`${isRu ? 'Сопротивления' : 'Resistances'}: ${currentSpecies.resistances.join(', ')}`);
     }
 
     currentSpecies.traits.forEach((t) => {
-      notesParts.push(`${t.nameRu}: ${t.descriptionRu}`);
+      const traitName = isRu ? t.nameRu : (t.nameEn || t.nameRu);
+      notesParts.push(`${traitName}: ${t.descriptionRu}`);
     });
+
+    const chosenSubclassName = selectedSubclassId
+      ? isRu
+        ? currentClass.subclasses?.find((s) => s.id === selectedSubclassId)?.nameRu
+        : (currentClass.subclasses?.find((s) => s.id === selectedSubclassId)?.nameEn ||
+           currentClass.subclasses?.find((s) => s.id === selectedSubclassId)?.nameRu)
+      : '';
+
+    const classDisplayName = `${isRu ? currentClass.nameRu : currentClass.nameEn}${chosenSubclassName ? ` (${chosenSubclassName})` : ''}`;
 
     return {
       name: name.trim(),
-      characterClass: `${currentClass.nameRu}${selectedSubclassId ? ` (${currentClass.subclasses?.find((s) => s.id === selectedSubclassId)?.nameRu})` : ''}`,
-      species: currentSpecies.nameRu,
+      characterClass: classDisplayName,
+      species: isRu ? currentSpecies.nameRu : currentSpecies.nameEn,
       level,
       ac: finalAc,
       maxHp: finalHp,
@@ -381,7 +422,11 @@ export function CharacterBuilderModal() {
   const handleCreateCharacter = () => {
     const newMember = buildCurrentMember();
     addMember(newMember);
-    showToast(`Персонаж ${name.trim()} успешно создан и добавлен в отряд.`);
+    showToast(
+      isRu
+        ? `Персонаж ${name.trim()} успешно создан и добавлен в отряд.`
+        : `Character ${name.trim()} successfully created and added to party.`
+    );
     closeCharacterBuilder();
   };
 
@@ -392,7 +437,11 @@ export function CharacterBuilderModal() {
       id: `temp-${Date.now()}`,
     };
     downloadTtrpghFile(fullMember, avatarUrl || undefined);
-    showToast(`Персонаж ${name.trim()} экспортирован в .ttrpgh!`);
+    showToast(
+      isRu
+        ? `Персонаж ${name.trim()} экспортирован в .ttrpgh!`
+        : `Character ${name.trim()} exported to .ttrpgh!`
+    );
   };
 
   if (!isCharacterBuilderOpen) return null;
@@ -408,25 +457,26 @@ export function CharacterBuilderModal() {
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
-                Конструктор персонажа D&D 2024
+                {isRu ? 'Конструктор персонажа D&D 2024' : 'D&D 2024 Character Builder'}
               </h2>
               <p className="text-[11px] text-gray-400">
-                Шаг {step} из 7: {
-                  step === 1 ? 'Имя, класс и уровень' :
-                  step === 2 ? 'Вид персонажа (19 видов)' :
-                  step === 3 ? 'Предыстория и бонусы' :
-                  step === 4 ? 'Распределение характеристик' :
-                  step === 5 ? 'Навыки и владения' :
-                  step === 6 ? 'Снаряжение и расчёт параметров' :
-                  'Аватарка и подтверждение'
+                {isRu ? `Шаг ${step} из 7: ` : `Step ${step} of 7: `}
+                {
+                  step === 1 ? (isRu ? 'Имя, класс и уровень' : 'Name, Class & Level') :
+                  step === 2 ? (isRu ? 'Вид персонажа (19 видов)' : 'Species (19 Species)') :
+                  step === 3 ? (isRu ? 'Предыстория и бонусы' : 'Background & Ability Bonuses') :
+                  step === 4 ? (isRu ? 'Распределение характеристик' : 'Ability Score Assignment') :
+                  step === 5 ? (isRu ? 'Навыки и владения' : 'Skills & Proficiencies') :
+                  step === 6 ? (isRu ? 'Снаряжение и расчёт параметров' : 'Equipment & Derived Stats') :
+                  (isRu ? 'Аватарка и подтверждение' : 'Avatar & Confirmation')
                 }
               </p>
             </div>
           </div>
           <button
             onClick={closeCharacterBuilder}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-            title="Закрыть конструктор"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            title={isRu ? 'Закрыть конструктор' : 'Close builder'}
           >
             <X className="w-5 h-5" />
           </button>
@@ -435,13 +485,13 @@ export function CharacterBuilderModal() {
         {/* Progress Stepper */}
         <div className="flex items-center justify-between px-5 py-2.5 bg-[#0f131a] border-b border-[#252f3a] text-xs font-mono overflow-x-auto no-scrollbar gap-2">
           {[
-            { s: 1, label: '1. Класс' },
-            { s: 2, label: '2. Вид' },
-            { s: 3, label: '3. Предыстория' },
-            { s: 4, label: '4. Характеристики' },
-            { s: 5, label: '5. Навыки' },
-            { s: 6, label: '6. Снаряжение' },
-            { s: 7, label: '7. Финал' },
+            { s: 1, label: isRu ? '1. Класс' : '1. Class' },
+            { s: 2, label: isRu ? '2. Вид' : '2. Species' },
+            { s: 3, label: isRu ? '3. Предыстория' : '3. Background' },
+            { s: 4, label: isRu ? '4. Характеристики' : '4. Abilities' },
+            { s: 5, label: isRu ? '5. Навыки' : '5. Skills' },
+            { s: 6, label: isRu ? '6. Снаряжение' : '6. Equipment' },
+            { s: 7, label: isRu ? '7. Финал' : '7. Final' },
           ].map((item) => (
             <button
               key={item.s}
@@ -470,31 +520,31 @@ export function CharacterBuilderModal() {
 
         {/* Main Step Content Body */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
-          {/* STEP 1: ИМЯ, КЛАСС, УРОВЕНЬ */}
+          {/* STEP 1: NAME, CLASS, LEVEL */}
           {step === 1 && (
             <div className="space-y-5 animate-in fade-in duration-150">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2 space-y-1.5">
                   <label className="text-xs font-bold text-gray-300 block">
-                    Имя персонажа <span className="text-red-400">*</span>
+                    {isRu ? 'Имя персонажа' : 'Character Name'} <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Например: Варис, Брунхильда, Сильван..."
+                    placeholder={isRu ? 'Например: Варис, Брунхильда, Сильван...' : 'e.g. Eldric, Varis, Brunhilda...'}
                     className="w-full bg-[#171d26] border border-[#2d3844] focus:border-gold rounded-lg px-3 py-2 text-sm text-white outline-none"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-300 block">Уровень (1–20)</label>
+                  <label className="text-xs font-bold text-gray-300 block">{isRu ? 'Уровень (1–20)' : 'Level (1–20)'}</label>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setLevel((l) => Math.max(1, l - 1))}
-                      className="w-8 h-8 rounded-lg bg-[#1f2733] hover:bg-[#2a3545] text-white font-bold"
+                      className="w-8 h-8 rounded-lg bg-[#1f2733] hover:bg-[#2a3545] text-white font-bold cursor-pointer"
                     >
                       -
                     </button>
@@ -509,7 +559,7 @@ export function CharacterBuilderModal() {
                     <button
                       type="button"
                       onClick={() => setLevel((l) => Math.min(20, l + 1))}
-                      className="w-8 h-8 rounded-lg bg-[#1f2733] hover:bg-[#2a3545] text-white font-bold"
+                      className="w-8 h-8 rounded-lg bg-[#1f2733] hover:bg-[#2a3545] text-white font-bold cursor-pointer"
                     >
                       +
                     </button>
@@ -520,7 +570,7 @@ export function CharacterBuilderModal() {
               {/* 12 Classes Grid */}
               <div className="space-y-2.5">
                 <label className="text-xs font-bold text-gray-300 block">
-                  Выберите класс (12 классов D&D 2024)
+                  {isRu ? 'Выберите класс (12 классов D&D 2024)' : 'Choose Class (12 D&D 2024 Classes)'}
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
                   {CLASSES_2024_DATA.map((cls) => {
@@ -540,15 +590,15 @@ export function CharacterBuilderModal() {
                       >
                         <div>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white">{cls.nameRu}</span>
+                            <span className="text-xs font-bold text-white">{isRu ? cls.nameRu : cls.nameEn}</span>
                             <span className="text-[10px] font-mono text-gold px-1.5 py-0.5 rounded bg-surface border border-border-subtle">
                               {cls.hitDie}
                             </span>
                           </div>
-                          <span className="text-[10px] text-gray-400 block mt-0.5">{cls.nameEn}</span>
+                          <span className="text-[10px] text-gray-400 block mt-0.5">{isRu ? cls.nameEn : cls.nameRu}</span>
                         </div>
                         <div className="mt-2 text-[10px] text-gray-400 font-mono">
-                          Спасы: {cls.savingThrows.map((s) => s.toUpperCase()).join(', ')}
+                          {isRu ? 'Спасы: ' : 'Saves: '}{cls.savingThrows.map((s) => s.toUpperCase()).join(', ')}
                         </div>
                       </div>
                     );
@@ -561,10 +611,12 @@ export function CharacterBuilderModal() {
                 <div className="p-3.5 rounded-lg bg-[#161c25] border border-[#2a3644] space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-gray-300">
-                      Подкласс / Архетип (активен с 3 уровня)
+                      {isRu ? 'Подкласс / Архетип (активен с 3 уровня)' : 'Subclass / Archetype (active at level 3)'}
                     </span>
                     <span className="text-[10px] text-gray-500">
-                      {level < 3 ? 'Предварительный выбор' : 'Определяет классовые черты'}
+                      {level < 3
+                        ? (isRu ? 'Предварительный выбор' : 'Preliminary choice')
+                        : (isRu ? 'Определяет классовые черты' : 'Determines class features')}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -578,7 +630,7 @@ export function CharacterBuilderModal() {
                             : 'bg-[#12161e] border-border-subtle text-gray-300 hover:border-gray-500'
                         }`}
                       >
-                        <div className="font-bold">{sub.nameRu}</div>
+                        <div className="font-bold">{isRu ? sub.nameRu : (sub.nameEn || sub.nameRu)}</div>
                         <p className="text-[10px] text-gray-400 mt-1 leading-snug">{sub.descriptionRu}</p>
                       </div>
                     ))}
@@ -588,15 +640,17 @@ export function CharacterBuilderModal() {
             </div>
           )}
 
-          {/* STEP 2: ВЫБОР ВИДА (19 ВИДОВ) */}
+          {/* STEP 2: SPECIES SELECTION */}
           {step === 2 && (
             <div className="space-y-4 animate-in fade-in duration-150">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-300">
-                  Выберите вид персонажа (Каноничные 19 видов D&D 2024 и дополнений)
+                  {isRu
+                    ? 'Выберите вид персонажа (Каноничные 19 видов D&D 2024 и дополнений)'
+                    : 'Choose Character Species (Canonical 19 Species D&D 2024 & Supplements)'}
                 </span>
                 <span className="text-[11px] font-mono text-gold-light">
-                  Выбран: {currentSpecies.nameRu} ({currentSpecies.nameEn})
+                  {isRu ? 'Выбран: ' : 'Selected: '}{isRu ? currentSpecies.nameRu : currentSpecies.nameEn} ({isRu ? currentSpecies.nameEn : currentSpecies.nameRu})
                 </span>
               </div>
 
@@ -616,11 +670,11 @@ export function CharacterBuilderModal() {
                           : 'bg-[#151a23] border-[#26313e] hover:border-gray-500'
                       }`}
                     >
-                      <div className="text-xs font-bold text-white truncate">{sp.nameRu}</div>
-                      <div className="text-[10px] text-gray-400 truncate">{sp.nameEn}</div>
+                      <div className="text-xs font-bold text-white truncate">{isRu ? sp.nameRu : sp.nameEn}</div>
+                      <div className="text-[10px] text-gray-400 truncate">{isRu ? sp.nameEn : sp.nameRu}</div>
                       <div className="flex items-center gap-2 mt-1 text-[9px] font-mono text-gray-400">
-                        <span>{sp.speed} фт.</span>
-                        {sp.darkvision > 0 && <span>ТЗ {sp.darkvision} фт.</span>}
+                        <span>{sp.speed} {isRu ? 'фт.' : 'ft.'}</span>
+                        {sp.darkvision > 0 && <span>{isRu ? 'ТЗ ' : 'DV '}{sp.darkvision} {isRu ? 'фт.' : 'ft.'}</span>}
                       </div>
                     </div>
                   );
@@ -632,15 +686,15 @@ export function CharacterBuilderModal() {
                 <div className="flex items-start justify-between border-b border-border-subtle pb-2 flex-wrap gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <span>{currentSpecies.nameRu}</span>
-                      <span className="text-xs text-gray-400 font-normal">({currentSpecies.nameEn})</span>
+                      <span>{isRu ? currentSpecies.nameRu : currentSpecies.nameEn}</span>
+                      <span className="text-xs text-gray-400 font-normal">({isRu ? currentSpecies.nameEn : currentSpecies.nameRu})</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface border border-gold/30 text-gold font-mono">
                         [{currentSpecies.source}]
                       </span>
                     </h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      Тип: {currentSpecies.creatureType} • Размер: {currentSpecies.sizeRu} • Скорость: {currentSpecies.speed} фт.
-                      {currentSpecies.darkvision > 0 ? ` • Тёмное зрение: ${currentSpecies.darkvision} фт.` : ''}
+                      {isRu ? 'Тип' : 'Type'}: {currentSpecies.creatureType} • {isRu ? 'Размер' : 'Size'}: {isRu ? currentSpecies.sizeRu : currentSpecies.size} • {isRu ? 'Скорость' : 'Speed'}: {currentSpecies.speed} {isRu ? 'фт.' : 'ft.'}
+                      {currentSpecies.darkvision > 0 ? ` • ${isRu ? 'Тёмное зрение' : 'Darkvision'}: ${currentSpecies.darkvision} ${isRu ? 'фт.' : 'ft.'}` : ''}
                     </p>
                   </div>
                 </div>
@@ -649,7 +703,7 @@ export function CharacterBuilderModal() {
                 {currentSpecies.lineages && currentSpecies.lineages.length > 0 && (
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gold-light block">
-                      Родословная / Наследие {currentSpecies.nameRu}:
+                      {isRu ? `Родословная / Наследие ${currentSpecies.nameRu}:` : `Lineage / Heritage (${currentSpecies.nameEn}):`}
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {currentSpecies.lineages.map((lin) => {
@@ -664,7 +718,7 @@ export function CharacterBuilderModal() {
                                 : 'bg-[#12161f] border-border-subtle text-gray-300 hover:border-gray-500'
                             }`}
                           >
-                            <div className="font-bold">{lin.nameRu}</div>
+                            <div className="font-bold">{isRu ? lin.nameRu : (lin.nameEn || lin.nameRu)}</div>
                             <p className="text-[10px] text-gray-400 mt-0.5 leading-snug">{lin.descriptionRu}</p>
                           </div>
                         );
@@ -678,20 +732,22 @@ export function CharacterBuilderModal() {
                   <div className="p-3 rounded bg-purple-950/30 border border-purple-700/60 space-y-2 text-xs">
                     <div className="flex items-center gap-1.5 text-purple-300 font-bold">
                       <Info className="w-4 h-4" />
-                      <span>Особое правило Ведьмовской крови: Наследие предков</span>
+                      <span>{isRu ? 'Особое правило Ведьмовской крови: Наследие предков' : 'Special Hexblood Rule: Ancestral Legacy'}</span>
                     </div>
                     <p className="text-[11px] text-gray-300 leading-snug">
-                      Ведьмовская кровь перерождается из исходного вида, сохраняя скорость лазания, полёта или плавания и навыки предков. Выберите исходный вид (или сохраните 2 свободных навыка):
+                      {isRu
+                        ? 'Ведьмовская кровь перерождается из исходного вида, сохраняя скорость лазания, полёта или плавания и навыки предков. Выберите исходный вид (или сохраните 2 свободных навыка):'
+                        : 'Hexblood is reborn from an origin species, retaining climb, fly, or swim speeds and ancestral skills. Select your ancestral species (or keep 2 free skills):'}
                     </p>
                     <select
                       value={hexbloodAncestralSpeciesId}
                       onChange={(e) => setHexbloodAncestralSpeciesId(e.target.value)}
                       className="w-full bg-[#12161f] border border-border-subtle rounded px-2.5 py-1.5 text-xs text-white outline-none"
                     >
-                      <option value="">Без исходного вида (2 навыка на выбор)</option>
+                      <option value="">{isRu ? 'Без исходного вида (2 навыка на выбор)' : 'No ancestral species (2 skills of choice)'}</option>
                       {SPECIES_2024_DATA.filter((s) => s.id !== 'hexblood').map((s) => (
                         <option key={s.id} value={s.id}>
-                          Предок: {s.nameRu} ({s.speed} фт.)
+                          {isRu ? `Предок: ${s.nameRu} (${s.speed} фт.)` : `Ancestor: ${s.nameEn} (${s.speed} ft.)`}
                         </option>
                       ))}
                     </select>
@@ -701,13 +757,14 @@ export function CharacterBuilderModal() {
                 {/* Traits List */}
                 <div className="space-y-1.5 pt-1">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">
-                    Видовые черты и особенности:
+                    {isRu ? 'Видовые черты и особенности:' : 'Species Traits & Features:'}
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {currentSpecies.traits.map((tr, idx) => (
                       <div key={idx} className="p-2 rounded bg-[#11151c] border border-border-subtle text-xs">
                         <div className="font-bold text-gray-200">
-                          {tr.nameRu} {tr.levelRequired ? `(с ${tr.levelRequired} ур.)` : ''}
+                          {isRu ? tr.nameRu : (tr.nameEn || tr.nameRu)}{' '}
+                          {tr.levelRequired ? `(${isRu ? `с ${tr.levelRequired} ур.` : `from lvl ${tr.levelRequired}`})` : ''}
                         </div>
                         <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">{tr.descriptionRu}</p>
                       </div>
@@ -718,12 +775,12 @@ export function CharacterBuilderModal() {
             </div>
           )}
 
-          {/* STEP 3: ПРЕДЫСТОРИЯ И БОНУСЫ ХАРАКТЕРИСТИК */}
+          {/* STEP 3: BACKGROUND & STAT BONUSES */}
           {step === 3 && (
             <div className="space-y-5 animate-in fade-in duration-150">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-300 block">
-                  Выберите предысторию персонажа
+                  {isRu ? 'Выберите предысторию персонажа' : 'Choose Character Background'}
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
                   {BACKGROUNDS_2024_DATA.map((bg) => {
@@ -738,8 +795,10 @@ export function CharacterBuilderModal() {
                             : 'bg-[#151a23] border-[#283341] hover:border-gray-500'
                         }`}
                       >
-                        <div className="text-xs font-bold text-white">{bg.nameRu}</div>
-                        <div className="text-[10px] text-gold-light mt-0.5 font-mono truncate">{bg.featNameRu}</div>
+                        <div className="text-xs font-bold text-white">{isRu ? bg.nameRu : bg.nameEn}</div>
+                        <div className="text-[10px] text-gold-light mt-0.5 font-mono truncate">
+                          {isRu ? bg.featNameRu : (bg.featNameEn || bg.featNameRu)}
+                        </div>
                         <div className="text-[10px] text-gray-400 mt-1 line-clamp-2">{bg.descriptionRu}</div>
                       </div>
                     );
@@ -751,16 +810,20 @@ export function CharacterBuilderModal() {
               <div className="p-4 rounded-lg bg-[#161c25] border border-[#2b3746] space-y-3">
                 <div>
                   <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Бонусы характеристик от предыстории (+2 и +1)
+                    {isRu ? 'Бонусы характеристик от предыстории (+2 и +1)' : 'Background Ability Score Bonuses (+2 and +1)'}
                   </h4>
                   <p className="text-[11px] text-gray-400 mt-0.5">
-                    По правилам D&D 2024 персонаж получает бонус +2 к одной характеристике и +1 к другой.
+                    {isRu
+                      ? 'По правилам D&D 2024 персонаж получает бонус +2 к одной характеристике и +1 к другой.'
+                      : 'Under D&D 2024 rules, a character gains a +2 bonus to one ability score and +1 to another.'}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gold-light block">Бонус +2 к характеристике:</label>
+                    <label className="text-xs font-bold text-gold-light block">
+                      {isRu ? 'Бонус +2 к характеристике:' : '+2 Ability Bonus:'}
+                    </label>
                     <select
                       value={bonusPlusTwo}
                       onChange={(e) => setBonusPlusTwo(e.target.value as keyof CharacterStats)}
@@ -768,14 +831,16 @@ export function CharacterBuilderModal() {
                     >
                       {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as Array<keyof CharacterStats>).map((st) => (
                         <option key={st} value={st}>
-                          {STAT_NAMES_RU[st]}
+                          {isRu ? STAT_NAMES_RU[st] : STAT_NAMES_EN[st]}
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-cyan-400 block">Бонус +1 к характеристике:</label>
+                    <label className="text-xs font-bold text-cyan-400 block">
+                      {isRu ? 'Бонус +1 к характеристике:' : '+1 Ability Bonus:'}
+                    </label>
                     <select
                       value={bonusPlusOne}
                       onChange={(e) => setBonusPlusOne(e.target.value as keyof CharacterStats)}
@@ -783,7 +848,7 @@ export function CharacterBuilderModal() {
                     >
                       {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as Array<keyof CharacterStats>).map((st) => (
                         <option key={st} value={st} disabled={st === bonusPlusTwo}>
-                          {STAT_NAMES_RU[st]} {st === bonusPlusTwo ? '(уже выбран +2)' : ''}
+                          {isRu ? STAT_NAMES_RU[st] : STAT_NAMES_EN[st]} {st === bonusPlusTwo ? (isRu ? '(уже выбран +2)' : '(already +2)') : ''}
                         </option>
                       ))}
                     </select>
@@ -792,14 +857,16 @@ export function CharacterBuilderModal() {
 
                 {bonusPlusTwo === bonusPlusOne && (
                   <div className="text-xs text-red-400 font-bold bg-red-950/30 p-2 rounded border border-red-800">
-                    Бонусы +2 и +1 не могут быть назначены на одну и ту же характеристику!
+                    {isRu
+                      ? 'Бонусы +2 и +1 не могут быть назначены на одну и ту же характеристику!'
+                      : '+2 and +1 bonuses cannot be assigned to the same ability score!'}
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {/* STEP 4: РАСПРЕДЕЛЕНИЕ ХАРАКТЕРИСТИК */}
+          {/* STEP 4: ABILITY SCORE ASSIGNMENT */}
           {step === 4 && (
             <div className="space-y-5 animate-in fade-in duration-150">
               {/* Method Switcher */}
@@ -808,13 +875,13 @@ export function CharacterBuilderModal() {
                   <button
                     type="button"
                     onClick={() => setStatMethod('point_buy')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
                       statMethod === 'point_buy'
                         ? 'bg-gold text-canvas shadow-gold-glow'
                         : 'bg-[#18202b] text-gray-300 hover:text-white'
                     }`}
                   >
-                    Point Buy (27 очков)
+                    {isRu ? 'Point Buy (27 очков)' : 'Point Buy (27 pts)'}
                   </button>
                   <button
                     type="button"
@@ -822,13 +889,13 @@ export function CharacterBuilderModal() {
                       setStatMethod('standard_array');
                       handleApplyStandardArray();
                     }}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
                       statMethod === 'standard_array'
                         ? 'bg-gold text-canvas shadow-gold-glow'
                         : 'bg-[#18202b] text-gray-300 hover:text-white'
                     }`}
                   >
-                    Стандартный набор
+                    {isRu ? 'Стандартный набор' : 'Standard Array'}
                   </button>
                   <button
                     type="button"
@@ -836,30 +903,30 @@ export function CharacterBuilderModal() {
                       setStatMethod('roll_4d6');
                       handleRoll4d6();
                     }}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
                       statMethod === 'roll_4d6'
                         ? 'bg-gold text-canvas shadow-gold-glow'
                         : 'bg-[#18202b] text-gray-300 hover:text-white'
                     }`}
                   >
-                    Бросок 4d6
+                    {isRu ? 'Бросок 4d6' : 'Roll 4d6'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setStatMethod('manual')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
                       statMethod === 'manual'
                         ? 'bg-gold text-canvas shadow-gold-glow'
                         : 'bg-[#18202b] text-gray-300 hover:text-white'
                     }`}
                   >
-                    Вручную
+                    {isRu ? 'Вручную' : 'Manual'}
                   </button>
                 </div>
 
                 {statMethod === 'point_buy' && (
                   <div className="flex items-center gap-2 font-mono text-xs">
-                    <span className="text-gray-400">Осталось очков:</span>
+                    <span className="text-gray-400">{isRu ? 'Осталось очков:' : 'Remaining points:'}</span>
                     <span className={`px-2 py-0.5 rounded font-black ${
                       pointBuyValidation.remainingPoints === 0
                         ? 'bg-emerald-950 text-emerald-300 border border-emerald-600'
@@ -876,10 +943,10 @@ export function CharacterBuilderModal() {
                   <button
                     type="button"
                     onClick={handleRoll4d6}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded bg-[#202936] hover:bg-[#2c3748] text-xs font-bold text-gold"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded bg-[#202936] hover:bg-[#2c3748] text-xs font-bold text-gold cursor-pointer"
                   >
                     <Dices className="w-3.5 h-3.5" />
-                    <span>Перебросить все</span>
+                    <span>{isRu ? 'Перебросить все' : 'Reroll all'}</span>
                   </button>
                 )}
               </div>
@@ -907,11 +974,11 @@ export function CharacterBuilderModal() {
                           {formatModifier(mod)}
                         </div>
                         <div className="text-xs font-mono font-bold text-gold-light">
-                          Итог: {finalVal}
+                          {isRu ? 'Итог: ' : 'Total: '}{finalVal}
                         </div>
                         {bonus > 0 && (
                           <span className="text-[10px] text-emerald-400 font-mono">
-                            (+{bonus} фон)
+                            (+{bonus} {isRu ? 'фон' : 'bg'})
                           </span>
                         )}
                       </div>
@@ -923,7 +990,8 @@ export function CharacterBuilderModal() {
                             type="button"
                             onClick={() => handleStatChange(k, -1)}
                             disabled={baseVal <= 8}
-                            className="w-6 h-6 rounded bg-[#202a37] hover:bg-surface text-gray-300 hover:text-white font-bold text-xs flex items-center justify-center disabled:opacity-30"
+                            className="w-6 h-6 rounded bg-[#202a37] hover:bg-surface text-gray-300 hover:text-white font-bold text-xs flex items-center justify-center disabled:opacity-30 cursor-pointer"
+                            title={isRu ? 'Уменьшить' : 'Decrease'}
                           >
                             -
                           </button>
@@ -934,7 +1002,8 @@ export function CharacterBuilderModal() {
                             type="button"
                             onClick={() => handleStatChange(k, 1)}
                             disabled={baseVal >= 15 || pointBuyValidation.remainingPoints <= 0}
-                            className="w-6 h-6 rounded bg-[#202a37] hover:bg-surface text-gray-300 hover:text-white font-bold text-xs flex items-center justify-center disabled:opacity-30"
+                            className="w-6 h-6 rounded bg-[#202a37] hover:bg-surface text-gray-300 hover:text-white font-bold text-xs flex items-center justify-center disabled:opacity-30 cursor-pointer"
+                            title={isRu ? 'Увеличить' : 'Increase'}
                           >
                             +
                           </button>
@@ -965,20 +1034,22 @@ export function CharacterBuilderModal() {
             </div>
           )}
 
-          {/* STEP 5: НАВЫКИ И ВЛАДЕНИЯ */}
+          {/* STEP 5: SKILLS & PROFICIENCIES */}
           {step === 5 && (
             <div className="space-y-4 animate-in fade-in duration-150">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
                   <span className="text-xs font-bold text-gray-300 block">
-                    Классовые и расовые навыки
+                    {isRu ? 'Классовые и расовые навыки' : 'Class and Species Skills'}
                   </span>
                   <p className="text-[11px] text-gray-400">
-                    Доступно классовых навыков: {currentClass.skillCount}. Выбрано: {selectedSkills.length}.
+                    {isRu
+                      ? `Доступно классовых навыков: ${currentClass.skillCount}. Выбрано: ${selectedSkills.length}.`
+                      : `Available class skills: ${currentClass.skillCount}. Selected: ${selectedSkills.length}.`}
                   </p>
                 </div>
                 <div className="text-[11px] font-mono text-gold-light">
-                  Бонус мастерства: +{pb}
+                  {isRu ? `Бонус мастерства: +${pb}` : `Proficiency Bonus: +${pb}`}
                 </div>
               </div>
 
@@ -992,6 +1063,14 @@ export function CharacterBuilderModal() {
 
                   const statMod = calculateAbilityModifier(finalStats[sk.ability]);
                   const bonus = isSelected ? statMod + pb : statMod;
+                  const skillName = isRu ? sk.nameRu : sk.key;
+                  const sourceTag = isFromSpecies
+                    ? (isRu ? '(Вид)' : '(Species)')
+                    : isFromBackground
+                    ? (isRu ? '(Предыстория)' : '(Background)')
+                    : isClassAvailable
+                    ? (isRu ? '(Класс)' : '(Class)')
+                    : '';
 
                   return (
                     <div
@@ -1016,9 +1095,9 @@ export function CharacterBuilderModal() {
                           {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                         </div>
                         <div className="truncate">
-                          <span className="text-xs font-bold text-white block truncate">{sk.nameRu}</span>
+                          <span className="text-xs font-bold text-white block truncate">{skillName}</span>
                           <span className="text-[9px] font-mono text-gray-400 uppercase">
-                            {sk.ability} {isFromSpecies ? '(Вид)' : isFromBackground ? '(Предыстория)' : isClassAvailable ? '(Класс)' : ''}
+                            {sk.ability} {sourceTag}
                           </span>
                         </div>
                       </div>
@@ -1033,40 +1112,50 @@ export function CharacterBuilderModal() {
             </div>
           )}
 
-          {/* STEP 6: СНАРЯЖЕНИЕ И АВТО-РАСЧЕТ */}
+          {/* STEP 6: EQUIPMENT & DERIVED STATS */}
           {step === 6 && (
             <div className="space-y-5 animate-in fade-in duration-150">
               {/* Live Preview Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-lg bg-[#161c25] border border-[#2b3746]">
                 <div className="text-center p-2 rounded bg-[#10141b] border border-border-subtle">
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Класс Доспехов (КД)</span>
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                    {isRu ? 'Класс Доспехов (КД)' : 'Armor Class (AC)'}
+                  </span>
                   <span className="font-mono text-2xl font-black text-gold-light">{finalAc}</span>
                   <span className="text-[9px] text-gray-400 block">
-                    {currentArmor.nameRu} {hasShield ? '+ Щит' : ''} {isWarforged ? '+ Кованый' : ''}
+                    {isRu ? currentArmor.nameRu : currentArmor.nameEn}{' '}
+                    {hasShield ? (isRu ? '+ Щит' : '+ Shield') : ''}{' '}
+                    {isWarforged ? (isRu ? '+ Кованый' : '+ Warforged') : ''}
                   </span>
                 </div>
 
                 <div className="text-center p-2 rounded bg-[#10141b] border border-border-subtle">
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Хиты (ОЗ)</span>
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                    {isRu ? 'Хиты (ОЗ)' : 'Hit Points (HP)'}
+                  </span>
                   <span className="font-mono text-2xl font-black text-emerald-400">{finalHp}</span>
                   <span className="text-[9px] text-gray-400 block">
-                    Кость {currentClass.hitDie} {isDwarf ? '+ Дварф' : ''}
+                    {isRu ? 'Кость ' : 'Die '}{currentClass.hitDie} {isDwarf ? (isRu ? '+ Дварф' : '+ Dwarf') : ''}
                   </span>
                 </div>
 
                 <div className="text-center p-2 rounded bg-[#10141b] border border-border-subtle">
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Скорость</span>
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                    {isRu ? 'Скорость' : 'Speed'}
+                  </span>
                   <span className="font-mono text-2xl font-black text-blue-300">{effectiveSpeed}</span>
                   <span className="text-[9px] text-gray-400 block">
-                    Тёмное зрение: {effectiveDarkvision} фт.
+                    {isRu ? 'Тёмное зрение: ' : 'Darkvision: '}{effectiveDarkvision} {isRu ? 'фт.' : 'ft.'}
                   </span>
                 </div>
 
                 <div className="text-center p-2 rounded bg-[#10141b] border border-border-subtle">
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Инициатива</span>
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                    {isRu ? 'Инициатива' : 'Initiative'}
+                  </span>
                   <span className="font-mono text-2xl font-black text-purple-300">{formatModifier(dexMod)}</span>
                   <span className="text-[9px] text-gray-400 block">
-                    Пасс. Внимание: {passivePerception}
+                    {isRu ? 'Пасс. Внимание: ' : 'Passive Perception: '}{passivePerception}
                   </span>
                 </div>
               </div>
@@ -1074,7 +1163,9 @@ export function CharacterBuilderModal() {
               {/* Armor & Shield Selection */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-300 block">Доспех персонажа:</label>
+                  <label className="text-xs font-bold text-gray-300 block">
+                    {isRu ? 'Доспех персонажа:' : 'Character Armor:'}
+                  </label>
                   <select
                     value={selectedArmorId}
                     onChange={(e) => setSelectedArmorId(e.target.value)}
@@ -1082,7 +1173,7 @@ export function CharacterBuilderModal() {
                   >
                     {ARMOR_2024_DATA.map((arm) => (
                       <option key={arm.id} value={arm.id}>
-                        {arm.nameRu} (КД {arm.baseAc}, {arm.category === 'none' ? 'без брони' : arm.category})
+                        {isRu ? arm.nameRu : arm.nameEn} ({isRu ? 'КД' : 'AC'} {arm.baseAc}, {arm.category === 'none' ? (isRu ? 'без брони' : 'unarmored') : arm.category})
                       </option>
                     ))}
                   </select>
@@ -1100,7 +1191,9 @@ export function CharacterBuilderModal() {
                       className="rounded border-gray-600 text-gold"
                     />
                     <Shield className="w-4 h-4 text-gold" />
-                    <span className="text-xs font-bold text-gray-200">Экипировать щит (+2 к КД)</span>
+                    <span className="text-xs font-bold text-gray-200">
+                      {isRu ? 'Экипировать щит (+2 к КД)' : 'Equip Shield (+2 to AC)'}
+                    </span>
                   </label>
                 </div>
               </div>
@@ -1108,7 +1201,7 @@ export function CharacterBuilderModal() {
               {/* Weapons Selection */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-300 block">
-                  Стартовое оружие (выберите 1 или несколько):
+                  {isRu ? 'Стартовое оружие (выберите 1 или несколько):' : 'Starting Weapons (choose 1 or more):'}
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {WEAPONS_2024_DATA.map((wpn) => {
@@ -1124,7 +1217,7 @@ export function CharacterBuilderModal() {
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold">{wpn.nameRu}</span>
+                          <span className="font-bold">{isRu ? wpn.nameRu : wpn.nameEn}</span>
                           <span className="font-mono text-[10px] text-gray-400">{wpn.damage}</span>
                         </div>
                         <div className="text-[10px] text-gray-400 mt-1">
@@ -1143,7 +1236,7 @@ export function CharacterBuilderModal() {
             <div className="space-y-5 animate-in fade-in duration-150">
               <div className="p-4 rounded-lg bg-[#161c25] border border-[#2b3746] space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-white">
-                  Аватар и тактический круглый токен
+                  {isRu ? 'Аватар и тактический круглый токен' : 'Avatar & Tactical Round Token'}
                 </h3>
 
                 <div className="flex items-center gap-4 flex-wrap">
@@ -1158,26 +1251,30 @@ export function CharacterBuilderModal() {
                   <div className="space-y-2 flex-1 min-w-[240px]">
                     <button
                       type="button"
-                      onClick={() => openForge({ name: name.trim() || 'Герой' })}
+                      onClick={() => openForge({ name: name.trim() || (isRu ? 'Герой' : 'Hero') })}
                       className="px-4 py-2 rounded-md bg-gold hover:bg-gold-light text-canvas font-bold text-xs flex items-center gap-2 transition-all shadow-gold-glow cursor-pointer"
                     >
                       <Sparkles className="w-4 h-4" />
-                      <span>Открыть Token Forge (создать круглый токен)</span>
+                      <span>{isRu ? 'Открыть Token Forge (создать круглый токен)' : 'Open Token Forge (create round token)'}</span>
                     </button>
                     <p className="text-[11px] text-gray-400">
-                      Вы можете сгенерировать стильный токен с рунической или золотой рамкой прямо в генераторе токенов.
+                      {isRu
+                        ? 'Вы можете сгенерировать стильный токен с рунической или золотой рамкой прямо в генераторе токенов.'
+                        : 'You can generate a stylish token with a runic or gold border directly in Token Forge.'}
                     </p>
                   </div>
                 </div>
 
                 {/* Or paste custom URL */}
                 <div className="space-y-1">
-                  <label className="text-[11px] text-gray-400">Или укажите прямую ссылку на изображение аватарки:</label>
+                  <label className="text-[11px] text-gray-400">
+                    {isRu ? 'Или укажите прямую ссылку на изображение аватарки:' : 'Or enter direct image URL for avatar:'}
+                  </label>
                   <input
                     type="text"
                     value={avatarUrl}
                     onChange={(e) => setAvatarUrl(e.target.value)}
-                    placeholder="https://... или data:image/..."
+                    placeholder={isRu ? 'https://... или data:image/...' : 'https://... or data:image/...'}
                     className="w-full bg-[#11151c] border border-border-subtle rounded px-2.5 py-1.5 text-xs text-white outline-none focus:border-gold"
                   />
                 </div>
@@ -1186,7 +1283,9 @@ export function CharacterBuilderModal() {
                 {savedTokens.length > 0 && (
                   <div className="space-y-2 pt-2 border-t border-border-subtle">
                     <span className="text-[11px] font-bold text-gray-300 block">
-                      Выбрать из библиотеки Token Forge ({savedTokens.length} токенов):
+                      {isRu
+                        ? `Выбрать из библиотеки Token Forge (${savedTokens.length} токенов):`
+                        : `Choose from Token Forge library (${savedTokens.length} tokens):`}
                     </span>
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
                       {savedTokens.slice(0, 8).map((st) => (
@@ -1209,13 +1308,13 @@ export function CharacterBuilderModal() {
               {/* Final Summary Card */}
               <div className="p-4 rounded-lg bg-[#141923] border border-gold/40 text-xs space-y-2">
                 <div className="font-bold text-sm text-gold-light">
-                  {name} • Уровень {level} {currentClass.nameRu} ({currentSpecies.nameRu})
+                  {name} • {isRu ? 'Уровень' : 'Level'} {level} {isRu ? currentClass.nameRu : currentClass.nameEn} ({isRu ? currentSpecies.nameRu : currentSpecies.nameEn})
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-gray-300 font-mono text-[11px]">
-                  <div>КД: <strong>{finalAc}</strong></div>
-                  <div>ОЗ: <strong>{finalHp}</strong></div>
-                  <div>Скорость: <strong>{effectiveSpeed}</strong></div>
-                  <div>Инициатива: <strong>{formatModifier(dexMod)}</strong></div>
+                  <div>{isRu ? 'КД: ' : 'AC: '}<strong>{finalAc}</strong></div>
+                  <div>{isRu ? 'ОЗ: ' : 'HP: '}<strong>{finalHp}</strong></div>
+                  <div>{isRu ? 'Скорость: ' : 'Speed: '}<strong>{effectiveSpeed}</strong></div>
+                  <div>{isRu ? 'Инициатива: ' : 'Initiative: '}<strong>{formatModifier(dexMod)}</strong></div>
                 </div>
               </div>
             </div>
@@ -1231,7 +1330,7 @@ export function CharacterBuilderModal() {
             className="px-4 py-2 rounded-md bg-[#1e2531] hover:bg-[#283242] text-xs font-bold text-gray-300 disabled:opacity-40 flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span>Назад</span>
+            <span>{isRu ? 'Назад' : 'Back'}</span>
           </button>
 
           {step < 7 ? (
@@ -1243,7 +1342,7 @@ export function CharacterBuilderModal() {
               disabled={!canProceed()}
               className="px-5 py-2 rounded-md bg-gold hover:bg-gold-light text-canvas font-bold text-xs flex items-center gap-1.5 transition-all shadow-gold-glow disabled:opacity-40 cursor-pointer"
             >
-              <span>Далее</span>
+              <span>{isRu ? 'Далее' : 'Next'}</span>
               <ChevronRight className="w-4 h-4" />
             </button>
           ) : (
@@ -1252,10 +1351,10 @@ export function CharacterBuilderModal() {
                 type="button"
                 onClick={handleExportDirectTtrpgh}
                 className="px-4 py-2.5 rounded-md bg-[#1d2433] hover:bg-[#273247] text-emerald-300 border border-emerald-600/60 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
-                title="Скачать файл .ttrpgh с внедренным Base64 токеном"
+                title={isRu ? 'Скачать файл .ttrpgh с внедренным Base64 токеном' : 'Download .ttrpgh file with embedded Base64 token'}
               >
                 <FileDown className="w-4 h-4 text-emerald-400" />
-                <span>Скачать .ttrpgh</span>
+                <span>{isRu ? 'Скачать .ttrpgh' : 'Download .ttrpgh'}</span>
               </button>
 
               <button
@@ -1264,7 +1363,7 @@ export function CharacterBuilderModal() {
                 className="px-6 py-2.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] cursor-pointer"
               >
                 <Check className="w-4 h-4 stroke-[3]" />
-                <span>Создать персонажа</span>
+                <span>{isRu ? 'Создать персонажа' : 'Create Character'}</span>
               </button>
             </div>
           )}

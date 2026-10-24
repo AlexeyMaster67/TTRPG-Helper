@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useCombatStore } from '../store/combatStore';
+import { useSettingsStore } from '../store/settingsStore';
 import { cleanRussianText } from '../utils/textUtils';
 import { Combatant } from '../types/combat';
 
@@ -75,6 +76,8 @@ export function useCombatNumpadHotkeys() {
     redoLastAction,
   } = useCombatStore();
 
+  const isEn = useSettingsStore((s) => s.language === 'en');
+
   const activeTarget: Combatant | null = useMemo(() => {
     if (combatants.length === 0) return null;
     if (inspectedCombatantId) {
@@ -109,13 +112,13 @@ export function useCombatNumpadHotkeys() {
         if ((e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
           e.preventDefault();
           undoLastAction();
-          showFeedback('Действие отменено (Ctrl+Z)', 'undo');
+          showFeedback(isEn ? 'Action undone (Ctrl+Z)' : 'Действие отменено (Ctrl+Z)', 'undo');
           return;
         }
         if (((e.key === 'z' || e.key === 'Z') && e.shiftKey) || e.key === 'y' || e.key === 'Y') {
           e.preventDefault();
           redoLastAction();
-          showFeedback('Действие возвращено (Ctrl+Y)', 'redo');
+          showFeedback(isEn ? 'Action redone (Ctrl+Y)' : 'Действие возвращено (Ctrl+Y)', 'redo');
           return;
         }
       }
@@ -151,7 +154,7 @@ export function useCombatNumpadHotkeys() {
         // If buffer is currently being typed with numbers, don't trigger knockout unless empty
         if (globalBuffer.trim().length === 0 && activeTarget) {
           e.preventDefault();
-          const targetName = cleanRussianText(activeTarget.nameRu || activeTarget.name);
+          const targetName = isEn ? (activeTarget.name || activeTarget.nameRu || '') : cleanRussianText(activeTarget.nameRu || activeTarget.name);
 
           if (activeTarget.hp > 0) {
             // Knockout -> 0 HP & dying
@@ -160,7 +163,7 @@ export function useCombatNumpadHotkeys() {
               isDying: true,
               isDead: false,
             });
-            showFeedback(`${targetName} без сознания (0 ОЗ)`, 'knockout');
+            showFeedback(isEn ? `${targetName} unconscious (0 HP)` : `${targetName} без сознания (0 ОЗ)`, 'knockout');
           } else if (!activeTarget.isDead) {
             // Already 0 HP -> Mark Dead
             updateCombatant(activeTarget.id, {
@@ -168,7 +171,7 @@ export function useCombatNumpadHotkeys() {
               isDying: false,
               isDead: true,
             });
-            showFeedback(`${targetName} погиб!`, 'knockout');
+            showFeedback(isEn ? `${targetName} killed!` : `${targetName} погиб!`, 'knockout');
           } else {
             // Revive with 1 HP
             updateCombatant(activeTarget.id, {
@@ -176,7 +179,7 @@ export function useCombatNumpadHotkeys() {
               isDying: false,
               isDead: false,
             });
-            showFeedback(`${targetName} возвращён в строй (1 ОЗ)`, 'heal');
+            showFeedback(isEn ? `${targetName} revived (1 HP)` : `${targetName} возвращён в строй (1 ОЗ)`, 'heal');
           }
           return;
         }
@@ -243,7 +246,7 @@ export function useCombatNumpadHotkeys() {
         e.preventDefault();
 
         const currentBuf = globalBuffer.trim();
-        const targetName = cleanRussianText(activeTarget.nameRu || activeTarget.name);
+        const targetName = isEn ? (activeTarget.name || activeTarget.nameRu || '') : cleanRussianText(activeTarget.nameRu || activeTarget.name);
 
         // Check operation type
         let op: 'damage' | 'heal' | 'temp_hp' = 'damage'; // default to damage
@@ -257,13 +260,13 @@ export function useCombatNumpadHotkeys() {
         if (amount > 0) {
           if (op === 'damage') {
             applyDamage(activeTarget.id, amount);
-            showFeedback(`-${amount} ОЗ урона по ${targetName}`, 'damage');
+            showFeedback(isEn ? `-${amount} HP damage to ${targetName}` : `-${amount} ОЗ урона по ${targetName}`, 'damage');
           } else if (op === 'heal') {
             applyHealing(activeTarget.id, amount);
-            showFeedback(`+${amount} ОЗ исцеления для ${targetName}`, 'heal');
+            showFeedback(isEn ? `+${amount} HP healing to ${targetName}` : `+${amount} ОЗ лечения для ${targetName}`, 'heal');
           } else if (op === 'temp_hp') {
             applyTempHp(activeTarget.id, amount);
-            showFeedback(`+${amount} врем. ОЗ для ${targetName}`, 'temp_hp');
+            showFeedback(isEn ? `+${amount} temp HP to ${targetName}` : `+${amount} врем. ОЗ для ${targetName}`, 'temp_hp');
           }
         }
 

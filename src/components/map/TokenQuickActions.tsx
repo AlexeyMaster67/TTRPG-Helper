@@ -20,7 +20,8 @@ import { StandaloneToken } from '../../types/map';
 import { useCombatStore } from '../../store/combatStore';
 import { useMapStore } from '../../store/mapStore';
 import { useTokenForgeStore } from '../../store/tokenForgeStore';
-import { getTokenScale } from './TacticalBattleMap';
+import { getTokenScale } from '../../types/map';
+import { useSettingsStore } from '../../store/settingsStore';
 
 interface TokenQuickActionsProps {
   combatant?: Combatant | null;
@@ -35,21 +36,21 @@ interface TokenQuickActionsProps {
   onSendToCombat?: (tokenId: string) => void;
 }
 
-const COMMON_CONDITIONS: { type: ConditionType; nameRu: string; color: string }[] = [
-  { type: 'Prone', nameRu: 'Сбит с ног', color: '#B45309' },
-  { type: 'Blinded', nameRu: 'Ослеплён', color: '#6B7280' },
-  { type: 'Unconscious', nameRu: 'Без сознания', color: '#DC2626' },
-  { type: 'Restrained', nameRu: 'Опутан', color: '#9333EA' },
-  { type: 'Paralyzed', nameRu: 'Парализован', color: '#E11D48' },
-  { type: 'Poisoned', nameRu: 'Отравлен', color: '#16A34A' },
-  { type: 'Dazed', nameRu: 'Ошеломлён', color: '#8B5CF6' },
-  { type: 'Frightened', nameRu: 'Испуган', color: '#D97706' },
-  { type: 'Charmed', nameRu: 'Очарован', color: '#F43F5E' },
-  { type: 'Invisible', nameRu: 'Невидимый', color: '#0EA5E9' },
-  { type: 'Grappled', nameRu: 'Захвачен', color: '#EA580C' },
-  { type: 'Incapacitated', nameRu: 'Недееспособен', color: '#991B1B' },
-  { type: 'Deafened', nameRu: 'Оглохший', color: '#4B5563' },
-  { type: 'Petrified', nameRu: 'Окаменевший', color: '#78716C' },
+const COMMON_CONDITIONS: { type: ConditionType; nameRu: string; nameEn: string; color: string }[] = [
+  { type: 'Prone', nameRu: 'Сбит с ног', nameEn: 'Prone', color: '#B45309' },
+  { type: 'Blinded', nameRu: 'Ослеплён', nameEn: 'Blinded', color: '#6B7280' },
+  { type: 'Unconscious', nameRu: 'Без сознания', nameEn: 'Unconscious', color: '#DC2626' },
+  { type: 'Restrained', nameRu: 'Опутан', nameEn: 'Restrained', color: '#9333EA' },
+  { type: 'Paralyzed', nameRu: 'Парализован', nameEn: 'Paralyzed', color: '#E11D48' },
+  { type: 'Poisoned', nameRu: 'Отравлен', nameEn: 'Poisoned', color: '#16A34A' },
+  { type: 'Dazed', nameRu: 'Ошеломлён', nameEn: 'Dazed', color: '#8B5CF6' },
+  { type: 'Frightened', nameRu: 'Испуган', nameEn: 'Frightened', color: '#D97706' },
+  { type: 'Charmed', nameRu: 'Очарован', nameEn: 'Charmed', color: '#F43F5E' },
+  { type: 'Invisible', nameRu: 'Невидимый', nameEn: 'Invisible', color: '#0EA5E9' },
+  { type: 'Grappled', nameRu: 'Захвачен', nameEn: 'Grappled', color: '#EA580C' },
+  { type: 'Incapacitated', nameRu: 'Недееспособен', nameEn: 'Incapacitated', color: '#991B1B' },
+  { type: 'Deafened', nameRu: 'Оглохший', nameEn: 'Deafened', color: '#4B5563' },
+  { type: 'Petrified', nameRu: 'Окаменевший', nameEn: 'Petrified', color: '#78716C' },
 ];
 
 export function TokenQuickActions({
@@ -64,6 +65,8 @@ export function TokenQuickActions({
   onClose,
   onSendToCombat,
 }: TokenQuickActionsProps) {
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
   const {
     applyDamage,
     applyHealing,
@@ -321,10 +324,10 @@ export function TokenQuickActions({
           <div className="flex items-center justify-between border-b border-slate-700/60 pb-1.5">
             <span className="font-semibold text-gray-200 flex items-center gap-1.5">
               <Heart className="h-3.5 w-3.5 text-red-400" />
-              <span>Здоровье: {isStandalone ? (standaloneToken?.hp ?? 10) : combatant?.hp}/{isStandalone ? (standaloneToken?.maxHp ?? standaloneToken?.hp ?? 10) : combatant?.maxHp}</span>
+              <span>{isEn ? "HP: " : "Здоровье: "}{isStandalone ? (standaloneToken?.hp ?? 10) : combatant?.hp}/{isStandalone ? (standaloneToken?.maxHp ?? standaloneToken?.hp ?? 10) : combatant?.maxHp}</span>
             </span>
             {!isStandalone && combatant?.tempHp ? (
-              <span className="text-[10px] text-cyan-400 font-mono">+{combatant.tempHp} вр.</span>
+              <span className="text-[10px] text-cyan-400 font-mono">+{combatant.tempHp} {isEn ? "temp" : "вр."}</span>
             ) : null}
             <button
               onClick={() => setActivePopover(null)}
@@ -354,7 +357,7 @@ export function TokenQuickActions({
 
           {/* Custom amount input */}
           <div className="flex items-center gap-1.5">
-            <span className="text-gray-400 text-[11px]">Значение:</span>
+            <span className="text-gray-400 text-[11px]">{isEn ? "Amount:" : "Значение:"}</span>
             <input
               type="number"
               min="1"
@@ -375,29 +378,29 @@ export function TokenQuickActions({
               type="button"
               onClick={handleDamage}
               className="py-1 px-1.5 bg-red-950/80 hover:bg-red-900 border border-red-600/70 text-red-200 rounded font-bold text-[11px] flex items-center justify-center gap-1 transition-colors"
-              title="Нанести урон"
+              title={isEn ? "Apply damage" : "Нанести урон"}
             >
               <Minus className="h-3 w-3 text-red-400" />
-              <span>Урон</span>
+              <span>{isEn ? "Damage" : "Урон"}</span>
             </button>
             <button
               type="button"
               onClick={handleHeal}
               className="py-1 px-1.5 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-600/70 text-emerald-200 rounded font-bold text-[11px] flex items-center justify-center gap-1 transition-colors"
-              title="Восстановить здоровье"
+              title={isEn ? "Apply healing" : "Восстановить здоровье"}
             >
               <Plus className="h-3 w-3 text-emerald-400" />
-              <span>Лечить</span>
+              <span>{isEn ? "Heal" : "Лечить"}</span>
             </button>
             {!isStandalone && (
               <button
                 type="button"
                 onClick={handleTempHp}
                 className="py-1 px-1.5 bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-600/70 text-cyan-200 rounded font-bold text-[11px] flex items-center justify-center gap-1 transition-colors"
-                title="Добавить временные ОЗ"
+                title={isEn ? "Add temporary HP" : "Добавить временные ОЗ"}
               >
                 <Shield className="h-3 w-3 text-cyan-400" />
-                <span>Вр. ОЗ</span>
+                <span>{isEn ? "Temp HP" : "Вр. ОЗ"}</span>
               </button>
             )}
           </div>
@@ -410,7 +413,7 @@ export function TokenQuickActions({
           <div className="flex items-center justify-between border-b border-slate-700/60 pb-1.5">
             <span className="font-semibold text-gold-light flex items-center gap-1.5">
               <Zap className="h-3.5 w-3.5 text-amber-400" />
-              <span>Состояния существа</span>
+              <span>{isEn ? "Creature Conditions" : "Состояния существа"}</span>
             </span>
             <button
               onClick={() => setActivePopover(null)}
@@ -434,7 +437,7 @@ export function TokenQuickActions({
                       : 'bg-[#1a202c]/70 border-slate-700/60 text-gray-300 hover:text-white hover:border-gold/40'
                   }`}
                 >
-                  <span className="truncate">{cond.nameRu}</span>
+                  <span className="truncate">{isEn ? cond.nameEn : cond.nameRu}</span>
                   {isActive ? (
                     <Check className="h-3 w-3 text-amber-400 flex-shrink-0 ml-1" />
                   ) : null}
@@ -451,7 +454,7 @@ export function TokenQuickActions({
           <div className="flex items-center justify-between border-b border-slate-700/60 pb-1.5">
             <span className="font-semibold text-gray-200 flex items-center gap-1.5">
               <Radio className="h-3.5 w-3.5 text-blue-400" />
-              <span>Аура токена</span>
+              <span>{isEn ? "Token Aura" : "Аура токена"}</span>
             </span>
             <button
               onClick={() => setActivePopover(null)}
@@ -463,7 +466,7 @@ export function TokenQuickActions({
 
           {/* Toggle Aura Active state */}
           <div className="flex items-center justify-between">
-            <span className="text-[11px] text-gray-300">Состояние:</span>
+            <span className="text-[11px] text-gray-300">{isEn ? "Status:" : "Состояние:"}</span>
             <button
               type="button"
               onClick={handleToggleAura}
@@ -473,13 +476,13 @@ export function TokenQuickActions({
                   : 'bg-[#1a202c] border-slate-700 text-gray-400 hover:text-gray-200'
               }`}
             >
-              {isAuraActive ? 'Включена' : 'Выключена'}
+              {isAuraActive ? (isEn ? 'Enabled' : 'Включена') : (isEn ? 'Disabled' : 'Выключена')}
             </button>
           </div>
 
           {/* Radius selector */}
           <div className="space-y-1">
-            <span className="text-[11px] text-gray-400">Радиус (футы):</span>
+            <span className="text-[11px] text-gray-400">{isEn ? "Radius (feet):" : "Радиус (футы):"}</span>
             <div className="grid grid-cols-4 gap-1">
               {[10, 20, 30, 60].map((ft) => (
                 <button
@@ -492,7 +495,7 @@ export function TokenQuickActions({
                       : 'bg-[#1a202c] border-slate-700 text-gray-300 hover:text-white hover:border-gold/40'
                   }`}
                 >
-                  {ft} фт.
+                  {ft} {isEn ? "ft." : "фт."}
                 </button>
               ))}
             </div>
@@ -500,15 +503,15 @@ export function TokenQuickActions({
 
           {/* Color palette */}
           <div className="space-y-1">
-            <span className="text-[11px] text-gray-400">Цвет ауры:</span>
+            <span className="text-[11px] text-gray-400">{isEn ? "Aura color:" : "Цвет ауры:"}</span>
             <div className="flex items-center justify-between gap-1 pt-0.5">
               {[
-                { hex: '#3B82F6', label: 'Синий' },
-                { hex: '#F59E0B', label: 'Золотой' },
-                { hex: '#10B981', label: 'Изумрудный' },
-                { hex: '#8B5CF6', label: 'Фиолетовый' },
-                { hex: '#EF4444', label: 'Красный' },
-                { hex: '#06B6D4', label: 'Бирюзовый' },
+                { hex: '#3B82F6', label: 'Синий', labelEn: 'Blue' },
+                { hex: '#F59E0B', label: 'Золотой', labelEn: 'Gold' },
+                { hex: '#10B981', label: 'Изумрудный', labelEn: 'Emerald' },
+                { hex: '#8B5CF6', label: 'Фиолетовый', labelEn: 'Purple' },
+                { hex: '#EF4444', label: 'Красный', labelEn: 'Red' },
+                { hex: '#06B6D4', label: 'Бирюзовый', labelEn: 'Cyan' },
               ].map((c) => (
                 <button
                   key={c.hex}
@@ -520,7 +523,7 @@ export function TokenQuickActions({
                       : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
                   style={{ backgroundColor: c.hex }}
-                  title={c.label}
+                  title={isEn ? c.labelEn : c.label}
                 />
               ))}
             </div>
@@ -533,14 +536,14 @@ export function TokenQuickActions({
         {/* Token Mode & Name Tag */}
         {isStandalone && (
           <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-950/80 text-blue-300 border border-blue-700/60 flex-shrink-0 ml-1">
-            Вне боя
+            {isEn ? "Out of Combat" : "Вне боя"}
           </span>
         )}
         <span
           className="text-[11px] font-bold text-gold-light px-2 truncate max-w-[150px]"
-          title={target.nameRu || target.name}
+          title={isEn ? (target.name || target.nameRu) : (target.nameRu || target.name)}
         >
-          {target.nameRu || target.name}
+          {isEn ? (target.name || target.nameRu) : (target.nameRu || target.name)}
         </span>
 
         <div className="h-3.5 w-px bg-slate-700/60" />
@@ -551,10 +554,10 @@ export function TokenQuickActions({
             type="button"
             onClick={handleSendToCombatAction}
             className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-gold-glow flex items-center gap-1 border border-amber-400 transition-all cursor-pointer"
-            title="Отправить токен в бой (бросок инициативы и добавление в трекер боя)"
+            title={isEn ? "Send token to combat (roll initiative and add to tracker)" : "Отправить токен в бой (бросок инициативы и добавление в трекер боя)"}
           >
             <Swords className="h-3.5 w-3.5 text-amber-200" />
-            <span>В бой!</span>
+            <span>{isEn ? "To Combat!" : "В бой!"}</span>
           </button>
         )}
 
@@ -568,10 +571,10 @@ export function TokenQuickActions({
                 ? 'bg-red-950 border border-red-500 text-red-200 shadow-sm'
                 : 'bg-[#18202a] border border-slate-700/60 text-gray-200 hover:text-white hover:border-red-400/60 hover:bg-red-950/40'
             }`}
-            title="Быстрый ввод урона или лечения (ОЗ)"
+            title={isEn ? "Quick damage or healing (HP)" : "Быстрый ввод урона или лечения (ОЗ)"}
           >
             <Heart className="h-3 w-3 text-red-400" />
-            <span>-/+ ОЗ</span>
+            <span>{isEn ? "-/+ HP" : "-/+ ОЗ"}</span>
           </button>
         )}
 
@@ -585,10 +588,10 @@ export function TokenQuickActions({
                 ? 'bg-amber-950 border border-amber-500 text-amber-200 shadow-sm'
                 : 'bg-[#18202a] border border-slate-700/60 text-gray-200 hover:text-white hover:border-amber-400/60 hover:bg-amber-950/40'
             }`}
-            title="Быстрое добавление и снятие состояний"
+            title={isEn ? "Quickly toggle conditions" : "Быстрое добавление и снятие состояний"}
           >
             <Zap className="h-3 w-3 text-amber-400" />
-            <span>Состояние</span>
+            <span>{isEn ? "Condition" : "Состояние"}</span>
             {activeConditionCount > 0 && (
               <span className="ml-0.5 px-1 py-0.2 bg-amber-500/20 text-amber-300 rounded text-[10px] font-mono">
                 {activeConditionCount}
@@ -606,13 +609,13 @@ export function TokenQuickActions({
               ? 'bg-blue-950 border border-blue-500 text-blue-200 shadow-sm'
               : 'bg-[#18202a] border border-slate-700/60 text-gray-200 hover:text-white hover:border-blue-400/60 hover:bg-blue-950/40'
           }`}
-          title="Быстрый переключатель ауры токена (10 фт., 30 фт., цвет)"
+          title={isEn ? "Quick token aura toggle (10 ft., 30 ft., color)" : "Быстрый переключатель ауры токена (10 фт., 30 фт., цвет)"}
         >
           <Radio className="h-3 w-3 text-blue-400" />
-          <span>Аура</span>
+          <span>{isEn ? "Aura" : "Аура"}</span>
           {isAuraActive && (
             <span className="ml-0.5 px-1 py-0.2 bg-blue-500/20 text-blue-300 rounded text-[10px] font-mono">
-              {currentAura.radiusFeet || 10} фт.
+              {currentAura.radiusFeet || 10} {isEn ? "ft." : "фт."}
             </span>
           )}
         </button>
@@ -626,17 +629,17 @@ export function TokenQuickActions({
               ? 'bg-orange-950/80 border border-orange-500 text-orange-200'
               : 'bg-[#18202a] border border-slate-700/60 text-gray-200 hover:text-white hover:border-gold/50 hover:bg-gold/10'
           }`}
-          title={isHidden ? 'Токен скрыт от игроков (кликните, чтобы показать)' : 'Токен виден игрокам (кликните, чтобы скрыть)'}
+          title={isEn ? (isHidden ? 'Token hidden from players (click to reveal)' : 'Token visible to players (click to hide)') : (isHidden ? 'Токен скрыт от игроков (кликните, чтобы показать)' : 'Токен виден игрокам (кликните, чтобы скрыть)')}
         >
           {isHidden ? (
             <>
               <EyeOff className="h-3 w-3 text-orange-400" />
-              <span>Скрыт</span>
+              <span>{isEn ? "Hidden" : "Скрыт"}</span>
             </>
           ) : (
             <>
               <Eye className="h-3 w-3 text-emerald-400" />
-              <span>Виден</span>
+              <span>{isEn ? "Visible" : "Виден"}</span>
             </>
           )}
         </button>
@@ -666,10 +669,10 @@ export function TokenQuickActions({
             });
           }}
           className="px-2 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 transition-all bg-[#18202a] border border-slate-700/60 text-amber-300 hover:text-amber-100 hover:border-amber-400/60 hover:bg-amber-950/40 cursor-pointer"
-          title="Открыть в Кузнице токенов для кадрирования и смены рамки"
+          title={isEn ? "Open in Token Forge for framing and ring styling" : "Открыть в Кузнице токенов для кадрирования и смены рамки"}
         >
           <Sparkles className="h-3 w-3 text-amber-400" />
-          <span>Кузница</span>
+          <span>{isEn ? "Forge" : "Кузница"}</span>
         </button>
 
         {/* 5. Delete Token Pill [ Удалить с карты ] */}
@@ -677,7 +680,7 @@ export function TokenQuickActions({
           type="button"
           onClick={handleDelete}
           className="p-1 rounded-full text-gray-400 hover:text-red-300 hover:bg-red-950/60 hover:border-red-500 border border-transparent transition-colors"
-          title="Удалить токен с карты"
+          title={isEn ? "Remove token from map" : "Удалить токен с карты"}
         >
           <Trash2 className="h-3 w-3 text-red-400" />
         </button>
@@ -687,7 +690,7 @@ export function TokenQuickActions({
           type="button"
           onClick={onClose}
           className="p-1 rounded-full text-gray-400 hover:text-white hover:bg-slate-800 transition-colors"
-          title="Снять выбор"
+          title={isEn ? "Deselect" : "Снять выбор"}
         >
           <X className="h-3 w-3" />
         </button>

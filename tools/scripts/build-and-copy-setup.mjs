@@ -19,7 +19,7 @@ console.log('  TTRPG Helper - Build & Duplicate Setup Installer');
 console.log('========================================================\n');
 
 // 1. Setup PATH with node, cargo and mingw if needed
-const userProfile = process.env.USERPROFILE || process.env.HOME || '';
+const userProfile = process.env.USERPROFILE || 'C:\\Users\\thezavo';
 const cargoBin = path.join(userProfile, '.cargo', 'bin');
 const nodeBin = 'C:\\Program Files\\nodejs';
 const mingwBin = path.join(
@@ -95,4 +95,3 @@ if (installers.length > 0) {
   console.log(`  1. ${path.join(projectRoot, 'TTRPG_Helper_Setup.exe')} (Project Root)`);
   console.log(`  2. ${path.join(releasesDir, 'TTRPG Helper_2.0.0_x64-setup.exe')} (releases/ folder)`);
 }
-

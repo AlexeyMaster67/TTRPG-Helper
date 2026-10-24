@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { useCombatStore } from '../../store/combatStore';
 import { useMapStore } from '../../store/mapStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { broadcastService } from '../../services/broadcastService';
 import { PublicRollNotification, NpcShowcaseData, HandoutData } from '../../types/broadcast';
 import { TacticalBattleMap } from '../map/TacticalBattleMap';
@@ -10,13 +11,17 @@ import { cleanRussianText } from '../../utils/textUtils';
 import { resolveTokenUrl } from '../../services/tokenResolver';
 import { Dice2dRollCard } from '../dice/Dice2dRollCard';
 
-function sanitizePlayerVisibleName(name?: string | null): string {
-  if (!name) return 'Существо';
+function sanitizePlayerVisibleName(name?: string | null, isEn = false): string {
+  if (!name) return isEn ? 'Creature' : 'Существо';
   const withoutMeta = String(name).replace(/\s*\((?:босс|boss|миньон|minion|лидер|leader|элита|elite|свита)\)/gi, '');
-  return cleanRussianText(withoutMeta);
+  return isEn ? withoutMeta.trim() : cleanRussianText(withoutMeta);
 }
 
 export function PlayerDisplayView() {
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
+  void isEn;
+
   const {
     combatants,
     currentTurnIndex,
@@ -160,7 +165,7 @@ export function PlayerDisplayView() {
             <div className="flex flex-col items-center">
               <span className="text-[9px] sm:text-[10px] font-bold text-gray-300 uppercase tracking-wider font-serif flex items-center gap-1 whitespace-nowrap">
                 <Sparkles className="h-2 w-2 text-gold inline" />
-                РАУНД
+                {isEn ? 'ROUND' : 'РАУНД'}
                 <Sparkles className="h-2 w-2 text-gold inline" />
               </span>
               <span className="text-xl sm:text-2xl font-black font-serif text-gold leading-none drop-shadow">
@@ -173,16 +178,26 @@ export function PlayerDisplayView() {
           <div className="flex-1 min-w-0 px-2 flex flex-col items-center justify-center text-center">
             <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider sm:tracking-widest text-gold-light/90 font-serif flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap">
               <Sparkles className="h-2 w-2 text-gold inline" />
-              СЕЙЧАС ХОДИТ
+              {isEn ? 'CURRENT TURN' : 'СЕЙЧАС ХОДИТ'}
               <Sparkles className="h-2 w-2 text-gold inline" />
             </span>
             <h1
               className="text-base sm:text-xl md:text-2xl font-black font-serif tracking-wide text-white truncate max-w-full drop-shadow-md leading-tight mt-0.5"
-              title={activeCombatant ? sanitizePlayerVisibleName(activeCombatant.nameRu || activeCombatant.name) : 'Бой не начат'}
+              title={
+                activeCombatant
+                  ? sanitizePlayerVisibleName(
+                      isEn ? (activeCombatant.name || activeCombatant.nameRu) : (activeCombatant.nameRu || activeCombatant.name),
+                      isEn
+                    )
+                  : (isEn ? 'Combat not started' : 'Бой не начат')
+              }
             >
               {activeCombatant
-                ? sanitizePlayerVisibleName(activeCombatant.nameRu || activeCombatant.name)
-                : 'Бой не начат'}
+                ? sanitizePlayerVisibleName(
+                    isEn ? (activeCombatant.name || activeCombatant.nameRu) : (activeCombatant.nameRu || activeCombatant.name),
+                    isEn
+                  )
+                : (isEn ? 'Combat not started' : 'Бой не начат')}
             </h1>
           </div>
 
@@ -196,45 +211,48 @@ export function PlayerDisplayView() {
             const isActive = idx === currentTurnIndex;
             const hpPercent = Math.max(0, Math.min(1, c.hp / (c.maxHp || 1)));
             const tokenUrl = resolveTokenUrl(c.name, c.nameRu, c.tokenUrl || c.avatarUrl);
-            const displayName = sanitizePlayerVisibleName(c.nameRu || c.name);
+            const displayName = sanitizePlayerVisibleName(
+              isEn ? (c.name || c.nameRu) : (c.nameRu || c.name),
+              isEn
+            );
 
             // Sanitized HP status for players: exact for players, qualitative for monsters
             let statusBadge = null;
             if (c.isPlayer) {
               statusBadge = (
                 <span className="text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-700/60 px-2 py-0.5 rounded-full inline-flex items-center whitespace-nowrap leading-none">
-                  {c.hp}/{c.maxHp} ОЗ
+                  {c.hp}/{c.maxHp} {isEn ? 'HP' : 'ОЗ'}
                 </span>
               );
             } else {
               if (c.isDead) {
                 statusBadge = (
                   <span className="text-[10px] font-bold text-red-400 bg-gray-900 border border-red-900 px-2 py-0.5 rounded-full inline-flex items-center whitespace-nowrap leading-none">
-                    Мёртв
+                    {isEn ? 'Dead' : 'Мёртв'}
                   </span>
                 );
               } else if (c.hp <= 0) {
                 statusBadge = (
                   <span className="text-[10px] font-bold text-purple-300 bg-purple-950/70 border border-purple-800/60 px-2 py-0.5 rounded-full inline-flex items-center whitespace-nowrap leading-none">
-                    Без сознания
+                    {isEn ? 'Unconscious' : 'Без сознания'}
                   </span>
                 );
               } else if (hpPercent <= 0.25) {
                 statusBadge = (
                   <span className="text-[10px] font-bold text-rose-300 bg-rose-950/70 border border-rose-800/60 px-2 py-0.5 rounded-full inline-flex items-center whitespace-nowrap leading-none animate-pulse">
-                    При смерти
+                    {isEn ? 'Dying' : 'При смерти'}
                   </span>
                 );
               } else if (hpPercent <= 0.5) {
                 statusBadge = (
                   <span className="text-[10px] font-bold text-amber-300 bg-amber-950/70 border border-amber-800/60 px-2 py-0.5 rounded-full inline-flex items-center whitespace-nowrap leading-none">
-                    Ранен
+                    {isEn ? 'Bloodied' : 'Ранен'}
                   </span>
                 );
               } else {
                 statusBadge = (
                   <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-800/60 px-2 py-0.5 rounded-full inline-flex items-center whitespace-nowrap leading-none">
-                    Здоров
+                    {isEn ? 'Healthy' : 'Здоров'}
                   </span>
                 );
               }
@@ -264,7 +282,7 @@ export function PlayerDisplayView() {
                       className="w-full h-full flex items-center justify-center font-mono text-[10px] font-bold text-white"
                       style={{ backgroundColor: c.color || '#C5A059' }}
                     >
-                      {(c.nameRu || c.name).slice(0, 2).toUpperCase()}
+                      {((isEn ? (c.name || c.nameRu) : (c.nameRu || c.name)) || '??').slice(0, 2).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -283,12 +301,12 @@ export function PlayerDisplayView() {
                     </span>
                     {c.isPlayer && (
                       <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 flex-shrink-0 leading-none whitespace-nowrap">
-                        ИГРОК
+                        {isEn ? 'PLAYER' : 'ИГРОК'}
                       </span>
                     )}
                     {isActive && (
                       <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-red-950 text-red-200 border border-red-600 flex-shrink-0 leading-none whitespace-nowrap">
-                        ХОД
+                        {isEn ? 'TURN' : 'ХОД'}
                       </span>
                     )}
                   </div>
@@ -328,7 +346,7 @@ export function PlayerDisplayView() {
                     mode: 'normal',
                     isNat20: !!activeRoll.isCritical,
                     isNat1: !!activeRoll.isCriticalMiss,
-                    title: cleanRussianText(activeRoll.title),
+                    title: isEn ? (activeRoll.title || 'Roll') : cleanRussianText(activeRoll.title),
                     damageType: activeRoll.damageType,
                   }
                 }
@@ -346,6 +364,8 @@ export function PlayerDisplayView() {
               <button
                 onClick={() => setActiveShowcase(null)}
                 className="absolute top-3 right-3 text-gray-300 hover:text-white p-1 rounded hover:bg-[#202b35] flex items-center justify-center cursor-pointer"
+                title={isEn ? 'Close showcase' : 'Закрыть'}
+                aria-label={isEn ? 'Close showcase' : 'Закрыть'}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -368,12 +388,12 @@ export function PlayerDisplayView() {
               {/* Name & Subtitle */}
               <div className="px-2">
                 <h2 className="text-xl sm:text-2xl font-bold font-serif text-gold-light tracking-wide break-words drop-shadow leading-tight">
-                  {cleanRussianText(activeShowcase.nameRu || activeShowcase.name)}
+                  {isEn ? (activeShowcase.name || activeShowcase.nameRu) : cleanRussianText(activeShowcase.nameRu || activeShowcase.name)}
                 </h2>
                 {activeShowcase.creatureType && (
                   <p className="text-xs text-gray-300 uppercase tracking-widest mt-1 font-serif break-words flex items-center justify-center gap-1.5">
                     <Sparkles className="h-2.5 w-2.5 text-gold inline" />
-                    <span>{cleanRussianText(activeShowcase.creatureType)}</span>
+                    <span>{isEn ? activeShowcase.creatureType : cleanRussianText(activeShowcase.creatureType)}</span>
                     <Sparkles className="h-2.5 w-2.5 text-gold inline" />
                   </p>
                 )}
@@ -383,7 +403,7 @@ export function PlayerDisplayView() {
               {activeShowcase.notes && (
                 <div className="max-h-40 overflow-y-auto bg-[#10151a]/80 p-3 rounded border border-[#2d3a46]">
                   <p className="text-xs text-gray-200 italic max-w-md mx-auto leading-relaxed break-words">
-                    «{cleanRussianText(activeShowcase.notes)}»
+                    «{isEn ? activeShowcase.notes : cleanRussianText(activeShowcase.notes)}»
                   </p>
                 </div>
               )}
@@ -411,8 +431,9 @@ export function PlayerDisplayView() {
             >
               <button
                 onClick={() => setActiveHandout(null)}
-                className="absolute top-3 right-3 text-current/60 hover:text-current p-1.5 rounded hover:bg-black/10 transition-colors flex items-center justify-center"
-                title="Закрыть раздатку"
+                className="absolute top-3 right-3 text-current/60 hover:text-current p-1.5 rounded hover:bg-black/10 transition-colors flex items-center justify-center cursor-pointer"
+                title={isEn ? 'Close handout' : 'Закрыть раздатку'}
+                aria-label={isEn ? 'Close handout' : 'Закрыть раздатку'}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -422,21 +443,21 @@ export function PlayerDisplayView() {
                 <Sparkles className="h-3.5 w-3.5 inline" />
                 <span className="text-xs sm:text-sm font-serif font-black tracking-widest uppercase">
                   {activeHandout.type === 'decree'
-                    ? 'КОРОЛЕВСКИЙ УКАЗ'
+                    ? (isEn ? 'ROYAL DECREE' : 'КОРОЛЕВСКИЙ УКАЗ')
                     : activeHandout.type === 'bounty'
-                    ? 'РОЗЫСК И НАГРАДА'
+                    ? (isEn ? 'WANTED BOUNTY' : 'РОЗЫСК И НАГРАДА')
                     : activeHandout.type === 'clue'
-                    ? 'ТАЙНАЯ УЛИКА'
+                    ? (isEn ? 'SECRET CLUE' : 'ТАЙНАЯ УЛИКА')
                     : activeHandout.type === 'riddle'
-                    ? 'ДРЕВНЯЯ ЗАГАДКА'
-                    : 'СТАРИННОЕ ПОСЛАНИЕ'}
+                    ? (isEn ? 'ANCIENT RIDDLE' : 'ДРЕВНЯЯ ЗАГАДКА')
+                    : (isEn ? 'ANCIENT MESSAGE' : 'СТАРИННОЕ ПОСЛАНИЕ')}
                 </span>
                 <Sparkles className="h-3.5 w-3.5 inline" />
               </div>
 
               {/* Title */}
               <h2 className="text-2xl sm:text-3xl font-serif font-black tracking-wide drop-shadow-sm border-b pb-3 border-current/25">
-                {cleanRussianText(activeHandout.title)}
+                {isEn ? activeHandout.title : cleanRussianText(activeHandout.title)}
               </h2>
 
               {/* Optional Attached Image */}
@@ -455,16 +476,16 @@ export function PlayerDisplayView() {
 
               {/* Text Body */}
               <div className="font-serif text-sm sm:text-base leading-relaxed whitespace-pre-line text-left px-2 sm:px-4">
-                {cleanRussianText(activeHandout.content)}
+                {isEn ? activeHandout.content : cleanRussianText(activeHandout.content)}
               </div>
 
               {/* Decorative Bottom Flourish */}
               <div className="pt-4 border-t border-current/20 flex items-center justify-between text-xs opacity-60 font-serif italic">
                 <span className="flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3 inline" />
-                  <span>Древние тайны Забытых Королевств</span>
+                  <span>{isEn ? 'Ancient Secrets of the Realm' : 'Древние тайны Забытых Королевств'}</span>
                 </span>
-                <span>Нажмите Esc, чтобы свернуть</span>
+                <span>{isEn ? 'Press Esc to close' : 'Нажмите Esc, чтобы свернуть'}</span>
               </div>
             </div>
           </div>
@@ -474,15 +495,16 @@ export function PlayerDisplayView() {
       {/* ================= 5. FOOTER CONTROL BAR ================= */}
       <footer className="h-8 bg-surface border-t border-border-subtle px-4 flex items-center justify-between text-xs text-gray-300 flex-shrink-0">
         <span className="text-[11px] text-gray-300">
-          DnD Assistant In Tension — Экран игроков v2.0
+          {isEn ? 'TTRPG Helper — Player Display v2.0' : 'TTRPG Helper — Экран игроков v2.0'}
         </span>
 
         <button
           onClick={toggleFullscreen}
-          className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-card border border-border-subtle hover:text-white text-xs text-gray-200 transition-colors"
+          aria-label={isFullscreen ? (isEn ? 'Exit Fullscreen (F11)' : 'Выйти (F11)') : (isEn ? 'Fullscreen (F11)' : 'Полный экран (F11)')}
+          className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-card border border-border-subtle hover:text-white text-xs text-gray-200 transition-colors cursor-pointer"
         >
           {isFullscreen ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
-          <span>{isFullscreen ? 'Выйти (F11)' : 'Полный экран (F11)'}</span>
+          <span>{isFullscreen ? (isEn ? 'Exit Fullscreen (F11)' : 'Выйти (F11)') : (isEn ? 'Fullscreen (F11)' : 'Полный экран (F11)')}</span>
         </button>
       </footer>
     </div>

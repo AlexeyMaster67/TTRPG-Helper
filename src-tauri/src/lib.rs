@@ -331,7 +331,7 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
     // Candidate source legacy directories (checked in order of priority)
     let candidate_sources = [
         appdata_root.join("dnd-ait"),
-        appdata_root.join("ttrpg-helper-legacy"),
+        appdata_root.join("com.thezavo.dndait"),
         appdata_root.join("DnD_AIT"),
     ];
 
@@ -354,7 +354,7 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
 
     // Target directories:
     // 1) %APPDATA%/ttrpg-helper (explicit requirement)
-    // 2) Tauri app_config_dir (e.g. %APPDATA%/com.alexeymaster67.ttrpghelper)
+    // 2) Tauri app_config_dir (e.g. %APPDATA%/com.thezavo.ttrpghelper)
     let explicit_target = appdata_root.join("ttrpg-helper");
     let mut targets = vec![explicit_target];
 
@@ -515,4 +515,3 @@ async fn open_external_url(url: String) -> Result<(), String> {
         Ok(())
     }
 }
-

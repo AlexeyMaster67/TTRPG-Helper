@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { useDice3dStore } from '../../store/dice3dStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { DicePhysicsWorld } from '../../engine/dice3d/dicePhysicsWorld';
 import { DiceType } from '../../engine/dice3d/types';
 import { audioService } from '../../services/audioService';
@@ -76,6 +77,7 @@ export const Dice3dOverlay: React.FC<Dice3dOverlayProps> = ({ isPlayerDisplay = 
   const clearActiveBatch = useDice3dStore((s) => s.clearActiveBatch);
   const shouldSkipAnimation = useDice3dStore((s) => s.shouldSkipAnimation);
 
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const [isVisible, setIsVisible] = useState(false);
   const [settledInfo, setSettledInfo] = useState<SettleDisplayInfo | null>(null);
 
@@ -306,7 +308,7 @@ export const Dice3dOverlay: React.FC<Dice3dOverlayProps> = ({ isPlayerDisplay = 
             activeBatch.total !== undefined ? activeBatch.total : activeCountValues;
 
           setSettledInfo({
-            title: activeBatch.title || 'Результат броска',
+            title: activeBatch.title || (isEn ? 'Roll Result' : 'Результат броска'),
             total: calculatedTotal,
             diceResults,
             isSecret: activeBatch.isSecret,
@@ -348,7 +350,7 @@ export const Dice3dOverlay: React.FC<Dice3dOverlayProps> = ({ isPlayerDisplay = 
     <div
       ref={containerRef}
       onClick={handleContainerClick}
-      title="Кликните для мгновенной фиксации результата или закрытия"
+      title={isEn ? "Click to instantly settle roll or close" : "Кликните для мгновенной фиксации результата или закрытия"}
       className={`fixed z-50 select-none transition-all duration-200 ${
         !isVisible
           ? 'pointer-events-none opacity-0 invisible scale-95'
@@ -383,26 +385,26 @@ export const Dice3dOverlay: React.FC<Dice3dOverlayProps> = ({ isPlayerDisplay = 
             <div className="flex items-center gap-1.5 min-w-0">
               <Dices className="h-4 w-4 text-gold flex-shrink-0 animate-pulse" />
               <span className="text-xs font-serif font-bold text-gold-light truncate">
-                {activeBatch?.title || 'Дайс-трей'}
+                {activeBatch?.title || (isEn ? 'Dice Tray' : 'Дайс-трей')}
               </span>
             </div>
 
             <div className="flex items-center gap-1 flex-shrink-0">
               {activeBatch?.isSecret && (
                 <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-500/50 uppercase">
-                  <EyeOff className="h-2.5 w-2.5" /> Скрытно
+                  <EyeOff className="h-2.5 w-2.5" /> {isEn ? 'Secret' : 'Скрытно'}
                 </span>
               )}
               <button
                 onClick={toggleDisplayMode}
-                title="Развернуть на весь экран"
+                title={isEn ? "Expand to fullscreen" : "Развернуть на весь экран"}
                 className="p-1 rounded text-gray-400 hover:text-gold transition-colors"
               >
                 <Maximize2 className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={handleClose}
-                title="Закрыть"
+                title={isEn ? "Close" : "Закрыть"}
                 className="p-1 rounded text-gray-400 hover:text-rose-400 transition-colors"
               >
                 <X className="h-3.5 w-3.5" />
@@ -419,12 +421,12 @@ export const Dice3dOverlay: React.FC<Dice3dOverlayProps> = ({ isPlayerDisplay = 
                 </span>
                 {settledInfo.isNat20 && (
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-gold/60 uppercase">
-                    <Sparkles className="h-3 w-3 text-gold" /> Крит!
+                    <Sparkles className="h-3 w-3 text-gold" /> {isEn ? 'Crit!' : 'Крит!'}
                   </span>
                 )}
                 {settledInfo.isNat1 && (
                   <span className="px-1.5 py-0.5 rounded bg-rose-950/80 text-rose-400 text-[10px] font-bold border border-rose-600/60 uppercase">
-                    Провал 1
+                    {isEn ? 'Fumble 1' : 'Провал 1'}
                   </span>
                 )}
               </div>
@@ -463,17 +465,17 @@ export const Dice3dOverlay: React.FC<Dice3dOverlayProps> = ({ isPlayerDisplay = 
           >
             <Dices className="h-4 w-4 text-gold animate-pulse" />
             <span className="text-xs font-semibold text-gold-light">
-              {activeBatch?.title || '3D Бросок'}
+              {activeBatch?.title || (isEn ? '3D Roll' : '3D Бросок')}
             </span>
             {activeBatch?.isSecret && (
               <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-500/50 uppercase">
-                <EyeOff className="h-2.5 w-2.5" /> Скрытно
+                <EyeOff className="h-2.5 w-2.5" /> {isEn ? 'Secret' : 'Скрытно'}
               </span>
             )}
             {!isPlayerDisplay && (
               <button
                 onClick={toggleDisplayMode}
-                title="Свернуть в лоток"
+                title={isEn ? "Minimize to tray" : "Свернуть в лоток"}
                 className="p-1 rounded text-gray-400 hover:text-gold transition-colors ml-1"
               >
                 <Minimize2 className="h-3.5 w-3.5" />
@@ -481,7 +483,7 @@ export const Dice3dOverlay: React.FC<Dice3dOverlayProps> = ({ isPlayerDisplay = 
             )}
             <button
               onClick={handleClose}
-              title="Закрыть"
+              title={isEn ? "Close" : "Закрыть"}
               className="p-1 rounded text-gray-400 hover:text-rose-400 transition-colors"
             >
               <X className="h-3.5 w-3.5" />
@@ -504,7 +506,7 @@ export const Dice3dOverlay: React.FC<Dice3dOverlayProps> = ({ isPlayerDisplay = 
                 {settledInfo.isSecret && (
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-500/60 uppercase tracking-wider flex-shrink-0">
                     <EyeOff className="h-3 w-3" />
-                    Скрытно
+                    {isEn ? 'Secret' : 'Скрытно'}
                   </span>
                 )}
               </div>
@@ -537,12 +539,12 @@ export const Dice3dOverlay: React.FC<Dice3dOverlayProps> = ({ isPlayerDisplay = 
 
               {settledInfo.isNat20 && (
                 <div className="mt-2 text-xs font-bold text-amber-300 flex items-center justify-center gap-1 animate-pulse">
-                  <Sparkles className="h-4 w-4 text-gold" /> КРИТИЧЕСКИЙ УСПЕХ!
+                  <Sparkles className="h-4 w-4 text-gold" /> {isEn ? "CRITICAL SUCCESS!" : "КРИТИЧЕСКИЙ УСПЕХ!"}
                 </div>
               )}
               {settledInfo.isNat1 && (
                 <div className="mt-2 text-xs font-bold text-rose-400 flex items-center justify-center gap-1">
-                  КРИТИЧЕСКИЙ ПРОВАЛ!
+                  {isEn ? "CRITICAL FAILURE!" : "КРИТИЧЕСКИЙ ПРОВАЛ!"}
                 </div>
               )}
             </div>
