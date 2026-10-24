@@ -40,12 +40,21 @@ export const WBWorkspace: React.FC = () => {
   const [showLeftSidebar, setShowLeftSidebar] = useState(true);
   const [showRightSidebar, setShowRightSidebar] = useState(true);
 
-  // Initialize vault on mount if not already loaded
+  // Initialize vault on mount if not already loaded, and restore Russian starter notes if needed
   useEffect(() => {
     if (!vaultPath) {
       initVault();
+    } else if (vaultPath.startsWith('virtual:')) {
+      const noteKeys = Object.keys(notes);
+      if (
+        noteKeys.length > 0 &&
+        noteKeys.some((k) => k.startsWith('00_Codex/')) &&
+        !noteKeys.some((k) => k.startsWith('00_Кодекс/'))
+      ) {
+        useWBStore.getState().restoreRussianStarterNotes();
+      }
     }
-  }, [vaultPath, initVault]);
+  }, [vaultPath, initVault, notes]);
 
   const activeNote = activeNoteId ? notes[activeNoteId] : null;
 

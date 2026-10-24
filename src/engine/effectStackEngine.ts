@@ -20,8 +20,10 @@ export interface EffectAura {
 export interface ActiveEffectModifier {
   id: string;
   name: string;
+  name_en?: string;
   iconTag?: string;
   description?: string;
+  description_en?: string;
   durationRounds: EffectDuration;
   sourceCombatantId?: string;
   modifiers?: EffectModifiers;
@@ -189,32 +191,40 @@ export const DND_2024_EFFECT_PRESETS: ActiveEffectModifier[] = [
   {
     id: 'preset_shield_of_faith',
     name: 'Щит веры',
+    name_en: 'Shield of Faith',
     iconTag: 'Shield',
     description: '+2 к КД цели на 10 раундов',
+    description_en: '+2 to target AC for 10 rounds',
     durationRounds: 10,
     modifiers: { acBonus: 2 },
   },
   {
     id: 'preset_bless',
     name: 'Благословение',
+    name_en: 'Bless',
     iconTag: 'Sparkles',
     description: '+1d4 к броскам атаки и спасброскам на 10 раундов',
+    description_en: '+1d4 to attack rolls and saving throws for 10 rounds',
     durationRounds: 10,
     modifiers: { attackBonus: '+1d4', saveBonus: '+1d4' },
   },
   {
     id: 'preset_haste',
     name: 'Ускорение',
+    name_en: 'Haste',
     iconTag: 'Zap',
     description: '+2 к КД, +30 фт. к скорости, преимущество на атаки на 10 раундов',
+    description_en: '+2 to AC, +30 ft. speed, advantage on attacks for 10 rounds',
     durationRounds: 10,
     modifiers: { acBonus: 2, speedBonus: 30, advantageAttacks: true },
   },
   {
     id: 'preset_paladin_aura',
     name: 'Аура защиты паладина',
+    name_en: 'Paladin Aura of Protection',
     iconTag: 'ShieldAlert',
     description: 'Аура 10 фт., союзники получают бонус Харизмы (+3) к спасброскам',
+    description_en: '10 ft. aura, allies gain Charisma bonus (+3) to saving throws',
     durationRounds: 'permanent',
     modifiers: { saveBonus: '+3' },
     aura: {
@@ -228,40 +238,50 @@ export const DND_2024_EFFECT_PRESETS: ActiveEffectModifier[] = [
   {
     id: 'preset_protection_evil_good',
     name: 'Защита от зла и добра',
+    name_en: 'Protection from Evil and Good',
     iconTag: 'ShieldCheck',
     description: 'Помеха на броски атаки врагов по цели на 10 раундов',
+    description_en: 'Disadvantage on enemy attack rolls against target for 10 rounds',
     durationRounds: 10,
     modifiers: { disadvantageAttacks: true },
   },
   {
     id: 'preset_stunned',
     name: 'Ошеломлен',
+    name_en: 'Stunned',
     iconTag: 'ZapOff',
     description: 'Недееспособен, проваливает спасброски Силы и Ловкости, атаки по нему с преимуществом',
+    description_en: 'Incapacitated, automatically fails Str and Dex saves, attacks against have advantage',
     durationRounds: 1,
     modifiers: { disadvantageAttacks: true },
   },
   {
     id: 'preset_blinded',
     name: 'Ослеплен',
+    name_en: 'Blinded',
     iconTag: 'EyeOff',
     description: 'Проваливает проверки со зрением, атаки с помехой, атаки по нему с преимуществом',
+    description_en: 'Fails sight checks, attack rolls have disadvantage, attacks against have advantage',
     durationRounds: 1,
     modifiers: { disadvantageAttacks: true },
   },
   {
     id: 'preset_restrained',
     name: 'Опутан',
+    name_en: 'Restrained',
     iconTag: 'Lock',
     description: 'Скорость снижена на 30 фт., атаки с помехой, помеха на спасброски Ловкости',
+    description_en: 'Speed reduced by 30 ft., attack rolls have disadvantage, disadvantage on Dex saves',
     durationRounds: 1,
     modifiers: { speedBonus: -30, disadvantageAttacks: true },
   },
   {
     id: 'preset_unconscious',
     name: 'Без сознания',
+    name_en: 'Unconscious',
     iconTag: 'Moon',
     description: 'Недееспособен, роняет оружие, критические попадания в упор',
+    description_en: 'Incapacitated, drops items, attacks within 5 ft. are critical hits',
     durationRounds: 1,
     modifiers: { disadvantageAttacks: true },
   },

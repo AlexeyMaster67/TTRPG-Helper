@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useMapStore } from '../../store/mapStore';
 import { useSceneStore } from '../../store/sceneStore';
 import { usePartyStore } from '../../store/partyStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import {
   Wand2,
   Dices,
@@ -40,6 +41,8 @@ export function ProceduralMapModal() {
   const switchScene = useSceneStore((s) => s.switchScene);
   const syncCurrentMapToActiveScene = useSceneStore((s) => s.syncCurrentMapToActiveScene);
   const showToast = usePartyStore((s) => s.showToast);
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
 
   // Settings State
   const [style, setStyle] = useState<DungeonGeneratorStyle>('bsp');
@@ -52,7 +55,7 @@ export function ProceduralMapModal() {
   const [includeSecretRooms, setIncludeSecretRooms] = useState<boolean>(true);
   const [initialFillRate, setInitialFillRate] = useState<number>(0.46);
   const [smoothIterations, setSmoothIterations] = useState<number>(4);
-  const [sceneTitle, setSceneTitle] = useState<string>('Подземелье склепа');
+  const [sceneTitle, setSceneTitle] = useState<string>(isEn ? 'Crypt Dungeon' : 'Подземелье склепа');
 
   // Preview Generation State
   const [generationResult, setGenerationResult] = useState<GeneratedDungeonResult | null>(null);
@@ -108,11 +111,11 @@ export function ProceduralMapModal() {
   // Update default scene title when style changes
   useEffect(() => {
     if (style === 'bsp') {
-      setSceneTitle('Катакомбы и склепы');
+      setSceneTitle(isEn ? 'Catacombs & Crypts' : 'Катакомбы и склепы');
     } else {
-      setSceneTitle('Подземные пещеры');
+      setSceneTitle(isEn ? 'Underground Caves' : 'Подземные пещеры');
     }
-  }, [style]);
+  }, [style, isEn]);
 
   if (!isProceduralModalOpen) {
     return null;
@@ -126,13 +129,17 @@ export function ProceduralMapModal() {
     syncCurrentMapToActiveScene();
     closeProceduralModal();
     if (showToast) {
-      showToast(`Карта "${sceneTitle}" и ${generationResult.walls.length} барьеров применены к сцене`);
+      showToast(
+        isEn
+          ? `Map "${sceneTitle}" and ${generationResult.walls.length} barriers applied to scene`
+          : `Карта "${sceneTitle}" и ${generationResult.walls.length} барьеров применены к сцене`
+      );
     }
   };
 
   const handleCreateNewScene = () => {
     if (!generationResult) return;
-    const newName = sceneTitle.trim() || 'Процедурное подземелье';
+    const newName = sceneTitle.trim() || (isEn ? 'Procedural Dungeon' : 'Процедурное подземелье');
     const newSceneId = createScene(newName, generationResult.backgroundDataUrl, false);
     updateScene(newSceneId, {
       imageWidth: generationResult.width,
@@ -143,7 +150,11 @@ export function ProceduralMapModal() {
     switchScene(newSceneId);
     closeProceduralModal();
     if (showToast) {
-      showToast(`Создана сцена "${newName}" с ${generationResult.walls.length} барьерами`);
+      showToast(
+        isEn
+          ? `Created scene "${newName}" with ${generationResult.walls.length} barriers`
+          : `Создана сцена "${newName}" с ${generationResult.walls.length} барьерами`
+      );
     }
   };
 
@@ -158,10 +169,12 @@ export function ProceduralMapModal() {
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-bold font-serif text-gold-light tracking-wide">
-                Архитектор сцен и подземелий
+                {isEn ? 'Scene & Dungeon Architect' : 'Архитектор сцен и подземелий'}
               </h2>
               <p className="text-[10px] text-gray-400 hidden sm:block">
-                Процедурная генерация BSP и клеточных пещер с авто-расстановкой стен и дверей
+                {isEn
+                  ? 'Procedural BSP and cellular cave generation with automatic walls and doors placement'
+                  : 'Процедурная генерация BSP и клеточных пещер с авто-расстановкой стен и дверей'}
               </p>
             </div>
           </div>
@@ -172,16 +185,16 @@ export function ProceduralMapModal() {
               onClick={handleGenerate}
               disabled={isGenerating}
               className="px-2.5 py-1 rounded-lg bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/60 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-50"
-              title="Перегенерировать карту со случайным зерном"
+              title={isEn ? 'Regenerate map with random seed' : 'Перегенерировать карту со случайным зерном'}
             >
               <Dices className={`h-3.5 w-3.5 text-gold ${isGenerating ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Перегенерировать</span>
+              <span className="hidden sm:inline">{isEn ? 'Regenerate' : 'Перегенерировать'}</span>
             </button>
             <button
               type="button"
               onClick={closeProceduralModal}
               className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-              title="Закрыть"
+              title={isEn ? 'Close' : 'Закрыть'}
             >
               <X className="h-4 w-4" />
             </button>
@@ -196,7 +209,7 @@ export function ProceduralMapModal() {
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Layers className="h-3.5 w-3.5 text-gold" />
-                <span>Тип генератора</span>
+                <span>{isEn ? 'Generator Type' : 'Тип генератора'}</span>
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -208,8 +221,12 @@ export function ProceduralMapModal() {
                       : 'bg-[#151c27] border-white/10 text-gray-400 hover:text-gray-200 hover:border-white/20'
                   }`}
                 >
-                  <span className="text-xs font-bold font-serif">Катакомбы и склепы</span>
-                  <span className="text-[10px] text-gray-400">BSP: комнаты и коридоры</span>
+                  <span className="text-xs font-bold font-serif">
+                    {isEn ? 'Catacombs & Crypts' : 'Катакомбы и склепы'}
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    {isEn ? 'BSP: rooms & corridors' : 'BSP: комнаты и коридоры'}
+                  </span>
                 </button>
 
                 <button
@@ -221,8 +238,12 @@ export function ProceduralMapModal() {
                       : 'bg-[#151c27] border-white/10 text-gray-400 hover:text-gray-200 hover:border-white/20'
                   }`}
                 >
-                  <span className="text-xs font-bold font-serif">Органические пещеры</span>
-                  <span className="text-[10px] text-gray-400">Клеточные автоматы</span>
+                  <span className="text-xs font-bold font-serif">
+                    {isEn ? 'Organic Caves' : 'Органические пещеры'}
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    {isEn ? 'Cellular automata' : 'Клеточные автоматы'}
+                  </span>
                 </button>
               </div>
             </div>
@@ -232,7 +253,7 @@ export function ProceduralMapModal() {
               <div className="flex items-center justify-between">
                 <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
                   <Grid className="h-3.5 w-3.5 text-gold" />
-                  <span>Размер сетки (клеток)</span>
+                  <span>{isEn ? 'Grid Size (cells)' : 'Размер сетки (клеток)'}</span>
                 </label>
                 <div className="flex items-center gap-1">
                   {GRID_PRESETS.map((p) => (
@@ -257,7 +278,9 @@ export function ProceduralMapModal() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <span className="text-[10px] text-gray-400 block mb-0.5">Ширина: {gridWidth} кл.</span>
+                  <span className="text-[10px] text-gray-400 block mb-0.5">
+                    {isEn ? `Width: ${gridWidth} cells` : `Ширина: ${gridWidth} кл.`}
+                  </span>
                   <input
                     type="range"
                     min="15"
@@ -269,7 +292,9 @@ export function ProceduralMapModal() {
                   />
                 </div>
                 <div>
-                  <span className="text-[10px] text-gray-400 block mb-0.5">Высота: {gridHeight} кл.</span>
+                  <span className="text-[10px] text-gray-400 block mb-0.5">
+                    {isEn ? `Height: ${gridHeight} cells` : `Высота: ${gridHeight} кл.`}
+                  </span>
                   <input
                     type="range"
                     min="15"
@@ -286,7 +311,7 @@ export function ProceduralMapModal() {
             {/* Palette */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider block">
-                Цветовая палитра
+                {isEn ? 'Color Palette' : 'Цветовая палитра'}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {(Object.keys(DUNGEON_PALETTES) as DungeonPaletteId[]).map((pid) => {
@@ -303,17 +328,17 @@ export function ProceduralMapModal() {
                           : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
                       }`}
                     >
-                      <span className="text-xs">{p.name}</span>
+                      <span className="text-xs">{isEn ? (p.nameEn || p.name) : p.name}</span>
                       <div className="flex items-center gap-1">
                         <div
                           className="w-3.5 h-3.5 rounded border border-white/20"
                           style={{ backgroundColor: p.wallFill }}
-                          title="Стена"
+                          title={isEn ? 'Wall' : 'Стена'}
                         />
                         <div
                           className="w-3.5 h-3.5 rounded border border-white/20"
                           style={{ backgroundColor: p.floorBg }}
-                          title="Пол"
+                          title={isEn ? 'Floor' : 'Пол'}
                         />
                       </div>
                     </button>
@@ -330,7 +355,7 @@ export function ProceduralMapModal() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
-                        Плотность комнат
+                        {isEn ? 'Room Density' : 'Плотность комнат'}
                       </label>
                       <div className="grid grid-cols-3 gap-1">
                         {(['low', 'medium', 'high'] as const).map((density) => (
@@ -344,7 +369,11 @@ export function ProceduralMapModal() {
                                 : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
                             }`}
                           >
-                            {density === 'low' ? 'Низкая' : density === 'medium' ? 'Средняя' : 'Высокая'}
+                            {density === 'low'
+                              ? (isEn ? 'Low' : 'Низкая')
+                              : density === 'medium'
+                              ? (isEn ? 'Medium' : 'Средняя')
+                              : (isEn ? 'High' : 'Высокая')}
                           </button>
                         ))}
                       </div>
@@ -352,7 +381,7 @@ export function ProceduralMapModal() {
 
                     <div>
                       <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
-                        Ширина коридоров
+                        {isEn ? 'Corridor Width' : 'Ширина коридоров'}
                       </label>
                       <div className="grid grid-cols-2 gap-1">
                         {[1, 2].map((cw) => (
@@ -366,7 +395,9 @@ export function ProceduralMapModal() {
                                 : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
                             }`}
                           >
-                            {cw === 1 ? '1 клетка' : '2 клетки'}
+                            {cw === 1
+                              ? (isEn ? '1 cell' : '1 клетка')
+                              : (isEn ? '2 cells' : '2 клетки')}
                           </button>
                         ))}
                       </div>
@@ -375,7 +406,7 @@ export function ProceduralMapModal() {
 
                   <div>
                     <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
-                      Частота дверей
+                      {isEn ? 'Door Frequency' : 'Частота дверей'}
                     </label>
                     <div className="grid grid-cols-3 gap-1">
                       {(['none', 'some', 'all'] as const).map((freq) => (
@@ -389,7 +420,11 @@ export function ProceduralMapModal() {
                               : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
                           }`}
                         >
-                          {freq === 'none' ? 'Без дверей' : freq === 'some' ? 'Обычная' : 'Все входы'}
+                          {freq === 'none'
+                            ? (isEn ? 'No doors' : 'Без дверей')
+                            : freq === 'some'
+                            ? (isEn ? 'Normal' : 'Обычная')
+                            : (isEn ? 'All entrances' : 'Все входы')}
                         </button>
                       ))}
                     </div>
@@ -404,7 +439,7 @@ export function ProceduralMapModal() {
                       className="rounded border-white/20 bg-[#151c27] text-gold focus:ring-gold"
                     />
                     <label htmlFor="includeSecretRooms" className="text-xs text-gray-300 cursor-pointer select-none">
-                      Тайники и секретные двери
+                      {isEn ? 'Secret rooms & hidden doors' : 'Тайники и секретные двери'}
                     </label>
                   </div>
                 </>
@@ -414,7 +449,9 @@ export function ProceduralMapModal() {
                   <div className="space-y-2">
                     <div>
                       <div className="flex justify-between text-[10px] text-gray-400 mb-0.5">
-                        <span className="uppercase font-semibold">Начальное заполнение</span>
+                        <span className="uppercase font-semibold">
+                          {isEn ? 'Initial Fill' : 'Начальное заполнение'}
+                        </span>
                         <span className="font-mono text-gold">{Math.round(initialFillRate * 100)}%</span>
                       </div>
                       <input
@@ -430,7 +467,9 @@ export function ProceduralMapModal() {
 
                     <div>
                       <div className="flex justify-between text-[10px] text-gray-400 mb-0.5">
-                        <span className="uppercase font-semibold">Циклы сглаживания</span>
+                        <span className="uppercase font-semibold">
+                          {isEn ? 'Smoothing Cycles' : 'Циклы сглаживания'}
+                        </span>
                         <span className="font-mono text-gold">{smoothIterations}</span>
                       </div>
                       <input
@@ -453,7 +492,7 @@ export function ProceduralMapModal() {
                         className="rounded border-white/20 bg-[#151c27] text-gold focus:ring-gold"
                       />
                       <label htmlFor="caveDoors" className="text-xs text-gray-300 cursor-pointer select-none">
-                        Баррикады и ворота в узких проходах
+                        {isEn ? 'Barricades & gates in narrow passages' : 'Баррикады и ворота в узких проходах'}
                       </label>
                     </div>
                   </div>
@@ -464,7 +503,7 @@ export function ProceduralMapModal() {
             {/* Scene Name Input */}
             <div className="pt-2 border-t border-white/10">
               <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
-                Название создаваемой сцены
+                {isEn ? 'Created Scene Name' : 'Название создаваемой сцены'}
               </label>
               <input
                 type="text"
@@ -480,24 +519,24 @@ export function ProceduralMapModal() {
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Eye className="h-3.5 w-3.5 text-gold" />
-                <span>Интерактивный предпросмотр</span>
+                <span>{isEn ? 'Interactive Preview' : 'Интерактивный предпросмотр'}</span>
               </span>
 
               {generationResult && (
                 <div className="flex items-center gap-2 text-[10px] font-mono text-gray-400">
                   <span className="bg-surface/70 px-1.5 py-0.5 rounded border border-white/10">
-                    {gridWidth}x{gridHeight} кл.
+                    {gridWidth}x{gridHeight} {isEn ? 'cells' : 'кл.'}
                   </span>
                   {style === 'bsp' && (
                     <span className="bg-surface/70 px-1.5 py-0.5 rounded border border-white/10">
-                      Комнат: {generationResult.roomCount}
+                      {isEn ? `Rooms: ${generationResult.roomCount}` : `Комнат: ${generationResult.roomCount}`}
                     </span>
                   )}
                   <span className="bg-surface/70 px-1.5 py-0.5 rounded border border-white/10">
-                    Дверей: {generationResult.doorCount}
+                    {isEn ? `Doors: ${generationResult.doorCount}` : `Дверей: ${generationResult.doorCount}`}
                   </span>
                   <span className="bg-surface/70 px-1.5 py-0.5 rounded border border-white/10 text-gold-light">
-                    Стен: {generationResult.walls.length}
+                    {isEn ? `Walls: ${generationResult.walls.length}` : `Стен: ${generationResult.walls.length}`}
                   </span>
                 </div>
               )}
@@ -511,25 +550,31 @@ export function ProceduralMapModal() {
               {isGenerating ? (
                 <div className="flex flex-col items-center gap-2 text-gold">
                   <RefreshCw className="h-6 w-6 animate-spin" />
-                  <span className="text-xs font-mono">Генерация геометрии и барьеров...</span>
+                  <span className="text-xs font-mono">
+                    {isEn ? 'Generating geometry and barriers...' : 'Генерация геометрии и барьеров...'}
+                  </span>
                 </div>
               ) : generationResult ? (
                 <div className="w-full h-full flex items-center justify-center">
                   <img
                     src={generationResult.backgroundDataUrl}
-                    alt="Предпросмотр подземелья"
+                    alt={isEn ? 'Dungeon preview' : 'Предпросмотр подземелья'}
                     className="max-w-full max-h-[380px] object-contain rounded border border-white/10 shadow-2xl"
                   />
                 </div>
               ) : (
-                <span className="text-xs text-gray-500">Нажмите "Сгенерировать" для создания карты</span>
+                <span className="text-xs text-gray-500">
+                  {isEn ? 'Click "Regenerate" to create a map' : 'Нажмите "Сгенерировать" для создания карты'}
+                </span>
               )}
             </div>
 
             <div className="text-[11px] text-gray-400 flex items-center gap-2 bg-[#141b24]/60 p-2 rounded-lg border border-white/5">
               <Sparkles className="h-4 w-4 text-gold flex-shrink-0" />
               <span>
-                Стены и двери автоматически векторизуются и экспортируются в тактическую систему. Игроки не смогут видеть сквозь стены, а двери можно интерактивно открывать и запирать.
+                {isEn
+                  ? 'Walls and doors are automatically vectorized and exported into the tactical engine. Players cannot see through walls, and doors can be interactively opened or locked.'
+                  : 'Стены и двери автоматически векторизуются и экспортируются в тактическую систему. Игроки не смогут видеть сквозь стены, а двери можно интерактивно открывать и запирать.'}
               </span>
             </div>
           </div>
@@ -542,7 +587,7 @@ export function ProceduralMapModal() {
             onClick={closeProceduralModal}
             className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
           >
-            Отмена
+            {isEn ? 'Cancel' : 'Отмена'}
           </button>
 
           <div className="flex items-center gap-2">
@@ -551,10 +596,14 @@ export function ProceduralMapModal() {
               onClick={handleApplyToCurrentMap}
               disabled={!generationResult || isGenerating}
               className="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-surface/80 border border-white/15 text-gray-200 text-xs font-semibold flex items-center gap-1.5 transition-all disabled:opacity-50"
-              title="Заменить фон и барьеры на текущей активной карте"
+              title={
+                isEn
+                  ? 'Replace background and barriers on current active map'
+                  : 'Заменить фон и барьеры на текущей активной карте'
+              }
             >
               <Check className="h-3.5 w-3.5 text-emerald-400" />
-              <span>Применить к текущей карте</span>
+              <span>{isEn ? 'Apply to Current Map' : 'Применить к текущей карте'}</span>
             </button>
 
             <button
@@ -562,10 +611,14 @@ export function ProceduralMapModal() {
               onClick={handleCreateNewScene}
               disabled={!generationResult || isGenerating}
               className="px-4 py-1.5 rounded-lg bg-gold/25 hover:bg-gold/35 border border-gold/70 text-gold-light text-xs font-bold flex items-center gap-1.5 transition-all shadow-md active:scale-95 disabled:opacity-50"
-              title="Создать новую отдельную сцену со сгенерированным подземельем"
+              title={
+                isEn
+                  ? 'Create a new separate scene with generated dungeon'
+                  : 'Создать новую отдельную сцену со сгенерированным подземельем'
+              }
             >
               <Plus className="h-3.5 w-3.5 text-gold" />
-              <span>Создать новую сцену</span>
+              <span>{isEn ? 'Create New Scene' : 'Создать новую сцену'}</span>
             </button>
           </div>
         </div>

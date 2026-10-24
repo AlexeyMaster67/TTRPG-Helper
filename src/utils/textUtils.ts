@@ -1018,8 +1018,117 @@ export function extractEnglishParenthetical(text?: string | null): string | null
     if (!/[а-яА-ЯёЁ]/.test(candidate)) {
       return candidate;
     }
+    // Handle mixed parentheticals like "(Bite - 2 действия)" or "(Claw Attack - 1 действие)"
+    const enPart = candidate.match(/^([A-Za-z0-9\s'’/–—\-]+)/);
+    if (enPart) {
+      const cleaned = enPart[1].replace(/[-–—]\s*\d+\s*$/, '').trim();
+      if (cleaned && cleaned.length >= 2) {
+        if (candidate.includes('2 действ') || candidate.includes('2 actions')) {
+          return `${cleaned} (Costs 2 Actions)`;
+        }
+        if (candidate.includes('3 действ') || candidate.includes('3 actions')) {
+          return `${cleaned} (Costs 3 Actions)`;
+        }
+        return cleaned;
+      }
+    }
   }
   return null;
+}
+
+export const ACTION_NAMES_MAP: Record<string, string> = {
+  'мультиатака': 'Multiattack',
+  'удар когтями': 'Claw Attack',
+  'когти': 'Claws',
+  'коготь': 'Claw',
+  'укус': 'Bite',
+  'копьё': 'Spear',
+  'копье': 'Spear',
+  'длинный меч': 'Longsword',
+  'короткий меч': 'Shortsword',
+  'двуручный меч': 'Greatsword',
+  'ярость': 'Rage',
+  'скимитар': 'Scimitar',
+  'рапира': 'Rapier',
+  'кинжал': 'Dagger',
+  'булава': 'Mace',
+  'боевой молот': 'Warhammer',
+  'утренная звезда': 'Morningstar',
+  'цеп': 'Flail',
+  'секира': 'Greataxe',
+  'боевой топор': 'Battleaxe',
+  'алебарда': 'Halberd',
+  'пика': 'Pike',
+  'глефа': 'Glaive',
+  'трезубец': 'Trident',
+  'длинный лук': 'Longbow',
+  'короткий лук': 'Shortbow',
+  'тяжелый арбалет': 'Heavy Crossbow',
+  'тяжёлый арбалет': 'Heavy Crossbow',
+  'легкий арбалет': 'Light Crossbow',
+  'лёгкий арбалет': 'Light Crossbow',
+  'ручной арбалет': 'Hand Crossbow',
+  'праща': 'Sling',
+  'дротик': 'Dart',
+  'метательное копьё': 'Javelin',
+  'метательное копье': 'Javelin',
+  'могильный удар': 'Grave Strike',
+  'перемещение': 'Move',
+  'бессмертный удар': 'Deathless Strike',
+  'обмануть': 'Beguile',
+  'смена формы': 'Shape-Shift',
+  'очарование': 'Charm',
+  'хвост': 'Tail',
+  'удар хвостом': 'Tail Attack',
+  'щупальце': 'Tentacle',
+  'щупальца': 'Tentacles',
+  'удар щупальцем': 'Tentacle Attack',
+  'рога': 'Gore',
+  'бодание': 'Gore',
+  'таранящий удар': 'Ram',
+  'копыта': 'Hooves',
+  'клюв': 'Beak',
+  'лапы': 'Paws',
+  'сокрушительный удар': 'Slam',
+  'удар': 'Slam',
+  'кулак': 'Fist',
+  'кулаки': 'Fists',
+  'безоружный удар': 'Unarmed Strike',
+  'жало': 'Sting',
+  'ужаление': 'Stinger',
+  'сдавливание': 'Constrict',
+  'проглатывание': 'Swallow',
+  'поглощение': 'Engulf',
+  'огненное дыхание': 'Fire Breath',
+  'ледяное дыхание': 'Cold Breath',
+  'электрическое дыхание': 'Lightning Breath',
+  'кислотное дыхание': 'Acid Breath',
+  'ядовитое дыхание': 'Poison Breath',
+  'порыв ветра': 'Gust of Wind',
+  'посох ветра': 'Wind Staff',
+  'стихийность': 'Elemental Affinity',
+  'взмах крыльями': 'Wing Attack',
+  'камнеметание': 'Rock',
+  'бросок камня': 'Rock',
+  'огненный снаряд': 'Fire Bolt',
+  'мистический заряд': 'Eldritch Blast',
+};
+
+export function localizeActionName(name?: string | null, lang: 'en' | 'ru' = 'ru'): string {
+  if (!name) return '';
+  const trimmed = name.trim();
+  const lower = trimmed.toLowerCase();
+  if (lang === 'en') {
+    const enParenthetical = extractEnglishParenthetical(trimmed);
+    if (enParenthetical) return enParenthetical;
+    if (ACTION_NAMES_MAP[lower]) return ACTION_NAMES_MAP[lower];
+    // Strip trailing parenthetical if Russian
+    const withoutParen = trimmed.replace(/\s*\([^)]*\)$/, '').trim().toLowerCase();
+    if (ACTION_NAMES_MAP[withoutParen]) return ACTION_NAMES_MAP[withoutParen];
+    return cleanEnglishText(trimmed);
+  } else {
+    return cleanRussianText(trimmed);
+  }
 }
 
 const TRAIT_NAMES_MAP: Record<string, string> = {
@@ -1065,7 +1174,7 @@ export function localizeTraitName(name?: string | null, lang: 'en' | 'ru' = 'ru'
     const enParenthetical = extractEnglishParenthetical(trimmed);
     if (enParenthetical) return enParenthetical;
     if (TRAIT_NAMES_MAP[lower]) return TRAIT_NAMES_MAP[lower];
-    return trimmed;
+    return cleanEnglishText(trimmed);
   } else {
     if (TRAIT_NAMES_RU_MAP[lower]) return TRAIT_NAMES_RU_MAP[lower];
     return cleanRussianText(trimmed);
@@ -1832,4 +1941,161 @@ export function filterPlayerCombatantName(name?: string | null): string {
     .replace(/\s*\((?:босс|boss|миньон|minion|лидер|leader|командир|commander|главарь|элита|elite|npc|нпс|игрок|player)\)/gi, '')
     .replace(/\s*\[(?:босс|boss|миньон|minion|лидер|leader|командир|commander|главарь|элита|elite|npc|нпс|игрок|player)\]/gi, '');
   return cleanRussianText(cleaned);
+}
+
+/**
+ * Cleans text for English display by extracting English names from parentheticals
+ * (e.g. "Копьё (Spear)" -> "Spear", "Укус (Bite - 2 действия)" -> "Bite (Costs 2 Actions)"),
+ * translating standard Russian D&D combat descriptions, rolls, damage types,
+ * saving throws, and converting Cyrillic dice notation (1к6 -> 1d6) and units (фт. -> ft.).
+ */
+export function cleanEnglishText(text?: string | null): string {
+  if (!text) return '';
+  let res = String(text).trim();
+  if (!res) return '';
+
+  // 1. Direct parenthetical extract if text is like "Копьё (Spear)"
+  const enParenthetical = extractEnglishParenthetical(res);
+  if (enParenthetical && !res.includes('\n') && res.length < 80) {
+    return enParenthetical;
+  }
+
+  // 2. Direct dictionary match for monster/action names
+  const lower = res.toLowerCase();
+  if (ACTION_NAMES_MAP[lower]) {
+    return ACTION_NAMES_MAP[lower];
+  }
+  if (TRAIT_NAMES_MAP[lower]) {
+    return TRAIT_NAMES_MAP[lower];
+  }
+
+  // 3. Normalize typographic quotes and dashes
+  res = res
+    .replace(/[’‘`]/g, "'")
+    .replace(/[‒―−]/g, '–');
+
+  // 4. Translate Player / Weapon Mastery notations
+  res = res
+    .replace(/\b(?:Игрок|Player)\s*\(\s*(?:Ур\.?|Уровень|Lvl|Level)\s*(\d+)\s*\)/gi, 'Player (Lvl $1)')
+    .replace(/\bИгрок\s+(?:Ур\.?|Уровень)\s*(\d+)\b/gi, 'Player (Lvl $1)')
+    .replace(/\bСвойство оружия:\s*/gi, 'Weapon Mastery: ')
+    .replace(/\bСвойство оружия\b/gi, 'Weapon Mastery');
+
+  const ruToEnMastery: Record<string, string> = {
+    'Замедление': 'Slow',
+    'Опрокидывание': 'Topple',
+    'Досаждение': 'Vex',
+    'Ослабление': 'Sap',
+    'Царапина': 'Nick',
+    'Толчок': 'Push',
+    'Задевание': 'Graze',
+    'Рассечение': 'Cleave',
+  };
+  for (const [ru, en] of Object.entries(ruToEnMastery)) {
+    res = res.replace(new RegExp(`\\b${ru}\\b`, 'g'), en);
+  }
+
+  // 5. Parentheticals in combat actions
+  const parentheticalsEn: [RegExp, string][] = [
+    [/\(\s*Рукопашная или дальнобойная атака оружием\s*\)/gi, '(Melee or Ranged Weapon Attack)'],
+    [/\(\s*Рукопашная атака оружием\s*\)/gi, '(Melee Weapon Attack)'],
+    [/\(\s*Дальнобойная атака оружием\s*\)/gi, '(Ranged Weapon Attack)'],
+    [/\(\s*Рукопашная атака заклинанием\s*\)/gi, '(Melee Spell Attack)'],
+    [/\(\s*Дальнобойная атака заклинанием\s*\)/gi, '(Ranged Spell Attack)'],
+    [/\(\s*Только в облике вампира\s*\)/gi, '(Vampire Form Only)'],
+    [/\(\s*В облике летучей мыши или вампира\s*\)/gi, '(Bat or Vampire Form Only)'],
+    [/\(\s*Перезарядка\s*(\d+)\s*[-–—]\s*(\d+)\s*\)/gi, '(Recharge $1–$2)'],
+    [/\(\s*Перезарядка\s*(\d+)\s*\)/gi, '(Recharge $1)'],
+    [/\(\s*Тратит\s*(\d+)\s*действи[яе]?\s*\)/gi, '(Costs $1 Actions)'],
+    [/\(\s*СЛ высвобождения\s*(\d+)\s*\)/gi, '(escape DC $1)'],
+    [/\(\s*СЛ спасброска\s*(\d+)\s*\)/gi, '(spell save DC $1)'],
+    [/\(\s*парение\s*\)/gi, '(hover)'],
+  ];
+  for (const [pat, repl] of parentheticalsEn) {
+    res = res.replace(pat, repl);
+  }
+
+  // 6. Action attack rolls and damage formulations
+  res = res
+    .replace(/\bРукопашная или дальнобойная атака оружием:\s*/gi, 'Melee or Ranged Weapon Attack: ')
+    .replace(/\bРукопашная атака оружием:\s*/gi, 'Melee Weapon Attack: ')
+    .replace(/\bДальнобойная атака оружием:\s*/gi, 'Ranged Weapon Attack: ')
+    .replace(/\bРукопашная атака заклинанием:\s*/gi, 'Melee Spell Attack: ')
+    .replace(/\bДальнобойная атака заклинанием:\s*/gi, 'Ranged Spell Attack: ')
+    .replace(/Бросок рукопашной атаки:\s*\+(\d+),\s*досягаемость\s*(\d+)\s*фт\.?/gi, 'Melee Attack Roll: +$1, reach $2 ft.')
+    .replace(/Бросок дальнобойной атаки:\s*\+(\d+),\s*дистанция\s*(\d+)\/(\d+)\s*фт\.?/gi, 'Ranged Attack Roll: +$1, range $2/$3 ft.')
+    .replace(/Бросок дальнобойной атаки:\s*\+(\d+),\s*дистанция\s*(\d+)\s*фт\.?/gi, 'Ranged Attack Roll: +$1, range $2 ft.')
+    .replace(/Спасбросок Телосложения:\s*СЛ\s*(\d+)/gi, 'Constitution Saving Throw: DC $1')
+    .replace(/Спасбросок Ловкости:\s*СЛ\s*(\d+)/gi, 'Dexterity Saving Throw: DC $1')
+    .replace(/Спасбросок Силы:\s*СЛ\s*(\d+)/gi, 'Strength Saving Throw: DC $1')
+    .replace(/Спасбросок Мудрости:\s*СЛ\s*(\d+)/gi, 'Wisdom Saving Throw: DC $1')
+    .replace(/Спасбросок Интеллекта:\s*СЛ\s*(\d+)/gi, 'Intelligence Saving Throw: DC $1')
+    .replace(/Спасбросок Харизмы:\s*СЛ\s*(\d+)/gi, 'Charisma Saving Throw: DC $1')
+    .replace(/Спасбросок:\s*СЛ\s*(\d+)/gi, 'Saving Throw: DC $1')
+    .replace(/\bПопадание:\s*/gi, 'Hit: ')
+    .replace(/\bПровал:\s*/gi, 'Failure: ')
+    .replace(/\bУспех:\s*/gi, 'Success: ')
+    .replace(/\bдосягаемость\s*(\d+)\s*фт\.?/gi, 'reach $1 ft.')
+    .replace(/\bдистанция\s*(\d+)\/(\d+)\s*фт\.?/gi, 'range $1/$2 ft.')
+    .replace(/\bдистанция\s*(\d+)\s*фт\.?/gi, 'range $1 ft.')
+    .replace(/\b(\d+)\s*фт\.?(?!\w)/gi, '$1 ft.')
+    .replace(/\bфутов\b/gi, 'feet')
+    .replace(/\bодна цель\b/gi, 'one target')
+    .replace(/\bодной цели\b/gi, 'one target')
+    .replace(/плюс\s+(\d+)\s*\(([^)]+)\)\s*([А-Яа-яЁё]+)\s+урона/gi, 'plus $1 ($2) $3 damage')
+    .replace(/(\d+)\s*\(([^)]+)\)\s*([А-Яа-яЁё]+)\s+урона/gi, '$1 ($2) $3 damage');
+
+  // 7. Damage types in Russian
+  const damageTypeMap: [RegExp, string][] = [
+    [/рубящ(?:его|ий)\s+урон(?:а)?/gi, 'slashing damage'],
+    [/колющ(?:его|ий)\s+урон(?:а)?/gi, 'piercing damage'],
+    [/дробящ(?:его|ий)\s+урон(?:а)?/gi, 'bludgeoning damage'],
+    [/урон(?:а)?\s+огн[её]м/gi, 'fire damage'],
+    [/урон(?:а)?\s+холодом/gi, 'cold damage'],
+    [/урон(?:а)?\s+электричеством/gi, 'lightning damage'],
+    [/урон(?:а)?\s+звуком|урон(?:а)?\s+громом/gi, 'thunder damage'],
+    [/урон(?:а)?\s+ядом/gi, 'poison damage'],
+    [/урон(?:а)?\s+кислотой/gi, 'acid damage'],
+    [/психическ(?:ого|ий)\s+урон(?:а)?/gi, 'psychic damage'],
+    [/некротическ(?:ого|ий)\s+урон(?:а)?/gi, 'necrotic damage'],
+    [/урон(?:а)?\s+излучением/gi, 'radiant damage'],
+    [/урон(?:а)?\s+силовым\s+полем/gi, 'force damage'],
+    [/\bрубящий\b/gi, 'slashing'],
+    [/\bколющий\b/gi, 'piercing'],
+    [/\bдробящий\b/gi, 'bludgeoning'],
+    [/\bогонь\b/gi, 'fire'],
+    [/\bхолод\b/gi, 'cold'],
+    [/\bэлектричество\b/gi, 'lightning'],
+    [/\bзвук\b/gi, 'thunder'],
+    [/\bяд\b/gi, 'poison'],
+    [/\bкислота\b/gi, 'acid'],
+    [/\bпсихический\b/gi, 'psychic'],
+    [/\bнекротический\b/gi, 'necrotic'],
+    [/\bизлучение\b/gi, 'radiant'],
+    [/\bсиловое поле\b/gi, 'force'],
+  ];
+  for (const [pat, repl] of damageTypeMap) {
+    res = res.replace(pat, repl);
+  }
+
+  // 8. Dice: Russian "к" in dice formulas (e.g. 1к6, 2к8+3, 10к6) -> 1d6, 2d8+3
+  res = res.replace(/(\d+)к(\d+)/g, '$1d$2');
+
+  // 9. Standard D&D Russian abbreviations -> English
+  res = res
+    .replace(/(?:^|\s)КД(?::|\s|$)/g, (m) => m.replace('КД', 'AC'))
+    .replace(/(?:^|\s)ОЗ(?::|\s|$)/g, (m) => m.replace('ОЗ', 'HP'))
+    .replace(/(?:^|\s)ХП(?::|\s|$)/g, (m) => m.replace('ХП', 'HP'))
+    .replace(/(?:^|\s)КО(?::|\s|$)/g, (m) => m.replace('КО', 'CR'))
+    .replace(/(?:^|\s)СЛ(?::|\s|$)/g, (m) => m.replace('СЛ', 'DC'))
+    .replace(/\bМультиатака\b/gi, 'Multiattack');
+
+  // 10. Strip leading Russian title if followed by English in parentheses
+  // e.g. "Копьё (Spear)" -> "Spear"
+  res = res.replace(/^[А-Яа-яЁё\s]+(?:\s*[-–—]\s*)?\(([^)]+)\)$/, (full, inner: string) => {
+    if (/[A-Za-z]/.test(inner)) return inner.trim();
+    return full;
+  });
+
+  return res.trim();
 }

@@ -46,6 +46,7 @@ export function CombatLogDrawer() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'damage_heal' | 'rounds' | 'saves' | 'conditions'>('all');
   const [copied, setCopied] = useState(false);
+  const [isConfirmingClear, setIsConfirmingClear] = useState(false);
 
   // Filtered log entries
   const filteredLogs = useMemo(() => {
@@ -193,15 +194,31 @@ export function CombatLogDrawer() {
             {combatLog.length > 0 && (
               <button
                 onClick={() => {
-                  if (window.confirm(isEn ? 'Clear combat event history?' : 'Очистить историю событий боя?')) {
+                  if (isConfirmingClear) {
                     clearCombatLog();
+                    setIsConfirmingClear(false);
+                  } else {
+                    setIsConfirmingClear(true);
+                    setTimeout(() => setIsConfirmingClear(false), 3000);
                   }
                 }}
-                className="flex items-center gap-1.5 min-h-[32px] px-2.5 py-1 rounded-full bg-red-950/40 border border-red-800/40 hover:bg-red-900/60 text-xs font-semibold text-red-300 hover:text-red-100 transition-all cursor-pointer ml-auto"
-                title={isEn ? "Clear all log entries" : "Очистить все записи журнала"}
+                className={`flex items-center gap-1.5 min-h-[32px] px-2.5 py-1 rounded-full border text-xs font-semibold transition-all cursor-pointer ml-auto ${
+                  isConfirmingClear
+                    ? 'bg-red-600 border-red-500 text-white animate-pulse'
+                    : 'bg-red-950/40 border-red-800/40 hover:bg-red-900/60 text-red-300 hover:text-red-100'
+                }`}
+                title={
+                  isConfirmingClear
+                    ? (isEn ? 'Click again to confirm clearing log' : 'Нажмите снова для подтверждения очистки')
+                    : (isEn ? 'Clear all log entries' : 'Очистить все записи журнала')
+                }
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{isEn ? 'Clear' : 'Очистить'}</span>
+                <span className="hidden sm:inline">
+                  {isConfirmingClear
+                    ? (isEn ? 'Confirm?' : 'Точно?')
+                    : (isEn ? 'Clear' : 'Очистить')}
+                </span>
               </button>
             )}
           </div>

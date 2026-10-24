@@ -42,6 +42,15 @@ export const WBFileTree: React.FC = () => {
   const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
   const [contextMenuNoteId, setContextMenuNoteId] = useState<string | null>(null);
 
+  // In-app modal dialog state to replace native browser window.prompt / window.confirm (never show tauri.localhost)
+  const [modalDialog, setModalDialog] = useState<
+    | null
+    | { type: 'newNote'; folder: string; inputValue: string }
+    | { type: 'newFolder'; inputValue: string }
+    | { type: 'rename'; note: WBNote; inputValue: string }
+    | { type: 'delete'; note: WBNote }
+  >(null);
+
   const allNotesList = Object.values(notes);
   const filteredNotes = wbIndexEngine.searchNotes(
     searchQuery,
@@ -66,30 +75,61 @@ export const WBFileTree: React.FC = () => {
     setCollapsedFolders((prev) => ({ ...prev, [folder]: !prev[folder] }));
   };
 
-  const handleCreateNewNote = async (folder = '') => {
-    const title = window.prompt(t('wb.newNotePrompt'), t('wb.newNoteDefault'));
-    if (!title || !title.trim()) return;
-    await createNote(folder, title.trim());
+  const handleOpenNewNoteModal = (folder = '') => {
+    setModalDialog({
+      type: 'newNote',
+      folder,
+      inputValue: t('wb.newNoteDefault'),
+    });
   };
 
-  const handleCreateNewFolder = async () => {
-    const folder = window.prompt(t('wb.newFolderPrompt'), '');
-    if (!folder || !folder.trim()) return;
-    await createFolder(folder.trim());
+  const handleOpenNewFolderModal = () => {
+    setModalDialog({
+      type: 'newFolder',
+      inputValue: '',
+    });
   };
 
-  const handleRenameNote = async (note: WBNote) => {
+  const handleOpenRenameModal = (note: WBNote) => {
     setContextMenuNoteId(null);
-    const newTitle = window.prompt(t('wb.renamePrompt'), note.title);
-    if (!newTitle || !newTitle.trim() || newTitle === note.title) return;
-    await renameNote(note.id, newTitle.trim());
+    setModalDialog({
+      type: 'rename',
+      note,
+      inputValue: note.title,
+    });
   };
 
-  const handleDeleteNote = async (note: WBNote) => {
+  const handleOpenDeleteModal = (note: WBNote) => {
     setContextMenuNoteId(null);
-    if (window.confirm(t('wb.deleteConfirm', { title: note.title }))) {
-      await deleteNote(note.id);
+    setModalDialog({
+      type: 'delete',
+      note,
+    });
+  };
+
+  const handleModalConfirm = async () => {
+    if (!modalDialog) return;
+
+    if (modalDialog.type === 'newNote') {
+      const val = modalDialog.inputValue.trim();
+      if (val) {
+        await createNote(modalDialog.folder, val);
+      }
+    } else if (modalDialog.type === 'newFolder') {
+      const val = modalDialog.inputValue.trim();
+      if (val) {
+        await createFolder(val);
+      }
+    } else if (modalDialog.type === 'rename') {
+      const val = modalDialog.inputValue.trim();
+      if (val && val !== modalDialog.note.title) {
+        await renameNote(modalDialog.note.id, val);
+      }
+    } else if (modalDialog.type === 'delete') {
+      await deleteNote(modalDialog.note.id);
     }
+
+    setModalDialog(null);
   };
 
   const getNodeIcon = (type?: WBEntityType) => {
@@ -167,16 +207,16 @@ export const WBFileTree: React.FC = () => {
         <div className="flex items-center gap-1.5 pt-0.5">
           <button
             type="button"
-            onClick={() => handleCreateNewNote('')}
-            className="flex-1 flex items-center justify-center gap-1 py-1 px-2 rounded bg-amber-600/80 hover:bg-amber-500 text-white font-medium text-xs transition-colors shadow-sm"
+            onClick={() => handleOpenNewNoteModal('')}
+            className="flex-1 flex items-center justify-center gap-1 py-1 px-2 rounded bg-amber-600/80 hover:bg-amber-500 text-white font-medium text-xs transition-colors shadow-sm cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{t('wb.newNote')}</span>
           </button>
           <button
             type="button"
-            onClick={handleCreateNewFolder}
-            className="flex items-center justify-center p-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors border border-zinc-700"
+            onClick={handleOpenNewFolderModal}
+            className="flex items-center justify-center p-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors border border-zinc-700 cursor-pointer"
             title={t('wb.newFolder')}
           >
             <FolderPlus className="w-4 h-4" />
@@ -214,7 +254,7 @@ export const WBFileTree: React.FC = () => {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleCreateNewNote(folder);
+                      handleOpenNewNoteModal(folder);
                     }}
                     className="opacity-0 group-hover:opacity-100 hover:text-amber-400 p-0.5 transition-opacity"
                     title={t('wb.createInFolder', { folder })}
@@ -264,16 +304,16 @@ export const WBFileTree: React.FC = () => {
                             >
                               <button
                                 type="button"
-                                onClick={() => handleRenameNote(note)}
-                                className="w-full flex items-center gap-2 px-2.5 py-1.5 hover:bg-zinc-800 hover:text-zinc-100 text-left"
+                                onClick={() => handleOpenRenameModal(note)}
+                                className="w-full flex items-center gap-2 px-2.5 py-1.5 hover:bg-zinc-800 hover:text-zinc-100 text-left cursor-pointer"
                               >
                                 <Edit2 className="w-3 h-3 text-amber-400" />
                                 {t('wb.rename')}
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleDeleteNote(note)}
-                                className="w-full flex items-center gap-2 px-2.5 py-1.5 hover:bg-zinc-800 text-red-400 hover:text-red-300 text-left"
+                                onClick={() => handleOpenDeleteModal(note)}
+                                className="w-full flex items-center gap-2 px-2.5 py-1.5 hover:bg-zinc-800 text-red-400 hover:text-red-300 text-left cursor-pointer"
                               >
                                 <Trash2 className="w-3 h-3 text-red-400" />
                                 {t('wb.delete')}
@@ -296,6 +336,81 @@ export const WBFileTree: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* In-app Modal Dialog (replaces native window.prompt and window.confirm, zero tauri.localhost) */}
+      {modalDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="bg-zinc-900 border border-zinc-700/80 rounded-lg shadow-2xl max-w-sm w-full p-4 text-zinc-100 flex flex-col gap-3 select-none">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <h4 className="font-bold text-sm text-gold-light">
+                {modalDialog.type === 'newNote' && t('wb.newNote')}
+                {modalDialog.type === 'newFolder' && t('wb.newFolder')}
+                {modalDialog.type === 'rename' && t('wb.rename')}
+                {modalDialog.type === 'delete' && t('wb.delete')}
+              </h4>
+              <button
+                type="button"
+                onClick={() => setModalDialog(null)}
+                className="text-zinc-400 hover:text-white p-1 rounded hover:bg-zinc-800 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {modalDialog.type === 'delete' ? (
+              <div className="text-xs text-zinc-300 leading-relaxed py-1">
+                {t('wb.deleteConfirm', { title: modalDialog.note.title })}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5 py-1">
+                <label className="text-[11px] text-zinc-400 font-medium">
+                  {modalDialog.type === 'newNote' && t('wb.newNotePrompt')}
+                  {modalDialog.type === 'newFolder' && t('wb.newFolderPrompt')}
+                  {modalDialog.type === 'rename' && t('wb.renamePrompt')}
+                </label>
+                <input
+                  type="text"
+                  autoFocus
+                  value={modalDialog.inputValue}
+                  onChange={(e) =>
+                    setModalDialog({ ...modalDialog, inputValue: e.target.value })
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleModalConfirm();
+                    if (e.key === 'Escape') setModalDialog(null);
+                  }}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded px-2.5 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-gold"
+                />
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setModalDialog(null)}
+                className="px-3 py-1.5 rounded text-xs text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={handleModalConfirm}
+                className={`px-3.5 py-1.5 rounded text-xs font-bold transition-all shadow-sm cursor-pointer ${
+                  modalDialog.type === 'delete'
+                    ? 'bg-red-600 hover:bg-red-500 text-white'
+                    : 'bg-gold hover:bg-amber-400 text-black'
+                }`}
+              >
+                {modalDialog.type === 'delete'
+                  ? t('common.delete')
+                  : modalDialog.type === 'rename'
+                  ? t('wb.rename')
+                  : t('common.save')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

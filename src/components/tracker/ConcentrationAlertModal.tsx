@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useCombatStore } from '../../store/combatStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { audioService } from '../../services/audioService';
 import { broadcastService } from '../../services/broadcastService';
 import { rollDie } from '../../engine/rolls';
 import { Zap, ShieldCheck, ShieldAlert, X, Dices, Check, AlertOctagon } from 'lucide-react';
 
 export const ConcentrationAlertModal: React.FC = () => {
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
+
   const alert = useCombatStore((s) => s.concentrationAlert);
   const clearConcentrationAlert = useCombatStore((s) => s.clearConcentrationAlert);
   const removeConcentration = useCombatStore((s) => s.removeConcentration);
@@ -42,14 +46,16 @@ export const ConcentrationAlertModal: React.FC = () => {
 
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const sign = conMod >= 0 ? `+${conMod}` : `${conMod}`;
-    const resultText = success ? 'Концентрация удержана!' : 'Концентрация нарушена!';
+    const resultText = isEn
+      ? (success ? 'Concentration maintained!' : 'Concentration broken!')
+      : (success ? 'Концентрация удержана!' : 'Концентрация нарушена!');
 
     // 1. Log to combat store diceLog / diceHistory
     addDiceLog({
       id: crypto.randomUUID(),
       timestamp: timeStr,
       combatantName,
-      actionName: 'Спасбросок концентрации (ТЕЛ)',
+      actionName: isEn ? 'Concentration Save (CON)' : 'Спасбросок концентрации (ТЕЛ)',
       attackRoll: {
         d20,
         modifier: conMod,
@@ -57,7 +63,9 @@ export const ConcentrationAlertModal: React.FC = () => {
         isNat20: d20 === 20,
         isNat1: d20 === 1,
       },
-      note: `Спасбросок Телосложения против СЛ ${dc}: d20(${d20}) ${sign} = ${total} -> ${resultText}`,
+      note: isEn
+        ? `Constitution Save vs DC ${dc}: d20(${d20}) ${sign} = ${total} -> ${resultText}`
+        : `Спасбросок Телосложения против СЛ ${dc}: d20(${d20}) ${sign} = ${total} -> ${resultText}`,
     });
 
     // 2. Broadcast roll to players screen
@@ -65,9 +73,9 @@ export const ConcentrationAlertModal: React.FC = () => {
       type: 'BROADCAST_ROLL',
       payload: {
         id: crypto.randomUUID(),
-        title: `${combatantName}: Спасбросок концентрации`,
-        formula: `1d20 ${sign} против СЛ ${dc}`,
-        resultDisplay: `${total} против СЛ ${dc} [d20: ${d20}] -> ${resultText}`,
+        title: isEn ? `${combatantName}: Concentration Save` : `${combatantName}: Спасбросок концентрации`,
+        formula: isEn ? `1d20 ${sign} vs DC ${dc}` : `1d20 ${sign} против СЛ ${dc}`,
+        resultDisplay: `${total} ${isEn ? 'vs DC' : 'против СЛ'} ${dc} [d20: ${d20}] -> ${resultText}`,
         total,
         isCritical: d20 === 20,
         isCriticalMiss: d20 === 1,
@@ -86,8 +94,8 @@ export const ConcentrationAlertModal: React.FC = () => {
       id: crypto.randomUUID(),
       timestamp: timeStr,
       combatantName,
-      actionName: 'Концентрация удержана (вручную)',
-      note: `${combatantName} успешно удерживает концентрацию (вручную)`,
+      actionName: isEn ? 'Concentration maintained (manual)' : 'Концентрация удержана (вручную)',
+      note: isEn ? `${combatantName} maintained concentration (manual)` : `${combatantName} успешно удерживает концентрацию (вручную)`,
     });
     clearConcentrationAlert();
   };
@@ -98,8 +106,8 @@ export const ConcentrationAlertModal: React.FC = () => {
       id: crypto.randomUUID(),
       timestamp: timeStr,
       combatantName,
-      actionName: 'Концентрация потеряна',
-      note: `${combatantName} теряет концентрацию`,
+      actionName: isEn ? 'Concentration lost' : 'Концентрация потеряна',
+      note: isEn ? `${combatantName} loses concentration` : `${combatantName} теряет концентрацию`,
     });
     removeConcentration(combatantId);
     clearConcentrationAlert();
@@ -124,15 +132,15 @@ export const ConcentrationAlertModal: React.FC = () => {
             </span>
             <div>
               <h3 className="text-base font-bold font-serif tracking-wide text-amber-300">
-                Проверка концентрации!
+                {isEn ? 'Concentration Check!' : 'Проверка концентрации!'}
               </h3>
-              <p className="text-[11px] text-amber-200/70">D&D 5e / 2024 Правило урона</p>
+              <p className="text-[11px] text-amber-200/70">{isEn ? 'D&D 5e / 2024 Damage Rule' : 'D&D 5e / 2024 Правило урона'}</p>
             </div>
           </div>
           <button
             onClick={clearConcentrationAlert}
-            className="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5"
-            title="Пропустить"
+            className="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5 cursor-pointer"
+            title={isEn ? 'Skip' : 'Пропустить'}
           >
             <X className="h-5 w-5" />
           </button>
@@ -141,15 +149,19 @@ export const ConcentrationAlertModal: React.FC = () => {
         {/* Event description */}
         <div className="bg-[#1f2129] border border-amber-500/20 rounded-md p-3.5 space-y-2">
           <div className="text-sm font-semibold text-gray-200">
-            <span className="text-amber-300">{combatantName}</span> получил{' '}
-            <span className="font-mono text-red-400 font-bold">{damage}</span> урона.
+            <span className="text-amber-300">{combatantName}</span>{' '}
+            {isEn ? (
+              <>took <span className="font-mono text-red-400 font-bold">{damage}</span> damage.</>
+            ) : (
+              <>получил <span className="font-mono text-red-400 font-bold">{damage}</span> урона.</>
+            )}
           </div>
           <div className="flex items-center justify-between text-xs text-gray-300 bg-black/40 px-3 py-2 rounded border border-white/5">
-            <span>Спасбросок Телосложения:</span>
-            <span className="font-mono font-bold text-amber-300 text-sm">СЛ {dc}</span>
+            <span>{isEn ? 'Constitution Save:' : 'Спасбросок Телосложения:'}</span>
+            <span className="font-mono font-bold text-amber-300 text-sm">{isEn ? `DC ${dc}` : `СЛ ${dc}`}</span>
           </div>
           <div className="flex items-center justify-between text-xs text-gray-400 px-1">
-            <span>Модификатор Телосложения:</span>
+            <span>{isEn ? 'Constitution Modifier:' : 'Модификатор Телосложения:'}</span>
             <span className="font-mono font-bold text-gray-200">
               {conMod >= 0 ? `+${conMod}` : conMod}
             </span>
@@ -164,7 +176,9 @@ export const ConcentrationAlertModal: React.FC = () => {
           >
             <Dices className="h-5 w-5 transition-transform group-hover:rotate-12" />
             <span>
-              Бросить спасбросок (d20 {conMod >= 0 ? `+ ${conMod}` : `- ${Math.abs(conMod)}`})
+              {isEn
+                ? `Roll Saving Throw (d20 ${conMod >= 0 ? `+ ${conMod}` : `- ${Math.abs(conMod)}`})`
+                : `Бросить спасбросок (d20 ${conMod >= 0 ? `+ ${conMod}` : `- ${Math.abs(conMod)}`})`}
             </span>
           </button>
         ) : (
@@ -189,18 +203,20 @@ export const ConcentrationAlertModal: React.FC = () => {
                       rollResult.success ? 'text-emerald-300' : 'text-red-300'
                     }`}
                   >
-                    {rollResult.success ? 'Концентрация удержана!' : 'Концентрация нарушена!'}
+                    {isEn
+                      ? (rollResult.success ? 'Concentration maintained!' : 'Concentration broken!')
+                      : (rollResult.success ? 'Концентрация удержана!' : 'Концентрация нарушена!')}
                   </span>
                 </div>
                 <div className="font-mono text-xs text-gray-400">
-                  СЛ {dc}
+                  {isEn ? `DC ${dc}` : `СЛ ${dc}`}
                 </div>
               </div>
 
               {/* Math formula */}
               <div className="flex items-center justify-between text-xs bg-black/40 px-3 py-2 rounded">
                 <span className="text-gray-400">
-                  Бросок: d20 (<strong className="text-white">{rollResult.d20}</strong>){' '}
+                  {isEn ? 'Roll:' : 'Бросок:'} d20 (<strong className="text-white">{rollResult.d20}</strong>){' '}
                   {rollResult.modifier >= 0 ? `+ ${rollResult.modifier}` : `- ${Math.abs(rollResult.modifier)}`}
                 </span>
                 <span className="font-mono font-bold text-base text-white">
@@ -216,7 +232,7 @@ export const ConcentrationAlertModal: React.FC = () => {
                 className="w-full py-2.5 px-4 rounded-md font-bold text-xs bg-emerald-700 hover:bg-emerald-600 text-white transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 <Check className="h-4 w-4" />
-                <span>Отлично (Закрыть)</span>
+                <span>{isEn ? 'Great (Close)' : 'Отлично (Закрыть)'}</span>
               </button>
             ) : (
               <button
@@ -224,7 +240,7 @@ export const ConcentrationAlertModal: React.FC = () => {
                 className="w-full py-2.5 px-4 rounded-md font-bold text-xs bg-red-700 hover:bg-red-600 text-white transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)] cursor-pointer flex items-center justify-center gap-2"
               >
                 <AlertOctagon className="h-4 w-4" />
-                <span>Снять концентрацию в 1 клик</span>
+                <span>{isEn ? 'Drop concentration (1-click)' : 'Снять концентрацию в 1 клик'}</span>
               </button>
             )}
           </div>
@@ -236,16 +252,16 @@ export const ConcentrationAlertModal: React.FC = () => {
             <button
               onClick={handleManualSuccess}
               className="px-2.5 py-1.5 rounded bg-card hover:bg-emerald-950/60 border border-border-subtle hover:border-emerald-500/50 text-gray-300 hover:text-emerald-300 transition-colors cursor-pointer"
-              title="Засчитать успешный бросок вручную"
+              title={isEn ? 'Mark success manually' : 'Засчитать успешный бросок вручную'}
             >
-              Успех (вручную)
+              {isEn ? 'Success (manual)' : 'Успех (вручную)'}
             </button>
             <button
               onClick={handleManualFailure}
               className="px-2.5 py-1.5 rounded bg-card hover:bg-red-950/60 border border-border-subtle hover:border-red-500/50 text-gray-300 hover:text-red-300 transition-colors cursor-pointer"
-              title="Снять концентрацию вручную"
+              title={isEn ? 'Drop concentration manually' : 'Снять концентрацию вручную'}
             >
-              Провал (снять)
+              {isEn ? 'Failure (drop)' : 'Провал (снять)'}
             </button>
           </div>
 
@@ -253,7 +269,7 @@ export const ConcentrationAlertModal: React.FC = () => {
             onClick={clearConcentrationAlert}
             className="px-3 py-1.5 rounded text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
           >
-            Пропустить
+            {isEn ? 'Skip' : 'Пропустить'}
           </button>
         </div>
       </div>

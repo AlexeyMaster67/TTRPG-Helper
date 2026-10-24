@@ -39,6 +39,7 @@ AlexeyMaster67_*
 test_*.png
 *.bat
 *.html
+!docs/index.html
 Data/
 Tokens/
 agent/

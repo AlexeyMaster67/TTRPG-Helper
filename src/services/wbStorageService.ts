@@ -344,13 +344,12 @@ The adventuring party dropped anchor in the sapphire waters of [[Port Nyanzaru]]
   },
 ];
 
-export function getStarterFiles(): { path: string; content: string }[] {
-  try {
-    const lang = useSettingsStore.getState().language;
-    return lang === 'en' ? STARTER_CAMPAIGN_FILES_EN : STARTER_CAMPAIGN_FILES;
-  } catch {
-    return STARTER_CAMPAIGN_FILES;
+export function getStarterFiles(forcedLang?: 'en' | 'ru'): { path: string; content: string }[] {
+  const currentLang = forcedLang || (typeof useSettingsStore !== 'undefined' ? useSettingsStore.getState?.()?.language : 'ru');
+  if (currentLang === 'en') {
+    return STARTER_CAMPAIGN_FILES_EN;
   }
+  return STARTER_CAMPAIGN_FILES;
 }
 
 class WBStorageService {
@@ -390,10 +389,6 @@ class WBStorageService {
 
     // Web fallback
     const defaultName = 'TTRPG_Campaign_Vault';
-    if (typeof window !== 'undefined' && window.prompt) {
-      const customName = window.prompt('Название виртуального хранилища кампании:', defaultName);
-      return customName ? customName.trim() : defaultName;
-    }
     return defaultName;
   }
 
@@ -607,12 +602,35 @@ class WBStorageService {
     };
   }
 
+  public restoreRussianStarterNotes() {
+    for (const item of STARTER_CAMPAIGN_FILES) {
+      this.inMemoryFiles.set(item.path, item.content);
+    }
+    for (const item of STARTER_CAMPAIGN_FILES_EN) {
+      this.inMemoryFiles.delete(item.path);
+    }
+    this.saveToLocalStorage();
+  }
+
   private loadFromLocalStorage(vaultPath: string) {
     if (typeof localStorage === 'undefined') return;
     try {
       const saved = localStorage.getItem(`wbmd_vault_${vaultPath}`);
       if (saved) {
         const parsed = JSON.parse(saved) as Record<string, string>;
+        const keys = Object.keys(parsed);
+        const hasEnStarter = keys.some((k) => k.startsWith('00_Codex/'));
+        const hasRuStarter = keys.some((k) => k.startsWith('00_Кодекс/'));
+        let currentLang = 'ru';
+        try {
+          currentLang = useSettingsStore.getState().language;
+        } catch {}
+
+        if (currentLang === 'ru' && hasEnStarter && !hasRuStarter) {
+          this.restoreRussianStarterNotes();
+          return;
+        }
+
         for (const [k, v] of Object.entries(parsed)) {
           this.inMemoryFiles.set(k, v);
         }

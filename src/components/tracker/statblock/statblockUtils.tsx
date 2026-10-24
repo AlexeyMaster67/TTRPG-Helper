@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
+import { useSettingsStore } from '../../../store/settingsStore';
 import {
   localizeCreatureType as localizeTypeUtils,
   localizeSenses as textUtilsLocalizeSenses,
@@ -364,9 +365,13 @@ export const SIZE_OPTIONS = [
 
 export function renderTextWithSpellBadges(
   text: string,
-  onSpellClick: (spellName: string) => void
+  onSpellClick: (spellName: string) => void,
+  forcedLanguage?: 'ru' | 'en'
 ): React.ReactNode {
   if (!text) return null;
+
+  const currentLang = forcedLanguage || useSettingsStore.getState().language;
+  const isEn = currentLang === 'en';
 
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -391,7 +396,7 @@ export function renderTextWithSpellBadges(
           onSpellClick(cleanSpellName);
         }}
         className="inline-flex items-center gap-1 px-1.5 py-0.5 mx-0.5 rounded-glass-sm bg-purple-950/70 hover:bg-purple-900 border border-purple-500/60 hover:border-gold text-purple-200 hover:text-gold-light text-xs font-semibold transition-all shadow-sm cursor-pointer align-baseline"
-        title={`Заклинание: ${cleanSpellName} • Кликните для просмотра описания`}
+        title={isEn ? `Spell: ${cleanSpellName} • Click to view details` : `Заклинание: ${cleanSpellName} • Кликните для просмотра описания`}
       >
         <Sparkles className="w-3 h-3 text-purple-400 shrink-0 inline" />
         <span>«{cleanSpellName}»</span>

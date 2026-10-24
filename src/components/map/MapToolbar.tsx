@@ -687,7 +687,11 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                             <button
                               type="button"
                               onClick={() => {
-                                const label = customLabel.trim() || `${customShape === 'circle' ? 'Круг' : customShape === 'cone' ? 'Конус' : customShape === 'line' ? 'Линия' : 'Куб'} (${customSize} фт.)`;
+                                const shapeName = isEn
+                                  ? (customShape === 'circle' ? 'Circle' : customShape === 'cone' ? 'Cone' : customShape === 'line' ? 'Line' : 'Cube')
+                                  : (customShape === 'circle' ? 'Круг' : customShape === 'cone' ? 'Конус' : customShape === 'line' ? 'Линия' : 'Куб');
+                                const unit = isEn ? 'ft.' : 'фт.';
+                                const label = customLabel.trim() || `${shapeName} (${customSize} ${unit})`;
                                 handleApplyTemplate(
                                   { shape: customShape, sizeFeet: customSize, color: customColor, label },
                                   'center'
@@ -702,7 +706,11 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                             <button
                               type="button"
                               onClick={() => {
-                                const label = customLabel.trim() || `${customShape === 'circle' ? 'Круг' : customShape === 'cone' ? 'Конус' : customShape === 'line' ? 'Линия' : 'Куб'} (${customSize} фт.)`;
+                                const shapeName = isEn
+                                  ? (customShape === 'circle' ? 'Circle' : customShape === 'cone' ? 'Cone' : customShape === 'line' ? 'Line' : 'Cube')
+                                  : (customShape === 'circle' ? 'Круг' : customShape === 'cone' ? 'Конус' : customShape === 'line' ? 'Линия' : 'Куб');
+                                const unit = isEn ? 'ft.' : 'фт.';
+                                const label = customLabel.trim() || `${shapeName} (${customSize} ${unit})`;
                                 handleApplyTemplate(
                                   { shape: customShape, sizeFeet: customSize, color: customColor, label },
                                   'placement'

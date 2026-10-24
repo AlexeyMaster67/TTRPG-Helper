@@ -96,67 +96,67 @@ export interface HeraldryConfig {
 }
 
 export const FACTION_COLOR_PALETTE = [
-  { id: 'red', name: 'Красный (Враг)', hex: '#ef4444' },
-  { id: 'blue', name: 'Синий (Союзник)', hex: '#3b82f6' },
-  { id: 'green', name: 'Зелёный (Природа)', hex: '#22c55e' },
-  { id: 'amber', name: 'Янтарный (Нейтрал)', hex: '#f59e0b' },
-  { id: 'purple', name: 'Фиолетовый (Босс)', hex: '#a855f7' },
-  { id: 'cyan', name: 'Бирюзовый (Магия)', hex: '#06b6d4' },
+  { id: 'red', name: 'Красный (Враг)', nameEn: 'Red (Enemy)', hex: '#ef4444' },
+  { id: 'blue', name: 'Синий (Союзник)', nameEn: 'Blue (Ally)', hex: '#3b82f6' },
+  { id: 'green', name: 'Зелёный (Природа)', nameEn: 'Green (Nature)', hex: '#22c55e' },
+  { id: 'amber', name: 'Янтарный (Нейтрал)', nameEn: 'Amber (Neutral)', hex: '#f59e0b' },
+  { id: 'purple', name: 'Фиолетовый (Босс)', nameEn: 'Purple (Boss)', hex: '#a855f7' },
+  { id: 'cyan', name: 'Бирюзовый (Магия)', nameEn: 'Cyan (Magic)', hex: '#06b6d4' },
 ];
 
-export const SILHOUETTE_OPTIONS: Array<{ id: SilhouetteType; name: string }> = [
-  { id: 'humanoid', name: 'Гуманоид / Воин' },
-  { id: 'skeleton', name: 'Скелет / Нежить' },
-  { id: 'beast_wolf', name: 'Зверь / Волк' },
-  { id: 'dragon', name: 'Дракон / Виверна' },
-  { id: 'orc', name: 'Орк / Громила' },
-  { id: 'goblin', name: 'Гоблин / Плут' },
-  { id: 'robot', name: 'Кованый / Голем' },
-  { id: 'slime', name: 'Слизь / Аморф' },
+export const SILHOUETTE_OPTIONS: Array<{ id: SilhouetteType; name: string; nameEn?: string }> = [
+  { id: 'humanoid', name: 'Гуманоид / Воин', nameEn: 'Humanoid / Warrior' },
+  { id: 'skeleton', name: 'Скелет / Нежить', nameEn: 'Skeleton / Undead' },
+  { id: 'beast_wolf', name: 'Зверь / Волк', nameEn: 'Beast / Wolf' },
+  { id: 'dragon', name: 'Дракон / Виверна', nameEn: 'Dragon / Wyvern' },
+  { id: 'orc', name: 'Орк / Громила', nameEn: 'Orc / Brute' },
+  { id: 'goblin', name: 'Гоблин / Плут', nameEn: 'Goblin / Rogue' },
+  { id: 'robot', name: 'Кованый / Голем', nameEn: 'Warforged / Golem' },
+  { id: 'slime', name: 'Слизь / Аморф', nameEn: 'Slime / Amorphous' },
 ];
 
-export const ARMOR_OPTIONS: Array<{ id: ArmorType; name: string }> = [
-  { id: 'none', name: 'Без доспеха' },
-  { id: 'plate', name: 'Латный доспех' },
-  { id: 'leather', name: 'Кожаный доспех' },
-  { id: 'mage_robes', name: 'Мантия мага' },
-  { id: 'rags', name: 'Лохмотья' },
+export const ARMOR_OPTIONS: Array<{ id: ArmorType; name: string; nameEn?: string }> = [
+  { id: 'none', name: 'Без доспеха', nameEn: 'No Armor' },
+  { id: 'plate', name: 'Латный доспех', nameEn: 'Plate Armor' },
+  { id: 'leather', name: 'Кожаный доспех', nameEn: 'Leather Armor' },
+  { id: 'mage_robes', name: 'Мантия мага', nameEn: 'Mage Robes' },
+  { id: 'rags', name: 'Лохмотья', nameEn: 'Rags' },
 ];
 
-export const WEAPON_OPTIONS: Array<{ id: WeaponType; name: string }> = [
-  { id: 'none', name: 'Без оружия' },
-  { id: 'sword', name: 'Меч' },
-  { id: 'mage_staff', name: 'Посох мага' },
-  { id: 'bow', name: 'Лук' },
-  { id: 'shield', name: 'Щит' },
-  { id: 'spellbook', name: 'Книга заклинаний' },
-  { id: 'dagger', name: 'Кинжал' },
+export const WEAPON_OPTIONS: Array<{ id: WeaponType; name: string; nameEn?: string }> = [
+  { id: 'none', name: 'Без оружия', nameEn: 'Unarmed / None' },
+  { id: 'sword', name: 'Меч', nameEn: 'Sword' },
+  { id: 'mage_staff', name: 'Посох мага', nameEn: 'Mage Staff' },
+  { id: 'bow', name: 'Лук', nameEn: 'Bow' },
+  { id: 'shield', name: 'Щит', nameEn: 'Shield' },
+  { id: 'spellbook', name: 'Книга заклинаний', nameEn: 'Spellbook' },
+  { id: 'dagger', name: 'Кинжал', nameEn: 'Dagger' },
 ];
 
-export const HEAD_FEATURE_OPTIONS: Array<{ id: HeadFeatureType; name: string }> = [
-  { id: 'none', name: 'Без черт' },
-  { id: 'tiefling_horns', name: 'Рога тифлинга' },
-  { id: 'dwarf_beard', name: 'Борода дварфа' },
-  { id: 'orc_tusks', name: 'Клыки орка' },
-  { id: 'hood', name: 'Капюшон' },
-  { id: 'helm', name: 'Шлем' },
+export const HEAD_FEATURE_OPTIONS: Array<{ id: HeadFeatureType; name: string; nameEn?: string }> = [
+  { id: 'none', name: 'Без черт', nameEn: 'No Features' },
+  { id: 'tiefling_horns', name: 'Рога тифлинга', nameEn: 'Tiefling Horns' },
+  { id: 'dwarf_beard', name: 'Борода дварфа', nameEn: 'Dwarven Beard' },
+  { id: 'orc_tusks', name: 'Клыки орка', nameEn: 'Orc Tusks' },
+  { id: 'hood', name: 'Капюшон', nameEn: 'Hood' },
+  { id: 'helm', name: 'Шлем', nameEn: 'Helmet' },
 ];
 
-export const EFFECT_OPTIONS: Array<{ id: EffectType; name: string }> = [
-  { id: 'none', name: 'Без эффекта' },
-  { id: 'magic_glow', name: 'Магическое свечение' },
-  { id: 'flames', name: 'Языки пламени' },
-  { id: 'lightning', name: 'Молнии' },
+export const EFFECT_OPTIONS: Array<{ id: EffectType; name: string; nameEn?: string }> = [
+  { id: 'none', name: 'Без эффекта', nameEn: 'No Effect' },
+  { id: 'magic_glow', name: 'Магическое свечение', nameEn: 'Magic Glow' },
+  { id: 'flames', name: 'Языки пламени', nameEn: 'Flames' },
+  { id: 'lightning', name: 'Молнии', nameEn: 'Lightning' },
 ];
 
-export const HERALDRY_SIGN_OPTIONS: Array<{ id: HeraldrySign; name: string }> = [
-  { id: 'skull', name: 'Череп' },
-  { id: 'wolf_paw', name: 'Волчья лапа' },
-  { id: 'crossed_swords', name: 'Скрещенные клинки' },
-  { id: 'dragon', name: 'Дракон' },
-  { id: 'eye', name: 'Всевидящее око' },
-  { id: 'shield', name: 'Геральдический щит' },
-  { id: 'flame', name: 'Пламя' },
+export const HERALDRY_SIGN_OPTIONS: Array<{ id: HeraldrySign; name: string; nameEn?: string }> = [
+  { id: 'skull', name: 'Череп', nameEn: 'Skull' },
+  { id: 'wolf_paw', name: 'Волчья лапа', nameEn: 'Wolf Paw' },
+  { id: 'crossed_swords', name: 'Скрещенные клинки', nameEn: 'Crossed Swords' },
+  { id: 'dragon', name: 'Дракон', nameEn: 'Dragon' },
+  { id: 'eye', name: 'Всевидящее око', nameEn: 'All-Seeing Eye' },
+  { id: 'shield', name: 'Геральдический щит', nameEn: 'Heraldic Shield' },
+  { id: 'flame', name: 'Пламя', nameEn: 'Flame' },
 ];
 
 const ROMAN_NUMERALS: Record<number, string> = {

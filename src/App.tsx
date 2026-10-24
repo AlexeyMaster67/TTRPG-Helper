@@ -773,7 +773,7 @@ export function App() {
     return <PlayerDisplayView />;
   }
 
-  // Desktop DM Cockpit application (mobile companion temporarily disabled)
+  // Desktop DM Cockpit application
   return <MainApp />;
 }
 

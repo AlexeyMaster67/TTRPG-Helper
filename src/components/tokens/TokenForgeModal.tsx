@@ -56,6 +56,7 @@ import {
 import { useCombatStore } from '../../store/combatStore';
 import { useMapStore } from '../../store/mapStore';
 import { usePartyStore } from '../../store/partyStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { PartyMember } from '../../types/party';
 import { downloadTtrpghFile } from '../../services/ttrpghFormat';
 
@@ -87,6 +88,9 @@ export function TokenForgeModal({
   const effectiveTab: 'crop' | 'procedural' | 'heraldry' | 'library' =
     activeTab === 'forge' ? 'crop' : activeTab;
   const closeForge = propOnClose || storeCloseForge;
+
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
 
   const storeTargetCombatantId = useTokenForgeStore((s) => s.targetCombatantId);
   const storeTargetTokenId = useTokenForgeStore((s) => s.targetTokenId);
@@ -354,7 +358,9 @@ export function TokenForgeModal({
         tokenUrl: dataUrl,
         avatarUrl: dataUrl,
       });
-      usePartyStore.getState().showToast(`Токен успешно применен к бойцу!`);
+      usePartyStore.getState().showToast(
+        isEn ? 'Token successfully applied to combatant!' : 'Токен успешно применен к бойцу!'
+      );
     }
 
     if (effectiveTokenId) {
@@ -374,7 +380,7 @@ export function TokenForgeModal({
 
     const dataUrl = canvas.toDataURL('image/png');
     saveTokenToLibrary({
-      name: name || 'Новый токен',
+      name: name || (isEn ? 'New Token' : 'Новый токен'),
       dataUrl,
       frameId: currentFrame,
       faction: currentFaction,
@@ -414,22 +420,26 @@ export function TokenForgeModal({
     if (!targetMember) {
       targetMember = {
         id: crypto.randomUUID(),
-        name: name || 'Новый герой',
-        characterClass: 'Искатель приключений 1',
+        name: name || (isEn ? 'New Hero' : 'Новый герой'),
+        characterClass: isEn ? 'Adventurer 1' : 'Искатель приключений 1',
         level: 1,
-        species: 'Человек',
+        species: isEn ? 'Human' : 'Человек',
         ac: 14,
         maxHp: 25,
         currentHp: 25,
         initBonus: 1,
-        speed: '30 фт.',
+        speed: isEn ? '30 ft.' : '30 фт.',
         color: currentFaction !== 'none' ? FACTION_COLORS[currentFaction]?.hex : '#10B981',
         avatarUrl: dataUrl,
       };
     }
 
     downloadTtrpghFile(targetMember, dataUrl, currentFrame);
-    setExportNotice(`Файл .ttrpgh для "${targetMember.name}" скачан!`);
+    setExportNotice(
+      isEn
+        ? `.ttrpgh file for "${targetMember.name}" downloaded!`
+        : `Файл .ttrpgh для "${targetMember.name}" скачан!`
+    );
     setTimeout(() => setExportNotice(null), 3500);
   };
 
@@ -471,13 +481,15 @@ export function TokenForgeModal({
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-bold text-gray-100 flex items-center gap-2">
-                <span>Кузница токенов</span>
+                <span>{isEn ? 'Token Forge' : 'Кузница токенов'}</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/20 text-gold-light border border-gold/40 font-mono font-medium">
                   512×512 HD
                 </span>
               </h2>
               <p className="text-[11px] text-gray-400 hidden sm:block">
-                Кадрирование арта, процедурный конструктор Paper-Doll, геральдика мобов и формат .ttrpgh
+                {isEn
+                  ? 'Art cropping, Paper-Doll procedural builder, mob heraldry, and .ttrpgh format'
+                  : 'Кадрирование арта, процедурный конструктор Paper-Doll, геральдика мобов и формат .ttrpgh'}
               </p>
             </div>
           </div>
@@ -493,10 +505,14 @@ export function TokenForgeModal({
                     ? 'bg-gold/20 text-gold-light border border-gold/50 shadow-sm'
                     : 'text-gray-400 hover:text-gray-200'
                 }`}
-                title="Кадрирование пользовательского арта (Ctrl+V, зум, вращение)"
+                title={
+                  isEn
+                    ? 'Crop custom artwork (Ctrl+V, zoom, rotate)'
+                    : 'Кадрирование пользовательского арта (Ctrl+V, зум, вращение)'
+                }
               >
                 <Crop className="h-3.5 w-3.5" />
-                <span>Кадрирование арта</span>
+                <span>{isEn ? 'Art Cropping' : 'Кадрирование арта'}</span>
               </button>
 
               <button
@@ -507,10 +523,14 @@ export function TokenForgeModal({
                     ? 'bg-gold/20 text-gold-light border border-gold/50 shadow-sm'
                     : 'text-gray-400 hover:text-gray-200'
                 }`}
-                title="Процедурный конструктор Paper-Doll: силуэт, доспех, оружие, черты и эффекты"
+                title={
+                  isEn
+                    ? 'Procedural Paper-Doll builder: silhouette, armor, weapon, features, and effects'
+                    : 'Процедурный конструктор Paper-Doll: силуэт, доспех, оружие, черты и эффекты'
+                }
               >
                 <Layers className="h-3.5 w-3.5" />
-                <span>Процедурный конструктор</span>
+                <span>{isEn ? 'Procedural Builder' : 'Процедурный конструктор'}</span>
               </button>
 
               <button
@@ -521,10 +541,14 @@ export function TokenForgeModal({
                     ? 'bg-gold/20 text-gold-light border border-gold/50 shadow-sm'
                     : 'text-gray-400 hover:text-gray-200'
                 }`}
-                title="Геральдика и пачки мобов: эмблемы, фракции и нумерация (1..10 / I..X)"
+                title={
+                  isEn
+                    ? 'Mob heraldry & packs: emblems, factions, and numbering (1..10 / I..X)'
+                    : 'Геральдика и пачки мобов: эмблемы, фракции и нумерация (1..10 / I..X)'
+                }
               >
                 <Crown className="h-3.5 w-3.5" />
-                <span>Геральдика мобов</span>
+                <span>{isEn ? 'Mob Heraldry' : 'Геральдика мобов'}</span>
               </button>
 
               <button
@@ -535,10 +559,10 @@ export function TokenForgeModal({
                     ? 'bg-gold/20 text-gold-light border border-gold/50 shadow-sm'
                     : 'text-gray-400 hover:text-gray-200'
                 }`}
-                title="Библиотека сохраненных токенов"
+                title={isEn ? 'Saved token library' : 'Библиотека сохраненных токенов'}
               >
                 <Bookmark className="h-3.5 w-3.5" />
-                <span>Библиотека</span>
+                <span>{isEn ? 'Library' : 'Библиотека'}</span>
                 {savedTokens.length > 0 && (
                   <span className="ml-1 px-1.5 py-0.2 rounded-full bg-amber-500/30 text-amber-300 font-mono text-[10px]">
                     {savedTokens.length}
@@ -551,7 +575,7 @@ export function TokenForgeModal({
               type="button"
               onClick={closeForge}
               className="p-1.5 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-              title="Закрыть кузницу (Esc)"
+              title={isEn ? 'Close Token Forge (Esc)' : 'Закрыть кузницу (Esc)'}
             >
               <X className="h-4 w-4" />
             </button>
@@ -608,8 +632,10 @@ export function TokenForgeModal({
                   onWheel={handleWheel}
                   title={
                     effectiveTab === 'crop'
-                      ? 'ЛКМ: Панорамирование изображения • Колесико мыши: Масштаб (Zoom)'
-                      : 'Живой рендер токена 512x512 HD'
+                      ? (isEn
+                          ? 'LMB: Pan image • Mouse wheel: Zoom'
+                          : 'ЛКМ: Панорамирование изображения • Колесико мыши: Масштаб (Zoom)')
+                      : (isEn ? 'Live 512x512 HD Token Render' : 'Живой рендер токена 512x512 HD')
                   }
                 />
 
@@ -623,10 +649,14 @@ export function TokenForgeModal({
                       <Upload className="h-6 w-6" />
                     </div>
                     <p className="text-xs font-semibold text-gray-200">
-                      Нажмите для выбора арта или вставьте через Ctrl+V
+                      {isEn
+                        ? 'Click to select art or paste via Ctrl+V'
+                        : 'Нажмите для выбора арта или вставьте через Ctrl+V'}
                     </p>
                     <p className="text-[11px] text-gray-400 mt-1">
-                      Поддерживаются PNG, JPG, WEBP, GIF
+                      {isEn
+                        ? 'Supports PNG, JPG, WEBP, GIF'
+                        : 'Поддерживаются PNG, JPG, WEBP, GIF'}
                     </p>
                   </div>
                 )}
@@ -639,7 +669,7 @@ export function TokenForgeModal({
                     type="button"
                     onClick={() => setZoom(zoom - 0.1)}
                     className="p-1.5 rounded hover:bg-white/10"
-                    title="Уменьшить масштаб"
+                    title={isEn ? 'Zoom out' : 'Уменьшить масштаб'}
                   >
                     <ZoomOut className="h-4 w-4" />
                   </button>
@@ -650,7 +680,7 @@ export function TokenForgeModal({
                     type="button"
                     onClick={() => setZoom(zoom + 0.1)}
                     className="p-1.5 rounded hover:bg-white/10"
-                    title="Увеличить масштаб"
+                    title={isEn ? 'Zoom in' : 'Увеличить масштаб'}
                   >
                     <ZoomIn className="h-4 w-4" />
                   </button>
@@ -659,7 +689,7 @@ export function TokenForgeModal({
                     type="button"
                     onClick={() => rotateBy(-90)}
                     className="p-1.5 rounded hover:bg-white/10"
-                    title="Повернуть влево"
+                    title={isEn ? 'Rotate counter-clockwise' : 'Повернуть влево'}
                   >
                     <RotateCcw className="h-4 w-4" />
                   </button>
@@ -667,7 +697,7 @@ export function TokenForgeModal({
                     type="button"
                     onClick={() => rotateBy(90)}
                     className="p-1.5 rounded hover:bg-white/10"
-                    title="Повернуть вправо"
+                    title={isEn ? 'Rotate clockwise' : 'Повернуть вправо'}
                   >
                     <RotateCw className="h-4 w-4" />
                   </button>
@@ -675,7 +705,7 @@ export function TokenForgeModal({
                     type="button"
                     onClick={toggleFlipH}
                     className="p-1.5 rounded hover:bg-white/10"
-                    title="Отразить по горизонтали"
+                    title={isEn ? 'Flip horizontally' : 'Отразить по горизонтали'}
                   >
                     <FlipHorizontal className="h-4 w-4" />
                   </button>
@@ -683,7 +713,7 @@ export function TokenForgeModal({
                     type="button"
                     onClick={resetTransform}
                     className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-white"
-                    title="Сбросить трансформацию"
+                    title={isEn ? 'Reset transformation' : 'Сбросить трансформацию'}
                   >
                     <Maximize2 className="h-4 w-4" />
                   </button>
@@ -694,7 +724,7 @@ export function TokenForgeModal({
                     className={`p-1.5 rounded ${
                       showGridOverlay ? 'bg-amber-500/20 text-amber-300' : 'hover:bg-white/10'
                     }`}
-                    title="Сетка калибровки"
+                    title={isEn ? 'Calibration grid' : 'Сетка калибровки'}
                   >
                     <Grid className="h-4 w-4" />
                   </button>
@@ -707,10 +737,14 @@ export function TokenForgeModal({
                   type="button"
                   onClick={effectiveTab === 'procedural' ? randomizePaperDoll : randomizeHeraldry}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-bold text-xs shadow-sm transition-all cursor-pointer"
-                  title="Случайная комбинация слоев (1 клик)"
+                  title={
+                    isEn
+                      ? 'Random layer combination (1 click)'
+                      : 'Случайная комбинация слоев (1 клик)'
+                  }
                 >
                   <Dices className="h-4 w-4 text-amber-400" />
-                  <span>Случайный жетон (Бросок костей)</span>
+                  <span>{isEn ? 'Random Token (Roll Dice)' : 'Случайный жетон (Бросок костей)'}</span>
                 </button>
               )}
             </div>
@@ -720,13 +754,13 @@ export function TokenForgeModal({
               {/* Name & Title */}
               <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800">
                 <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
-                  Имя персонажа / существа:
+                  {isEn ? 'Character / Creature Name:' : 'Имя персонажа / существа:'}
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Введите имя..."
+                  placeholder={isEn ? 'Enter name...' : 'Введите имя...'}
                   className="w-full bg-[#0a0d14] border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-amber-400"
                 />
               </div>
@@ -744,7 +778,7 @@ export function TokenForgeModal({
                       className="px-3 py-1.5 rounded-lg bg-surface hover:bg-slate-800 border border-slate-700 text-xs text-gray-200 flex items-center gap-2 transition-colors cursor-pointer"
                     >
                       <Upload className="h-3.5 w-3.5 text-amber-400" />
-                      <span>Загрузить изображение...</span>
+                      <span>{isEn ? 'Upload Image...' : 'Загрузить изображение...'}</span>
                     </button>
                     <input
                       ref={fileInputRef}
@@ -758,7 +792,7 @@ export function TokenForgeModal({
                   {/* Faction Aura & Glow */}
                   <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-2">
                     <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">
-                      Фракция и свечение ореола:
+                      {isEn ? 'Faction & Aura Glow:' : 'Фракция и свечение ореола:'}
                     </label>
                     <div className="flex flex-wrap gap-1.5">
                       {(Object.keys(FACTION_COLORS) as TokenFaction[]).map((fId) => {
@@ -779,7 +813,7 @@ export function TokenForgeModal({
                               className="w-2.5 h-2.5 rounded-full border border-black/40 shrink-0"
                               style={{ backgroundColor: fac.hex }}
                             />
-                            <span>{fac.name}</span>
+                            <span>{isEn ? (fac.nameEn || fac.name) : fac.name}</span>
                           </button>
                         );
                       })}
@@ -796,7 +830,7 @@ export function TokenForgeModal({
                   {/* Silhouette selection */}
                   <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-2">
                     <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">
-                      Силуэт / Тело:
+                      {isEn ? 'Silhouette / Body:' : 'Силуэт / Тело:'}
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                       {SILHOUETTE_OPTIONS.map((sil) => {
@@ -812,7 +846,7 @@ export function TokenForgeModal({
                                 : 'bg-[#18202c]/60 border-slate-700/60 text-gray-300 hover:bg-[#1f2937]'
                             }`}
                           >
-                            {sil.name}
+                            {isEn ? (sil.nameEn || sil.name) : sil.name}
                           </button>
                         );
                       })}
@@ -824,7 +858,7 @@ export function TokenForgeModal({
                     {/* Armor */}
                     <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-1.5">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-                        Доспех / Одеяние:
+                        {isEn ? 'Armor / Outfit:' : 'Доспех / Одеяние:'}
                       </label>
                       <select
                         value={paperDollConfig.armor}
@@ -835,7 +869,7 @@ export function TokenForgeModal({
                       >
                         {ARMOR_OPTIONS.map((o) => (
                           <option key={o.id} value={o.id}>
-                            {o.name}
+                            {isEn ? (o.nameEn || o.name) : o.name}
                           </option>
                         ))}
                       </select>
@@ -844,7 +878,7 @@ export function TokenForgeModal({
                     {/* Weapon */}
                     <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-1.5">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-                        Оружие / Предмет:
+                        {isEn ? 'Weapon / Item:' : 'Оружие / Предмет:'}
                       </label>
                       <select
                         value={paperDollConfig.weapon}
@@ -855,7 +889,7 @@ export function TokenForgeModal({
                       >
                         {WEAPON_OPTIONS.map((o) => (
                           <option key={o.id} value={o.id}>
-                            {o.name}
+                            {isEn ? (o.nameEn || o.name) : o.name}
                           </option>
                         ))}
                       </select>
@@ -864,7 +898,7 @@ export function TokenForgeModal({
                     {/* Head Feature */}
                     <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-1.5">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-                        Голова / Черты:
+                        {isEn ? 'Head / Features:' : 'Голова / Черты:'}
                       </label>
                       <select
                         value={paperDollConfig.headFeature}
@@ -875,7 +909,7 @@ export function TokenForgeModal({
                       >
                         {HEAD_FEATURE_OPTIONS.map((o) => (
                           <option key={o.id} value={o.id}>
-                            {o.name}
+                            {isEn ? (o.nameEn || o.name) : o.name}
                           </option>
                         ))}
                       </select>
@@ -886,7 +920,7 @@ export function TokenForgeModal({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-1.5">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-                        Магический эффект:
+                        {isEn ? 'Magical Effect:' : 'Магический эффект:'}
                       </label>
                       <select
                         value={paperDollConfig.effect}
@@ -897,7 +931,7 @@ export function TokenForgeModal({
                       >
                         {EFFECT_OPTIONS.map((o) => (
                           <option key={o.id} value={o.id}>
-                            {o.name}
+                            {isEn ? (o.nameEn || o.name) : o.name}
                           </option>
                         ))}
                       </select>
@@ -905,7 +939,7 @@ export function TokenForgeModal({
 
                     <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-1.5">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-                        Цвет акцента / энергии:
+                        {isEn ? 'Accent / Energy Color:' : 'Цвет акцента / энергии:'}
                       </label>
                       <div className="flex items-center gap-1.5">
                         {FACTION_COLOR_PALETTE.map((c) => (
@@ -924,7 +958,7 @@ export function TokenForgeModal({
                                 : 'border-black/50'
                             }`}
                             style={{ backgroundColor: c.hex }}
-                            title={c.name}
+                            title={isEn ? (c.nameEn || c.name) : c.name}
                           />
                         ))}
                       </div>
@@ -941,7 +975,7 @@ export function TokenForgeModal({
                   {/* Mob Sign Picker */}
                   <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-2">
                     <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">
-                      Знак / Эмблема моба:
+                      {isEn ? 'Mob Sign / Emblem:' : 'Знак / Эмблема моба:'}
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                       {HERALDRY_SIGN_OPTIONS.map((sgn) => {
@@ -957,7 +991,7 @@ export function TokenForgeModal({
                                 : 'bg-[#18202c]/60 border-slate-700/60 text-gray-300 hover:bg-[#1f2937]'
                             }`}
                           >
-                            {sgn.name}
+                            {isEn ? (sgn.nameEn || sgn.name) : sgn.name}
                           </button>
                         );
                       })}
@@ -967,7 +1001,7 @@ export function TokenForgeModal({
                   {/* Faction Color */}
                   <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-2">
                     <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">
-                      Цвет фракции отряда:
+                      {isEn ? 'Squad Faction Color:' : 'Цвет фракции отряда:'}
                     </label>
                     <div className="flex items-center gap-2 flex-wrap">
                       {FACTION_COLOR_PALETTE.map((c) => (
@@ -985,7 +1019,7 @@ export function TokenForgeModal({
                             className="w-3 h-3 rounded-full border border-black/40"
                             style={{ backgroundColor: c.hex }}
                           />
-                          <span>{c.name}</span>
+                          <span>{isEn ? (c.nameEn || c.name) : c.name}</span>
                         </button>
                       ))}
                     </div>
@@ -995,7 +1029,7 @@ export function TokenForgeModal({
                   <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-3">
                     <div className="flex items-center justify-between">
                       <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                        Порядковый номер в отряде:
+                        {isEn ? 'Squad Numbering:' : 'Порядковый номер в отряде:'}
                       </label>
                       <div className="flex items-center bg-[#070a10] rounded border border-slate-700 p-0.5 text-[11px]">
                         <button
@@ -1007,7 +1041,7 @@ export function TokenForgeModal({
                               : 'text-gray-400'
                           }`}
                         >
-                          1..10 (Арабские)
+                          {isEn ? '1..10 (Arabic)' : '1..10 (Арабские)'}
                         </button>
                         <button
                           type="button"
@@ -1018,7 +1052,7 @@ export function TokenForgeModal({
                               : 'text-gray-400'
                           }`}
                         >
-                          I..X (Римские)
+                          {isEn ? 'I..X (Roman)' : 'I..X (Римские)'}
                         </button>
                         <button
                           type="button"
@@ -1029,7 +1063,7 @@ export function TokenForgeModal({
                               : 'text-gray-400'
                           }`}
                         >
-                          Без номера
+                          {isEn ? 'No number' : 'Без номера'}
                         </button>
                       </div>
                     </div>
@@ -1065,7 +1099,7 @@ export function TokenForgeModal({
               {/* 8 Vector Frame Selector (Common to all 3 modes) */}
               <div className="bg-[#10141e] p-3 rounded-xl border border-slate-800 space-y-2">
                 <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">
-                  Окантовка рамки (8 стилей):
+                  {isEn ? 'Border Frame (8 Styles):' : 'Окантовка рамки (8 стилей):'}
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {TOKEN_FRAMES.map((f) => {
@@ -1080,7 +1114,7 @@ export function TokenForgeModal({
                             ? 'bg-amber-950/40 border-[#f5b920] shadow-[0_0_12px_rgba(245,185,32,0.25)] ring-1 ring-[#f5b920]/50'
                             : 'bg-[#18202c]/60 border-slate-700/60 hover:bg-[#1f2937] hover:border-slate-500'
                         }`}
-                        title={f.description}
+                        title={isEn ? (f.descriptionEn || f.description) : f.description}
                       >
                         <div className="mb-1 group-hover:scale-110 transition-transform">
                           {renderFrameIcon(f.icon)}
@@ -1090,7 +1124,7 @@ export function TokenForgeModal({
                             isSelected ? 'text-amber-200' : 'text-gray-300'
                           }`}
                         >
-                          {f.name}
+                          {isEn ? (f.nameEn || f.name) : f.name}
                         </span>
                         {isSelected && (
                           <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#f5b920] shadow-[0_0_6px_#f5b920]" />
@@ -1113,10 +1147,10 @@ export function TokenForgeModal({
                     <Sparkles className="h-4 w-4 fill-[#0c0d12] group-hover:rotate-12 transition-transform" />
                     <span>
                       {effectiveCombatantId
-                        ? 'Применить к участнику боя'
+                        ? (isEn ? 'Apply to Combatant' : 'Применить к участнику боя')
                         : effectiveTokenId
-                        ? 'Применить к токену на карте'
-                        : 'Применить токен'}
+                        ? (isEn ? 'Apply to Map Token' : 'Применить к токену на карте')
+                        : (isEn ? 'Apply Token' : 'Применить токен')}
                     </span>
                   </button>
                 )}
@@ -1127,20 +1161,28 @@ export function TokenForgeModal({
                     type="button"
                     onClick={handleExportTtrpgh}
                     className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/40 text-gold-light font-semibold text-xs transition-all cursor-pointer shadow-sm"
-                    title="Выгрузить открытый файл персонажа .ttrpgh с внедренным Base64 токеном"
+                    title={
+                      isEn
+                        ? 'Export open character file .ttrpgh with embedded Base64 token'
+                        : 'Выгрузить открытый файл персонажа .ttrpgh с внедренным Base64 токеном'
+                    }
                   >
                     <FileDown className="h-3.5 w-3.5 text-gold" />
-                    <span>Экспорт в .ttrpgh</span>
+                    <span>{isEn ? 'Export to .ttrpgh' : 'Экспорт в .ttrpgh'}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={handleDownloadPng}
                     className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.12)] border border-[rgba(255,255,255,0.1)] text-gray-200 font-semibold text-xs transition-all cursor-pointer"
-                    title="Скачать прозрачный круглый PNG токен 512x512"
+                    title={
+                      isEn
+                        ? 'Download transparent circular PNG token 512x512'
+                        : 'Скачать прозрачный круглый PNG токен 512x512'
+                    }
                   >
                     <Download className="h-3.5 w-3.5 text-amber-400" />
-                    <span>Экспорт PNG (512×512)</span>
+                    <span>{isEn ? 'Export PNG (512×512)' : 'Экспорт PNG (512×512)'}</span>
                   </button>
 
                   <button
@@ -1155,12 +1197,12 @@ export function TokenForgeModal({
                     {saveSuccess ? (
                       <>
                         <Check className="h-3.5 w-3.5 text-emerald-400" />
-                        <span>Сохранено!</span>
+                        <span>{isEn ? 'Saved!' : 'Сохранено!'}</span>
                       </>
                     ) : (
                       <>
                         <Bookmark className="h-3.5 w-3.5 text-amber-400" />
-                        <span>В библиотеку</span>
+                        <span>{isEn ? 'To Library' : 'В библиотеку'}</span>
                       </>
                     )}
                   </button>
@@ -1178,21 +1220,27 @@ export function TokenForgeModal({
                   type="text"
                   value={librarySearch}
                   onChange={(e) => setLibrarySearch(e.target.value)}
-                  placeholder="Поиск по сохраненным токенам..."
+                  placeholder={
+                    isEn
+                      ? 'Search saved tokens...'
+                      : 'Поиск по сохраненным токенам...'
+                  }
                   className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-[#0d1117] border border-slate-700 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-amber-400"
                 />
               </div>
 
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-400 font-mono">
-                  Всего: {savedTokens.length} токенов
+                  {isEn
+                    ? `Total: ${savedTokens.length} tokens`
+                    : `Всего: ${savedTokens.length} токенов`}
                 </span>
                 <button
                   type="button"
                   onClick={() => setActiveTab('crop')}
                   className="px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 text-xs font-semibold transition-colors cursor-pointer"
                 >
-                  + Создать новый
+                  {isEn ? '+ Create New' : '+ Создать новый'}
                 </button>
               </div>
             </div>
@@ -1200,16 +1248,20 @@ export function TokenForgeModal({
             {filteredSavedTokens.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-gray-400">
                 <Bookmark className="h-10 w-10 text-slate-600 mb-2" />
-                <p className="text-sm font-semibold text-gray-300">В библиотеке пока нет токенов</p>
+                <p className="text-sm font-semibold text-gray-300">
+                  {isEn ? 'No tokens in library yet' : 'В библиотеке пока нет токенов'}
+                </p>
                 <p className="text-xs text-gray-500 max-w-sm mt-1 mb-4">
-                  Сделайте красивый токен в Кузнице и нажмите «В библиотеку», чтобы сохранить его для будущих сражений.
+                  {isEn
+                    ? 'Forge a token and click "To Library" to save it for future battles.'
+                    : 'Сделайте красивый токен в Кузнице и нажмите «В библиотеку», чтобы сохранить его для будущих сражений.'}
                 </p>
                 <button
                   type="button"
                   onClick={() => setActiveTab('crop')}
                   className="px-4 py-1.5 rounded-full bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/40 text-xs font-semibold cursor-pointer"
                 >
-                  Перейти в Кузницу
+                  {isEn ? 'Go to Forge' : 'Перейти в Кузницу'}
                 </button>
               </div>
             ) : (
@@ -1232,7 +1284,7 @@ export function TokenForgeModal({
                           <div
                             className="absolute top-1.5 right-1.5 w-3 h-3 rounded-full border border-black/50 shadow-sm"
                             style={{ backgroundColor: factionInfo?.hex || '#f59e0b' }}
-                            title={factionInfo?.name}
+                            title={isEn ? (factionInfo?.nameEn || factionInfo?.name) : factionInfo?.name}
                           />
                         )}
                       </div>
@@ -1242,7 +1294,7 @@ export function TokenForgeModal({
                           {item.name}
                         </h4>
                         <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                          <span>{frameDef.name}</span>
+                          <span>{isEn ? (frameDef.nameEn || frameDef.name) : frameDef.name}</span>
                         </div>
                       </div>
 
@@ -1257,9 +1309,9 @@ export function TokenForgeModal({
                             setActiveTab('crop');
                           }}
                           className="flex-1 py-1 rounded bg-[#1e2634] hover:bg-gold/20 hover:text-gold-light text-gray-300 text-[11px] font-semibold transition-colors flex items-center justify-center gap-1 cursor-pointer"
-                          title="Загрузить токен в кузницу"
+                          title={isEn ? 'Load token into Forge' : 'Загрузить токен в кузницу'}
                         >
-                          <span>Выбрать</span>
+                          <span>{isEn ? 'Select' : 'Выбрать'}</span>
                         </button>
 
                         <button
@@ -1273,7 +1325,7 @@ export function TokenForgeModal({
                             document.body.removeChild(a);
                           }}
                           className="p-1 rounded bg-[#1e2634] hover:bg-slate-700 text-gray-300 hover:text-white transition-colors cursor-pointer"
-                          title="Скачать PNG"
+                          title={isEn ? 'Download PNG' : 'Скачать PNG'}
                         >
                           <Download className="h-3 w-3 text-amber-400" />
                         </button>
@@ -1282,7 +1334,7 @@ export function TokenForgeModal({
                           type="button"
                           onClick={() => deleteTokenFromLibrary(item.id)}
                           className="p-1 rounded hover:bg-red-950/60 text-gray-400 hover:text-red-300 transition-colors cursor-pointer"
-                          title="Удалить из библиотеки"
+                          title={isEn ? 'Delete from library' : 'Удалить из библиотеки'}
                         >
                           <Trash2 className="h-3 w-3" />
                         </button>

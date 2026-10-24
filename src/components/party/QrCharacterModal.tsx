@@ -17,6 +17,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { usePartyStore } from '../../store/partyStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { audioService } from '../../services/audioService';
 import {
   compressForQr,
@@ -26,6 +27,9 @@ import {
 import { PartyMember } from '../../types/party';
 
 export function QrCharacterModal() {
+  const language = useSettingsStore((s) => s.language);
+  const isEn = language === 'en';
+
   const {
     members,
     isQrModalOpen,
@@ -97,15 +101,15 @@ export function QrCharacterModal() {
         (error) => {
           if (error) {
             console.error('QR rendering error:', error);
-            setQrError('Ошибка формирования QR-кода: ' + error.message);
+            setQrError(isEn ? 'QR code generation error: ' + error.message : 'Ошибка формирования QR-кода: ' + error.message);
           }
         }
       );
     } catch (err: any) {
       console.error('Failed to compress character for QR:', err);
-      setQrError(err?.message || 'Не удалось сгенерировать QR');
+      setQrError(err?.message || (isEn ? 'Failed to generate QR' : 'Не удалось сгенерировать QR'));
     }
-  }, [isQrModalOpen, activeTab, currentMember]);
+  }, [isQrModalOpen, activeTab, currentMember, isEn]);
 
   // Copy raw QR payload string to clipboard
   const handleCopyCode = async () => {
@@ -115,7 +119,7 @@ export function QrCharacterModal() {
       await navigator.clipboard.writeText(payload);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-      showToast(`QR-код персонажа ${currentMember.name} скопирован в буфер обмена.`);
+      showToast(isEn ? `Character ${currentMember.name} QR code copied to clipboard.` : `QR-код персонажа ${currentMember.name} скопирован в буфер обмена.`);
     } catch (e) {
       console.error('Clipboard write error:', e);
     }
@@ -139,7 +143,7 @@ export function QrCharacterModal() {
     (codeStr: string) => {
       const trimmed = codeStr.trim();
       if (!trimmed) {
-        setCameraError('Пустая строка для импорта');
+        setCameraError(isEn ? 'Empty string to import' : 'Пустая строка для импорта');
         return;
       }
 
@@ -155,15 +159,15 @@ export function QrCharacterModal() {
 
         addMember(imported);
         audioService.playCriticalHit();
-        showToast(`Герой ${imported.name} успешно импортирован через QR-код!`);
+        showToast(isEn ? `Hero ${imported.name} successfully imported via QR!` : `Герой ${imported.name} успешно импортирован через QR-код!`);
         stopCamera();
         closeQrModal();
       } catch (err: any) {
         console.error('Failed to decompress QR:', err);
-        setCameraError(err?.message || 'Не удалось распознать QR-код персонажа.');
+        setCameraError(err?.message || (isEn ? 'Failed to recognize character QR code.' : 'Не удалось распознать QR-код персонажа.'));
       }
     },
-    [addMember, showToast, closeQrModal]
+    [addMember, showToast, closeQrModal, isEn]
   );
 
   // Stop webcam stream
@@ -186,7 +190,7 @@ export function QrCharacterModal() {
 
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setCameraError('Веб-камера недоступна в текущем окружении.');
+        setCameraError(isEn ? 'Webcam is not available in the current environment.' : 'Веб-камера недоступна в текущем окружении.');
         return;
       }
 
@@ -205,7 +209,7 @@ export function QrCharacterModal() {
       }
     } catch (err: any) {
       console.error('Camera access error:', err);
-      setCameraError('Не удалось запустить камеру: ' + (err?.message || 'Доступ запрещен'));
+      setCameraError(isEn ? 'Failed to access camera: ' + (err?.message || 'Permission denied') : 'Не удалось запустить камеру: ' + (err?.message || 'Доступ запрещен'));
       setCameraActive(false);
     }
   };
@@ -264,7 +268,7 @@ export function QrCharacterModal() {
         if (code && code.data) {
           handleImportDecodedString(code.data);
         } else {
-          setCameraError('QR-код не обнаружен на загруженном изображении.');
+          setCameraError(isEn ? 'QR code was not detected in the uploaded image.' : 'QR-код не обнаружен на загруженном изображении.');
         }
       };
       img.src = e.target?.result as string;
@@ -298,10 +302,10 @@ export function QrCharacterModal() {
             </div>
             <div>
               <h2 className="text-sm font-bold text-white tracking-tight">
-                Оффлайн QR-обмен персонажами (.ttrpgh)
+                {isEn ? 'Offline QR Character Exchange (.ttrpgh)' : 'Оффлайн QR-обмен персонажами (.ttrpgh)'}
               </h2>
               <p className="text-[11px] text-gray-400">
-                100% автономная передача между ПК и смартфонами без проводов и Wi-Fi
+                {isEn ? '100% offline transfer between PC and smartphones without cables or Wi-Fi' : '100% автономная передача между ПК и смартфонами без проводов и Wi-Fi'}
               </p>
             </div>
           </div>
@@ -313,7 +317,7 @@ export function QrCharacterModal() {
               closeQrModal();
             }}
             className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            title="Закрыть окно"
+            title={isEn ? 'Close' : 'Закрыть окно'}
           >
             <X className="w-5 h-5" />
           </button>
@@ -335,7 +339,7 @@ export function QrCharacterModal() {
             } disabled:opacity-40 disabled:cursor-not-allowed`}
           >
             <QrCode className="w-3.5 h-3.5" />
-            <span>Показать QR героя</span>
+            <span>{isEn ? 'Show Character QR' : 'Показать QR героя'}</span>
           </button>
 
           <button
@@ -348,7 +352,7 @@ export function QrCharacterModal() {
             }`}
           >
             <Camera className="w-3.5 h-3.5" />
-            <span>Сканировать / Импортировать</span>
+            <span>{isEn ? 'Scan / Import' : 'Сканировать / Импортировать'}</span>
           </button>
         </div>
 
@@ -362,7 +366,7 @@ export function QrCharacterModal() {
               {/* Member Selector (if multiple) */}
               {members.length > 1 && (
                 <div className="flex items-center justify-between gap-3 bg-[#131824] p-2.5 rounded-xl border border-border-subtle">
-                  <span className="text-xs font-medium text-gray-300">Выберите героя:</span>
+                  <span className="text-xs font-medium text-gray-300">{isEn ? 'Select character:' : 'Выберите героя:'}</span>
                   <select
                     value={selectedMemberId}
                     onChange={(e) => setSelectedMemberId(e.target.value)}
@@ -370,7 +374,7 @@ export function QrCharacterModal() {
                   >
                     {members.map((m) => (
                       <option key={m.id} value={m.id}>
-                        {m.name} ({m.characterClass || 'Герой'}, {m.level || 1} ур.)
+                        {m.name} ({m.characterClass || (isEn ? 'Hero' : 'Герой')}, {m.level || 1} {isEn ? 'lvl' : 'ур.'})
                       </option>
                     ))}
                   </select>
@@ -381,7 +385,7 @@ export function QrCharacterModal() {
               <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border-4 border-[#1e2638] shadow-[0_10px_30px_rgba(0,0,0,0.5)] mx-auto w-fit">
                 <canvas ref={qrCanvasRef} className="block rounded-lg" />
                 <div className="mt-2 text-center text-[11px] font-mono font-bold text-gray-800">
-                  {currentMember.name} • Ур. {currentMember.level || 1} {currentMember.characterClass}
+                  {currentMember.name} • {isEn ? 'Lvl' : 'Ур.'} {currentMember.level || 1} {currentMember.characterClass}
                 </div>
               </div>
 
@@ -395,7 +399,7 @@ export function QrCharacterModal() {
               {/* Quick Stat Badges */}
               <div className="grid grid-cols-3 gap-2 text-center text-xs">
                 <div className="bg-[#131824] p-2.5 rounded-xl border border-border-subtle flex flex-col items-center justify-center">
-                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">Класс брони</span>
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">{isEn ? 'Armor Class' : 'Класс брони'}</span>
                   <div className="flex items-center gap-1 font-mono font-bold text-white text-sm mt-0.5">
                     <Shield className="w-3.5 h-3.5 text-emerald-400" />
                     <span>{currentMember.ac}</span>
@@ -403,7 +407,7 @@ export function QrCharacterModal() {
                 </div>
 
                 <div className="bg-[#131824] p-2.5 rounded-xl border border-border-subtle flex flex-col items-center justify-center">
-                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">Здоровье</span>
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">{isEn ? 'Hit Points' : 'Здоровье'}</span>
                   <div className="flex items-center gap-1 font-mono font-bold text-white text-sm mt-0.5">
                     <Heart className="w-3.5 h-3.5 text-red-400" />
                     <span>
@@ -413,9 +417,9 @@ export function QrCharacterModal() {
                 </div>
 
                 <div className="bg-[#131824] p-2.5 rounded-xl border border-border-subtle flex flex-col items-center justify-center">
-                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">Скорость</span>
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">{isEn ? 'Speed' : 'Скорость'}</span>
                   <span className="font-mono font-bold text-white text-sm mt-0.5">
-                    {currentMember.speed || '30 фт.'}
+                    {currentMember.speed || (isEn ? '30 ft.' : '30 фт.')}
                   </span>
                 </div>
               </div>
@@ -430,12 +434,12 @@ export function QrCharacterModal() {
                   {copied ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="text-emerald-300">Код скопирован!</span>
+                      <span className="text-emerald-300">{isEn ? 'Code copied!' : 'Код скопирован!'}</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-3.5 h-3.5 text-gray-400" />
-                      <span>Копировать код</span>
+                      <span>{isEn ? 'Copy Code' : 'Копировать код'}</span>
                     </>
                   )}
                 </button>
@@ -446,7 +450,7 @@ export function QrCharacterModal() {
                   className="px-4 py-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/70 text-xs font-bold text-emerald-300 border border-emerald-600/70 flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
                 >
                   <Download className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Скачать PNG</span>
+                  <span>{isEn ? 'Download PNG' : 'Скачать PNG'}</span>
                 </button>
               </div>
             </div>
@@ -463,7 +467,7 @@ export function QrCharacterModal() {
                   <div className="flex items-center gap-2">
                     <Camera className="w-4 h-4 text-emerald-400" />
                     <span className="text-xs font-bold text-white">
-                      Сканирование камерой ноутбука / смартфона
+                      {isEn ? 'Camera scan (Laptop / Smartphone)' : 'Сканирование камерой ноутбука / смартфона'}
                     </span>
                   </div>
 
@@ -474,7 +478,7 @@ export function QrCharacterModal() {
                       className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
                     >
                       <Camera className="w-3.5 h-3.5" />
-                      <span>Включить камеру</span>
+                      <span>{isEn ? 'Start Camera' : 'Включить камеру'}</span>
                     </button>
                   ) : (
                     <button
@@ -483,7 +487,7 @@ export function QrCharacterModal() {
                       className="px-3 py-1.5 rounded-lg bg-red-950/60 hover:bg-red-900/60 text-red-300 border border-red-600/50 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
                     >
                       <VideoOff className="w-3.5 h-3.5" />
-                      <span>Остановить камеру</span>
+                      <span>{isEn ? 'Stop Camera' : 'Остановить камеру'}</span>
                     </button>
                   )}
                 </div>
@@ -494,7 +498,7 @@ export function QrCharacterModal() {
                     {/* Viewfinder crosshairs */}
                     <div className="absolute inset-8 border-2 border-emerald-400/60 rounded-xl pointer-events-none flex items-center justify-center">
                       <div className="text-[10px] font-mono text-emerald-300 bg-black/60 px-2 py-0.5 rounded">
-                        Наведите камеру на QR-код
+                        {isEn ? 'Point camera at character QR code' : 'Наведите камеру на QR-код'}
                       </div>
                     </div>
                   </div>
@@ -517,10 +521,10 @@ export function QrCharacterModal() {
               >
                 <Upload className="w-6 h-6 text-gray-400 mx-auto" />
                 <div className="text-xs font-semibold text-gray-200">
-                  Загрузить фото или скриншот с QR-кодом
+                  {isEn ? 'Upload QR image file or screenshot' : 'Загрузить фото или скриншот с QR-кодом'}
                 </div>
                 <p className="text-[11px] text-gray-500">
-                  Нажмите для выбора файла или перетащите изображение в это окно
+                  {isEn ? 'Click to browse file or drag and drop image here' : 'Нажмите для выбора файла или перетащите изображение в это окно'}
                 </p>
                 <input
                   ref={fileInputRef}
@@ -540,7 +544,7 @@ export function QrCharacterModal() {
               <div className="bg-[#121622] p-3.5 rounded-xl border border-border-subtle space-y-2">
                 <label className="text-[11px] font-bold text-gray-300 flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5 text-gray-400" />
-                  <span>Или вставьте текстовый код (TTRPGH:1:...):</span>
+                  <span>{isEn ? 'Or paste raw text code (TTRPGH:1:...):' : 'Или вставьте текстовый код (TTRPGH:1:...):'}</span>
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -557,7 +561,7 @@ export function QrCharacterModal() {
                     className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs disabled:opacity-40 flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
                   >
                     <UserCheck className="w-3.5 h-3.5" />
-                    <span>Импорт</span>
+                    <span>{isEn ? 'Import' : 'Импорт'}</span>
                   </button>
                 </div>
               </div>
