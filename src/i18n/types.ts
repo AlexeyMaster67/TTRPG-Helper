@@ -568,6 +568,25 @@ export interface WorldbuildingTranslations {
   hideSpoiler: string;
 }
 
+export interface UpdatesTranslations {
+  availableTitle: string;
+  btnDownload: string;
+  btnLater: string;
+  btnSkip: string;
+  btnCheckManual: string;
+  statusLatest: string;
+  statusChecking: string;
+  statusOffline: string;
+  statusNewAvailable: string;
+  statusServerError: string;
+  autoCheckLabel: string;
+  currentVersion: string;
+  releaseNotes: string;
+  publishedAt: string;
+  fileSize: string;
+  offlineTooltip: string;
+}
+
 export interface TranslationDictionary {
   header: HeaderNavTranslations;
   masterTools: MasterToolsTranslations;
@@ -591,6 +610,7 @@ export interface TranslationDictionary {
   common: CommonTranslations;
   cyberpunk: CyberpunkTranslations;
   wb: WorldbuildingTranslations;
+  updates: UpdatesTranslations;
 }
 
 export type NestedKeyOf<ObjectType extends object> = {

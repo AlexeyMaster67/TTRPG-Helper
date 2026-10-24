@@ -39,6 +39,16 @@ import { importCharacterFromTtrpgh } from './services/ttrpghFormat';
 import { useTranslation } from './i18n';
 import { openExternal } from './utils/openExternal';
 import { WBWorkspace } from './components/worldbuilding';
+import { useNetworkStatus } from './hooks/useNetworkStatus';
+import {
+  UpdateInfo,
+  fetchLatestRelease,
+  isAutoCheckEnabled,
+  isVersionIgnored,
+  ignoreVersion,
+} from './services/updateService';
+import { UpdateNotificationModal } from './components/common/UpdateNotificationModal';
+import clsx from 'clsx';
 
 function DiscordIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
@@ -77,6 +87,45 @@ function MainApp() {
   const { uiScale, openModal: openSettingsModal } = useSettingsStore();
   const [isNpcModalOpen, setIsNpcModalOpen] = useState(false);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
+
+  const isOnline = useNetworkStatus();
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
+  // Background check for updates with 3.5s delay
+  useEffect(() => {
+    if (!isAutoCheckEnabled() || !isOnline) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const result = await fetchLatestRelease({ force: false });
+        if (result.success && result.info?.hasUpdate) {
+          if (!isVersionIgnored(result.info.latestVersion)) {
+            setUpdateInfo(result.info);
+            setIsUpdateModalOpen(true);
+          }
+        }
+      } catch {
+        // Silent exit
+      }
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [isOnline]);
+
+  const handleDownloadUpdate = () => {
+    if (updateInfo?.downloadUrl) {
+      openExternal(updateInfo.downloadUrl);
+    }
+    setIsUpdateModalOpen(false);
+  };
+
+  const handleSkipUpdateVersion = () => {
+    if (updateInfo?.latestVersion) {
+      ignoreVersion(updateInfo.latestVersion);
+    }
+    setIsUpdateModalOpen(false);
+  };
 
   // Initialize auto-backup on mount
   useEffect(() => {
@@ -430,10 +479,27 @@ function MainApp() {
           {/* Кнопка Discord сообщества */}
           <button
             type="button"
-            onClick={() => openExternal('https://discord.com/invite/XYQSHWVAuE')}
-            title={language === 'en' ? 'Join Discord Community' : 'Присоединиться к Discord сообществу'}
-            aria-label={language === 'en' ? 'Join Discord Community' : 'Присоединиться к Discord сообществу'}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-full text-xs font-semibold bg-[#5865F2]/15 hover:bg-[#5865F2]/30 border border-[#5865F2]/40 hover:border-[#5865F2] text-[#93a1f8] hover:text-white transition-all cursor-pointer shadow-sm group select-none"
+            disabled={!isOnline}
+            onClick={() => {
+              if (!isOnline) return;
+              openExternal('https://discord.gg/MGnjS3ceEh');
+            }}
+            title={
+              !isOnline
+                ? (language === 'en' ? 'Internet connection required' : 'Требуется подключение к интернету')
+                : (language === 'en' ? 'Join Discord Community' : 'Присоединиться к Discord сообществу')
+            }
+            aria-label={
+              !isOnline
+                ? (language === 'en' ? 'Internet connection required' : 'Требуется подключение к интернету')
+                : (language === 'en' ? 'Join Discord Community' : 'Присоединиться к Discord сообществу')
+            }
+            className={clsx(
+              "flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-all shadow-sm group select-none",
+              isOnline
+                ? "bg-[#5865F2]/15 hover:bg-[#5865F2]/30 border-[#5865F2]/40 hover:border-[#5865F2] text-[#93a1f8] hover:text-white cursor-pointer"
+                : "bg-[#5865F2]/15 border-[#5865F2]/40 text-[#93a1f8] opacity-50 cursor-not-allowed"
+            )}
           >
             <DiscordIcon className="h-3.5 w-3.5 text-[#7988f5] group-hover:scale-110 group-hover:text-white transition-all" />
             <span className="hidden 2xl:inline font-bold">Discord</span>
@@ -752,6 +818,15 @@ function MainApp() {
 
       {/* Procedural Scene and Dungeon Architect Modal */}
       <ProceduralMapModal />
+
+      {/* Program Update Notification Modal */}
+      <UpdateNotificationModal
+        isOpen={isUpdateModalOpen}
+        updateInfo={updateInfo}
+        onClose={() => setIsUpdateModalOpen(false)}
+        onDownload={handleDownloadUpdate}
+        onSkipVersion={handleSkipUpdateVersion}
+      />
     </div>
   );
 }
