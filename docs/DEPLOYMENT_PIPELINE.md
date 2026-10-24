@@ -8,8 +8,8 @@
 | Параметр | Рабочая папка (Dev) | Релизная папка (Public) |
 | :--- | :--- | :--- |
 | **Путь** | `D:\TTRPG-Helper` *(с дефисом)* | `D:\TTRPGHelper` *(БЕЗ дефиса)* |
-| **Git Remote** | `https://github.com/AlexeyMaster67/DND-AIT.git` | `git@github.com:AlexeyMaster67/TTRPG-Helper.git` |
-| **Протокол Git** | HTTPS (аккаунт `AlexeyMaster67`) | SSH (ключ с доступом к `AlexeyMaster67`) |
+| **Git Remote** | Локальная dev-среда *(пуш отключен)* | `git@github.com:AlexeyMaster67/TTRPG-Helper.git` |
+| **Протокол Git** | Локальный git-трекинг | SSH (ключ с доступом к `AlexeyMaster67`) |
 | **Назначение** | Написание кода, прогон тестов, компиляция бинарников и установщиков. | Публичный открытый репозиторий, откуда пользователи скачивают код и релизы. |
 
 ---
@@ -90,9 +90,10 @@ npm.cmd test
 
 ---
 
-### Шаг 5. Коммит и Пуш в оба репозитория
+### Шаг 5. Коммит и Пуш в публичный репозиторий (`AlexeyMaster67/TTRPG-Helper`)
 
-#### 5.1. Пуш в публичный репозиторий (`AlexeyMaster67/TTRPG-Helper`)
+Пуш выполняется **исключительно** из релизной папки `D:\TTRPGHelper`:
+
 ```powershell
 cd D:\TTRPGHelper
 git add .
@@ -101,30 +102,18 @@ git push origin main
 ```
 *(Пушится по SSH через ключ `git@github.com:AlexeyMaster67/TTRPG-Helper.git`).*
 
-#### 5.2. Пуш в dev-репозиторий (`AlexeyMaster67/DND-AIT`)
-```powershell
-# Убедиться, что активен аккаунт AlexeyMaster67 для HTTPS
-gh auth switch -u AlexeyMaster67
-
-cd D:\TTRPG-Helper
-git add .
-git commit -m "feat: release v2.1.0 with Worldbuilding and 2D graph"
-git push origin main
-```
+> **Примечание:** В dev-папку (`D:\TTRPG-Helper`) внешний пуш не выполняется, она используется только как локальная среда сборки и разработки.
 
 ---
 
 ### Шаг 6. Публикация и обновление GitHub Release
 
-В системе настроен `gh CLI` с двумя аккаунтами в связке ключей (`AlexeyMaster67` и `AlexeyMaster67`).
+В `gh CLI` активным аккаунтом настроен `AlexeyMaster67`.
 
 ```powershell
-# 1. Переключить gh CLI на аккаунт AlexeyMaster67
-gh auth switch -u AlexeyMaster67
-
 cd D:\TTRPGHelper
 
-# 2. Вариант А: Создание НОВОГО релиза:
+# 1. Вариант А: Создание НОВОГО релиза:
 gh release create v2.1.0 .\TTRPG_Helper_Setup.exe --title "TTRPG Helper v2.1.0 - Worldbuilding & Knowledge Graph" --notes-file release_notes_v210.md
 
 # 2. Вариант Б: Замена / обновление бинарника в СУЩЕСТВУЮЩЕМ релизе:
@@ -135,17 +124,14 @@ gh release edit v2.1.0 --notes-file release_notes_v210.md
 
 # 4. Проверка прикрепленных ассетов и хэша:
 gh release view v2.1.0 --json assets,name,tagName
-
-# 5. Возврат активного аккаунта AlexeyMaster67 для штатной работы с dev-репозиторием:
-gh auth switch -u AlexeyMaster67
 ```
 
 ---
 
 ## ⚠️ Важные правила для агентов (Cheat Sheet)
 
-1. **Разделитель команд PowerShell:** Всегда используйте точку с запятой `;`, а не `&&` (например: `cd D:\TTRPGHelper; git status`).
-2. **Исполняемые файлы скриптов:** Из-за политики выполнения PowerShell не запускайте `npx` или `npm` напрямую как `.ps1`. Всегда используйте `npm.cmd`, `npx.cmd` или `node <скрипт>`.
-3. **Раздельные Origin:** Никогда не пушьте напрямую из `D:\TTRPG-Helper` в `AlexeyMaster67` или наоборот. Репозитории имеют разные удаленные адреса и разные протоколы (HTTPS vs SSH).
+1. **Пушить только в Public:** Все удалённые коммиты и пуши отправляются **исключительно** из `D:\TTRPGHelper` в `AlexeyMaster67/TTRPG-Helper`. В Dev-папке пуш в удалённый репозиторий делать не нужно.
+2. **Разделитель команд PowerShell:** Всегда используйте точку с запятой `;`, а не `&&` (например: `cd D:\TTRPGHelper; git status`).
+3. **Исполняемые файлы скриптов:** Из-за политики выполнения PowerShell не запускайте `npx` или `npm` напрямую как `.ps1`. Всегда используйте `npm.cmd`, `npx.cmd` или `node <скрипт>`.
 4. **Контрольная сумма в Release Notes:** Перед публикацией всегда вычисляйте реальный SHA-256 собранного `TTRPG_Helper_Setup.exe` и вставляйте его в описание релиза.
-5. **Проверка авторизации gh CLI:** Перед выполнением команд `gh release` для `AlexeyMaster67/TTRPG-Helper` обязательно проверяйте активный аккаунт через `gh auth status` и переключайте на `AlexeyMaster67` через `gh auth switch -u AlexeyMaster67`.
+5. **Авторизация gh CLI:** Убедитесь, что `gh CLI` авторизован под `AlexeyMaster67` (`gh auth status`). Релизы публикуются прямо из `D:\TTRPGHelper`.
