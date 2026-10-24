@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../i18n';
 import { Eye, EyeOff } from 'lucide-react';
 
 interface WBSpoilerProps {
-  text: string;
+  content?: string;
+  text?: string;
 }
 
-export const WBSpoiler: React.FC<WBSpoilerProps> = ({ text }) => {
+export const WBSpoiler: React.FC<WBSpoilerProps> = ({ content, text }) => {
+  const { t } = useTranslation();
   const [revealed, setRevealed] = useState(false);
+  const displayText = content || text || '';
 
   return (
     <span
       onClick={() => setRevealed((prev) => !prev)}
-      title={revealed ? 'Кликните, чтобы скрыть спойлер' : 'Кликните, чтобы раскрыть спойлер'}
+      title={revealed ? t('wb.hideSpoiler') : t('wb.revealSpoiler')}
       className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer transition-all duration-200 select-none ${
         revealed
           ? 'bg-amber-500/15 text-amber-200 border border-amber-500/30'
@@ -19,7 +23,7 @@ export const WBSpoiler: React.FC<WBSpoilerProps> = ({ text }) => {
       }`}
     >
       <span className={revealed ? '' : 'blur-xs select-none'}>
-        {text}
+        {displayText}
       </span>
       {revealed ? (
         <EyeOff className="w-3 h-3 text-amber-400 opacity-60 inline-block ml-0.5" />

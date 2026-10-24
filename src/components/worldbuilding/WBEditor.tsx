@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useTranslation } from '../../i18n';
 import { useWBStore } from '../../store/wbStore';
 import { wbBroadcastBridge } from '../../services/wbBroadcastBridge';
 import { usePartyStore } from '../../store/partyStore';
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 
 export const WBEditor: React.FC = () => {
+  const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const activeNoteContent = useWBStore((s) => s.activeNoteContent);
   const activeNoteId = useWBStore((s) => s.activeNoteId);
@@ -64,7 +66,10 @@ export const WBEditor: React.FC = () => {
       usePartyStore
         .getState()
         .showToast(
-          `📺 "${result.title}" отправлено на экран игроков! (Секретов скрыто: ${result.removedSecretsCount})`
+          t('wb.broadcastSuccess', {
+            title: result.title,
+            count: result.removedSecretsCount,
+          })
         );
     }
   };
@@ -79,57 +84,57 @@ export const WBEditor: React.FC = () => {
         <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={() => insertText('**', '**', 'жирный текст')}
+            onClick={() => insertText('**', '**', t('wb.boldDefault'))}
             className="p-1.5 rounded hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"
-            title="Жирный шрифт (Ctrl+B)"
+            title={t('wb.boldTitle')}
           >
             <Bold className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            onClick={() => insertText('*', '*', 'курсив')}
+            onClick={() => insertText('*', '*', t('wb.italicDefault'))}
             className="p-1.5 rounded hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"
-            title="Курсив (Ctrl+I)"
+            title={t('wb.italicTitle')}
           >
             <Italic className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            onClick={() => insertText('# ', '\n', 'Заголовок 1')}
+            onClick={() => insertText('# ', '\n', t('wb.h1Default'))}
             className="p-1.5 rounded hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"
-            title="Заголовок H1"
+            title={t('wb.h1Title')}
           >
             <Heading1 className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            onClick={() => insertText('## ', '\n', 'Заголовок 2')}
+            onClick={() => insertText('## ', '\n', t('wb.h2Default'))}
             className="p-1.5 rounded hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"
-            title="Заголовок H2"
+            title={t('wb.h2Title')}
           >
             <Heading2 className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            onClick={() => insertText('- ', '\n', 'Элемент списка')}
+            onClick={() => insertText('- ', '\n', t('wb.listDefault'))}
             className="p-1.5 rounded hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"
-            title="Маркированный список"
+            title={t('wb.listTitle')}
           >
             <List className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            onClick={() => insertText('| Колонка 1 | Колонка 2 |\n|---|---|\n| Значение 1 | Значение 2 |\n')}
+            onClick={() => insertText(t('wb.tableDefault'))}
             className="p-1.5 rounded hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"
-            title="Вставить таблицу"
+            title={t('wb.tableTitle')}
           >
             <TableIcon className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            onClick={() => insertText('```\n', '\n```', 'код')}
+            onClick={() => insertText('```\n', '\n```', t('wb.codeDefault'))}
             className="p-1.5 rounded hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"
-            title="Блок кода"
+            title={t('wb.codeTitle')}
           >
             <Code className="w-3.5 h-3.5" />
           </button>
@@ -139,42 +144,42 @@ export const WBEditor: React.FC = () => {
           {/* TTRPG Specialized Inserts */}
           <button
             type="button"
-            onClick={() => insertText('[[', ']]', 'Имя Заметки')}
+            onClick={() => insertText('[[', ']]', t('wb.linkDefault'))}
             className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-zinc-800/80 hover:bg-amber-500/20 text-amber-300 border border-zinc-700/60 hover:border-amber-500/50 transition-colors"
-            title="Вставить викиссылку [[...]]"
+            title={t('wb.linkTitle')}
           >
             <LinkIcon className="w-3 h-3 text-amber-400" />
-            <span>Ссылка</span>
+            <span>{t('wb.linkButton')}</span>
           </button>
 
           <button
             type="button"
             onClick={() => insertText('dice:1d20+')}
             className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-zinc-800/80 hover:bg-amber-500/20 text-amber-300 border border-zinc-700/60 hover:border-amber-500/50 transition-colors"
-            title="Вставить интерактивный кубик dice:..."
+            title={t('wb.diceTitle')}
           >
             <Dices className="w-3 h-3 text-amber-400" />
-            <span>Кубик</span>
+            <span>{t('wb.diceButton')}</span>
           </button>
 
           <button
             type="button"
             onClick={() => insertText('@monster:', '', 'Goblin')}
             className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-zinc-800/80 hover:bg-red-500/20 text-red-300 border border-zinc-700/60 hover:border-red-500/50 transition-colors"
-            title="Вставить ссылку на монстра @monster:..."
+            title={t('wb.monsterTitle')}
           >
             <Skull className="w-3 h-3 text-red-400" />
-            <span>Монстр</span>
+            <span>{t('wb.monsterButton')}</span>
           </button>
 
           <button
             type="button"
-            onClick={() => insertText(':::secret [Секрет Мастера]\n', '\n:::\n', 'Секретная информация...')}
+            onClick={() => insertText(t('wb.secretDefaultPrefix'), '\n:::\n', t('wb.secretDefaultBody'))}
             className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-zinc-800/80 hover:bg-amber-500/20 text-amber-300 border border-zinc-700/60 hover:border-amber-500/50 transition-colors"
-            title="Вставить секретный блок мастера"
+            title={t('wb.secretTitle')}
           >
             <ShieldAlert className="w-3 h-3 text-amber-400" />
-            <span>Секрет</span>
+            <span>{t('wb.secretButton')}</span>
           </button>
         </div>
 
@@ -185,10 +190,10 @@ export const WBEditor: React.FC = () => {
             onClick={handleBroadcast}
             disabled={!activeNote}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            title="Транслировать заметку на экран игроков (секреты мастера будут удалены автоматически)"
+            title={t('wb.broadcastToPlayers')}
           >
             <Send className="w-3 h-3" />
-            <span className="hidden sm:inline">Игрокам</span>
+            <span className="hidden sm:inline">{t('wb.toPlayers')}</span>
           </button>
         </div>
       </div>
@@ -199,7 +204,7 @@ export const WBEditor: React.FC = () => {
           ref={textareaRef}
           value={activeNoteContent}
           onChange={(e) => updateActiveContent(e.target.value)}
-          placeholder="# Начните писать заметку..."
+          placeholder={t('wb.editorPlaceholder')}
           className="w-full h-full p-4 bg-zinc-950 text-zinc-100 font-mono text-xs md:text-sm leading-relaxed resize-none focus:outline-none focus:ring-0 border-none selection:bg-amber-500/30"
           spellCheck={false}
         />
@@ -208,21 +213,21 @@ export const WBEditor: React.FC = () => {
       {/* Status Bar */}
       <div className="flex items-center justify-between px-3 py-1 bg-zinc-900 border-t border-zinc-800 text-[11px] font-mono text-zinc-400 select-none">
         <div className="flex items-center gap-3">
-          <span>Слов: {wordCount}</span>
-          <span>Символов: {charCount}</span>
+          <span>{t('wb.wordsCount', { count: wordCount })}</span>
+          <span>{t('wb.charsCount', { count: charCount })}</span>
         </div>
         <div className="flex items-center gap-2">
           {isSaving ? (
             <span className="flex items-center gap-1 text-amber-400">
               <Loader2 className="w-3 h-3 animate-spin" />
-              Сохранение...
+              {t('wb.saving')}
             </span>
           ) : isDirty ? (
-            <span className="text-zinc-500">Не сохранено</span>
+            <span className="text-zinc-500">{t('wb.unsaved')}</span>
           ) : (
             <span className="flex items-center gap-1 text-emerald-400">
               <CheckCircle2 className="w-3 h-3" />
-              Сохранено
+              {t('wb.saved')}
             </span>
           )}
         </div>

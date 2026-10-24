@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../i18n';
 import { useWBStore } from '../../store/wbStore';
 import { WBEntityType } from '../../types/wbmd';
 import {
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 
 export const WBInfobox: React.FC = () => {
+  const { t } = useTranslation();
   const activeNoteId = useWBStore((s) => s.activeNoteId);
   const notes = useWBStore((s) => s.notes);
   const activeNoteMeta = useWBStore((s) => s.activeNoteMeta);
@@ -78,7 +80,7 @@ export const WBInfobox: React.FC = () => {
         <div className="flex items-center gap-2">
           {getTypeIcon(activeNoteMeta.type)}
           <span className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-            Инфобокс
+            {t('wb.infoboxTitle')}
           </span>
         </div>
         <select
@@ -86,13 +88,13 @@ export const WBInfobox: React.FC = () => {
           onChange={handleTypeChange}
           className="bg-zinc-800 text-amber-400 text-xs px-2 py-0.5 rounded border border-zinc-700 focus:outline-none"
         >
-          <option value="npc">Персонаж / NPC</option>
-          <option value="location">Локация</option>
-          <option value="faction">Фракция</option>
-          <option value="quest">Квест</option>
-          <option value="item">Предмет</option>
-          <option value="session">Сессия</option>
-          <option value="lore">Лор / Заметка</option>
+          <option value="npc">{t('wb.entityNpc')}</option>
+          <option value="location">{t('wb.entityLocation')}</option>
+          <option value="faction">{t('wb.entityFaction')}</option>
+          <option value="quest">{t('wb.entityQuest')}</option>
+          <option value="item">{t('wb.entityItem')}</option>
+          <option value="session">{t('wb.entitySession')}</option>
+          <option value="lore">{t('wb.entityLore')}</option>
         </select>
       </div>
 
@@ -109,7 +111,7 @@ export const WBInfobox: React.FC = () => {
               type="button"
               onClick={() => updateActiveMeta({ avatar: undefined })}
               className="absolute top-2 right-2 p-1 bg-black/70 rounded-md text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-              title="Удалить аватар"
+              title={t('wb.delete')}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -119,7 +121,7 @@ export const WBInfobox: React.FC = () => {
             <ImageIcon className="w-6 h-6 text-zinc-600 mx-auto mb-1" />
             <input
               type="text"
-              placeholder="Ссылка на арт (URL или путь)..."
+              placeholder={t('wb.avatarPlaceholder')}
               onBlur={(e) => {
                 if (e.target.value.trim()) {
                   updateActiveMeta({ avatar: e.target.value.trim() });
@@ -133,13 +135,13 @@ export const WBInfobox: React.FC = () => {
         {/* Core Attributes */}
         <div className="space-y-2 text-xs">
           <div className="flex items-center justify-between text-zinc-400 border-b border-zinc-800/60 pb-1">
-            <span>Заголовок</span>
+            <span>{t('wb.infoboxTitle')}</span>
             <span className="font-semibold text-zinc-200">{activeNoteMeta.title}</span>
           </div>
 
           {activeNoteMeta.status !== undefined && (
             <div className="flex items-center justify-between text-zinc-400 border-b border-zinc-800/60 pb-1">
-              <span>Статус</span>
+              <span>{t('wb.fieldStatus')}</span>
               <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-amber-300 font-mono text-[11px]">
                 {activeNoteMeta.status}
               </span>
@@ -148,7 +150,7 @@ export const WBInfobox: React.FC = () => {
 
           {activeNoteMeta.cr !== undefined && (
             <div className="flex items-center justify-between text-zinc-400 border-b border-zinc-800/60 pb-1">
-              <span>Опасность (CR)</span>
+              <span>{t('wb.fieldCr')}</span>
               <span className="px-1.5 py-0.5 rounded bg-red-950/60 text-red-400 font-mono text-[11px] border border-red-800/40">
                 CR {activeNoteMeta.cr}
               </span>
@@ -157,14 +159,14 @@ export const WBInfobox: React.FC = () => {
 
           {activeNoteMeta.location && (
             <div className="flex items-center justify-between text-zinc-400 border-b border-zinc-800/60 pb-1">
-              <span>Локация</span>
+              <span>{t('wb.fieldLocation')}</span>
               <span className="text-emerald-400 font-medium">{activeNoteMeta.location}</span>
             </div>
           )}
 
           {activeNoteMeta.faction && (
             <div className="flex items-center justify-between text-zinc-400 border-b border-zinc-800/60 pb-1">
-              <span>Фракция</span>
+              <span>{t('wb.fieldFaction')}</span>
               <span className="text-amber-400 font-medium">{activeNoteMeta.faction}</span>
             </div>
           )}
@@ -174,13 +176,13 @@ export const WBInfobox: React.FC = () => {
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-              Параметры
+              {t('wb.propertiesHeader')}
             </span>
             <button
               type="button"
               onClick={() => setIsEditingCustom((prev) => !prev)}
               className="text-amber-400 hover:text-amber-300 p-0.5 rounded hover:bg-zinc-800"
-              title="Добавить параметр"
+              title={t('wb.addProperty')}
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -190,14 +192,14 @@ export const WBInfobox: React.FC = () => {
             <div className="p-2 mb-2 bg-zinc-950 rounded border border-zinc-700 space-y-1.5 text-xs">
               <input
                 type="text"
-                placeholder="Имя поля (напр. Правитель)"
+                placeholder={t('wb.propertyKeyPlaceholder')}
                 value={newKey}
                 onChange={(e) => setNewKey(e.target.value)}
                 className="w-full bg-zinc-800 px-2 py-1 rounded text-zinc-200 border border-zinc-700 focus:outline-none"
               />
               <input
                 type="text"
-                placeholder="Значение"
+                placeholder={t('wb.propertyValuePlaceholder')}
                 value={newVal}
                 onChange={(e) => setNewVal(e.target.value)}
                 className="w-full bg-zinc-800 px-2 py-1 rounded text-zinc-200 border border-zinc-700 focus:outline-none"
@@ -208,14 +210,14 @@ export const WBInfobox: React.FC = () => {
                   onClick={() => setIsEditingCustom(false)}
                   className="px-2 py-0.5 rounded text-[11px] text-zinc-400 hover:bg-zinc-800"
                 >
-                  Отмена
+                  {t('wb.cancel')}
                 </button>
                 <button
                   type="button"
                   onClick={handleAddCustomField}
                   className="px-2 py-0.5 rounded text-[11px] bg-amber-600 text-white font-medium hover:bg-amber-500"
                 >
-                  Добавить
+                  {t('wb.add')}
                 </button>
               </div>
             </div>
@@ -235,7 +237,7 @@ export const WBInfobox: React.FC = () => {
                       type="button"
                       onClick={() => handleRemoveCustomField(k)}
                       className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-zinc-800 p-0.5 rounded"
-                      title="Удалить"
+                      title={t('wb.deleteProperty')}
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -244,29 +246,29 @@ export const WBInfobox: React.FC = () => {
               ))}
             </div>
           ) : (
-            <p className="text-[11px] text-zinc-500 italic">Нет настраиваемых параметров.</p>
+            <p className="text-[11px] text-zinc-500 italic">{t('wb.noCustomProperties')}</p>
           )}
         </div>
 
         {/* Tags */}
         <div>
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
-            Теги
+            {t('wb.tagsHeader')}
           </span>
           <div className="flex flex-wrap gap-1">
             {activeNote.tags.length > 0 ? (
-              activeNote.tags.map((t) => (
+              activeNote.tags.map((tTag) => (
                 <button
-                  key={t}
+                  key={tTag}
                   type="button"
-                  onClick={() => setActiveTagFilter(t)}
+                  onClick={() => setActiveTagFilter(tTag)}
                   className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-zinc-800 hover:bg-amber-500/20 text-zinc-300 hover:text-amber-300 border border-zinc-700/60 transition-colors"
                 >
-                  #{t}
+                  #{tTag}
                 </button>
               ))
             ) : (
-              <span className="text-[11px] text-zinc-500 italic">Нет тегов</span>
+              <span className="text-[11px] text-zinc-500 italic">{t('wb.noTags')}</span>
             )}
           </div>
         </div>
@@ -276,7 +278,7 @@ export const WBInfobox: React.FC = () => {
           <div className="flex items-center gap-1.5 mb-2">
             <LinkIcon className="w-3.5 h-3.5 text-amber-400" />
             <span className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
-              Обратные ссылки ({backlinks.length})
+              {t('wb.backlinksHeader', { count: backlinks.length })}
             </span>
           </div>
 
@@ -299,7 +301,7 @@ export const WBInfobox: React.FC = () => {
               })}
             </div>
           ) : (
-            <p className="text-[11px] text-zinc-500 italic">На эту заметку пока никто не ссылается.</p>
+            <p className="text-[11px] text-zinc-500 italic">{t('wb.noBacklinks')}</p>
           )}
         </div>
       </div>

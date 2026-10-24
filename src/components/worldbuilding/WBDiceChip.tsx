@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../i18n';
 import { Dices, Sparkles } from 'lucide-react';
 import { useCombatStore } from '../../store/combatStore';
 import { usePartyStore } from '../../store/partyStore';
@@ -9,6 +10,7 @@ interface WBDiceChipProps {
 }
 
 export const WBDiceChip: React.FC<WBDiceChipProps> = ({ formula, label }) => {
+  const { t } = useTranslation();
   const [lastResult, setLastResult] = useState<number | null>(null);
   const [isRolling, setIsRolling] = useState(false);
 
@@ -52,7 +54,7 @@ export const WBDiceChip: React.FC<WBDiceChipProps> = ({ formula, label }) => {
             id: `wbmd-dice-${Date.now()}`,
             timestamp: new Date().toLocaleTimeString(),
             combatantName: 'WBmd',
-            actionName: `Бросок ${formula}`,
+            actionName: t('wb.diceRollAction', { formula }),
             attackRoll: {
               d20: rolls[0] || total,
               modifier,
@@ -64,7 +66,7 @@ export const WBDiceChip: React.FC<WBDiceChipProps> = ({ formula, label }) => {
           });
         }
 
-        usePartyStore.getState().showToast(`🎲 Бросок ${formula} = ${total}!`);
+        usePartyStore.getState().showToast(t('wb.diceRollToast', { formula, total }));
       }, 250);
     } catch {
       setIsRolling(false);
@@ -75,7 +77,7 @@ export const WBDiceChip: React.FC<WBDiceChipProps> = ({ formula, label }) => {
     <button
       onClick={handleRoll}
       type="button"
-      title={`Нажмите, чтобы бросить ${formula}`}
+      title={t('wb.diceRollTitle', { formula })}
       className={`inline-flex items-center gap-1.5 px-2 py-0.5 my-0.5 mx-1 text-xs font-mono font-semibold rounded-md border transition-all duration-200 select-none shadow-sm cursor-pointer ${
         isRolling
           ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 scale-105 animate-pulse'

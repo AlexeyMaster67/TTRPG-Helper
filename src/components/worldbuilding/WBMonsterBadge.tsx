@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../i18n';
 import { Skull, Swords, Check } from 'lucide-react';
 import { useCombatStore } from '../../store/combatStore';
 import { usePartyStore } from '../../store/partyStore';
 
 interface WBMonsterBadgeProps {
   id: string; // Monster name or ID
+  label?: string;
 }
 
-export const WBMonsterBadge: React.FC<WBMonsterBadgeProps> = ({ id }) => {
+export const WBMonsterBadge: React.FC<WBMonsterBadgeProps> = ({ id, label }) => {
+  const { t } = useTranslation();
   const [showPopover, setShowPopover] = useState(false);
   const [added, setAdded] = useState(false);
   const addCombatant = useCombatStore((s) => s.addCombatant);
@@ -27,7 +30,7 @@ export const WBMonsterBadge: React.FC<WBMonsterBadgeProps> = ({ id }) => {
     } as any);
 
     setAdded(true);
-    usePartyStore.getState().showToast(`⚔️ "${id}" добавлен в текущую инициативу!`);
+    usePartyStore.getState().showToast(t('wb.monsterAddedToast', { id }));
     setTimeout(() => setAdded(false), 1500);
   };
 
@@ -43,7 +46,7 @@ export const WBMonsterBadge: React.FC<WBMonsterBadgeProps> = ({ id }) => {
         className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-semibold rounded-md border border-red-500/30 bg-red-950/40 text-red-300 hover:bg-red-900/50 hover:border-red-500/50 transition-colors shadow-sm cursor-pointer"
       >
         <Skull className="w-3.5 h-3.5 text-red-400" />
-        <span>{id}</span>
+        <span>{label || id}</span>
       </button>
 
       {showPopover && (
@@ -54,15 +57,15 @@ export const WBMonsterBadge: React.FC<WBMonsterBadgeProps> = ({ id }) => {
           <div className="flex items-center justify-between gap-2 border-b border-zinc-800 pb-2 mb-2">
             <div className="flex items-center gap-1.5 font-bold text-zinc-100">
               <Skull className="w-4 h-4 text-red-400" />
-              <span className="truncate">{id}</span>
+              <span className="truncate">{label || id}</span>
             </div>
             <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 bg-red-950/60 text-red-400 border border-red-800/40 rounded">
-              Существо
+              {t('wb.creatureLabel')}
             </span>
           </div>
 
           <p className="text-[11px] text-zinc-400 mb-2.5">
-            Существо из бестиария или заметок кампании. Нажмите кнопку ниже, чтобы призвать его в текущий бой.
+            {t('wb.creatureDesc')}
           </p>
 
           <button
@@ -77,12 +80,12 @@ export const WBMonsterBadge: React.FC<WBMonsterBadgeProps> = ({ id }) => {
             {added ? (
               <>
                 <Check className="w-3.5 h-3.5" />
-                В бою!
+                {t('wb.toCombat')}
               </>
             ) : (
               <>
                 <Swords className="w-3.5 h-3.5" />
-                Добавить в бой
+                {t('wb.toCombat')}
               </>
             )}
           </button>

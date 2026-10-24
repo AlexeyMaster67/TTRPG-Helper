@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from '../../i18n';
 import { useWBStore } from '../../store/wbStore';
 import { WBFileTree } from './WBFileTree';
 import { WBEditor } from './WBEditor';
@@ -25,6 +26,7 @@ import {
 } from 'lucide-react';
 
 export const WBWorkspace: React.FC = () => {
+  const { t } = useTranslation();
   const initVault = useWBStore((s) => s.initVault);
   const vaultPath = useWBStore((s) => s.vaultPath);
   const viewMode = useWBStore((s) => s.viewMode);
@@ -54,7 +56,10 @@ export const WBWorkspace: React.FC = () => {
       usePartyStore
         .getState()
         .showToast(
-          `📺 "${result.title}" отправлено на экран игроков! (Секретов скрыто: ${result.removedSecretsCount})`
+          t('wb.broadcastSuccess', {
+            title: result.title,
+            count: result.removedSecretsCount,
+          })
         );
     }
   };
@@ -70,7 +75,7 @@ export const WBWorkspace: React.FC = () => {
               type="button"
               onClick={() => setShowLeftSidebar((v) => !v)}
               className="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
-              title={showLeftSidebar ? 'Скрыть список файлов' : 'Показать список файлов'}
+              title={showLeftSidebar ? t('wb.hideFileList') : t('wb.showFileList')}
             >
               {showLeftSidebar ? (
                 <PanelLeftClose className="w-4 h-4" />
@@ -91,7 +96,7 @@ export const WBWorkspace: React.FC = () => {
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>Заметки</span>
+              <span>{t('wb.notes')}</span>
             </button>
             <button
               type="button"
@@ -103,7 +108,7 @@ export const WBWorkspace: React.FC = () => {
               }`}
             >
               <Network className="w-3.5 h-3.5" />
-              <span>Граф мира</span>
+              <span>{t('wb.worldGraph')}</span>
             </button>
             <button
               type="button"
@@ -115,7 +120,7 @@ export const WBWorkspace: React.FC = () => {
               }`}
             >
               <Map className="w-3.5 h-3.5" />
-              <span>Карта региона</span>
+              <span>{t('wb.regionMap')}</span>
             </button>
           </div>
         </div>
@@ -143,7 +148,7 @@ export const WBWorkspace: React.FC = () => {
                       ? 'bg-zinc-800 text-amber-300 shadow-sm'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
-                  title="Только редактор"
+                  title={t('wb.editorOnly')}
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                 </button>
@@ -155,7 +160,7 @@ export const WBWorkspace: React.FC = () => {
                       ? 'bg-zinc-800 text-amber-300 shadow-sm'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
-                  title="Раздельный просмотр (Split)"
+                  title={t('wb.splitView')}
                 >
                   <Columns className="w-3.5 h-3.5" />
                 </button>
@@ -167,7 +172,7 @@ export const WBWorkspace: React.FC = () => {
                       ? 'bg-zinc-800 text-amber-300 shadow-sm'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
-                  title="Только чтение (Предпросмотр)"
+                  title={t('wb.previewOnly')}
                 >
                   <Eye className="w-3.5 h-3.5" />
                 </button>
@@ -180,7 +185,7 @@ export const WBWorkspace: React.FC = () => {
                 className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-amber-300 border border-zinc-700 transition-colors shadow-sm"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span className="hidden sm:inline">Шаблоны</span>
+                <span className="hidden sm:inline">{t('wb.templates')}</span>
               </button>
 
               {/* Broadcast Button */}
@@ -189,10 +194,10 @@ export const WBWorkspace: React.FC = () => {
                 onClick={handleBroadcast}
                 disabled={!activeNote}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all disabled:opacity-40"
-                title="Транслировать заметку на экран игроков"
+                title={t('wb.broadcastToPlayers')}
               >
                 <Send className="w-3.5 h-3.5" />
-                <span className="hidden lg:inline">Игрокам</span>
+                <span className="hidden lg:inline">{t('wb.toPlayers')}</span>
               </button>
 
               {/* Toggle Right Infobox */}
@@ -200,7 +205,7 @@ export const WBWorkspace: React.FC = () => {
                 type="button"
                 onClick={() => setShowRightSidebar((v) => !v)}
                 className="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
-                title={showRightSidebar ? 'Скрыть инфобокс' : 'Показать инфобокс'}
+                title={showRightSidebar ? t('wb.hideInfobox') : t('wb.showInfobox')}
               >
                 {showRightSidebar ? (
                   <PanelRightClose className="w-4 h-4" />
@@ -258,7 +263,7 @@ export const WBWorkspace: React.FC = () => {
               ) : (
                 <div className="flex flex-col items-center justify-center w-full h-full text-center p-8 text-zinc-500">
                   <FileText className="w-12 h-12 text-zinc-700 mb-2" />
-                  <p className="text-sm">Выберите заметку слева или создайте новую.</p>
+                  <p className="text-sm">{t('wb.noNoteSelected')}</p>
                 </div>
               )}
             </div>

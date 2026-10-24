@@ -1,7 +1,8 @@
 import { WBNote, WBFolder, WBMetaData } from '../types/wbmd';
 import { parseFrontmatter, serializeFrontmatter, extractTags, extractWikilinks } from '../utils/wbMarkdownParser';
+import { useSettingsStore } from '../store/settingsStore';
 
-// Sample default starter campaign templates
+// Sample default starter campaign templates (Russian)
 export const STARTER_CAMPAIGN_FILES: { path: string; content: string }[] = [
   {
     path: '00_Кодекс/Памятка_Мастера.md',
@@ -173,6 +174,185 @@ created: "2026-10-24"
   },
 ];
 
+// Sample default starter campaign templates (English)
+export const STARTER_CAMPAIGN_FILES_EN: { path: string; content: string }[] = [
+  {
+    path: '00_Codex/GM_CheatSheet.md',
+    content: `---
+title: "GM Cheat Sheet"
+type: lore
+tags: [rules, cheatsheet, gm]
+---
+
+# 📜 Campaign GM Cheat Sheet
+
+Welcome to **WBmd (Worldbuilding Markdown)** — your offline virtual tabletop campaign notebook in **TTRPGHelper**!
+
+## ✨ Quick Start
+- Link notes with **[[Wikilinks]]**: for example [[Port Nyanzaru]] or [[Eldrin Whisperwind|Our contact]].
+- Embed live creature statblocks from bestiary: @monster:Goblin Boss or @monster:Adult Red Dragon. Hovering previews the statblock, and clicking summons them directly into combat initiative!
+- Roll dice right from the text: dice:1d20+5 or dice:2d6+3.
+- Hide GM secrets from players:
+  - Inline spoiler: ||Secret trapdoor under the throne|| (click to reveal).
+  - Secret block:
+:::secret [Dungeon Secrets]
+At a depth of 50 feet lies an altar of Vecna. Trap DC 16.
+:::
+
+## 📺 Player Display
+Click **"To Players"** at the top of any note, and TTRPGHelper will automatically strip out all \`:::secret\` blocks and \`||...||\` spoilers, sending a clean, spoiler-free handout to the player screen!
+`,
+  },
+  {
+    path: '01_Characters/Eldrin_Whisperwind.md',
+    content: `---
+title: "Eldrin Whisperwind"
+type: npc
+tags: [elf, mage, informant, harpers]
+status: alive
+location: "[[Port Nyanzaru]]"
+faction: "[[The Harpers]]"
+cr: 6
+custom_fields:
+  "Alignment": "Chaotic Good"
+  "Secret Password": "Midnight Raven"
+---
+
+# Eldrin Whisperwind
+
+Mysterious contact for [[The Harpers]], dwelling in a waterfront tavern of [[Port Nyanzaru]].
+
+## Appearance & Mannerisms
+A tall elf in a weathered sea-green velvet cloak. Speaks in measured whispers and constantly rolls a silver coin across his knuckles.
+
+## Magic & Combat
+Eldrin specializes in potent illusion and abjuration magic. If cornered, he calls upon a devoted bodyguard: @monster:Mage.
+
+## GM Secrets
+:::secret [Eldrin's Secret Objective]
+Eldrin secretly seeks an ancient relic in [[Tomb of the Nine Gods]].
+He knows [[Zhentarim]] spies are shadowing him.
+Insight check against him: dice:1d20+7 vs party passive perception.
+:::
+`,
+  },
+  {
+    path: '02_Locations/Port_Nyanzaru.md',
+    content: `---
+title: "Port Nyanzaru"
+type: location
+tags: [city, coast, trade]
+status: flourishing
+custom_fields:
+  "Region": "Chult"
+  "Rulers": "Seven Merchant Princes"
+  "Danger Level": "Medium"
+---
+
+# Port Nyanzaru
+
+The glistening jewel of the coast, a bustling seaport and gateway to the uncharted jungle.
+
+## Key Districts
+- **Grand Souk**: Open-air bazaar packed with rare herbs, potions, and beast tamers.
+- **Harbor Basin**: Deepwater anchorage for galleons from all across the realms.
+- **Gladiator Arena**: Weekly combats against captured dinosaurs and beasts.
+
+## Notable Persons
+- [[Eldrin Whisperwind]] — informant in the Old City.
+- Representatives of [[The Harpers]].
+
+## Random City Events
+Roll dice:1d6:
+1. Escaped dinosaur rampages near the docks! (@monster:Velociraptor).
+2. Cutpurse attempts to snatch a player's pouch (Sleight of Hand DC 14).
+3. Festival procession honoring the sun deity.
+4-6. Typical peaceful day at the market.
+`,
+  },
+  {
+    path: '03_Factions/The_Harpers.md',
+    content: `---
+title: "The Harpers"
+type: faction
+tags: [faction, good, spies, secret_order]
+status: active
+custom_fields:
+  "Leader": "High Harpers"
+  "Headquarters": "Sword Coast"
+  "Disposition": "Friendly"
+---
+
+# The Harpers
+
+An ancient secret society of spellcasters and rangers dedicated to preserving balance and resisting tyranny across the realms.
+
+## Local Agents
+- [[Eldrin Whisperwind]] — primary operative in [[Port Nyanzaru]].
+
+## Symbol
+A silver harp enclosed within the horns of a crescent moon.
+`,
+  },
+  {
+    path: '04_Quests/Mystery_of_the_Tomb.md',
+    content: `---
+title: "Mystery of the Tomb"
+type: quest
+tags: [quest, main_quest, undead]
+status: active
+custom_fields:
+  "Questgiver": "[[Eldrin Whisperwind]]"
+  "Reward": "2500 gp and ancient scroll"
+  "Difficulty": "High"
+---
+
+# Mystery of the Tomb
+
+[[Eldrin Whisperwind]] has hired the party to investigate an arcane anomaly deep in the jungle south of [[Port Nyanzaru]].
+
+## Objectives
+- [ ] Locate the overgrown entrance to the lost tomb
+- [ ] Disarm ancient warding traps
+- [ ] Uncover the origin of the death curse
+
+## Notable Foes
+- Corridors are stalked by @monster:Ghoul and @monster:Skeleton.
+`,
+  },
+  {
+    path: '05_Session_Journals/Session_01.md',
+    content: `---
+title: "Session 01: Arrival at Port"
+type: session
+tags: [session, log, prologue]
+created: "2026-10-24"
+---
+
+# Session 01: Arrival at Port
+
+The adventuring party dropped anchor in the sapphire waters of [[Port Nyanzaru]].
+
+## Event Log
+1. Met with the enigmatic informant [[Eldrin Whisperwind]] at the harbor tavern.
+2. Accepted first expedition mission: [[Mystery of the Tomb]].
+3. Ambushed by dockside thugs; successfully rolled initiative and repelled them.
+
+## GM Notes for Next Session
+- Prepare regional wilderness travel map towards the interior ruins.
+`,
+  },
+];
+
+export function getStarterFiles(): { path: string; content: string }[] {
+  try {
+    const lang = useSettingsStore.getState().language;
+    return lang === 'en' ? STARTER_CAMPAIGN_FILES_EN : STARTER_CAMPAIGN_FILES;
+  } catch {
+    return STARTER_CAMPAIGN_FILES;
+  }
+}
+
 class WBStorageService {
   private inMemoryFiles: Map<string, string> = new Map();
   private isTauriAvailable(): boolean {
@@ -181,7 +361,7 @@ class WBStorageService {
 
   constructor() {
     // Populate in-memory fallback with starter notes by default
-    for (const item of STARTER_CAMPAIGN_FILES) {
+    for (const item of getStarterFiles()) {
       this.inMemoryFiles.set(item.path, item.content);
     }
   }
@@ -379,10 +559,11 @@ class WBStorageService {
    * Initializes default starter campaign files into target vault directory
    */
   async initDefaultStarterVault(vaultPath: string): Promise<void> {
+    const starterFiles = getStarterFiles();
     if (this.isTauriAvailable() && vaultPath && !vaultPath.startsWith('virtual:')) {
       try {
         const fs = await import('@tauri-apps/plugin-fs');
-        for (const file of STARTER_CAMPAIGN_FILES) {
+        for (const file of starterFiles) {
           const fullPath = `${vaultPath}/${file.path}`;
           const dir = fullPath.substring(0, fullPath.lastIndexOf('/'));
           await fs.mkdir(dir, { recursive: true });
@@ -394,7 +575,7 @@ class WBStorageService {
       }
     }
 
-    for (const file of STARTER_CAMPAIGN_FILES) {
+    for (const file of starterFiles) {
       this.inMemoryFiles.set(file.path, file.content);
     }
     this.saveToLocalStorage();

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../i18n';
 import { useWBStore } from '../../store/wbStore';
 import { wbIndexEngine } from '../../services/wbIndexEngine';
 import { WBNote, WBEntityType } from '../../types/wbmd';
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 
 export const WBFileTree: React.FC = () => {
+  const { t } = useTranslation();
   const vaultName = useWBStore((s) => s.vaultName);
   const notes = useWBStore((s) => s.notes);
   const activeNoteId = useWBStore((s) => s.activeNoteId);
@@ -65,27 +67,27 @@ export const WBFileTree: React.FC = () => {
   };
 
   const handleCreateNewNote = async (folder = '') => {
-    const title = window.prompt('Название новой заметки:', 'Новая заметка');
+    const title = window.prompt(t('wb.newNotePrompt'), t('wb.newNoteDefault'));
     if (!title || !title.trim()) return;
     await createNote(folder, title.trim());
   };
 
   const handleCreateNewFolder = async () => {
-    const folder = window.prompt('Имя новой папки (напр. 06_Артефакты):', '');
+    const folder = window.prompt(t('wb.newFolderPrompt'), '');
     if (!folder || !folder.trim()) return;
     await createFolder(folder.trim());
   };
 
   const handleRenameNote = async (note: WBNote) => {
     setContextMenuNoteId(null);
-    const newTitle = window.prompt('Новое название заметки:', note.title);
+    const newTitle = window.prompt(t('wb.renamePrompt'), note.title);
     if (!newTitle || !newTitle.trim() || newTitle === note.title) return;
     await renameNote(note.id, newTitle.trim());
   };
 
   const handleDeleteNote = async (note: WBNote) => {
     setContextMenuNoteId(null);
-    if (window.confirm(`Вы уверены, что хотите удалить заметку "${note.title}"?`)) {
+    if (window.confirm(t('wb.deleteConfirm', { title: note.title }))) {
       await deleteNote(note.id);
     }
   };
@@ -119,9 +121,9 @@ export const WBFileTree: React.FC = () => {
           type="button"
           onClick={openVaultDialog}
           className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
-          title="Открыть другую папку хранилища"
+          title={t('wb.changeVaultTitle')}
         >
-          Сменить
+          {t('wb.changeVault')}
         </button>
       </div>
 
@@ -133,7 +135,7 @@ export const WBFileTree: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Поиск по заметкам..."
+            placeholder={t('wb.searchPlaceholder')}
             className="w-full bg-zinc-950/80 text-xs pl-8 pr-7 py-1.5 rounded-md border border-zinc-750 text-zinc-200 focus:outline-none focus:border-amber-500/50"
           />
           {searchQuery && (
@@ -150,7 +152,7 @@ export const WBFileTree: React.FC = () => {
         {/* Active Tag Filter */}
         {activeTagFilter && (
           <div className="flex items-center justify-between px-2 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300">
-            <span className="truncate">Тег: #{activeTagFilter}</span>
+            <span className="truncate">{t('wb.tagFilter', { tag: activeTagFilter })}</span>
             <button
               type="button"
               onClick={() => setActiveTagFilter(null)}
@@ -169,13 +171,13 @@ export const WBFileTree: React.FC = () => {
             className="flex-1 flex items-center justify-center gap-1 py-1 px-2 rounded bg-amber-600/80 hover:bg-amber-500 text-white font-medium text-xs transition-colors shadow-sm"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Заметка</span>
+            <span>{t('wb.newNote')}</span>
           </button>
           <button
             type="button"
             onClick={handleCreateNewFolder}
             className="flex items-center justify-center p-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors border border-zinc-700"
-            title="Создать папку"
+            title={t('wb.newFolder')}
           >
             <FolderPlus className="w-4 h-4" />
           </button>
@@ -215,7 +217,7 @@ export const WBFileTree: React.FC = () => {
                       handleCreateNewNote(folder);
                     }}
                     className="opacity-0 group-hover:opacity-100 hover:text-amber-400 p-0.5 transition-opacity"
-                    title={`Создать заметку в ${folder}`}
+                    title={t('wb.createInFolder', { folder })}
                   >
                     <Plus className="w-3 h-3" />
                   </button>
@@ -266,7 +268,7 @@ export const WBFileTree: React.FC = () => {
                                 className="w-full flex items-center gap-2 px-2.5 py-1.5 hover:bg-zinc-800 hover:text-zinc-100 text-left"
                               >
                                 <Edit2 className="w-3 h-3 text-amber-400" />
-                                Переименовать
+                                {t('wb.rename')}
                               </button>
                               <button
                                 type="button"
@@ -274,7 +276,7 @@ export const WBFileTree: React.FC = () => {
                                 className="w-full flex items-center gap-2 px-2.5 py-1.5 hover:bg-zinc-800 text-red-400 hover:text-red-300 text-left"
                               >
                                 <Trash2 className="w-3 h-3 text-red-400" />
-                                Удалить
+                                {t('wb.delete')}
                               </button>
                             </div>
                           )}
@@ -290,7 +292,7 @@ export const WBFileTree: React.FC = () => {
 
         {filteredNotes.length === 0 && (
           <div className="p-4 text-center text-xs text-zinc-500">
-            Заметок не найдено.
+            {t('wb.noNotesFound')}
           </div>
         )}
       </div>
