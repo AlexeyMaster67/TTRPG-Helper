@@ -530,7 +530,7 @@ export function StatblockActions({
         <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
           <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-purple-300">
             <Sparkles className="h-3.5 w-3.5 text-purple-400 flex-shrink-0" />
-            <span>{isEn ? 'LEGENDARY ACTIONS (3/round)' : 'ЛЕГЕНДАРНЫЕ ДЕЙСТВИЯ (3/раунд)'}</span>
+            <span>{isEn ? 'LEGENDARY ACTIONS' : 'ЛЕГЕНДАРНЫЕ ДЕЙСТВИЯ'} (3/{isEn ? 'round' : 'раунд'})</span>
             <Sparkles className="h-3.5 w-3.5 text-purple-400 flex-shrink-0" />
           </div>
           <div className="space-y-2.5">

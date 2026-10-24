@@ -3,12 +3,11 @@ import clsx from 'clsx';
 import { Crosshair, Eye, Sparkles, X } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { CreatureSize } from '../../../types/dnd5e';
-import { cleanRussianText, localizeCreatureType, localizeMonsterName } from '../../../utils/textUtils';
+import { cleanRussianText, localizeMonsterName } from '../../../utils/textUtils';
 import { parseActionDetails } from '../../../utils/attackParser';
 import { useTranslation } from '../../../i18n';
 import {
-  localizeSize,
-  localizeAlignment,
+  formatCreatureSubtitle,
   SIZE_OPTIONS,
 } from './statblockUtils';
 
@@ -35,23 +34,7 @@ export function StatblockHeader({
   const isEn = language === 'en';
   const sb = combatant.statblock;
 
-  const localizedSize = isEn ? (sb?.size || 'Medium') : localizeSize(sb?.size);
-  const rawType = combatant.creatureType || (sb as any)?.type || (combatant.isPlayer ? 'Player Character' : 'Creature');
-  const localizedType = isEn
-    ? (combatant.isPlayer ? 'Player Character' : localizeCreatureType(rawType, 'en'))
-    : (combatant.isPlayer ? 'Персонаж игрока' : localizeCreatureType(rawType, 'ru'));
-  const localizedAlignment = isEn ? (sb?.alignment || '') : localizeAlignment(sb?.alignment);
-
-  const subtitleParts = [
-    localizedSize,
-    localizedType,
-    localizedAlignment,
-  ].filter(Boolean);
-
-  const subtitleText = subtitleParts.length > 0
-    ? subtitleParts.join(', ')
-    : (combatant.isPlayer ? (isEn ? 'Player Character' : 'Персонаж игрока') : (isEn ? 'Creature' : 'Существо'));
-
+  const subtitleText = formatCreatureSubtitle(combatant, language);
   const currentSize = combatant.size || (sb?.size as CreatureSize) || 'Medium';
   const displayName = isEn
     ? (combatant.name || localizeMonsterName(combatant.nameRu, 'en') || combatant.nameRu)
@@ -77,9 +60,9 @@ export function StatblockHeader({
         </div>
 
         <div className="flex flex-col items-end gap-1 flex-shrink-0">
-          {combatant.cr && (
+          {(combatant.cr || sb?.cr) && (
             <span className="min-h-[26px] text-xs font-mono tabular-nums font-bold px-2 py-0.5 rounded-glass-sm bg-black/50 text-gold-light border border-gold/40 shadow-sm whitespace-nowrap flex items-center">
-              {isEn ? `CR ${combatant.cr}` : `КО ${combatant.cr}`}
+              {isEn ? `CR ${combatant.cr || sb?.cr}` : `КО ${combatant.cr || sb?.cr}`}
             </span>
           )}
           {sb?.pb && (
@@ -93,7 +76,7 @@ export function StatblockHeader({
       {/* Quick Size / Token Scale Footprint Toggle */}
       <div className="flex items-center justify-between gap-2 mt-2.5 pt-2.5 border-t border-white/10">
         <span className="text-xs font-bold text-gray-200 uppercase tracking-wider font-sans flex-shrink-0">
-          {isEn ? 'Grid:' : 'Сетка:'}
+          {isEn ? 'GRID:' : 'СЕТКА:'}
         </span>
         <div className="grid grid-cols-4 gap-1.5 flex-1 max-w-[280px]">
           {SIZE_OPTIONS.map((opt) => {
@@ -171,15 +154,15 @@ export function StatblockHeader({
             title={
               currentTarget
                 ? (isEn ? `Strike ${currentTarget.name || currentTarget.nameRu}` : `Удар по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`)
-                : (isEn ? 'Targeted attack' : 'Целевая атака')
+                : (isEn ? 'Targeted attack' : 'Прицельная атака')
             }
             className="min-h-[34px] flex-1 py-1 px-3 rounded-glass-sm bg-gradient-to-r from-crimson-dark via-crimson to-crimson-dark hover:from-crimson hover:to-crimson-bright border border-crimson-bright/50 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[0_0_14px_rgba(239,68,68,0.3)] flex items-center justify-center gap-1.5 min-w-0 cursor-pointer active:scale-95"
           >
             <Crosshair className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">
               {currentTarget
-                ? (isEn ? `Strike ${currentTarget.name || currentTarget.nameRu}` : `Удар по ${cleanRussianText(currentTarget.nameRu || currentTarget.name)}`)
-                : (isEn ? 'Targeted Attack' : 'Целевая атака')}
+                ? (isEn ? `STRIKE: ${(currentTarget.name || currentTarget.nameRu || '').toUpperCase()}` : `УДАР: ${cleanRussianText(currentTarget.nameRu || currentTarget.name || '').toUpperCase()}`)
+                : (isEn ? 'TARGETED ATTACK' : 'ПРИЦЕЛЬНАЯ АТАКА')}
             </span>
           </button>
         )}

@@ -2,6 +2,8 @@ export * from './statblockUtils';
 export * from './StatblockHeader';
 export * from './StatblockSurvival';
 export * from './StatblockAbilities';
+export * from './StatblockSavingThrows';
 export * from './StatblockDefenses';
 export * from './StatblockActions';
 export * from './StatblockSpells';
+export * from './CombatDiceLog';

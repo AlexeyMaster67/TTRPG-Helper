@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { usePartyStore } from '../../store/partyStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { audioService } from '../../services/audioService';
 import { importCharacterFromTtrpgh } from '../../services/ttrpghFormat';
 import { QrCharacterModal } from '../party/QrCharacterModal';
@@ -35,6 +36,9 @@ interface MobileCompanionViewProps {
 }
 
 export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
+  const language = useSettingsStore((s) => s.language);
+  const isRu = language === 'ru';
+
   const {
     members,
     addMember,
@@ -79,29 +83,29 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
 
   const handleCreateDefaultCharacter = () => {
     addMember({
-      name: 'Новый герой',
-      characterClass: 'Воин',
-      species: 'Человек',
+      name: isRu ? 'Новый герой' : 'New Hero',
+      characterClass: isRu ? 'Воин' : 'Fighter',
+      species: isRu ? 'Человек' : 'Human',
       level: 1,
       ac: 16,
       maxHp: 12,
       currentHp: 12,
       tempHp: 0,
       initBonus: 1,
-      speed: '30 фт.',
+      speed: isRu ? '30 фт.' : '30 ft.',
       stats: { str: 16, dex: 12, con: 14, int: 10, wis: 12, cha: 8 },
       weapons: [
         {
           id: `w-${Date.now()}`,
-          name: 'Длинный меч',
+          name: isRu ? 'Длинный меч' : 'Longsword',
           attackBonus: '+5',
           damage: '1d8+3',
-          damageType: 'Рубящий',
-          mastery: 'Задевание',
+          damageType: isRu ? 'Рубящий' : 'Slashing',
+          mastery: isRu ? 'Задевание' : 'Graze',
         },
       ],
     });
-    showToast('Создан начальный персонаж');
+    showToast(isRu ? 'Создан начальный персонаж' : 'Created starter hero');
   };
 
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,9 +119,13 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
         const imported = importCharacterFromTtrpgh(content);
         addMember(imported);
         setSelectedMemberId(imported.id);
-        showToast(`Персонаж ${imported.name} успешно импортирован!`);
+        showToast(
+          isRu
+            ? `Персонаж ${imported.name} успешно импортирован!`
+            : `Character ${imported.name} successfully imported!`
+        );
       } catch {
-        showToast('Ошибка при чтении файла .ttrpgh');
+        showToast(isRu ? 'Ошибка при чтении файла .ttrpgh' : 'Error reading .ttrpgh file');
       }
     };
     reader.readAsText(file);
@@ -128,34 +136,38 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
     return (
       <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col items-center justify-center p-6 select-none font-sans text-center">
         <User className="w-16 h-16 text-stone-600 mb-4" />
-        <h1 className="text-xl font-black text-stone-100 mb-2">Герои не найдены</h1>
+        <h1 className="text-xl font-black text-stone-100 mb-2">
+          {isRu ? 'Герои не найдены' : 'No Heroes Found'}
+        </h1>
         <p className="text-sm text-stone-400 max-w-sm mb-6">
-          В отряде пока нет персонажей. Создайте нового героя через конструктор D&D 2024 или импортируйте файл .ttrpgh.
+          {isRu
+            ? 'В отряде пока нет персонажей. Создайте нового героя через конструктор D&D 2024 или импортируйте файл .ttrpgh.'
+            : 'There are no characters in the party yet. Create a new hero with the D&D 2024 builder or import a .ttrpgh file.'}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
           <button
             onClick={openCharacterBuilder}
-            className="w-full min-h-[48px] rounded-xl bg-gold hover:bg-gold-light text-canvas font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-gold/20 active:scale-95 transition-all"
+            className="w-full min-h-[48px] rounded-xl bg-gold hover:bg-gold-light text-canvas font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-gold/20 active:scale-95 transition-all cursor-pointer"
           >
             <Sparkles className="w-4 h-4" />
-            <span>Конструктор героя</span>
+            <span>{isRu ? 'Конструктор героя' : 'Character Builder'}</span>
           </button>
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full min-h-[48px] rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+            className="w-full min-h-[48px] rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <FileUp className="w-4 h-4 text-emerald-400" />
-            <span>Импорт .ttrpgh</span>
+            <span>{isRu ? 'Импорт .ttrpgh' : 'Import .ttrpgh'}</span>
           </button>
 
           <button
             onClick={handleCreateDefaultCharacter}
-            className="w-full min-h-[48px] rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800 font-medium text-xs flex items-center justify-center gap-2 active:scale-95 transition-all"
+            className="w-full min-h-[48px] rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800 font-medium text-xs flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Быстрый шаблон (Воин)</span>
+            <span>{isRu ? 'Быстрый шаблон (Воин)' : 'Quick Template (Fighter)'}</span>
           </button>
         </div>
 
@@ -200,11 +212,11 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
               </h1>
               <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-gold shrink-0" />
               <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-gold/15 text-gold-light border border-gold/30 shrink-0">
-                {member.level || 1} ур.
+                {member.level || 1} {isRu ? 'ур.' : 'lvl'}
               </span>
             </div>
             <p className="text-[11px] text-emerald-400 font-medium truncate">
-              {member.characterClass || 'Искатель'} • {member.species || 'Человек'}
+              {member.characterClass || (isRu ? 'Искатель' : 'Adventurer')} • {member.species || (isRu ? 'Человек' : 'Human')}
             </p>
           </div>
         </div>
@@ -214,8 +226,9 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
           {/* Quick QR Code Modal Action */}
           <button
             onClick={() => openQrModal(member.id)}
-            className="h-8 px-2.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 active:scale-95 text-emerald-300 border border-emerald-600/70 text-xs font-bold flex items-center gap-1 transition-all touch-manipulation shadow-sm"
-            title="Оффлайн QR-код персонажа"
+            className="h-8 px-2.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 active:scale-95 text-emerald-300 border border-emerald-600/70 text-xs font-bold flex items-center gap-1 transition-all touch-manipulation shadow-sm cursor-pointer"
+            title={isRu ? 'Оффлайн QR-код персонажа' : 'Offline Character QR Code'}
+            aria-label={isRu ? 'Оффлайн QR-код персонажа' : 'Offline Character QR Code'}
           >
             <QrCode className="w-4 h-4 text-emerald-400" />
             <span className="text-[11px]">QR</span>
@@ -224,8 +237,9 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
           {/* Quick Rest Action */}
           <button
             onClick={() => openShortRestModal(member.id)}
-            className="w-8 h-8 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 flex items-center justify-center border border-amber-600/60 transition-all active:scale-95 touch-manipulation"
-            title="Короткий отдых (1ч)"
+            className="w-8 h-8 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 flex items-center justify-center border border-amber-600/60 transition-all active:scale-95 touch-manipulation cursor-pointer"
+            title={isRu ? 'Короткий отдых (1ч)' : 'Short Rest (1h)'}
+            aria-label={isRu ? 'Короткий отдых (1ч)' : 'Short Rest (1h)'}
           >
             <Flame className="w-4 h-4 text-amber-400" />
           </button>
@@ -233,10 +247,15 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
           <button
             onClick={() => {
               longRest();
-              showToast('Долгий отдых завершен: полное исцеление и восстановление ячеек!');
+              showToast(
+                isRu
+                  ? 'Долгий отдых завершен: полное исцеление и восстановление ячеек!'
+                  : 'Long rest completed: fully healed and spell slots restored!'
+              );
             }}
-            className="w-8 h-8 rounded-lg bg-blue-950/40 hover:bg-blue-900/60 text-blue-300 flex items-center justify-center border border-blue-600/60 transition-all active:scale-95 touch-manipulation"
-            title="Долгий отдых (8ч)"
+            className="w-8 h-8 rounded-lg bg-blue-950/40 hover:bg-blue-900/60 text-blue-300 flex items-center justify-center border border-blue-600/60 transition-all active:scale-95 touch-manipulation cursor-pointer"
+            title={isRu ? 'Долгий отдых (8ч)' : 'Long Rest (8h)'}
+            aria-label={isRu ? 'Долгий отдых (8ч)' : 'Long Rest (8h)'}
           >
             <Moon className="w-4 h-4 text-blue-400" />
           </button>
@@ -244,8 +263,9 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
           {/* Mute Toggle */}
           <button
             onClick={toggleMute}
-            className="w-8 h-8 rounded-lg bg-stone-800/80 hover:bg-stone-700 text-stone-300 flex items-center justify-center border border-stone-700 transition-all active:scale-95 touch-manipulation"
-            title={isMuted ? 'Включить звук' : 'Выключить звук'}
+            className="w-8 h-8 rounded-lg bg-stone-800/80 hover:bg-stone-700 text-stone-300 flex items-center justify-center border border-stone-700 transition-all active:scale-95 touch-manipulation cursor-pointer"
+            title={isMuted ? (isRu ? 'Включить звук' : 'Unmute sound') : (isRu ? 'Выключить звук' : 'Mute sound')}
+            aria-label={isMuted ? (isRu ? 'Включить звук' : 'Unmute sound') : (isRu ? 'Выключить звук' : 'Mute sound')}
           >
             {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
           </button>
@@ -257,11 +277,12 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
         <div className="bg-[#171c23] border-b border-[#2d3844] p-3 shadow-xl z-20 animate-in slide-in-from-top-2 duration-150">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-              Герои отряда
+              {isRu ? 'Герои отряда' : 'Party Heroes'}
             </span>
             <button
               onClick={() => setIsCharacterPickerOpen(false)}
-              className="text-xs text-gray-400 hover:text-white"
+              className="text-xs text-gray-400 hover:text-white p-1 cursor-pointer"
+              aria-label={isRu ? 'Закрыть' : 'Close'}
             >
               <X className="w-4 h-4" />
             </button>
@@ -293,10 +314,10 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs truncate">{m.name}</span>
-                    <span className="text-[10px] font-mono text-gold-light">{m.level} ур.</span>
+                    <span className="text-[10px] font-mono text-gold-light">{m.level} {isRu ? 'ур.' : 'lvl'}</span>
                   </div>
                   <span className="text-[10px] text-gray-400 block truncate">
-                    {m.characterClass || 'Искатель'}
+                    {m.characterClass || (isRu ? 'Искатель' : 'Adventurer')}
                   </span>
                 </div>
               </div>
@@ -310,18 +331,18 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
                 setIsCharacterPickerOpen(false);
                 openCharacterBuilder();
               }}
-              className="min-h-[38px] px-3 rounded-xl bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/40 text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+              className="min-h-[38px] px-3 rounded-xl bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/40 text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Создать (Визард)</span>
+              <span>{isRu ? 'Создать (Визард)' : 'Create (Wizard)'}</span>
             </button>
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="min-h-[38px] px-3 rounded-xl bg-[#101419] hover:bg-[#1f2732] text-gray-300 border border-[#2b3540] text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+              className="min-h-[38px] px-3 rounded-xl bg-[#101419] hover:bg-[#1f2732] text-gray-300 border border-[#2b3540] text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
             >
               <FileUp className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Импорт .ttrpgh</span>
+              <span>{isRu ? 'Импорт .ttrpgh' : 'Import .ttrpgh'}</span>
             </button>
           </div>
         </div>
@@ -365,66 +386,66 @@ export function MobileCompanionView({}: MobileCompanionViewProps = {}) {
         <button
           type="button"
           onClick={() => setActiveTab('main')}
-          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] cursor-pointer ${
             activeTab === 'main'
               ? 'text-gold font-bold scale-105'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
           <Heart className={`w-5 h-5 mb-0.5 ${activeTab === 'main' ? 'text-gold fill-gold/20' : ''}`} />
-          <span className="text-[11px] tracking-tight">Главная</span>
+          <span className="text-[11px] tracking-tight">{isRu ? 'Главная' : 'Main'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('combat')}
-          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] cursor-pointer ${
             activeTab === 'combat'
               ? 'text-amber-400 font-bold scale-105'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
           <Swords className={`w-5 h-5 mb-0.5 ${activeTab === 'combat' ? 'text-amber-400' : ''}`} />
-          <span className="text-[11px] tracking-tight">Бой</span>
+          <span className="text-[11px] tracking-tight">{isRu ? 'Бой' : 'Combat'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('spells')}
-          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] cursor-pointer ${
             activeTab === 'spells'
               ? 'text-purple-400 font-bold scale-105'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
           <Sparkles className={`w-5 h-5 mb-0.5 ${activeTab === 'spells' ? 'text-purple-400' : ''}`} />
-          <span className="text-[11px] tracking-tight">Магия</span>
+          <span className="text-[11px] tracking-tight">{isRu ? 'Магия' : 'Spells'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('equipment')}
-          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] cursor-pointer ${
             activeTab === 'equipment'
               ? 'text-blue-400 font-bold scale-105'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
           <Backpack className={`w-5 h-5 mb-0.5 ${activeTab === 'equipment' ? 'text-blue-400' : ''}`} />
-          <span className="text-[11px] tracking-tight">Снаряжение</span>
+          <span className="text-[11px] tracking-tight">{isRu ? 'Снаряжение' : 'Gear'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('character')}
-          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all touch-manipulation min-h-[48px] cursor-pointer ${
             activeTab === 'character'
               ? 'text-emerald-400 font-bold scale-105'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
           <User className={`w-5 h-5 mb-0.5 ${activeTab === 'character' ? 'text-emerald-400' : ''}`} />
-          <span className="text-[11px] tracking-tight">Герой & QR</span>
+          <span className="text-[11px] tracking-tight">{isRu ? 'Герой & QR' : 'Hero & QR'}</span>
         </button>
       </nav>
 

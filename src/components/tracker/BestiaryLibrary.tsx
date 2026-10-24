@@ -209,7 +209,7 @@ export function BestiaryLibrary() {
     { id: 'dungeon', label: isEn ? 'Dungeon' : 'Подземелье' },
     { id: 'forest', label: isEn ? 'Forest' : 'Лес' },
     { id: 'bosses', label: isEn ? 'Bosses' : 'Боссы' },
-    { id: 'custom', label: isEn ? 'Custom' : 'Пользовательские' },
+    { id: 'custom', label: isEn ? 'Custom' : 'Свои' },
     ...customFolders,
   ], [customFolders, isEn]);
 
@@ -289,29 +289,29 @@ export function BestiaryLibrary() {
   const [selectedCrRange, setSelectedCrRange] = useState<string>('all');
 
   const CATEGORIES: { id: string; label: string; keywords: string[] }[] = useMemo(() => [
-    { id: 'all', label: isEn ? 'All Types' : 'Все', keywords: [] },
+    { id: 'all', label: isEn ? 'All Types' : 'Все типы', keywords: [] },
     { id: 'humanoid', label: isEn ? 'Humanoids' : 'Гуманоиды', keywords: ['гуманоид', 'humanoid'] },
     { id: 'undead', label: isEn ? 'Undead' : 'Нежить', keywords: ['нежить', 'undead'] },
     { id: 'beast', label: isEn ? 'Beasts' : 'Звери', keywords: ['зверь', 'beast'] },
-    { id: 'dragon', label: isEn ? 'Dragons' : 'Драконы', keywords: ['дракон', 'dragon'] },
-    { id: 'giant', label: isEn ? 'Giants' : 'Великаны', keywords: ['великан', 'giant'] },
+    { id: 'monstrosity', label: isEn ? 'Monstrosities' : 'Монстры', keywords: ['чудовище', 'монстр', 'monstrosity', 'monster'] },
     { id: 'fiend', label: isEn ? 'Fiends' : 'Исчадия', keywords: ['исчадие', 'fiend'] },
-    { id: 'aberration', label: isEn ? 'Aberrations' : 'Аберрации', keywords: ['аберрация', 'aberration'] },
+    { id: 'dragon', label: isEn ? 'Dragons' : 'Драконы', keywords: ['дракон', 'dragon'] },
     { id: 'elemental', label: isEn ? 'Elementals' : 'Элементали', keywords: ['элементаль', 'elemental'] },
-    { id: 'fey', label: isEn ? 'Fey' : 'Феи', keywords: ['фея', 'fey'] },
     { id: 'construct', label: isEn ? 'Constructs' : 'Конструкты', keywords: ['конструкт', 'construct'] },
-    { id: 'monstrosity', label: isEn ? 'Monstrosities' : 'Чудовища', keywords: ['чудовище', 'монстр', 'monstrosity', 'monster'] },
+    { id: 'aberration', label: isEn ? 'Aberrations' : 'Аберрации', keywords: ['аберрация', 'aberration'] },
+    { id: 'fey', label: isEn ? 'Fey' : 'Феи', keywords: ['фея', 'fey'] },
+    { id: 'giant', label: isEn ? 'Giants' : 'Великаны', keywords: ['великан', 'giant'] },
     { id: 'celestial', label: isEn ? 'Celestials' : 'Небожители', keywords: ['небожитель', 'celestial'] },
     { id: 'ooze', label: isEn ? 'Oozes' : 'Слизи', keywords: ['слизь', 'ooze'] },
     { id: 'plant', label: isEn ? 'Plants' : 'Растения', keywords: ['растение', 'plant'] },
   ], [isEn]);
 
   const CR_RANGES = useMemo(() => [
-    { id: 'all', label: isEn ? 'All CR' : 'Все КО' },
-    { id: '0-1', label: isEn ? 'CR 0–1' : 'КО 0–1' },
-    { id: '2-4', label: isEn ? 'CR 2–4' : 'КО 2–4' },
-    { id: '5-10', label: isEn ? 'CR 5–10' : 'КО 5–10' },
-    { id: '11+', label: isEn ? 'CR 11+' : 'КО 11+' },
+    { id: 'all', label: isEn ? 'ALL CR' : 'ВСЕ ПО' },
+    { id: '0-1', label: isEn ? 'CR 0-1' : 'ПО 0–1' },
+    { id: '2-4', label: isEn ? 'CR 2-4' : 'ПО 2–4' },
+    { id: '5-10', label: isEn ? 'CR 5-10' : 'ПО 5–10' },
+    { id: '11+', label: isEn ? 'CR 11+' : 'ПО 11+' },
   ], [isEn]);
 
   const parseCr = (crStr?: string | number): number => {
@@ -481,7 +481,7 @@ export function BestiaryLibrary() {
           <div className="flex items-center gap-1.5 min-w-0">
             <BookOpen className="h-4 w-4 text-[#f5b920] shrink-0" />
             <span className="text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap">
-              {isEn ? 'Bestiary' : 'Бестиарий'}
+              {isEn ? 'BESTIARY' : 'БЕСТИАРИЙ'}
             </span>
             <span className="text-[10px] font-mono font-bold text-amber-300/90 bg-amber-950/50 px-1.5 py-0.5 rounded-full border border-amber-500/30 shrink-0">
               {filteredList.length}
@@ -494,7 +494,7 @@ export function BestiaryLibrary() {
               className="min-h-[28px] px-2 py-0.5 rounded-full bg-gradient-to-r from-[#7a2016] to-[#991b1b] hover:from-[#94271c] hover:to-[#b91c1c] border border-red-500/50 text-white font-sans text-xs font-semibold flex items-center gap-1 transition-all shadow-sm active:scale-95 cursor-pointer whitespace-nowrap"
             >
               <Sparkles className="h-3.5 w-3.5 text-[#f5b920]" />
-              <span>{isEn ? '+ Custom' : '+ Своё'}</span>
+              <span>{isEn ? '+ Custom' : '+ Свой'}</span>
             </button>
             <button
               onClick={() => lssFileRef.current?.click()}
@@ -502,7 +502,7 @@ export function BestiaryLibrary() {
               className="min-h-[28px] px-2 py-0.5 rounded-full bg-emerald-950/70 hover:bg-emerald-900/80 border border-emerald-600/60 hover:border-emerald-500 text-emerald-200 font-sans text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap"
             >
               <FileText className="h-3.5 w-3.5 text-emerald-400" />
-              <span>{isEn ? '+ LSS' : '+ Файл'}</span>
+              <span>+ LSS</span>
             </button>
             <input
               ref={lssFileRef}
@@ -522,7 +522,7 @@ export function BestiaryLibrary() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={isEn ? "Search bestiary (name, type, CR)..." : "Поиск существа в бестиарии..."}
+            placeholder={isEn ? "Search bestiary (Name, type, CR)..." : "Поиск по бестиарию (имя, тип, ПО)..."}
             className="w-full min-h-[34px] pl-9 pr-8 bg-[rgba(20,25,35,0.7)] hover:bg-[rgba(24,30,42,0.85)] border border-[rgba(255,255,255,0.08)] focus:border-[#f5b920]/70 rounded-glass text-xs text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#f5b920]/40 focus:shadow-[0_0_12px_rgba(245,185,32,0.2)] transition-all font-sans"
           />
           {query && (
@@ -558,7 +558,7 @@ export function BestiaryLibrary() {
           >
             <div className="flex items-center gap-1 text-[11px] font-bold text-amber-400 uppercase tracking-wider shrink-0 mr-0.5">
               <Folder className="h-3.5 w-3.5 text-[#f5b920]" />
-              <span>{isEn ? "Folders:" : "Папки:"}</span>
+              <span>{isEn ? "FOLDERS:" : "ПАПКИ:"}</span>
             </div>
             {FOLDERS.map((folder) => {
               const isSelected = selectedFolder === folder.id;
@@ -604,7 +604,7 @@ export function BestiaryLibrary() {
                 type="button"
                 onClick={() => categoriesRef.current?.scrollBy({ left: -140, behavior: 'smooth' })}
                 className="w-5 h-6 rounded flex items-center justify-center text-gray-400 hover:text-[#fce79f] hover:bg-white/5 shrink-0 transition-colors cursor-pointer mr-0.5"
-                title="Прокрутить назад"
+                title={isEn ? "Scroll left" : "Прокрутить назад"}
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
               </button>
@@ -643,7 +643,7 @@ export function BestiaryLibrary() {
                 type="button"
                 onClick={() => categoriesRef.current?.scrollBy({ left: 140, behavior: 'smooth' })}
                 className="w-5 h-6 rounded flex items-center justify-center text-gray-400 hover:text-[#fce79f] hover:bg-white/5 shrink-0 transition-colors cursor-pointer ml-0.5"
-                title="Прокрутить вперёд"
+                title={isEn ? "Scroll right" : "Прокрутить вперёд"}
               >
                 <ChevronRight className="h-3.5 w-3.5" />
               </button>
@@ -657,14 +657,14 @@ export function BestiaryLibrary() {
                   ? 'bg-amber-500/25 text-amber-300 border border-amber-500/50 shadow-[0_0_8px_rgba(245,185,32,0.3)]'
                   : 'text-gray-400 hover:text-amber-300 hover:bg-white/5'
               }`}
-              title={isCategoriesExpanded ? 'Свернуть категории в одну строку' : 'Развернуть все категории'}
+              title={isCategoriesExpanded ? (isEn ? 'Collapse categories to one row' : 'Свернуть категории в одну строку') : (isEn ? 'Expand all categories' : 'Развернуть все категории')}
             >
               <LayoutGrid className="h-3 w-3" />
             </button>
           </div>
         </div>
 
-        {/* Фильтры класса опасности (КО) */}
+        {/* Фильтры класса опасности (ПО) */}
         <div className="relative group/cr w-full min-w-0">
           <div
             onWheel={(e) => {
@@ -709,7 +709,7 @@ export function BestiaryLibrary() {
             const creatureType = localizeCreatureType(isEn ? (monster.creature_type || monster.creature_type_ru) : (monster.creature_type_ru || monster.creature_type), language);
             const senses = localizeSenses(monster.senses, language);
             const speed = formatSpeed(monster.speed, language);
-            const crLabel = isEn ? `CR ${monster.cr}` : `КО ${monster.cr}`;
+            const crLabel = isEn ? `CR ${monster.cr}` : `ПО ${monster.cr}`;
             const acLabel = isEn ? `${monster.ac} AC` : `${monster.ac} КД`;
             const hpLabel = isEn ? `${monster.hp_average} HP` : `${monster.hp_average} ОЗ`;
             const assignedFolders = creatureFolderMap[monster.id] || [];
@@ -731,7 +731,7 @@ export function BestiaryLibrary() {
                     {monster.is_custom && (
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-[#f5b920]/60 shrink-0 whitespace-nowrap shadow-sm inline-flex items-center gap-1">
                         <Sparkles className="h-2.5 w-2.5 inline" />
-                        <span>{isEn ? 'Custom' : 'Своё'}</span>
+                        <span>{isEn ? 'Custom' : 'Свой'}</span>
                       </span>
                     )}
                     {assignedFolders.length > 0 && (
@@ -843,7 +843,7 @@ export function BestiaryLibrary() {
             <div className="flex items-center justify-between border-b border-white/10 pb-2">
               <span className="text-xs font-bold text-white flex items-center gap-1.5">
                 <FolderPlus className="h-4 w-4 text-[#f5b920]" />
-                <span>Новая папка бестиария</span>
+                <span>{isEn ? 'New Bestiary Folder' : 'Новая папка бестиария'}</span>
               </span>
               <button
                 onClick={() => setIsNewFolderOpen(false)}
@@ -856,7 +856,7 @@ export function BestiaryLibrary() {
               type="text"
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
-              placeholder="Название (напр. «Замок», «Глава 1»)..."
+              placeholder={isEn ? "Name (e.g. 'Castle', 'Chapter 1')..." : "Название (напр. «Замок», «Глава 1»)..."}
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleCreateFolder();
@@ -869,13 +869,13 @@ export function BestiaryLibrary() {
                 onClick={() => setIsNewFolderOpen(false)}
                 className="px-3 py-1.5 rounded-glass-sm text-xs text-gray-300 hover:bg-white/10"
               >
-                Отмена
+                {isEn ? 'Cancel' : 'Отмена'}
               </button>
               <button
                 onClick={handleCreateFolder}
                 className="px-3.5 py-1.5 rounded-glass-sm bg-[#f5b920] hover:bg-[#fac742] text-black font-bold text-xs shadow-sm"
               >
-                Создать
+                {isEn ? 'Create' : 'Создать'}
               </button>
             </div>
           </div>
@@ -889,7 +889,11 @@ export function BestiaryLibrary() {
             <div className="flex items-center justify-between border-b border-white/10 pb-2">
               <span className="text-xs font-bold text-white flex items-center gap-1.5 truncate">
                 <Folder className="h-4 w-4 text-[#f5b920]" />
-                <span className="truncate">Папки для «{cleanRussianText(folderAssignMonster.name_ru || folderAssignMonster.name_en)}»</span>
+                <span className="truncate">
+                  {isEn
+                    ? `Folders for "${folderAssignMonster.name_en || folderAssignMonster.name_ru}"`
+                    : `Папки для «${cleanRussianText(folderAssignMonster.name_ru || folderAssignMonster.name_en)}»`}
+                </span>
               </span>
               <button
                 onClick={() => setFolderAssignMonster(null)}
@@ -924,7 +928,7 @@ export function BestiaryLibrary() {
                 onClick={() => setFolderAssignMonster(null)}
                 className="px-4 py-1.5 rounded-glass-sm bg-[#f5b920] hover:bg-[#fac742] text-black font-bold text-xs"
               >
-                Готово
+                {isEn ? 'Done' : 'Готово'}
               </button>
             </div>
           </div>

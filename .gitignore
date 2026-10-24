@@ -29,6 +29,30 @@ src-tauri/gen/android/app/src/main/assets/
 src-tauri/gen/android/.tauri/
 src-tauri/gen/android/local.properties
 
-# Root screenshot artifacts
-/*.png
-release_notes_*.md
+discord_branding/
+TTRPG_Helper_Discord*.png
+
+TTRPG_Helper_Banner*
+TTRPG_Helper_Icon*
+TTRPG_Helper_*.png
+AlexeyMaster67_*
+test_*.png
+*.bat
+*.html
+Data/
+Tokens/
+agent/
+data_sources/
+etl_dnd2024/
+.agents/
+.claude/
+skills-lock.json
+src-tauri/gen/android/
+src-tauri/icons/android/
+tools/*.py
+tools/*.txt
+tools/*.cjs
+tools/*.json
+!tools/pack-builder/**
+
+

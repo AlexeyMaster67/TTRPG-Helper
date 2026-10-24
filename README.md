@@ -10,20 +10,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.7-gold.svg?style=flat-square" alt="Version 2.0.3" />
-  <a href="https://discord.gg/XYQSHWVAuE"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2.svg?style=flat-square&logo=discord&logoColor=white" alt="Discord Community" /></a>
-  <a href="https://www.reddit.com/r/TTRPGHelper/"><img src="https://img.shields.io/badge/Reddit-r%2FTTRPGHelper-FF4500?style=flat-square&logo=reddit&logoColor=white" alt="Reddit Community" /></a>
+  <img src="https://img.shields.io/badge/version-2.0.2-gold.svg?style=flat-square" alt="Version 2.0.2" />
   <img src="https://img.shields.io/badge/license-MIT%20%2F%20CC--BY--4.0-blue.svg?style=flat-square" alt="License MIT / CC-BY" />
   <img src="https://img.shields.io/badge/offline--first-100%25%20Local-emerald.svg?style=flat-square" alt="100% Offline" />
   <img src="https://img.shields.io/badge/platform-Windows%20x64-indigo.svg?style=flat-square" alt="Platform" />
   <img src="https://img.shields.io/badge/stack-Tauri%202.0%20%7C%20React%2018%20%7C%20TS-cyan.svg?style=flat-square" alt="Tech Stack" />
-  <img src="https://img.shields.io/badge/tests-426%20passed-success.svg?style=flat-square" alt="Unit Tests" />
-</p>
-
-<p align="center">
-  <strong>Language / Язык:</strong>
-  <a href="README.md">🇷🇺 <strong>Русский</strong></a> &bull;
-  <a href="README_EN.md">🇬🇧 <strong>English</strong></a>
+  <img src="https://img.shields.io/badge/tests-392%20passed-success.svg?style=flat-square" alt="Unit Tests" />
 </p>
 
 ---
@@ -64,16 +56,14 @@
 
 Архитектура приложения разделяет визуальный интерфейс, универсальную модель существа [`UniversalCreature`](src/types/system.ts#L97-L117) и изолированные системные движки правил [`SystemRuleEngine`](src/types/system.ts#L162-L179):
 
-| Игровая система | Базовый документ / Лицензия | Статус | Ключевые механики ядра | Цветовая тема |
+| Игровая система | Версия / Редакция | Статус | Ключевые механики ядра | Цветовая тема |
 | :--- | :--- | :---: | :--- | :--- |
-| **D&D (SRD 5.2.1 / 2024)** | WotC SRD 5.2.1 (CC-BY-4.0) | **Готово** | Правила редакции 2024 года: свойства оружия (Weapon Mastery), состояния Dazed/Incapacitated, числовое истощение (-2/ур), бестиарий и заклинания SRD | Warm Fantasy Gold |
-| **D&D (SRD 5.1 / 2014)** | WotC SRD 5.1 (CC-BY-4.0) | **Готово** | Классическая пятая редакция: базовые классы, слоты заклинаний, классический бестиарий SRD и правила усталости (Exhaustion 1–6) | Warm Fantasy Gold |
+| **D&D 5e (SRD 5.2.1)** | CC-BY Open Gaming | **Готово** | Преимущество / Помеха, слоты магии, 16 состояний, концентрация, спасброски от смерти | Warm Fantasy Gold |
+| **D&D 5e (2024)** | 2024 Revised Rules | **Бета** | Мастерство оружия (Weapon Mastery), состояние Dazed, числовое истощение (-2/ур), расы 2024 | Warm Fantasy Gold |
+| **D&D 5e (2014)** | 2014 Classic Rules | **Готово** | Классические классы, бестиарий, традиционная шкала усталости (Exhaustion 1–6) | Warm Fantasy Gold |
 | **Pathfinder 2e** | Remastered (ORC License) | **Бета** | Экономика 3 действий за раунд, 4 степени успеха (+/-10 и Nat 20/1), инициатива по Восприятию/Скрытности, MAP | Stately Slate Bronze |
 | **Cyberpunk RED** | Core Rules (R. Talsorian) | **В разработке** | Инициатива REF + 1d10, броня SP по зонам (Голова/Тело) с абляцией при пробитии, Humanity, пороги ранений | Neon Cyberpunk |
 | **Custom / Homebrew** | Пользовательские правила | **Бета** | Произвольные дайсы, настраиваемые пулы ресурсов, гибкие треки состояний | Адаптивная |
-
-> [!NOTE] Полная открытость правил D&D (Creative Commons)
-> Все игровые правила, заклинания, статблоки монстров и механики D&D в приложении TTRPG Helper основаны **исключительно на официальных открытых документах System Reference Document (SRD 5.2.1 и SRD 5.1)**, опубликованных компанией Wizards of the Coast LLC под свободной безотзывной лицензией **Creative Commons Attribution 4.0 International (CC-BY-4.0)**. Приложение не содержит закрытых материалов Product Identity (Beholder, Mind Flayer и др.).
 
 ---
 
@@ -247,8 +237,8 @@ flowchart TD
 
 1. **Клонирование репозитория:**
    ```bash
-   git clone https://github.com/AlexeyMaster67/TTRPG-Helper.git
-   cd TTRPG-Helper
+   git clone https://github.com/<your-username>/ttrpg-helper.git
+   cd ttrpg-helper
    ```
 
 2. **Установка зависимостей:**
@@ -337,11 +327,6 @@ flowchart TD
 
 ## Правовая информация и политика фанатского контента (Legal & Fan Content)
 
-### Соответствие официальному SRD 5.2.1 (Creative Commons Attribution)
-> **Официальное уведомление SRD 5.2.1 / 5.1:**  
-> *This work includes material taken from the System Reference Document 5.2.1 (“SRD 5.2.1”) and System Reference Document 5.1 (“SRD 5.1”) by Wizards of the Coast LLC, available under the Creative Commons Attribution 4.0 International License (CC-BY-4.0).*  
-> Игровые механики, заклинания и бестиарий D&D в приложении основаны исключительно на открытых материалах SRD 5.2.1 (переиздание 2024 года) и SRD 5.1 (классическая редакция 2014 года), распространяемых без роялти по всему миру.
-
 ### Wizards of the Coast Fan Content Policy
 > **Wizards of the Coast Notice:**  
 > TTRPG Helper is unofficial Fan Content permitted under the Wizards of the Coast Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast LLC. ©Wizards of the Coast LLC.
@@ -362,19 +347,11 @@ flowchart TD
 
 ## Сообщество и поддержка
 
-Присоединяйтесь к официальному Discord-сообществу и Reddit-сообществу **TTRPG Helper** для общения, поиска партий, обсуждения систем (D&D 2024, Pathfinder 2e, Cyberpunk RED) и связи с разработчиком:
+Присоединяйтесь к официальному Discord-сообществу **TTRPG Helper** для общения, поиска партий, обсуждения систем (D&D 2024, Pathfinder 2e, Cyberpunk RED) и связи с разработчиком:
 
 <p align="center">
-  <a href="https://discord.gg/XYQSHWVAuE">
+  <a href="https://discord.gg/seESktTbXF">
     <img src="https://img.shields.io/badge/Discord-Присоединиться%20к%20сообществу-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Присоединиться к Discord" height="42" />
   </a>
-  &nbsp;
-  <a href="https://www.reddit.com/r/TTRPGHelper/">
-    <img src="https://img.shields.io/badge/Reddit-r%2FTTRPGHelper-FF4500?style=for-the-badge&logo=reddit&logoColor=white" alt="Reddit Community" height="42" />
-  </a>
 </p>
-
-
-
-
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useDice3dStore } from '../../store/dice3dStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { DicePhysicsWorld } from '../../engine/dice3d/dicePhysicsWorld';
 import { DiceType } from '../../engine/dice3d/types';
 import { audioService } from '../../services/audioService';
@@ -52,6 +53,7 @@ export const DiceTrayDock: React.FC = () => {
   const setDisplayMode = useDice3dStore((s) => s.setDisplayMode);
   const clearActiveBatch = useDice3dStore((s) => s.clearActiveBatch);
 
+  const isEn = useSettingsStore((s) => s.language === 'en');
   const [isVisible, setIsVisible] = useState(false);
   const [isSettled, setIsSettled] = useState(false);
   const [settledInfo, setSettledInfo] = useState<SettleDisplayInfo | null>(null);
@@ -222,7 +224,7 @@ export const DiceTrayDock: React.FC = () => {
       }
 
       setSettledInfo({
-        title: activeBatch.title || 'Результат броска',
+        title: activeBatch.title || (isEn ? 'Roll Result' : 'Результат броска'),
         total: calculatedTotal,
         diceResults,
         isSecret: activeBatch.isSecret,
@@ -304,7 +306,7 @@ export const DiceTrayDock: React.FC = () => {
         <div className="flex items-center gap-2 min-w-0">
           <Dices className="h-4 w-4 text-[#e5c158] flex-shrink-0 animate-pulse" />
           <span className="font-serif font-bold text-[#fef08a] truncate drop-shadow-sm">
-            {settledInfo?.title || activeBatch?.title || 'Дайс-трей'}
+            {settledInfo?.title || activeBatch?.title || (isEn ? 'Dice Tray' : 'Дайс-трей')}
           </span>
         </div>
 
@@ -312,18 +314,18 @@ export const DiceTrayDock: React.FC = () => {
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {activeBatch?.rollMode === 'advantage' && (
             <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-950/80 text-amber-300 border border-amber-500/60 uppercase tracking-wider">
-              Преимущество
+              {isEn ? 'Advantage' : 'Преимущество'}
             </span>
           )}
           {activeBatch?.rollMode === 'disadvantage' && (
             <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-950/80 text-purple-300 border border-purple-500/60 uppercase tracking-wider">
-              Помеха
+              {isEn ? 'Disadvantage' : 'Помеха'}
             </span>
           )}
           {activeBatch?.isSecret && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-950/80 text-rose-300 border border-rose-500/60 uppercase tracking-wider">
               <EyeOff className="h-3 w-3" />
-              Скрытно
+              {isEn ? 'Secret' : 'Скрытно'}
             </span>
           )}
 
@@ -331,7 +333,7 @@ export const DiceTrayDock: React.FC = () => {
           <button
             onClick={handleSwitchToFullscreen}
             className="p-1 rounded text-zinc-400 hover:text-amber-300 hover:bg-black/40 transition-colors"
-            title="Развернуть на весь экран"
+            title={isEn ? "Expand to fullscreen" : "Развернуть на весь экран"}
           >
             <Maximize2 className="h-3.5 w-3.5" />
           </button>
@@ -340,7 +342,7 @@ export const DiceTrayDock: React.FC = () => {
           <button
             onClick={handleDismiss}
             className="p-1 rounded text-zinc-400 hover:text-rose-400 hover:bg-black/40 transition-colors"
-            title="Закрыть (пропустить)"
+            title={isEn ? "Close (skip)" : "Закрыть (пропустить)"}
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -351,14 +353,14 @@ export const DiceTrayDock: React.FC = () => {
       <div
         onClick={handleTrayClick}
         className="relative flex-1 w-full bg-gradient-to-b from-[#141215] to-[#0a090d] shadow-[inset_0_4px_16px_rgba(0,0,0,0.9),inset_0_0_24px_rgba(20,12,6,0.6)] cursor-pointer group overflow-hidden"
-        title={!isSettled ? 'Кликните, чтобы мгновенно завершить бросок' : 'Кликните, чтобы закрыть'}
+        title={!isSettled ? (isEn ? 'Click to settle roll instantly' : 'Кликните, чтобы мгновенно завершить бросок') : (isEn ? 'Click to close' : 'Кликните, чтобы закрыть')}
       >
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
 
         {/* Subtle click prompt hint */}
         {!isSettled && (
           <div className="absolute top-2 right-2 text-[10px] text-zinc-400/80 bg-black/60 px-2 py-0.5 rounded-md pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-            Клик: пропустить
+            {isEn ? 'Click: skip' : 'Клик: пропустить'}
           </div>
         )}
 
@@ -366,14 +368,14 @@ export const DiceTrayDock: React.FC = () => {
         {settledInfo?.isNat20 && (
           <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/80 text-amber-200 text-xs font-bold font-serif shadow-[0_0_15px_rgba(245,185,32,0.6)] animate-bounce pointer-events-none">
             <Sparkles className="h-3.5 w-3.5 text-amber-300 animate-spin" />
-            <span>КРИТИЧЕСКИЙ УСПЕХ! (NAT 20)</span>
+            <span>{isEn ? "CRITICAL HIT! (NAT 20)" : "КРИТИЧЕСКИЙ УСПЕХ! (NAT 20)"}</span>
           </div>
         )}
 
         {settledInfo?.isNat1 && (
           <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-950/80 border border-rose-500/80 text-rose-300 text-xs font-bold font-serif shadow-[0_0_15px_rgba(244,63,94,0.6)] animate-pulse pointer-events-none">
             <AlertTriangle className="h-3.5 w-3.5 text-rose-400" />
-            <span>КРИТИЧЕСКИЙ ПРОВАЛ! (NAT 1)</span>
+            <span>{isEn ? "CRITICAL MISS! (NAT 1)" : "КРИТИЧЕСКИЙ ПРОВАЛ! (NAT 1)"}</span>
           </div>
         )}
 
@@ -382,7 +384,7 @@ export const DiceTrayDock: React.FC = () => {
           <div className="absolute bottom-0 inset-x-0 z-20 bg-gradient-to-t from-black/95 via-black/85 to-transparent px-4 py-2.5 flex items-center justify-between border-t border-[#8c6d3b]/30 animate-in slide-in-from-bottom-2 fade-in duration-200">
             {/* Total value */}
             <div className="flex items-baseline gap-2">
-              <span className="text-xs uppercase text-zinc-400 font-bold tracking-wider">Итог:</span>
+              <span className="text-xs uppercase text-zinc-400 font-bold tracking-wider">{isEn ? "Total:" : "Итого:"}</span>
               <span className="text-3xl font-extrabold font-mono text-[#f5b920] drop-shadow-[0_0_10px_rgba(245,185,32,0.7)]">
                 {settledInfo.total}
               </span>

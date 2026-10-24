@@ -63,7 +63,9 @@ export function SpellDetailsModal({ spell, onClose }: SpellDetailsModalProps) {
         spell.components_m ? 'М' : null,
       ].filter(Boolean).join(', ') || 'В, С';
 
-  const materialsText = spell.materials_ru ? ` (${spell.materials_ru})` : '';
+  const materialsText = isEn
+    ? (spell.materials_en ? ` (${spell.materials_en})` : spell.materials_ru ? ` (${spell.materials_ru})` : '')
+    : (spell.materials_ru ? ` (${cleanRussianText(spell.materials_ru)})` : '');
 
   const durationText = isEn
     ? spell.duration
@@ -73,7 +75,9 @@ export function SpellDetailsModal({ spell, onClose }: SpellDetailsModalProps) {
     ? (spell.description_en || spell.description_ru || '')
     : cleanRussianText(spell.description_ru || spell.description_en || '');
 
-  const higherLevelsText = cleanRussianText(spell.higher_levels_ru || '');
+  const higherLevelsText = isEn
+    ? (spell.higher_levels_en || spell.higher_levels_ru || '')
+    : cleanRussianText(spell.higher_levels_ru || spell.higher_levels_en || '');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in select-none">

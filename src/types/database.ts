@@ -73,6 +73,8 @@ export interface SpellDbRow {
   source: string;
   is_srd: boolean | number;
   description_en: string | null;
+  materials_en?: string | null;
+  higher_levels_en?: string | null;
 }
 
 export interface ItemDbRow {

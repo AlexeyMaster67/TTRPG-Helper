@@ -1119,7 +1119,8 @@ interface RulesCheatSheetModalProps {
 }
 
 export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalProps) {
-  const isEn = useSettingsStore((s) => s.language === 'en');
+  const language = useSettingsStore((s) => s.language);
+  const isRu = language === 'ru';
   const [activeTab, setActiveTab] = useState<CategoryTab>('conditions');
   const [search, setSearch] = useState('');
 
@@ -1234,20 +1235,21 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
             </div>
             <div>
               <h2 className="font-sans font-bold text-base text-gray-100 flex items-center gap-2">
-                {isEn ? "Rules Reference • D&D 2024" : "Шпаргалка правил • D&D 2024"}
+                {isRu ? "Шпаргалка правил • D&D 2024" : "Rules Reference • D&D 2024"}
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#f5b920]/20 text-[#fce79f] font-mono font-medium border border-[#f5b920]/30">
                   SRD 5.2 Offline
                 </span>
               </h2>
               <p className="text-[11px] text-gray-400">
-                {isEn ? "Conditions, actions, weapon mastery, classes, species, and damage rules" : "Состояния, действия, мастерство оружия, классы, виды и механики урона"}
+                {isRu ? "Состояния, действия, мастерство оружия, классы, виды и механики урона" : "Conditions, actions, weapon mastery, classes, species, and damage rules"}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="p-1.5 rounded-glass text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            title={isEn ? "Close (Esc)" : "Закрыть (Esc)"}
+            title={isRu ? "Закрыть (Esc)" : "Close (Esc)"}
+            aria-label={isRu ? "Закрыть (Esc)" : "Close (Esc)"}
           >
             <X className="h-4 w-4" />
           </button>
@@ -1257,12 +1259,12 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
         <div className="p-3 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(14,18,25,0.7)] flex items-center justify-between gap-3 flex-wrap flex-shrink-0">
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
             {[
-              { id: 'conditions' as const, label: isEn ? 'Conditions' : 'Состояния', icon: AlertCircle },
-              { id: 'actions' as const, label: isEn ? 'Actions' : 'Действия', icon: Sword },
-              { id: 'mastery' as const, label: isEn ? 'Mastery' : 'Мастерство', icon: Crosshair },
-              { id: 'classes' as const, label: isEn ? 'Classes' : 'Классы', icon: Shield },
-              { id: 'species' as const, label: isEn ? 'Species' : 'Виды / Расы', icon: Users },
-              { id: 'rest_damage' as const, label: isEn ? 'Rest & Damage' : 'Отдых и Урон', icon: Bed },
+              { id: 'conditions' as const, label: isRu ? 'Состояния' : 'Conditions', icon: AlertCircle },
+              { id: 'actions' as const, label: isRu ? 'Действия' : 'Actions', icon: Sword },
+              { id: 'mastery' as const, label: isRu ? 'Мастерство' : 'Weapon Mastery', icon: Crosshair },
+              { id: 'classes' as const, label: isRu ? 'Классы' : 'Classes', icon: Shield },
+              { id: 'species' as const, label: isRu ? 'Виды / Расы' : 'Species', icon: Users },
+              { id: 'rest_damage' as const, label: isRu ? 'Отдых и Урон' : 'Rest & Damage', icon: Bed },
             ].map((tab) => {
               const TabIcon = tab.icon;
               const matchCount = counts[tab.id];
@@ -1273,6 +1275,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
+                  title={tab.label}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
                     isActive
                       ? 'bg-[#f5b920] text-black font-bold shadow-sm'
@@ -1306,14 +1309,15 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={isEn ? "Instant search across all rules..." : "Мгновенный поиск по всем правилам..."}
+              placeholder={isRu ? "Мгновенный поиск по всем правилам..." : "Instant search across all rules..."}
               className="w-full pl-8 pr-7 py-1 rounded-full bg-black/40 border border-white/10 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-[#f5b920] transition-colors"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                title={isRu ? "Очистить поиск" : "Clear search"}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -1325,11 +1329,11 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
         {q && (
           <div className="px-5 py-1.5 bg-[#f5b920]/10 border-b border-[#f5b920]/20 flex items-center justify-between text-[11px] text-[#fce79f]">
             <span>
-              {isEn ? "Found matches: " : "Найдено совпадений: "}<strong>{totalMatches}</strong> {isEn ? "in all categories" : "во всех категориях"}
+              {isRu ? "Найдено совпадений: " : "Found matches: "}<strong>{totalMatches}</strong> {isRu ? "во всех категориях" : "in all categories"}
             </span>
             {counts[activeTab] === 0 && totalMatches > 0 && (
               <span className="text-amber-300 font-medium">
-                {isEn ? "No matches in this tab — check other tabs with counts above!" : "В этой вкладке нет совпадений — проверьте другие вкладки с цифрами выше!"}
+                {isRu ? "В этой вкладке нет совпадений — проверьте другие вкладки с цифрами выше!" : "No matches in this tab — check other tabs with counts above!"}
               </span>
             )}
           </div>
@@ -1348,9 +1352,9 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold text-sm text-[#fce79f] flex items-center gap-1.5">
                       <AlertCircle className="h-4 w-4 text-[#f5b920]" />
-                      <span>{cond.name}</span>
+                      <span>{isRu ? cond.name : cond.nameEn}</span>
                     </h3>
-                    <span className="text-[10px] text-gray-400 font-mono">({cond.nameEn})</span>
+                    <span className="text-[10px] text-gray-400 font-mono">({isRu ? cond.nameEn : cond.name})</span>
                   </div>
                   <p className="text-gray-300 text-[11px] leading-relaxed">{cond.desc}</p>
                   <ul className="space-y-1 pt-1.5 border-t border-white/5">
@@ -1365,7 +1369,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               ))}
               {filteredConditions.length === 0 && (
                 <div className="col-span-full py-8 text-center text-gray-500">
-                  {isEn ? `No conditions found for "${search}".` : `Состояний по запросу «${search}» не найдено.`}
+                  {isRu ? `Состояний по запросу «${search}» не найдено.` : `No conditions found for "${search}".`}
                 </div>
               )}
             </div>
@@ -1391,11 +1395,17 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5">
                           <Sword className="h-4 w-4 text-[#f5b920]" />
-                          <span className="font-bold text-sm text-gray-100">{action.name}</span>
-                          <span className="text-[10px] text-gray-400 font-mono">({action.nameEn})</span>
+                          <span className="font-bold text-sm text-gray-100">{isRu ? action.name : action.nameEn}</span>
+                          <span className="text-[10px] text-gray-400 font-mono">({isRu ? action.nameEn : action.name})</span>
                         </div>
                         <span className={`text-[10px] px-2 py-0.5 rounded border font-mono ${badgeColor}`}>
-                          {action.type}
+                          {action.type === 'Action'
+                            ? (isRu ? 'Действие' : 'Action')
+                            : action.type === 'Bonus Action'
+                            ? (isRu ? 'Бонусное действие' : 'Bonus Action')
+                            : action.type === 'Reaction'
+                            ? (isRu ? 'Реакция' : 'Reaction')
+                            : (isRu ? 'Перемещение' : 'Movement')}
                         </span>
                       </div>
                       <p className="text-gray-300 text-[11px] leading-relaxed">{action.desc}</p>
@@ -1409,7 +1419,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
                       </ul>
                       {action.rule2024Note && (
                         <div className="p-2 rounded bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-200">
-                          <strong>Обновление 2024:</strong> {action.rule2024Note}
+                          <strong>{isRu ? "Обновление 2024:" : "2024 Update:"}</strong> {action.rule2024Note}
                         </div>
                       )}
                     </div>
@@ -1418,7 +1428,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               </div>
               {filteredActions.length === 0 && (
                 <div className="py-8 text-center text-gray-500">
-                  {isEn ? `No actions found for "${search}".` : `Действий по запросу «${search}» не найдено.`}
+                  {isRu ? `Действий по запросу «${search}» не найдено.` : `No actions found for "${search}".`}
                 </div>
               )}
             </div>
@@ -1430,7 +1440,10 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               <div className="p-3 rounded-glass bg-amber-950/20 border border-amber-500/20 text-amber-200 text-[11px] flex items-center gap-2">
                 <Crosshair className="h-4 w-4 text-[#f5b920] flex-shrink-0" />
                 <span>
-                  <strong>Мастерство оружия (D&D 2024):</strong> Воин, Варвар, Паладин, Следопыт и Плут разблокируют особые тактические свойства для любимого оружия.
+                  <strong>{isRu ? 'Мастерство оружия (D&D 2024):' : 'Weapon Mastery (D&D 2024):'}</strong>{' '}
+                  {isRu
+                    ? 'Воин, Варвар, Паладин, Следопыт и Плут разблокируют особые тактические свойства для любимого оружия.'
+                    : 'Fighter, Barbarian, Paladin, Ranger, and Rogue unlock special tactical properties for their chosen weapons.'}
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1442,8 +1455,8 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
                     <div className="flex items-center justify-between">
                       <h3 className="font-bold text-sm text-[#fce79f] flex items-center gap-1.5">
                         <Zap className="h-4 w-4 text-[#f5b920]" />
-                        <span>{wm.name}</span>
-                        <span className="text-[10px] text-gray-400 font-mono">({wm.nameEn})</span>
+                        <span>{isRu ? wm.name : wm.nameEn}</span>
+                        <span className="text-[10px] text-gray-400 font-mono">({isRu ? wm.nameEn : wm.name})</span>
                       </h3>
                       {wm.saveDC && (
                         <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/20 text-red-200 border border-red-500/30 font-mono">
@@ -1452,14 +1465,14 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
                       )}
                     </div>
                     <div className="text-[10px] text-gray-400 font-mono bg-white/5 px-2 py-1 rounded">
-                      <strong>Оружие:</strong> {wm.weapons}
+                      <strong>{isRu ? "Оружие:" : "Weapons:"}</strong> {wm.weapons}
                     </div>
                     <div className="space-y-1 text-[11px] text-gray-300 leading-relaxed">
                       <p>
-                        <strong className="text-gray-100">Механика:</strong> {wm.mechanics}
+                        <strong className="text-gray-100">{isRu ? "Механика:" : "Mechanics:"}</strong> {wm.mechanics}
                       </p>
                       <p className="text-gray-400">
-                        <strong className="text-amber-300">Тактика:</strong> {wm.tactics}
+                        <strong className="text-amber-300">{isRu ? "Тактика:" : "Tactics:"}</strong> {wm.tactics}
                       </p>
                     </div>
                   </div>
@@ -1467,7 +1480,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               </div>
               {filteredMasteries.length === 0 && (
                 <div className="py-8 text-center text-gray-500">
-                  {isEn ? `No mastery properties found for "${search}".` : `Свойств мастерства по запросу «${search}» не найдено.`}
+                  {isRu ? `Свойств мастерства по запросу «${search}» не найдено.` : `No mastery properties found for "${search}".`}
                 </div>
               )}
             </div>
@@ -1484,29 +1497,29 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold text-sm text-[#fce79f] flex items-center gap-1.5">
                       <Shield className="h-4 w-4 text-[#f5b920]" />
-                      <span>{cls.name}</span>
-                      <span className="text-[10px] text-gray-400 font-mono">({cls.nameEn})</span>
+                      <span>{isRu ? cls.name : cls.nameEn}</span>
+                      <span className="text-[10px] text-gray-400 font-mono">({isRu ? cls.nameEn : cls.name})</span>
                     </h3>
                     <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-200 border border-amber-500/30 font-mono font-bold">
-                      Кость: {cls.hitDie}
+                      {isRu ? 'Кость:' : 'Hit Die:'} {cls.hitDie}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-1.5 text-[10px] text-gray-300 bg-white/5 p-2 rounded">
                     <div>
-                      <span className="text-gray-400">Характеристика:</span>{' '}
+                      <span className="text-gray-400">{isRu ? "Характеристика:" : "Primary Stat:"}</span>{' '}
                       <strong>{cls.primaryStat}</strong>
                     </div>
                     <div>
-                      <span className="text-gray-400">Спасброски:</span>{' '}
+                      <span className="text-gray-400">{isRu ? "Спасброски:" : "Saving Throws:"}</span>{' '}
                       <strong>{cls.saves}</strong>
                     </div>
                     <div>
-                      <span className="text-gray-400">Магия:</span>{' '}
+                      <span className="text-gray-400">{isRu ? "Магия:" : "Spellcasting:"}</span>{' '}
                       <strong>{cls.spellcaster}</strong>
                     </div>
                     <div>
-                      <span className="text-gray-400">Мастерство:</span>{' '}
+                      <span className="text-gray-400">{isRu ? "Мастерство:" : "Weapon Mastery:"}</span>{' '}
                       <strong>{cls.masteries}</strong>
                     </div>
                   </div>
@@ -1523,7 +1536,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               ))}
               {filteredClasses.length === 0 && (
                 <div className="col-span-full py-8 text-center text-gray-500">
-                  {isEn ? `No classes found for "${search}".` : `Классов по запросу «${search}» не найдено.`}
+                  {isRu ? `Классов по запросу «${search}» не найдено.` : `No classes found for "${search}".`}
                 </div>
               )}
             </div>
@@ -1540,8 +1553,8 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold text-sm text-[#fce79f] flex items-center gap-1.5">
                       <Users className="h-4 w-4 text-[#f5b920]" />
-                      <span>{sp.name}</span>
-                      <span className="text-[10px] text-gray-400 font-mono">({sp.nameEn})</span>
+                      <span>{isRu ? sp.name : sp.nameEn}</span>
+                      <span className="text-[10px] text-gray-400 font-mono">({isRu ? sp.nameEn : sp.name})</span>
                     </h3>
                     <div className="flex items-center gap-1 text-[10px] font-mono">
                       <span className="px-1.5 py-0.5 rounded bg-white/10 text-gray-200">
@@ -1552,10 +1565,10 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
 
                   <div className="flex items-center gap-3 text-[10px] text-gray-400 bg-white/5 px-2 py-1 rounded">
                     <div>
-                      Размер: <strong className="text-gray-200">{sp.size}</strong>
+                      {isRu ? "Размер:" : "Size:"} <strong className="text-gray-200">{sp.size}</strong>
                     </div>
                     <div>
-                      Тёмное зрение: <strong className="text-gray-200">{sp.darkvision}</strong>
+                      {isRu ? "Тёмное зрение:" : "Darkvision:"} <strong className="text-gray-200">{sp.darkvision}</strong>
                     </div>
                   </div>
 
@@ -1571,7 +1584,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               ))}
               {filteredSpecies.length === 0 && (
                 <div className="col-span-full py-8 text-center text-gray-500">
-                  {isEn ? `No species found for "${search}".` : `Видов / рас по запросу «${search}» не найдено.`}
+                  {isRu ? `Видов / рас по запросу «${search}» не найдено.` : `No species found for "${search}".`}
                 </div>
               )}
             </div>
@@ -1621,7 +1634,7 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
               </div>
               {filteredRestDamage.length === 0 && (
                 <div className="py-8 text-center text-gray-500">
-                  {isEn ? `No rules found for "${search}".` : `Правил отдыха и урона по запросу «${search}» не найдено.`}
+                  {isRu ? `Правил отдыха и урона по запросу «${search}» не найдено.` : `No rules found for "${search}".`}
                 </div>
               )}
             </div>
@@ -1632,14 +1645,15 @@ export function RulesCheatSheetModal({ isOpen, onClose }: RulesCheatSheetModalPr
         <div className="px-5 py-3 bg-[rgba(14,18,25,0.85)] border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between text-xs text-gray-400 flex-shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>{isEn ? "Offline Rules Reference • Full offline support" : "Автономный справочник D&D 2024 • Полная оффлайн поддержка"}</span>
+            <span>{isRu ? 'Автономный справочник D&D 2024 • Полная оффлайн поддержка' : 'Offline Rules Reference • Full offline support'}</span>
           </div>
           <button
             type="button"
             onClick={onClose}
+            title={isRu ? 'Закрыть окно справочника' : 'Close rules reference window'}
             className="px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-white font-bold transition-colors cursor-pointer"
           >
-            {isEn ? 'Close' : 'Закрыть'}
+            {isRu ? 'Закрыть' : 'Close'}
           </button>
         </div>
       </div>

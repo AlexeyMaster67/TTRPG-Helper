@@ -16,7 +16,8 @@ import {
 import { CreatureSize, CREATURE_SIZE_SCALE } from '../../types/dnd5e';
 import { MonsterAction, ParsedMonster } from '../../types/database';
 import { useCombatStore } from '../../store/combatStore';
-import { useSettingsStore } from '../../store/settingsStore';
+import { useTranslation } from '../../i18n';
+import { localizeCreatureType } from '../../utils/textUtils';
 import { homebrewService, getProficiencyBonusByCr } from '../../services/homebrewService';
 
 interface HomebrewMonsterModalProps {
@@ -43,13 +44,13 @@ const CREATURE_TYPES = [
   'растение',
 ];
 
-const SIZE_OPTIONS: { id: CreatureSize; labelRu: string; gridDesc: string }[] = [
-  { id: 'Tiny', labelRu: 'Крошечный', gridDesc: '0.5×0.5 клетки' },
-  { id: 'Small', labelRu: 'Маленький', gridDesc: '1×1 клетка' },
-  { id: 'Medium', labelRu: 'Средний', gridDesc: '1×1 клетка' },
-  { id: 'Large', labelRu: 'Большой', gridDesc: '2×2 клетки' },
-  { id: 'Huge', labelRu: 'Огромный', gridDesc: '3×3 клетки' },
-  { id: 'Gargantuan', labelRu: 'Громадный', gridDesc: '4×4 клетки' },
+const SIZE_OPTIONS: { id: CreatureSize; labelRu: string; labelEn: string; gridDescRu: string; gridDescEn: string }[] = [
+  { id: 'Tiny', labelRu: 'Крошечный', labelEn: 'Tiny', gridDescRu: '0.5×0.5 клетки', gridDescEn: '0.5×0.5 grid' },
+  { id: 'Small', labelRu: 'Маленький', labelEn: 'Small', gridDescRu: '1×1 клетка', gridDescEn: '1×1 grid' },
+  { id: 'Medium', labelRu: 'Средний', labelEn: 'Medium', gridDescRu: '1×1 клетка', gridDescEn: '1×1 grid' },
+  { id: 'Large', labelRu: 'Большой', labelEn: 'Large', gridDescRu: '2×2 клетки', gridDescEn: '2×2 grid' },
+  { id: 'Huge', labelRu: 'Огромный', labelEn: 'Huge', gridDescRu: '3×3 клетки', gridDescEn: '3×3 grid' },
+  { id: 'Gargantuan', labelRu: 'Громадный', labelEn: 'Gargantuan', gridDescRu: '4×4 клетки', gridDescEn: '4×4 grid' },
 ];
 
 const CR_OPTIONS = [
@@ -58,20 +59,20 @@ const CR_OPTIONS = [
   '24', '25', '26', '27', '28', '29', '30'
 ];
 
-const DAMAGE_TYPES: { id: string; labelRu: string }[] = [
-  { id: 'Slashing', labelRu: 'Рубящий' },
-  { id: 'Piercing', labelRu: 'Колющий' },
-  { id: 'Bludgeoning', labelRu: 'Дробящий' },
-  { id: 'Fire', labelRu: 'Огонь' },
-  { id: 'Cold', labelRu: 'Холод' },
-  { id: 'Lightning', labelRu: 'Электричество' },
-  { id: 'Poison', labelRu: 'Яд' },
-  { id: 'Acid', labelRu: 'Кислота' },
-  { id: 'Psychic', labelRu: 'Психический' },
-  { id: 'Necrotic', labelRu: 'Некротический' },
-  { id: 'Radiant', labelRu: 'Излучение' },
-  { id: 'Force', labelRu: 'Силовое поле' },
-  { id: 'Thunder', labelRu: 'Звук' },
+const DAMAGE_TYPES: { id: string; labelRu: string; labelEn: string }[] = [
+  { id: 'Slashing', labelRu: 'Рубящий', labelEn: 'Slashing' },
+  { id: 'Piercing', labelRu: 'Колющий', labelEn: 'Piercing' },
+  { id: 'Bludgeoning', labelRu: 'Дробящий', labelEn: 'Bludgeoning' },
+  { id: 'Fire', labelRu: 'Огонь', labelEn: 'Fire' },
+  { id: 'Cold', labelRu: 'Холод', labelEn: 'Cold' },
+  { id: 'Lightning', labelRu: 'Электричество', labelEn: 'Lightning' },
+  { id: 'Poison', labelRu: 'Яд', labelEn: 'Poison' },
+  { id: 'Acid', labelRu: 'Кислота', labelEn: 'Acid' },
+  { id: 'Psychic', labelRu: 'Психический', labelEn: 'Psychic' },
+  { id: 'Necrotic', labelRu: 'Некротический', labelEn: 'Necrotic' },
+  { id: 'Radiant', labelRu: 'Излучение', labelEn: 'Radiant' },
+  { id: 'Force', labelRu: 'Силовое поле', labelEn: 'Force' },
+  { id: 'Thunder', labelRu: 'Звук', labelEn: 'Thunder' },
 ];
 
 function calcMod(score: number): number {
@@ -101,7 +102,8 @@ export function HomebrewMonsterModal({
   onCreated,
   initialData,
 }: HomebrewMonsterModalProps) {
-  const isEn = useSettingsStore((s) => s.language === 'en');
+  const { language } = useTranslation();
+  const isEn = language === 'en';
   const addCombatant = useCombatStore((s) => s.addCombatant);
 
   // Form State
@@ -109,13 +111,13 @@ export function HomebrewMonsterModal({
   const [nameEn, setNameEn] = useState(initialData?.name_en || '');
   const [size, setSize] = useState<CreatureSize>((initialData?.size as CreatureSize) || 'Medium');
   const [creatureType, setCreatureType] = useState(initialData?.creature_type_ru || 'чудовище');
-  const [alignment, setAlignment] = useState(initialData?.alignment || 'нейтральный');
+  const [alignment, setAlignment] = useState(initialData?.alignment || (isEn ? 'neutral' : 'нейтральный'));
   const [cr, setCr] = useState(initialData?.cr || '1');
 
   const [ac, setAc] = useState(initialData?.ac ?? 12);
   const [hpAverage, setHpAverage] = useState(initialData?.hp_average ?? 22);
   const [hpFormula, setHpFormula] = useState(initialData?.hp_formula || '4d8 + 4');
-  const [speed, setSpeed] = useState(initialData?.speed || '30 фт.');
+  const [speed, setSpeed] = useState(initialData?.speed || (isEn ? '30 ft.' : '30 фт.'));
   const [tokenUrl, setTokenUrl] = useState((initialData as any)?.token_url || (initialData as any)?.avatarUrl || '');
 
   // Ability scores
@@ -132,12 +134,12 @@ export function HomebrewMonsterModal({
       ? initialData.actions
       : [
           {
-            name: 'Удар когтями',
+            name: isEn ? 'Claw Strike' : 'Удар когтями',
             attack_bonus: 4,
             damage_dice: '1d8 + 2',
             damage_bonus: 2,
             damage_type: 'Slashing',
-            desc: 'Рукопашная атака: досягаемость 5 фт. Попадание: рубящий урон.',
+            desc: isEn ? 'Melee attack: reach 5 ft. Hit: slashing damage.' : 'Рукопашная атака: досягаемость 5 фт. Попадание: рубящий урон.',
           },
         ]
   );
@@ -151,12 +153,12 @@ export function HomebrewMonsterModal({
       setNameEn(initialData?.name_en || '');
       setSize((initialData?.size as CreatureSize) || 'Medium');
       setCreatureType(initialData?.creature_type_ru || initialData?.creature_type || 'чудовище');
-      setAlignment(initialData?.alignment || 'нейтральный');
+      setAlignment(initialData?.alignment || (isEn ? 'neutral' : 'нейтральный'));
       setCr(initialData?.cr || '1');
       setAc(initialData?.ac ?? 12);
       setHpAverage(initialData?.hp_average ?? 22);
       setHpFormula(initialData?.hp_formula || '4d8 + 4');
-      setSpeed(initialData?.speed || '30 фт.');
+      setSpeed(initialData?.speed || (isEn ? '30 ft.' : '30 фт.'));
       setTokenUrl((initialData as any)?.token_url || (initialData as any)?.avatarUrl || '');
       setStr(initialData?.str ?? 10);
       setDex(initialData?.dex ?? 10);
@@ -169,18 +171,18 @@ export function HomebrewMonsterModal({
           ? initialData.actions.map((a) => ({ ...a }))
           : [
               {
-                name: 'Удар когтями',
+                name: isEn ? 'Claw Strike' : 'Удар когтями',
                 attack_bonus: 4,
                 damage_dice: '1d8 + 2',
                 damage_bonus: 2,
                 damage_type: 'Slashing',
-                desc: 'Рукопашная атака: досягаемость 5 фт. Попадание: рубящий урон.',
+                desc: isEn ? 'Melee attack: reach 5 ft. Hit: slashing damage.' : 'Рукопашная атака: досягаемость 5 фт. Попадание: рубящий урон.',
               },
             ]
       );
       setErrorMessage(null);
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, isEn]);
 
   if (!isOpen) return null;
 
@@ -207,12 +209,14 @@ export function HomebrewMonsterModal({
     setActions((prev) => [
       ...prev,
       {
-        name: `Новая атака #${prev.length + 1}`,
+        name: isEn ? `New Attack #${prev.length + 1}` : `Новая атака #${prev.length + 1}`,
         attack_bonus: defaultBonus,
         damage_dice: defaultDice,
         damage_bonus: Math.max(strMod, dexMod),
         damage_type: 'Slashing',
-        desc: `Рукопашная атака: +${defaultBonus} к попаданию, досягаемость 5 фт. Попадание: (${defaultDice}) урона.`,
+        desc: isEn
+          ? `Melee attack: +${defaultBonus} to hit, reach 5 ft. Hit: (${defaultDice}) damage.`
+          : `Рукопашная атака: +${defaultBonus} к попаданию, досягаемость 5 фт. Попадание: (${defaultDice}) урона.`,
       },
     ]);
   };
@@ -230,7 +234,7 @@ export function HomebrewMonsterModal({
   };
 
   const constructMonster = (): ParsedMonster => {
-    const cleanRu = nameRu.trim() || 'Безымянное существо';
+    const cleanRu = nameRu.trim() || (isEn ? 'Unnamed Creature' : 'Безымянное существо');
     const cleanEn = nameEn.trim() || cleanRu;
     const sizeRuMap: Record<CreatureSize, string> = {
       Tiny: 'Крошечный',
@@ -259,7 +263,7 @@ export function HomebrewMonsterModal({
       ac: Number(ac) || 10,
       hp_average: Number(hpAverage) || 10,
       hp_formula: hpFormula.trim() || `${Number(hpAverage) || 10}`,
-      speed: speed.trim() || '30 фт.',
+      speed: speed.trim() || (isEn ? '30 ft.' : '30 фт.'),
       init_bonus: dexMod,
       passive_init: 10 + dexMod,
       cr: String(cr),
@@ -276,8 +280,8 @@ export function HomebrewMonsterModal({
       damage_resistances: initialData?.damage_resistances || '',
       damage_immunities: initialData?.damage_immunities || '',
       condition_immunities: initialData?.condition_immunities || '',
-      senses: initialData?.senses || 'Пасс. Внимание ' + (10 + wisMod),
-      languages: initialData?.languages || 'Общий',
+      senses: initialData?.senses || (isEn ? 'Passive Perception ' + (10 + wisMod) : 'Пасс. Внимание ' + (10 + wisMod)),
+      languages: initialData?.languages || (isEn ? 'Common' : 'Общий'),
       traits: initialData?.traits ? initialData.traits.map((t) => ({ ...t })) : [],
       actions: actions.map((a) => ({
         ...a,
@@ -288,7 +292,7 @@ export function HomebrewMonsterModal({
       reactions: initialData?.reactions ? initialData.reactions.map((r) => ({ ...r })) : [],
       legendary_actions: initialData?.legendary_actions ? initialData.legendary_actions.map((l) => ({ ...l })) : [],
       spells: initialData?.spells ? [...initialData.spells] : [],
-      source: 'Кастомный (Homebrew)',
+      source: isEn ? 'Custom (Homebrew)' : 'Кастомный (Homebrew)',
       is_srd: false,
       is_custom: true,
       token_url: tokenUrl.trim() || undefined,
@@ -299,7 +303,7 @@ export function HomebrewMonsterModal({
 
   const handleSaveToBestiary = async () => {
     if (!nameRu.trim() && !nameEn.trim()) {
-      setErrorMessage('Пожалуйста, введите название существа!');
+      setErrorMessage(isEn ? 'Please enter creature name!' : 'Пожалуйста, введите название существа!');
       return;
     }
     setErrorMessage(null);
@@ -312,7 +316,7 @@ export function HomebrewMonsterModal({
 
   const handleAddToCombatNow = async () => {
     if (!nameRu.trim() && !nameEn.trim()) {
-      setErrorMessage('Пожалуйста, введите название существа!');
+      setErrorMessage(isEn ? 'Please enter creature name!' : 'Пожалуйста, введите название существа!');
       return;
     }
     setErrorMessage(null);
@@ -424,7 +428,7 @@ export function HomebrewMonsterModal({
                   type="text"
                   value={nameEn}
                   onChange={(e) => setNameEn(e.target.value)}
-                  placeholder="Например: Shadow Stalker"
+                  placeholder={isEn ? "e.g. Shadow Stalker" : "Например: Shadow Stalker"}
                   className="w-full h-8 px-3 rounded-glass bg-[rgba(0,0,0,0.4)] border border-[rgba(255,255,255,0.12)] text-gray-100 text-xs focus:outline-none focus:border-[#f5b920] focus:ring-1 focus:ring-[#f5b920] transition-colors"
                 />
               </div>
@@ -443,7 +447,7 @@ export function HomebrewMonsterModal({
                 >
                   {SIZE_OPTIONS.map((opt) => (
                     <option key={opt.id} value={opt.id} className="bg-[#12161e] text-gray-200">
-                      {opt.labelRu} ({opt.gridDesc})
+                      {isEn ? `${opt.labelEn} (${opt.gridDescEn})` : `${opt.labelRu} (${opt.gridDescRu})`}
                     </option>
                   ))}
                 </select>
@@ -461,7 +465,7 @@ export function HomebrewMonsterModal({
                 >
                   {CREATURE_TYPES.map((t) => (
                     <option key={t} value={t} className="bg-[#12161e] text-gray-200">
-                      {t}
+                      {isEn ? localizeCreatureType(t, 'en') : localizeCreatureType(t, 'ru')}
                     </option>
                   ))}
                 </select>
@@ -470,7 +474,7 @@ export function HomebrewMonsterModal({
               {/* CR */}
               <div>
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                  {isEn ? "Challenge Rating (CR):" : "Класс опасности (КО):"}
+                  {isEn ? "Challenge Rating (CR):" : "Класс опасности (ПО):"}
                 </label>
                 <select
                   value={cr}
@@ -479,7 +483,7 @@ export function HomebrewMonsterModal({
                 >
                   {CR_OPTIONS.map((c) => (
                     <option key={c} value={c} className="bg-[#12161e] text-gray-200">
-                      КО {c} (БМ +{getProficiencyBonusByCr(c)})
+                      {isEn ? `CR ${c} (PB +${getProficiencyBonusByCr(c)})` : `ПО ${c} (БМ +${getProficiencyBonusByCr(c)})`}
                     </option>
                   ))}
                 </select>
@@ -494,7 +498,7 @@ export function HomebrewMonsterModal({
                   type="text"
                   value={alignment}
                   onChange={(e) => setAlignment(e.target.value)}
-                  placeholder="нейтральный"
+                  placeholder={isEn ? "neutral" : "нейтральный"}
                   className="w-full h-8 px-2.5 rounded-glass bg-[rgba(0,0,0,0.4)] border border-[rgba(255,255,255,0.12)] text-gray-200 text-xs focus:outline-none focus:border-[#f5b920]"
                 />
               </div>
@@ -578,7 +582,7 @@ export function HomebrewMonsterModal({
                 {tokenUrl ? (
                   <img
                     src={tokenUrl}
-                    alt="Токен"
+                    alt={isEn ? "Token" : "Токен"}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       (e.target as any).style.display = 'none';
@@ -596,7 +600,7 @@ export function HomebrewMonsterModal({
                   type="text"
                   value={tokenUrl}
                   onChange={(e) => setTokenUrl(e.target.value)}
-                  placeholder="https://example.com/token.png или data:image/..."
+                  placeholder={isEn ? "https://example.com/token.png or data:image/..." : "https://example.com/token.png или data:image/..."}
                   className="w-full h-8 px-3 rounded-glass bg-[rgba(0,0,0,0.4)] border border-[rgba(255,255,255,0.12)] text-gray-200 text-xs focus:outline-none focus:border-[#f5b920]"
                 />
               </div>
@@ -613,7 +617,7 @@ export function HomebrewMonsterModal({
                 </span>
               </span>
               <span className="text-[11px] font-mono text-gray-300 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
-                {isEn ? "Initiative:" : "Инициатива:"} <span className="text-[#f5b920] font-bold">{formatMod(dexMod)}</span> • БМ: <span className="text-[#f5b920] font-bold">+{pb}</span>
+                {isEn ? "Initiative:" : "Инициатива:"} <span className="text-[#f5b920] font-bold">{formatMod(dexMod)}</span> • {isEn ? "PB:" : "БМ:"} <span className="text-[#f5b920] font-bold">+{pb}</span>
               </span>
             </div>
 
@@ -745,7 +749,7 @@ export function HomebrewMonsterModal({
                         >
                           {DAMAGE_TYPES.map((d) => (
                             <option key={d.id} value={d.id} className="bg-[#12161e] text-gray-200">
-                              {d.labelRu}
+                              {isEn ? d.labelEn : d.labelRu}
                             </option>
                           ))}
                         </select>

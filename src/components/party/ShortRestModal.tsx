@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { usePartyStore } from '../../store/partyStore';
 import { useCombatStore } from '../../store/combatStore';
-import { useTranslation } from '../../i18n';
+import { useSettingsStore } from '../../store/settingsStore';
 import { rollDie } from '../../engine/rolls';
 import { Flame, X, Sparkles, Check, RotateCcw, HeartPulse, Zap } from 'lucide-react';
 import { HealthBar } from '../ui';
@@ -26,8 +26,9 @@ interface RestParticipant {
 }
 
 export const ShortRestModal: React.FC = () => {
-  const { language } = useTranslation();
-  const isEn = language === 'en';
+  const language = useSettingsStore((s) => s.language);
+  const isRu = language === 'ru';
+  const isEn = !isRu;
 
   const {
     members,
@@ -393,7 +394,7 @@ export const ShortRestModal: React.FC = () => {
                         onClick={() => handleRollHitDie(p)}
                         disabled={remainingDice <= 0 || isFullHp}
                         className="min-h-[34px] px-3.5 py-1.5 rounded-glass bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_0_10px_rgba(245,158,11,0.15)] cursor-pointer"
-                        title={isEn ? `Roll 1${diceType} + ${p.conMod}` : `Бросить 1${diceType} + ${p.conMod}`}
+                        title={isEn ? `Roll 1${diceType} ${p.conMod >= 0 ? `+ ${p.conMod}` : `- ${Math.abs(p.conMod)}`}` : `Бросить 1${diceType} ${p.conMod >= 0 ? `+ ${p.conMod}` : `- ${Math.abs(p.conMod)}`}`}
                       >
                         <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                         <span>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { usePartyStore } from '../../store/partyStore';
 import { useCombatStore } from '../../store/combatStore';
-import { useTranslation } from '../../i18n';
+import { useSettingsStore } from '../../store/settingsStore';
 import { audioService } from '../../services/audioService';
 import { rollDie, rollDiceFormula } from '../../engine/rolls';
 import {
@@ -45,8 +45,9 @@ function formatMod(mod: number): string {
 }
 
 export function CharacterSheetModal() {
-  const { language } = useTranslation();
-  const isEn = language === 'en';
+  const language = useSettingsStore((s) => s.language);
+  const isRu = language === 'ru';
+  const isEn = !isRu;
 
   const {
     members,
@@ -639,7 +640,8 @@ export function CharacterSheetModal() {
                 <button
                   type="button"
                   onClick={() => handleAdjustHp(-1)}
-                  className="w-4 h-4 rounded bg-[#202730] hover:bg-red-900/60 text-gray-300 hover:text-red-200 text-xs font-bold leading-none flex items-center justify-center"
+                  className="w-4 h-4 rounded bg-[#202730] hover:bg-red-900/60 text-gray-300 hover:text-red-200 text-xs font-bold leading-none flex items-center justify-center cursor-pointer"
+                  title={isEn ? 'Decrease HP' : 'Уменьшить ОЗ'}
                 >
                   -
                 </button>
@@ -649,7 +651,8 @@ export function CharacterSheetModal() {
                 <button
                   type="button"
                   onClick={() => handleAdjustHp(1)}
-                  className="w-4 h-4 rounded bg-[#202730] hover:bg-emerald-900/60 text-gray-300 hover:text-emerald-200 text-xs font-bold leading-none flex items-center justify-center"
+                  className="w-4 h-4 rounded bg-[#202730] hover:bg-emerald-900/60 text-gray-300 hover:text-emerald-200 text-xs font-bold leading-none flex items-center justify-center cursor-pointer"
+                  title={isEn ? 'Increase HP' : 'Увеличить ОЗ'}
                 >
                   +
                 </button>
@@ -664,7 +667,8 @@ export function CharacterSheetModal() {
                   type="button"
                   onClick={() => handleAdjustHitDice(-1)}
                   disabled={hitDiceCurrent <= 0}
-                  className="w-4 h-4 rounded bg-[#202730] hover:bg-surface text-gray-400 hover:text-white text-xs font-bold disabled:opacity-30 leading-none flex items-center justify-center"
+                  className="w-4 h-4 rounded bg-[#202730] hover:bg-surface text-gray-400 hover:text-white text-xs font-bold disabled:opacity-30 leading-none flex items-center justify-center cursor-pointer"
+                  title={isEn ? 'Spend Hit Die' : 'Потратить кость хитов'}
                 >
                   -
                 </button>
@@ -675,7 +679,8 @@ export function CharacterSheetModal() {
                   type="button"
                   onClick={() => handleAdjustHitDice(1)}
                   disabled={hitDiceCurrent >= hitDiceMax}
-                  className="w-4 h-4 rounded bg-[#202730] hover:bg-surface text-gray-400 hover:text-white text-xs font-bold disabled:opacity-30 leading-none flex items-center justify-center"
+                  className="w-4 h-4 rounded bg-[#202730] hover:bg-surface text-gray-400 hover:text-white text-xs font-bold disabled:opacity-30 leading-none flex items-center justify-center cursor-pointer"
+                  title={isEn ? 'Recover Hit Die' : 'Восстановить кость хитов'}
                 >
                   +
                 </button>
@@ -1006,7 +1011,8 @@ export function CharacterSheetModal() {
                             <button
                               type="button"
                               onClick={() => handleAdjustMaxSlots(lvl, -1)}
-                              className="w-4 h-4 rounded bg-[#101419] hover:bg-surface text-gray-400 hover:text-white flex items-center justify-center font-bold"
+                              className="w-4 h-4 rounded bg-[#101419] hover:bg-surface text-gray-400 hover:text-white flex items-center justify-center font-bold cursor-pointer"
+                              title={isEn ? 'Decrease max slots' : 'Уменьшить макс. ячеек'}
                             >
                               -
                             </button>
@@ -1016,7 +1022,8 @@ export function CharacterSheetModal() {
                             <button
                               type="button"
                               onClick={() => handleAdjustMaxSlots(lvl, 1)}
-                              className="w-4 h-4 rounded bg-[#101419] hover:bg-surface text-gray-400 hover:text-white flex items-center justify-center font-bold"
+                              className="w-4 h-4 rounded bg-[#101419] hover:bg-surface text-gray-400 hover:text-white flex items-center justify-center font-bold cursor-pointer"
+                              title={isEn ? 'Increase max slots' : 'Увеличить макс. ячеек'}
                             >
                               +
                             </button>
@@ -1412,6 +1419,7 @@ export function CharacterSheetModal() {
                           onClick={() => handleAdjustResource(res.id, -1)}
                           disabled={res.current <= 0}
                           className="w-6 h-6 rounded bg-[#202730] hover:bg-surface text-gray-300 hover:text-white font-bold text-sm flex items-center justify-center disabled:opacity-30 leading-none cursor-pointer"
+                          title={isEn ? 'Spend charge' : 'Потратить заряд'}
                         >
                           -
                         </button>
@@ -1423,6 +1431,7 @@ export function CharacterSheetModal() {
                           onClick={() => handleAdjustResource(res.id, 1)}
                           disabled={res.current >= res.max}
                           className="w-6 h-6 rounded bg-[#202730] hover:bg-surface text-gray-300 hover:text-white font-bold text-sm flex items-center justify-center disabled:opacity-30 leading-none cursor-pointer"
+                          title={isEn ? 'Recover charge' : 'Восстановить заряд'}
                         >
                           +
                         </button>
@@ -1612,6 +1621,7 @@ export function CharacterSheetModal() {
                         type="button"
                         onClick={() => handleRemoveEquipment(eq.id)}
                         className="text-gray-500 hover:text-red-400 p-0.5 cursor-pointer"
+                        title={isEn ? 'Remove item' : 'Удалить предмет'}
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -1659,6 +1669,7 @@ export function CharacterSheetModal() {
                   type="button"
                   onClick={() => setSelectedSpell(null)}
                   className="text-gray-400 hover:text-white p-1 rounded cursor-pointer"
+                  title={isEn ? 'Close' : 'Закрыть'}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1688,7 +1699,9 @@ export function CharacterSheetModal() {
                     ]
                       .filter(Boolean)
                       .join(', ') || (isEn ? 'V, S' : 'В, С')}
-                    {selectedSpell.materials_ru ? ` (${selectedSpell.materials_ru})` : ''}
+                    {(isEn ? selectedSpell.materials_en || selectedSpell.materials_ru : selectedSpell.materials_ru || selectedSpell.materials_en)
+                      ? ` (${isEn ? selectedSpell.materials_en || selectedSpell.materials_ru : selectedSpell.materials_ru || selectedSpell.materials_en})`
+                      : ''}
                   </span>
                 </div>
                 <div>
@@ -1711,10 +1724,18 @@ export function CharacterSheetModal() {
                       : selectedSpell.description_ru || selectedSpell.description_en || ''
                   )}
                 </p>
-                {selectedSpell.higher_levels_ru && (
+                {((isEn ? selectedSpell.higher_levels_en : selectedSpell.higher_levels_ru) ||
+                  selectedSpell.higher_levels_ru ||
+                  selectedSpell.higher_levels_en) && (
                   <div className="p-2 rounded bg-surface/80 border border-gold/30 text-[11px] text-gold-light">
                     <strong>{isEn ? 'At Higher Levels: ' : 'На более высоких кругах: '}</strong>
-                    <span>{cleanRussianText(selectedSpell.higher_levels_ru)}</span>
+                    <span>
+                      {cleanRussianText(
+                        (isEn
+                          ? selectedSpell.higher_levels_en || selectedSpell.higher_levels_ru
+                          : selectedSpell.higher_levels_ru || selectedSpell.higher_levels_en) || ''
+                      )}
+                    </span>
                   </div>
                 )}
               </div>

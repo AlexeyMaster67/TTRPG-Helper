@@ -331,7 +331,7 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
     // Candidate source legacy directories (checked in order of priority)
     let candidate_sources = [
         appdata_root.join("dnd-ait"),
-        appdata_root.join("ttrpg-helper-legacy"),
+        appdata_root.join("com.alexeymaster67.dndait"),
         appdata_root.join("DnD_AIT"),
     ];
 
@@ -515,4 +515,3 @@ async fn open_external_url(url: String) -> Result<(), String> {
         Ok(())
     }
 }
-
