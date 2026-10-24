@@ -118,16 +118,24 @@ export function CombatRoster() {
           /* Пустое состояние очереди */
           <div className="h-full flex flex-col items-center justify-center text-center p-8 border border-dashed border-[rgba(255,255,255,0.1)] rounded-glass-xl bg-[rgba(18,22,30,0.4)] backdrop-blur-sm">
             <Swords className="h-12 w-12 text-[#f5b920]/60 mb-3 animate-pulse" />
-            <h3 className="text-base font-bold text-white mb-1">Очередь боя пуста</h3>
+            <h3 className="text-base font-bold text-white mb-1">
+              {isEn ? 'Combat Roster is Empty' : 'Очередь боя пуста'}
+            </h3>
             <p className="text-xs text-gray-400 max-w-sm mb-5 leading-relaxed">
-              Добавьте существ из левой колонки Бестиария с автоматическим броском инициативы или начните тренировочный бой.
+              {isEn
+                ? 'Add creatures from the left Bestiary column with automatic initiative rolls, or load a sample combat scenario.'
+                : 'Добавьте существ из левой колонки Бестиария с автоматическим броском инициативы или начните тренировочный бой.'}
             </p>
             <button
               onClick={populateDefaultEncounter}
               className="min-h-[36px] flex items-center gap-2 px-5 py-2 rounded-full bg-[#f5b920] hover:bg-[#fac742] active:bg-[#e0a312] text-[#0c0d12] font-extrabold text-xs shadow-[0_0_18px_rgba(245,185,32,0.35)] transition-all cursor-pointer"
             >
               <Sparkles className="h-4 w-4" />
-              <span>Загрузить тренировочный бой (Вампир, Стражники, Игрок)</span>
+              <span>
+                {isEn
+                  ? 'Load Sample Encounter (Vampire, Guards, Player)'
+                  : 'Загрузить тренировочный бой (Вампир, Стражники, Игрок)'}
+              </span>
             </button>
           </div>
         ) : (

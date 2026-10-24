@@ -20,6 +20,7 @@ export interface Combatant {
   monsterDbId?: string;
   name: string;
   nameRu?: string;
+  name_en?: string;
   cr?: string;
   creatureType?: string;
   creatureTypeRu?: string;

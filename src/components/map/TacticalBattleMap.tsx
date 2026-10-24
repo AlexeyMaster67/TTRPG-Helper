@@ -237,7 +237,7 @@ function CombatantTokenNode({
     color: (c as any).aura.color || '#3B82F6',
     opacity: (c as any).aura.opacity ?? 0.22,
     pulsing: (c as any).aura.pulsing,
-    effectName: 'Аура токена',
+    effectName: language === 'en' ? 'Token Aura' : 'Аура токена',
   }] : [];
   const auras = [...effectAuras, ...directAura];
 
@@ -1577,7 +1577,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
             hp: member.currentHp ?? member.maxHp,
             maxHp: member.maxHp,
             ac: member.ac,
-            speed: member.speed || '30 фт.',
+            speed: member.speed || (language === 'en' ? '30 ft.' : '30 фт.'),
             isPlayer: true,
             tokenUrl: member.avatarUrl,
             avatarUrl: member.avatarUrl,
@@ -1586,7 +1586,11 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
             tokenY: Math.round(dropY),
           });
 
-          usePartyStore.getState().showToast(`Персонаж "${member.name}" импортирован на карту из .ttrpgh!`);
+          usePartyStore.getState().showToast(
+            language === 'en'
+              ? `Character "${member.name}" imported to map from .ttrpgh!`
+              : `Персонаж "${member.name}" импортирован на карту из .ttrpgh!`
+          );
         } catch (err) {
           console.error('[TacticalBattleMap] Failed to import .ttrpgh:', err);
         }
@@ -1626,7 +1630,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
         hp: 25,
         maxHp: 25,
         ac: 14,
-        speed: '30 фт.',
+        speed: language === 'en' ? '30 ft.' : '30 фт.',
         isPlayer: false,
         tokenUrl: dataUrl,
         avatarUrl: dataUrl,
@@ -1963,7 +1967,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
       const newPinId = addPin({
         x: Math.round(pos.x),
         y: Math.round(pos.y),
-        title: 'Заметка комнаты',
+        title: language === 'en' ? 'Room Note' : 'Заметка комнаты',
         description: '',
         isSecret: true,
         color: '#f59e0b',
@@ -4013,7 +4017,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                   onClick={() => setDragDropTarget(null)}
                   className="w-full py-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors"
                 >
-                  Отмена
+                  {language === 'en' ? 'Cancel' : 'Отмена'}
                 </button>
               </div>
             </div>
@@ -4089,14 +4093,14 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                   className="text-red-400 hover:text-red-300 hover:bg-red-500/10 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors"
                 >
                   <Trash2 className="h-3 w-3" />
-                  <span>Удалить</span>
+                  <span>{language === 'en' ? 'Delete' : 'Удалить'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedPinId(null)}
                   className="bg-gold/20 text-gold-light border border-gold/40 hover:bg-gold/30 px-3 py-1 rounded-lg font-semibold transition-colors"
                 >
-                  Готово
+                  {language === 'en' ? 'Done' : 'Готово'}
                 </button>
               </div>
             </div>

@@ -219,7 +219,6 @@ export interface PartyTranslations {
   longRest: string;
   exportTtrpgh: string;
   importTtrpgh: string;
-  mobileCompanion: string;
   qrCode: string;
   deployToCombat: string;
   emptyParty: string;

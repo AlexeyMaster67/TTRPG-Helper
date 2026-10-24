@@ -28,46 +28,61 @@ export interface FrameDefinition {
   name: string;
   nameEn: string;
   description: string;
+  descriptionEn?: string;
   category: 'classic' | 'dwarven' | 'magic' | 'druid' | 'necro' | 'scifi' | 'martial' | 'minimal';
   icon: string;
   innerRadiusRatio: number; // Inner portrait clipping radius as ratio of size / 2 (e.g. 0.82)
 }
 
-export const FACTION_COLORS: Record<TokenFaction, { name: string; hex: string; desc: string }> = {
+export const FACTION_COLORS: Record<TokenFaction, { name: string; nameEn: string; hex: string; desc: string; descEn: string }> = {
   'ally-green': {
     name: 'Союзник (Зелёный)',
+    nameEn: 'Ally (Green)',
     hex: '#22c55e',
     desc: 'Доброжелательные NPC, союзные существа, питомцы',
+    descEn: 'Friendly NPCs, allied creatures, companions',
   },
   'ally-blue': {
     name: 'Союзник (Синий)',
+    nameEn: 'Ally (Blue)',
     hex: '#3b82f6',
     desc: 'Персонажи игроков (PC), ключевые союзники отряда',
+    descEn: 'Player Characters (PCs), key party allies',
   },
   'enemy': {
     name: 'Враг / Монстр',
+    nameEn: 'Enemy / Monster',
     hex: '#ef4444',
     desc: 'Враждебные монстры, бандиты, нежить, противники',
+    descEn: 'Hostile monsters, bandits, undead, opponents',
   },
   'neutral': {
     name: 'Нейтрал',
+    nameEn: 'Neutral',
     hex: '#f59e0b',
     desc: 'Нейтральные обыватели, торговцы, дикие звери',
+    descEn: 'Neutral townsfolk, merchants, beasts',
   },
   'boss': {
     name: 'Босс / Элита',
+    nameEn: 'Boss / Elite',
     hex: '#a855f7',
     desc: 'Легендарные главари, архимаги, драконы, элитные враги',
+    descEn: 'Legendary bosses, archmages, dragons, elite foes',
   },
   'custom': {
     name: 'Свой цвет',
+    nameEn: 'Custom Color',
     hex: '#06b6d4',
     desc: 'Индивидуальная настройка цвета фракции через палитру',
+    descEn: 'Custom faction color via palette picker',
   },
   'none': {
     name: 'Без фракции',
+    nameEn: 'No Faction',
     hex: 'transparent',
     desc: 'Стандартный вид рамки без цветного ореола',
+    descEn: 'Standard frame without colored aura glow',
   },
 };
 

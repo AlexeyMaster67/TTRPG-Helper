@@ -46,6 +46,7 @@ interface WBState {
   addMapPin: (pin: WBMapPin) => void;
   removeMapPin: (pinId: string) => void;
   setActiveMapImage: (url: string | null) => void;
+  restoreRussianStarterNotes: () => Promise<void>;
 }
 
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -333,4 +334,8 @@ export const useWBStore = create<WBState>((set, get) => ({
   addMapPin: (pin) => set((s) => ({ mapPins: [...s.mapPins, pin] })),
   removeMapPin: (pinId) => set((s) => ({ mapPins: s.mapPins.filter((p) => p.id !== pinId) })),
   setActiveMapImage: (url) => set({ activeMapImage: url }),
+  restoreRussianStarterNotes: async () => {
+    wbStorageService.restoreRussianStarterNotes();
+    await get().initVault('virtual:default');
+  },
 }));

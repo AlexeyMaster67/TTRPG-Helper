@@ -102,13 +102,13 @@ export function EncounterManagerModal() {
   // Quick save current combat drawer
   const [isSavingCurrent, setIsSavingCurrent] = useState(false);
   const [saveName, setSaveName] = useState('');
-  const [saveFolder, setSaveFolder] = useState('Общие');
+  const [saveFolder, setSaveFolder] = useState(isEn ? 'General' : 'Общие');
   const [saveDesc, setSaveDesc] = useState('');
 
   // Interactive Encounter Builder drawer
   const [isBuildingNew, setIsBuildingNew] = useState(false);
   const [builderName, setBuilderName] = useState('');
-  const [builderFolder, setBuilderFolder] = useState('Общие');
+  const [builderFolder, setBuilderFolder] = useState(isEn ? 'General' : 'Общие');
   const [builderDesc, setBuilderDesc] = useState('');
   const [builderMonsters, setBuilderMonsters] = useState<BuilderItem[]>([]);
   const [monsterQuery, setMonsterQuery] = useState('');
@@ -173,7 +173,7 @@ export function EncounterManagerModal() {
             ac: m.ac || 10,
             hp: m.hp_average || 10,
             initBonus: m.init_bonus || 0,
-            speed: m.speed || '30 фт.',
+            speed: m.speed || (isEn ? '30 ft.' : '30 фт.'),
           }));
           setSearchResults(mapped);
           return;
@@ -216,22 +216,23 @@ export function EncounterManagerModal() {
 
   const folders = useMemo(() => {
     const set = new Set<string>();
-    set.add('Все');
+    set.add(isEn ? 'All' : 'Все');
     encounters.forEach((e) => {
       if (e.folder) set.add(e.folder);
     });
     return Array.from(set);
-  }, [encounters]);
+  }, [encounters, isEn]);
 
   const filteredEncounters = useMemo(() => {
     return encounters.filter((e) => {
-      const matchesFolder = selectedFolder === 'Все' || e.folder === selectedFolder;
+      const isAll = selectedFolder === 'Все' || selectedFolder === 'All' || selectedFolder === '';
+      const matchesFolder = isAll || e.folder === selectedFolder;
       const lower = search.toLowerCase().trim();
       const matchesSearch =
         !lower ||
         e.name.toLowerCase().includes(lower) ||
         (e.description && e.description.toLowerCase().includes(lower)) ||
-        e.combatants.some((c) => c.name.toLowerCase().includes(lower));
+        e.combatants.some((c) => c.name.toLowerCase().includes(lower) || (c.nameRu && c.nameRu.toLowerCase().includes(lower)));
       return matchesFolder && matchesSearch;
     });
   }, [encounters, selectedFolder, search]);
@@ -240,12 +241,12 @@ export function EncounterManagerModal() {
 
   const handleStartSaveCurrent = () => {
     if (enemyCombatants.length === 0) {
-      setNotice('В текущем бою нет противников для сохранения!');
+      setNotice(isEn ? 'No enemies in current combat to save!' : 'В текущем бою нет противников для сохранения!');
       setTimeout(() => setNotice(null), 3000);
       return;
     }
-    setSaveName(`Столкновение (${enemyCombatants.length} монстров)`);
-    setSaveFolder(selectedFolder !== 'Все' ? selectedFolder : 'Общие');
+    setSaveName(isEn ? `Encounter (${enemyCombatants.length} monsters)` : `Столкновение (${enemyCombatants.length} монстров)`);
+    setSaveFolder(selectedFolder !== 'Все' && selectedFolder !== 'All' ? selectedFolder : (isEn ? 'General' : 'Общие'));
     setSaveDesc('');
     setIsSavingCurrent(true);
     setIsBuildingNew(false);
@@ -256,15 +257,15 @@ export function EncounterManagerModal() {
     if (!saveName.trim()) return;
     saveCurrentCombatAsEncounter(saveName, saveFolder, saveDesc);
     setIsSavingCurrent(false);
-    setNotice(`Энкаунтер "${saveName}" успешно сохранен!`);
+    setNotice(isEn ? `Encounter "${saveName}" saved successfully!` : `Энкаунтер "${saveName}" успешно сохранен!`);
     setTimeout(() => setNotice(null), 3000);
   };
 
   const handleStartBuilder = () => {
     setIsBuildingNew(true);
     setIsSavingCurrent(false);
-    setBuilderName(`Столкновение ${encounters.length + 1}`);
-    setBuilderFolder(selectedFolder !== 'Все' ? selectedFolder : 'Общие');
+    setBuilderName(isEn ? `Encounter ${encounters.length + 1}` : `Столкновение ${encounters.length + 1}`);
+    setBuilderFolder(selectedFolder !== 'Все' && selectedFolder !== 'All' ? selectedFolder : (isEn ? 'General' : 'Общие'));
     setBuilderDesc('');
     setBuilderMonsters([]);
     setMonsterQuery('');
@@ -310,7 +311,7 @@ export function EncounterManagerModal() {
   const handleSaveBuiltEncounter = (e: React.FormEvent) => {
     e.preventDefault();
     if (builderMonsters.length === 0) {
-      setNotice('Добавьте хотя бы одного монстра в энкаунтер!');
+      setNotice(isEn ? 'Add at least one monster to the encounter!' : 'Добавьте хотя бы одного монстра в энкаунтер!');
       setTimeout(() => setNotice(null), 3000);
       return;
     }
@@ -319,7 +320,8 @@ export function EncounterManagerModal() {
     builderMonsters.forEach((bm) => {
       for (let i = 0; i < bm.count; i++) {
         const numSuffix = bm.count > 1 ? ` ${i + 1}` : '';
-        const monsterName = `${bm.nameRu || bm.name}${numSuffix}`;
+        const baseName = isEn ? (bm.name || bm.nameRu || 'Monster') : (bm.nameRu || bm.name || 'Монстр');
+        const monsterName = `${baseName}${numSuffix}`;
         presets.push({
           name: monsterName,
           nameRu: monsterName,
@@ -336,8 +338,8 @@ export function EncounterManagerModal() {
     });
 
     addEncounter({
-      name: builderName.trim() || 'Новый энкаунтер',
-      folder: builderFolder.trim() || 'Общие',
+      name: builderName.trim() || (isEn ? 'New Encounter' : 'Новый энкаунтер'),
+      folder: builderFolder.trim() || (isEn ? 'General' : 'Общие'),
       description: builderDesc.trim() || undefined,
       combatants: presets,
       totalXp: builderMetrics.rawXp,
@@ -347,7 +349,7 @@ export function EncounterManagerModal() {
 
     setIsBuildingNew(false);
     setBuilderMonsters([]);
-    setNotice(`Энкаунтер "${builderName}" успешно сохранен в библиотеку!`);
+    setNotice(isEn ? `Encounter "${builderName}" successfully saved to library!` : `Энкаунтер "${builderName}" успешно сохранен в библиотеку!`);
     setTimeout(() => setNotice(null), 3000);
   };
 
@@ -368,10 +370,10 @@ export function EncounterManagerModal() {
     try {
       const text = await file.text();
       const count = importEncountersJson(text);
-      setNotice(`Успешно импортировано энкаунтеров: ${count}`);
+      setNotice(isEn ? `Successfully imported encounters: ${count}` : `Успешно импортировано энкаунтеров: ${count}`);
       setTimeout(() => setNotice(null), 3000);
     } catch {
-      setNotice('Ошибка при чтении файла энкаунтеров.');
+      setNotice(isEn ? 'Error reading encounters file.' : 'Ошибка при чтении файла энкаунтеров.');
       setTimeout(() => setNotice(null), 3000);
     }
     e.target.value = '';
@@ -689,9 +691,9 @@ export function EncounterManagerModal() {
                     >
                       <div className="flex items-center gap-1.5 truncate">
                         <Skull className="h-3 w-3 text-red-400 shrink-0" />
-                        <span className="font-semibold text-gray-200 truncate">{m.nameRu}</span>
+                        <span className="font-semibold text-gray-200 truncate">{isEn ? (m.name || m.nameRu) : (m.nameRu || m.name)}</span>
                         <span className="text-[10px] font-mono px-1 rounded bg-card text-gold-light border border-border-subtle shrink-0">
-                          КО {m.cr}
+                          {isEn ? `CR ${m.cr}` : `КО ${m.cr}`}
                         </span>
                         <span className="text-[10px] font-mono text-gray-400 shrink-0">
                           ~{getXpForCr(m.cr)} XP
@@ -738,8 +740,8 @@ export function EncounterManagerModal() {
                         {builderMonsters.map((bm) => (
                           <tr key={bm.id} className="hover:bg-surface/50 transition-colors">
                             <td className="py-1.5 px-1.5 min-w-0 max-w-[130px] sm:max-w-none">
-                              <span className="font-semibold text-gray-200 block truncate leading-snug" title={bm.nameRu || bm.name}>
-                                {bm.nameRu || bm.name}
+                              <span className="font-semibold text-gray-200 block truncate leading-snug" title={isEn ? (bm.name || bm.nameRu) : (bm.nameRu || bm.name)}>
+                                {isEn ? (bm.name || bm.nameRu) : (bm.nameRu || bm.name)}
                               </span>
                             </td>
                             <td className="py-1.5 px-1 text-center font-mono text-[10px] text-gold-light whitespace-nowrap">
@@ -927,10 +929,10 @@ export function EncounterManagerModal() {
               }`}
             >
               <Folder className="h-3 w-3 text-gold/70" />
-              <span>{folder}</span>
+              <span>{(folder === 'Все' || folder === 'All') ? (isEn ? 'All' : 'Все') : folder}</span>
               <span className="text-[10px] opacity-60 font-mono">
                 (
-                {folder === 'Все'
+                {folder === 'Все' || folder === 'All'
                   ? encounters.length
                   : encounters.filter((e) => e.folder === folder).length}
                 )
@@ -995,7 +997,7 @@ export function EncounterManagerModal() {
                               ×{c.count}
                             </span>
                           )}
-                          <span className="text-gray-500 font-mono text-[10px] shrink-0 whitespace-nowrap">(КО {c.cr})</span>
+                          <span className="text-gray-500 font-mono text-[10px] shrink-0 whitespace-nowrap">({isEn ? `CR ${c.cr}` : `КО ${c.cr}`})</span>
                         </span>
                       ))}
                     </div>

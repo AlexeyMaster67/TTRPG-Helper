@@ -152,7 +152,7 @@ export function TokenQuickActions({
       } else {
         addEffectToCombatant(combatant.id, {
           id: `aura_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-          name: 'Аура (10 фт.)',
+          name: isEn ? `Aura (${currentAura.radiusFeet || 10} ft.)` : `Аура (${currentAura.radiusFeet || 10} фт.)`,
           iconTag: 'Radio',
           durationRounds: 'permanent',
           aura: {
@@ -185,7 +185,7 @@ export function TokenQuickActions({
       }
       addEffectToCombatant(combatant.id, {
         id: `aura_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        name: `Аура (${radiusFeet} фт.)`,
+        name: isEn ? `Aura (${radiusFeet} ft.)` : `Аура (${radiusFeet} фт.)`,
         iconTag: 'Radio',
         durationRounds: 'permanent',
         aura: {
@@ -217,7 +217,7 @@ export function TokenQuickActions({
       }
       addEffectToCombatant(combatant.id, {
         id: `aura_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        name: `Аура (${radiusFeet} фт.)`,
+        name: isEn ? `Aura (${radiusFeet} ft.)` : `Аура (${radiusFeet} фт.)`,
         iconTag: 'Radio',
         durationRounds: 'permanent',
         aura: {
@@ -652,8 +652,8 @@ export function TokenQuickActions({
               ? standaloneToken?.avatarUrl || standaloneToken?.tokenUrl || null
               : combatant?.avatarUrl || combatant?.tokenUrl || null;
             const targetName = isStandalone
-              ? standaloneToken?.nameRu || standaloneToken?.name || 'Токен'
-              : combatant?.nameRu || combatant?.name || 'Боец';
+              ? (isEn ? (standaloneToken?.name || standaloneToken?.nameRu || 'Token') : (standaloneToken?.nameRu || standaloneToken?.name || 'Токен'))
+              : (isEn ? (combatant?.name || combatant?.nameRu || 'Combatant') : (combatant?.nameRu || combatant?.name || 'Боец'));
             const faction = isStandalone
               ? 'none'
               : combatant?.isPlayer

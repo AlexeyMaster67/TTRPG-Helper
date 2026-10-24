@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Crosshair, Dices, Shield, Sparkles, X, Zap } from 'lucide-react';
 import { Combatant } from '../../../types/combat';
 import { MasteryBadge } from '../../ui/MasteryBadge';
-import { cleanRussianText } from '../../../utils/textUtils';
+import { cleanRussianText, cleanEnglishText, localizeActionName } from '../../../utils/textUtils';
 import { parseActionDetails, parseMultiattackPlan } from '../../../utils/attackParser';
 import { resolveTokenUrl } from '../../../services/tokenResolver';
 import { renderTextWithSpellBadges } from './statblockUtils';
@@ -59,7 +59,7 @@ export function StatblockActions({
     if (activeTargetingActionKey !== actionKey) return null;
 
     const actionTitle = isEn
-      ? (action?.name || 'Attack')
+      ? (action?.name_en || localizeActionName(action?.name, 'en') || 'Attack')
       : cleanRussianText(action?.name || 'Атака');
 
     return (
@@ -273,7 +273,7 @@ export function StatblockActions({
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-gold-light text-xs tracking-wide">
-                          {isEn ? (act.name_en || act.name) : cleanRussianText(act.name)}
+                          {isEn ? (act.name_en || localizeActionName(act.name, 'en')) : cleanRussianText(act.name)}
                         </span>
                         <span className="px-2 py-0.5 rounded-glass-sm bg-gold/15 text-gold text-xs font-mono tabular-nums font-bold border border-gold/30">
                           {isEn
@@ -319,7 +319,7 @@ export function StatblockActions({
                             key={pIdx}
                             className="px-2 py-0.5 rounded-glass-sm bg-black/50 border border-white/10 text-xs text-gray-300"
                           >
-                            {pIdx + 1}. {isEn ? (planAct.name_en || planAct.name) : cleanRussianText(planAct.name)}
+                            {pIdx + 1}. {isEn ? (planAct.name_en || localizeActionName(planAct.name, 'en')) : cleanRussianText(planAct.name)}
                           </span>
                         ))}
                       </div>
@@ -327,7 +327,7 @@ export function StatblockActions({
 
                     {act.desc && (
                       <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">
-                        {renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}
+                        {renderTextWithSpellBadges(isEn ? (act.desc_en || cleanEnglishText(act.desc)) : cleanRussianText(act.desc), onInspectSpell)}
                       </p>
                     )}
 
@@ -343,7 +343,7 @@ export function StatblockActions({
 
               const { attackBonus, damageFormula, weaponMastery } = parseActionDetails(act);
               const isPickerOpen = activeTargetingActionKey === actionKey;
-              const actionDisplayName = isEn ? (act.name_en || act.name) : cleanRussianText(act.name);
+              const actionDisplayName = isEn ? (act.name_en || localizeActionName(act.name, 'en')) : cleanRussianText(act.name);
 
               return (
                 <div
@@ -420,7 +420,7 @@ export function StatblockActions({
 
                   {act.desc && (
                     <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">
-                      {renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}
+                      {renderTextWithSpellBadges(isEn ? (act.desc_en || cleanEnglishText(act.desc)) : cleanRussianText(act.desc), onInspectSpell)}
                     </p>
                   )}
 
@@ -447,7 +447,7 @@ export function StatblockActions({
             {sb.bonus_actions.map((act: any, i: number) => {
               const bonusKey = `bonus-${i}`;
               const isPickerOpen = activeTargetingActionKey === bonusKey;
-              const bonusTitle = isEn ? (act.name_en || act.name) : cleanRussianText(act.name);
+              const bonusTitle = isEn ? (act.name_en || localizeActionName(act.name, 'en')) : cleanRussianText(act.name);
               return (
                 <div
                   key={i}
@@ -471,7 +471,7 @@ export function StatblockActions({
                       {isEn ? 'Use' : 'Применить'}
                     </button>
                   </div>
-                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}</p>}
+                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(isEn ? (act.desc_en || cleanEnglishText(act.desc)) : cleanRussianText(act.desc), onInspectSpell)}</p>}
                   {renderInlineTargetPicker(bonusKey, act)}
                 </div>
               );
@@ -492,7 +492,7 @@ export function StatblockActions({
             {sb.reactions.map((act: any, i: number) => {
               const reactionKey = `reaction-${i}`;
               const isPickerOpen = activeTargetingActionKey === reactionKey;
-              const reactionTitle = isEn ? (act.name_en || act.name) : cleanRussianText(act.name);
+              const reactionTitle = isEn ? (act.name_en || localizeActionName(act.name, 'en')) : cleanRussianText(act.name);
               return (
                 <div
                   key={i}
@@ -516,7 +516,7 @@ export function StatblockActions({
                       {isEn ? 'Reaction' : 'Реакция'}
                     </button>
                   </div>
-                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}</p>}
+                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(isEn ? (act.desc_en || cleanEnglishText(act.desc)) : cleanRussianText(act.desc), onInspectSpell)}</p>}
                   {renderInlineTargetPicker(reactionKey, act)}
                 </div>
               );
@@ -530,14 +530,14 @@ export function StatblockActions({
         <div className="rounded-glass-lg bg-card/70 backdrop-blur-md border border-[rgba(255,255,255,0.08)] p-3.5 shadow-sm">
           <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-purple-300">
             <Sparkles className="h-3.5 w-3.5 text-purple-400 flex-shrink-0" />
-            <span>{isEn ? 'LEGENDARY ACTIONS' : 'ЛЕГЕНДАРНЫЕ ДЕЙСТВИЯ'} (3/{isEn ? 'round' : 'раунд'})</span>
+            <span>{isEn ? 'LEGENDARY ACTIONS' : 'ЛЕГЕНДАРНЫЕ ДЕЙСТВИЯ'} (3/{isEn ? 'ROUND' : 'РАУНД'})</span>
             <Sparkles className="h-3.5 w-3.5 text-purple-400 flex-shrink-0" />
           </div>
           <div className="space-y-2.5">
             {sb.legendary_actions.map((act: any, i: number) => {
               const legKey = `legendary-${i}`;
               const isPickerOpen = activeTargetingActionKey === legKey;
-              const legTitle = isEn ? (act.name_en || act.name) : cleanRussianText(act.name);
+              const legTitle = isEn ? (act.name_en || localizeActionName(act.name, 'en')) : cleanRussianText(act.name);
               return (
                 <div
                   key={i}
@@ -561,7 +561,7 @@ export function StatblockActions({
                       {isEn ? 'Use' : 'Применить'}
                     </button>
                   </div>
-                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(isEn ? (act.desc_en || act.desc) : cleanRussianText(act.desc), onInspectSpell)}</p>}
+                  {act.desc && <p className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">{renderTextWithSpellBadges(isEn ? (act.desc_en || cleanEnglishText(act.desc)) : cleanRussianText(act.desc), onInspectSpell)}</p>}
                   {renderInlineTargetPicker(legKey, act)}
                 </div>
               );

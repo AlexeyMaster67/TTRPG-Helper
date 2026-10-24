@@ -12,7 +12,7 @@ import { broadcastService } from '../../services/broadcastService';
 import { audioService } from '../../services/audioService';
 import { useDice3dStore } from '../../store/dice3dStore';
 import { useDiceAnimationStore } from '../../store/diceAnimationStore';
-import { cleanRussianText, localizeStat, localizeTraitName, extractEnglishParenthetical } from '../../utils/textUtils';
+import { cleanRussianText, cleanEnglishText, localizeStat, localizeTraitName, extractEnglishParenthetical } from '../../utils/textUtils';
 import { useTranslation } from '../../i18n';
 import { PlayerActionResultPanel } from './PlayerActionResultPanel';
 import { dbService } from '../../services/dbService';
@@ -121,6 +121,7 @@ export function StatblockInspector() {
           range: '60 фт.',
           duration: 'Мгновенная',
           description_ru: 'Информация о заклинании доступна в книге правил D&D 2024.',
+          description_en: 'Spell information is available in the D&D 2024 / SRD rulebooks.',
         } as any);
       }
     } catch (err) {
@@ -627,7 +628,7 @@ export function StatblockInspector() {
                       ? (trait.name_en || extractEnglishParenthetical(trait.name) || localizeTraitName(trait.name, 'en') || trait.name)
                       : cleanRussianText(trait.name);
                     const traitDesc = isEn
-                      ? (trait.desc_en || trait.desc)
+                      ? (trait.desc_en || cleanEnglishText(trait.desc))
                       : cleanRussianText(trait.desc);
                     return (
                       <div key={i} className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">

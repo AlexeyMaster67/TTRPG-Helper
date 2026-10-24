@@ -6,6 +6,7 @@ export type DungeonPaletteId = 'granite' | 'crypt' | 'sandstone' | 'grotto';
 export interface DungeonColorPalette {
   id: DungeonPaletteId;
   name: string;
+  nameEn: string;
   wallFill: string;
   wallStroke: string;
   floorBg: string;
@@ -19,6 +20,7 @@ export const DUNGEON_PALETTES: Record<DungeonPaletteId, DungeonColorPalette> = {
   granite: {
     id: 'granite',
     name: 'Серый гранит',
+    nameEn: 'Gray Granite',
     wallFill: '#161b22',
     wallStroke: '#30363d',
     floorBg: '#21262d',
@@ -30,6 +32,7 @@ export const DUNGEON_PALETTES: Record<DungeonPaletteId, DungeonColorPalette> = {
   crypt: {
     id: 'crypt',
     name: 'Темный склеп',
+    nameEn: 'Dark Crypt',
     wallFill: '#0c0b12',
     wallStroke: '#251b33',
     floorBg: '#181424',
@@ -41,6 +44,7 @@ export const DUNGEON_PALETTES: Record<DungeonPaletteId, DungeonColorPalette> = {
   sandstone: {
     id: 'sandstone',
     name: 'Песчаник',
+    nameEn: 'Sandstone',
     wallFill: '#221911',
     wallStroke: '#423020',
     floorBg: '#36281c',
@@ -52,6 +56,7 @@ export const DUNGEON_PALETTES: Record<DungeonPaletteId, DungeonColorPalette> = {
   grotto: {
     id: 'grotto',
     name: 'Подземный грот',
+    nameEn: 'Subterranean Grotto',
     wallFill: '#0b1617',
     wallStroke: '#143638',
     floorBg: '#122627',

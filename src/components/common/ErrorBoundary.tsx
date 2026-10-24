@@ -1,6 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RotateCcw, RefreshCw } from 'lucide-react';
 import { useCombatStore } from '../../store/combatStore';
+import { useSettingsStore } from '../../store/settingsStore';
 
 interface Props {
   children: ReactNode;
@@ -53,6 +54,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
+      const isEn = useSettingsStore.getState().language === 'en';
       return (
         <div className="flex h-screen w-screen flex-col items-center justify-center bg-[#0b0e11] text-gray-100 p-6 select-none font-sans">
           <div className="w-full max-w-lg rounded-sm border border-red-700/60 bg-[#161d24] p-6 shadow-2xl flex flex-col gap-4 text-center items-center ring-1 ring-red-900/40">
@@ -62,10 +64,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <div>
               <h2 className="font-serif text-lg font-bold text-gray-100 tracking-wide">
-                Произошла непредвиденная ошибка интерфейса
+                {isEn ? 'An unexpected interface error occurred' : 'Произошла непредвиденная ошибка интерфейса'}
               </h2>
               <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                Интерфейс перехвачен защитным контуром ErrorBoundary. Состояние боя не повредило приложение. Выберите действие для восстановления:
+                {isEn
+                  ? 'Interface intercepted by the ErrorBoundary circuit. Combat state is protected. Choose an action to recover:'
+                  : 'Интерфейс перехвачен защитным контуром ErrorBoundary. Состояние боя не повредило приложение. Выберите действие для восстановления:'}
               </p>
             </div>
 
@@ -89,7 +93,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 className="flex items-center gap-1.5 rounded-sm bg-gold px-4 py-2 text-xs font-bold text-canvas hover:bg-gold-light shadow-gold-glow transition-all active:scale-95 cursor-pointer"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
-                <span>Сбросить бой и начать заново</span>
+                <span>{isEn ? 'Reset combat & start over' : 'Сбросить бой и начать заново'}</span>
               </button>
               <button
                 type="button"
@@ -97,7 +101,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 className="flex items-center gap-1.5 rounded-sm border border-[#374450] bg-[#1a232b] px-4 py-2 text-xs text-gray-300 hover:text-white hover:bg-[#222e39] transition-all active:scale-95 cursor-pointer"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-                <span>Перезагрузить приложение</span>
+                <span>{isEn ? 'Reload application' : 'Перезагрузить приложение'}</span>
               </button>
             </div>
           </div>
