@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../i18n';
 import { ShieldAlert, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface WBSecretBlockProps {
@@ -6,8 +7,10 @@ interface WBSecretBlockProps {
   children: React.ReactNode;
 }
 
-export const WBSecretBlock: React.FC<WBSecretBlockProps> = ({ title = 'Секрет Мастера', children }) => {
+export const WBSecretBlock: React.FC<WBSecretBlockProps> = ({ title, children }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
+  const displayTitle = title || t('wb.gmSecretDefault');
 
   return (
     <div className="my-3 border border-amber-500/40 bg-amber-950/20 rounded-lg overflow-hidden shadow-sm">
@@ -17,10 +20,10 @@ export const WBSecretBlock: React.FC<WBSecretBlockProps> = ({ title = 'Секр�
       >
         <div className="flex items-center gap-2">
           <ShieldAlert className="w-4 h-4 text-amber-400" />
-          <span>🔒 {title}</span>
+          <span>🔒 {displayTitle}</span>
         </div>
         <div className="flex items-center gap-2 text-[10px] text-amber-400/80">
-          <span>Скрыто от игроков</span>
+          <span>{t('wb.hiddenFromPlayers')}</span>
           {isOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useTranslation } from '../../i18n';
 import { useWBStore } from '../../store/wbStore';
 import { WBGraphNode, WBEntityType } from '../../types/wbmd';
 import { ZoomIn, ZoomOut, RotateCcw, ArrowLeft } from 'lucide-react';
@@ -15,6 +16,7 @@ const TYPE_COLORS: Record<WBEntityType, string> = {
 };
 
 export const WBGraphView: React.FC = () => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const graphIndex = useWBStore((s) => s.graphIndex);
   const selectNote = useWBStore((s) => s.selectNote);
@@ -286,7 +288,7 @@ export const WBGraphView: React.FC = () => {
           className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-200 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>К заметкам</span>
+          <span>{t('wb.backToNotes')}</span>
         </button>
 
         <div className="w-[1px] h-4 bg-zinc-700 mx-1" />
@@ -295,7 +297,7 @@ export const WBGraphView: React.FC = () => {
           type="button"
           onClick={() => setZoom((z) => Math.min(3.5, z * 1.2))}
           className="p-1 rounded hover:bg-zinc-800 text-zinc-300 hover:text-white"
-          title="Приблизить"
+          title={t('wb.zoomIn')}
         >
           <ZoomIn className="w-4 h-4" />
         </button>
@@ -303,7 +305,7 @@ export const WBGraphView: React.FC = () => {
           type="button"
           onClick={() => setZoom((z) => Math.max(0.3, z * 0.8))}
           className="p-1 rounded hover:bg-zinc-800 text-zinc-300 hover:text-white"
-          title="Отдалить"
+          title={t('wb.zoomOut')}
         >
           <ZoomOut className="w-4 h-4" />
         </button>
@@ -314,7 +316,7 @@ export const WBGraphView: React.FC = () => {
             setPan({ x: 0, y: 0 });
           }}
           className="p-1 rounded hover:bg-zinc-800 text-zinc-300 hover:text-white"
-          title="Сбросить масштаб"
+          title={t('wb.resetZoom')}
         >
           <RotateCcw className="w-4 h-4" />
         </button>
@@ -323,19 +325,19 @@ export const WBGraphView: React.FC = () => {
       {/* Legend */}
       <div className="absolute bottom-3 left-3 z-20 flex flex-wrap gap-2 bg-zinc-900/90 backdrop-blur-md p-2 rounded-lg border border-zinc-700/80 text-[11px] text-zinc-300 select-none shadow-xl">
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> NPC
+          <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> {t('wb.legendNpc')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Локация
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> {t('wb.legendLocation')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Фракция
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> {t('wb.legendFaction')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Квест
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> {t('wb.legendQuest')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-slate-400" /> Лор
+          <span className="w-2.5 h-2.5 rounded-full bg-slate-400" /> {t('wb.legendLore')}
         </span>
       </div>
 

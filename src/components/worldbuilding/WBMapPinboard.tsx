@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from '../../i18n';
 import { useWBStore } from '../../store/wbStore';
 import { WBMapPin } from '../../types/wbmd';
 import {
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 
 export const WBMapPinboard: React.FC = () => {
+  const { t } = useTranslation();
   const mapPins = useWBStore((s) => s.mapPins);
   const addMapPin = useWBStore((s) => s.addMapPin);
   const removeMapPin = useWBStore((s) => s.removeMapPin);
@@ -57,7 +59,7 @@ export const WBMapPinboard: React.FC = () => {
     const newPin: WBMapPin = {
       id: `pin-${Date.now()}`,
       noteId: chosen ? chosen.id : '',
-      title: chosen ? chosen.title : 'Новая точка',
+      title: chosen ? chosen.title : t('wb.newPinDefault'),
       x,
       y,
       color: '#10b981',
@@ -79,7 +81,7 @@ export const WBMapPinboard: React.FC = () => {
             className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-200 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>К заметкам</span>
+            <span>{t('wb.backToNotes')}</span>
           </button>
 
           <div className="w-[1px] h-4 bg-zinc-750 mx-1" />
@@ -94,7 +96,7 @@ export const WBMapPinboard: React.FC = () => {
             }`}
           >
             <MapPinIcon className="w-3.5 h-3.5" />
-            <span>{isPlacingPin ? 'Кликните по карте...' : 'Поставить метку'}</span>
+            <span>{isPlacingPin ? t('wb.clickOnMap') : t('wb.placePin')}</span>
           </button>
 
           <button
@@ -103,7 +105,7 @@ export const WBMapPinboard: React.FC = () => {
             className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 transition-colors"
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>Загрузить карту</span>
+            <span>{activeMapImage ? t('wb.changeMap') : t('wb.selectMapImage')}</span>
           </button>
           <input
             ref={fileInputRef}
@@ -179,10 +181,10 @@ export const WBMapPinboard: React.FC = () => {
           <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-zinc-800 rounded-2xl max-w-md text-center bg-zinc-900/50">
             <Compass className="w-12 h-12 text-amber-500/60 mb-3 animate-pulse" />
             <h3 className="text-base font-bold text-zinc-200 mb-1">
-              Карта кампании не загружена
+              {t('wb.noMapUploaded')}
             </h3>
             <p className="text-xs text-zinc-400 mb-4">
-              Загрузите изображение региона (Чулт, Побережье Мечей, Найт-Сити) и размещайте интерактивные метки локаций.
+              {t('wb.uploadMapPrompt')}
             </p>
             <button
               type="button"
@@ -190,7 +192,7 @@ export const WBMapPinboard: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-medium text-xs shadow-lg transition-colors"
             >
               <Upload className="w-4 h-4" />
-              <span>Выбрать изображение карты</span>
+              <span>{t('wb.selectMapImage')}</span>
             </button>
           </div>
         )}
@@ -211,14 +213,14 @@ export const WBMapPinboard: React.FC = () => {
                 setSelectedPin(null);
               }}
               className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-zinc-800"
-              title="Удалить метку"
+              title={t('wb.deletePin')}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <div className="space-y-2 mb-3 text-xs">
-            <label className="text-[11px] text-zinc-400 block">Привязанная заметка:</label>
+            <label className="text-[11px] text-zinc-400 block">{t('wb.linkedNoteLabel')}</label>
             <select
               value={selectedPin.noteId}
               onChange={(e) => {
@@ -236,7 +238,7 @@ export const WBMapPinboard: React.FC = () => {
               }}
               className="w-full bg-zinc-950 border border-zinc-750 text-zinc-200 text-xs rounded p-1.5 focus:outline-none"
             >
-              <option value="">-- Выберите локацию --</option>
+              <option value="">{t('wb.selectNotePrompt')}</option>
               {Object.values(notes).map((n) => (
                 <option key={n.id} value={n.id}>
                   {n.title}
@@ -258,14 +260,14 @@ export const WBMapPinboard: React.FC = () => {
               className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition-colors disabled:opacity-40"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Открыть заметку</span>
+              <span>{t('wb.navigateToNote', { target: '' }).replace(': ', '')}</span>
             </button>
             <button
               type="button"
               onClick={() => setSelectedPin(null)}
               className="px-2.5 py-1.5 rounded bg-zinc-800 text-zinc-300 text-xs hover:bg-zinc-700"
             >
-              Закрыть
+              {t('wb.cancel')}
             </button>
           </div>
         </div>

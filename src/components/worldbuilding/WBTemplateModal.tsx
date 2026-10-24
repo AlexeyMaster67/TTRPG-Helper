@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../i18n';
 import { useWBStore } from '../../store/wbStore';
 import { WBEntityType } from '../../types/wbmd';
 import {
@@ -18,23 +19,57 @@ interface WBTemplateModalProps {
 
 interface TemplateDef {
   id: string;
-  name: string;
-  desc: string;
+  nameKey: 'templateNpcName' | 'templateLocationName' | 'templateFactionName' | 'templateQuestName' | 'templateSessionName';
+  descKey: 'templateNpcDesc' | 'templateLocationDesc' | 'templateFactionDesc' | 'templateQuestDesc' | 'templateSessionDesc';
   type: WBEntityType;
   icon: React.ComponentType<{ className?: string }>;
-  folder: string;
-  content: (title: string) => string;
+  folderRu: string;
+  folderEn: string;
+  content: (title: string, lang: string) => string;
 }
 
 const TEMPLATES: TemplateDef[] = [
   {
     id: 'npc',
-    name: 'Персонаж / NPC',
-    desc: 'Шаблон персонажа мастера, союзника или антагониста с секретами и статблоком.',
+    nameKey: 'templateNpcName',
+    descKey: 'templateNpcDesc',
     type: 'npc',
     icon: User,
-    folder: '01_Персонажи',
-    content: (title) => `---
+    folderRu: '01_Персонажи',
+    folderEn: '01_Characters',
+    content: (title, lang) =>
+      lang === 'en'
+        ? `---
+title: "${title}"
+type: npc
+tags: [npc, ally]
+status: alive
+cr: 3
+custom_fields:
+  "Alignment": "Neutral Good"
+  "Occupation": "Information Broker"
+---
+
+# ${title}
+
+Brief introduction and the party's first impression of this character.
+
+## Appearance & Mannerisms
+- **Attire**: 
+- **Voice & Habits**: 
+- **Distinguishing Features**: 
+
+## Faction Ties
+- Loyal to Faction: 
+- Disposition towards party: Neutral.
+
+## GM Secrets
+:::secret [True Intentions]
+Secret character motives or hidden danger...
+Insight check: dice:1d20+4 against DC 14.
+:::
+`
+        : `---
 title: "${title}"
 type: npc
 tags: [npc, союзник]
@@ -67,12 +102,42 @@ custom_fields:
   },
   {
     id: 'location',
-    name: 'Поселение / Локация',
-    desc: 'Город, замок, таверна или подземелье с районами и случайными событиями.',
+    nameKey: 'templateLocationName',
+    descKey: 'templateLocationDesc',
     type: 'location',
     icon: MapPin,
-    folder: '02_Локации',
-    content: (title) => `---
+    folderRu: '02_Локации',
+    folderEn: '02_Locations',
+    content: (title, lang) =>
+      lang === 'en'
+        ? `---
+title: "${title}"
+type: location
+tags: [settlement, location, exploration]
+status: active
+custom_fields:
+  "Region": "Sword Coast"
+  "Ruler": "Lord Mayor"
+  "Danger Level": "Low"
+---
+
+# ${title}
+
+Description of atmosphere, sights, sounds, and architecture.
+
+## Points of Interest
+1. **Town Square**: Bustling trade hub and town crier announcements.
+2. **The Tavern**: Meeting place for rumors and adventurers.
+3. **Temple / Tower**: Religious or arcane sanctuary.
+
+## Rumors Table
+Roll dice:1d6:
+1. Clattering bones heard under the crypt (@monster:Skeleton).
+2. Merchant caravan delayed by goblins.
+3. Herbalist pays well for marsh roots.
+4-6. Idle town gossip.
+`
+        : `---
 title: "${title}"
 type: location
 tags: [город, локация, исследование]
@@ -102,12 +167,38 @@ custom_fields:
   },
   {
     id: 'faction',
-    name: 'Фракция / Гильдия',
-    desc: 'Тайный орден, культ, торговый картель или воровская гильдия.',
+    nameKey: 'templateFactionName',
+    descKey: 'templateFactionDesc',
     type: 'faction',
     icon: Shield,
-    folder: '03_Фракции',
-    content: (title) => `---
+    folderRu: '03_Фракции',
+    folderEn: '03_Factions',
+    content: (title, lang) =>
+      lang === 'en'
+        ? `---
+title: "${title}"
+type: faction
+tags: [faction, organization]
+status: active
+custom_fields:
+  "Leader": "Shadow Council"
+  "Headquarters": "Upper City"
+  "Disposition": "Neutral"
+---
+
+# ${title}
+
+Origins, history, and political influence in the region.
+
+## Goals & Tenets
+- **Primary Goal**: 
+- **Methods**: 
+
+## Key Figures
+- Order Grandmaster: 
+- Contact for party: 
+`
+        : `---
 title: "${title}"
 type: faction
 tags: [фракция, организация]
@@ -133,12 +224,39 @@ custom_fields:
   },
   {
     id: 'quest',
-    name: 'Квест / Задание',
-    desc: 'Сюжетная арка или побочный квест с целями, наградой и энкаунтерами.',
+    nameKey: 'templateQuestName',
+    descKey: 'templateQuestDesc',
     type: 'quest',
     icon: Scroll,
-    folder: '04_Квесты',
-    content: (title) => `---
+    folderRu: '04_Квесты',
+    folderEn: '04_Quests',
+    content: (title, lang) =>
+      lang === 'en'
+        ? `---
+title: "${title}"
+type: quest
+tags: [quest, investigation]
+status: active
+custom_fields:
+  "Questgiver": "Townsfolk"
+  "Reward": "500 gp and treasure map"
+---
+
+# ${title}
+
+Adventure hook and party motivation to undertake the quest.
+
+## Quest Objectives
+- [ ] Interview witnesses at the tavern
+- [ ] Track the bandit hideout in the woods
+- [ ] Defeat the bandit captain (@monster:Bandit Captain)
+
+## GM Notes
+:::secret [Plot Twist]
+The questgiver orchestrates the heist themselves...
+:::
+`
+        : `---
 title: "${title}"
 type: quest
 tags: [квест, расследование]
@@ -165,12 +283,39 @@ custom_fields:
   },
   {
     id: 'session',
-    name: 'Дневник Сессии',
-    desc: 'Структура для записи хроники прошедшей сессии и планов на следующую.',
+    nameKey: 'templateSessionName',
+    descKey: 'templateSessionDesc',
     type: 'session',
     icon: BookOpen,
-    folder: '05_Дневники_Сессий',
-    content: (title) => `---
+    folderRu: '05_Дневники_Сессий',
+    folderEn: '05_Session_Journals',
+    content: (title, lang) =>
+      lang === 'en'
+        ? `---
+title: "${title}"
+type: session
+tags: [session, log]
+created: "${new Date().toISOString().split('T')[0]}"
+---
+
+# ${title}
+
+## Summary
+Key decisions and triumphs achieved by the heroes during this session.
+
+## Chronology of Events
+1. Tavern scene: 
+2. Mountain ambush: 
+3. Secret cache discovered: 
+
+## Acquired Loot & Rewards
+- Gold: 0 gp
+- Items: 
+
+## GM Notes for Next Session
+- Prepare dungeon battlemap for the boss encounter.
+`
+        : `---
 title: "${title}"
 type: session
 tags: [сессия, отчет]
@@ -198,6 +343,7 @@ created: "${new Date().toISOString().split('T')[0]}"
 ];
 
 export const WBTemplateModal: React.FC<WBTemplateModalProps> = ({ isOpen, onClose }) => {
+  const { t, language } = useTranslation();
   const createNote = useWBStore((s) => s.createNote);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateDef>(TEMPLATES[0]);
   const [noteTitle, setNoteTitle] = useState('');
@@ -205,9 +351,11 @@ export const WBTemplateModal: React.FC<WBTemplateModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   const handleCreate = async () => {
-    const title = noteTitle.trim() || selectedTemplate.name;
-    const content = selectedTemplate.content(title);
-    await createNote(selectedTemplate.folder, title, selectedTemplate.type, content);
+    const templateName = t(`wb.${selectedTemplate.nameKey}`);
+    const title = noteTitle.trim() || templateName;
+    const folder = language === 'en' ? selectedTemplate.folderEn : selectedTemplate.folderRu;
+    const content = selectedTemplate.content(title, language);
+    await createNote(folder, title, selectedTemplate.type, content);
     setNoteTitle('');
     onClose();
   };
@@ -219,7 +367,7 @@ export const WBTemplateModal: React.FC<WBTemplateModalProps> = ({ isOpen, onClos
         <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/60">
           <div className="flex items-center gap-2 text-zinc-100 font-bold text-base">
             <Sparkles className="w-5 h-5 text-amber-400" />
-            <span>Создать заметку по шаблону</span>
+            <span>{t('wb.templateModalTitle')}</span>
           </div>
           <button
             type="button"
@@ -234,11 +382,11 @@ export const WBTemplateModal: React.FC<WBTemplateModalProps> = ({ isOpen, onClos
         <div className="p-4 space-y-4">
           <div>
             <label className="text-xs font-semibold text-zinc-300 block mb-1">
-              Название новой заметки:
+              {t('wb.templateNoteTitleLabel')}
             </label>
             <input
               type="text"
-              placeholder={`Например: ${selectedTemplate.name}`}
+              placeholder={`${t('wb.templateNoteTitleLabel')} ${t(`wb.${selectedTemplate.nameKey}`)}`}
               value={noteTitle}
               onChange={(e) => setNoteTitle(e.target.value)}
               className="w-full bg-zinc-950 border border-zinc-750 text-zinc-100 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500/60"
@@ -247,12 +395,14 @@ export const WBTemplateModal: React.FC<WBTemplateModalProps> = ({ isOpen, onClos
 
           <div>
             <label className="text-xs font-semibold text-zinc-300 block mb-2">
-              Выберите тип шаблона:
+              {t('wb.templateTypeLabel')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {TEMPLATES.map((tmpl) => {
                 const Icon = tmpl.icon;
                 const isSelected = selectedTemplate.id === tmpl.id;
+                const name = t(`wb.${tmpl.nameKey}`);
+                const desc = t(`wb.${tmpl.descKey}`);
 
                 return (
                   <div
@@ -267,11 +417,11 @@ export const WBTemplateModal: React.FC<WBTemplateModalProps> = ({ isOpen, onClos
                     <div className="flex items-center gap-2 mb-1">
                       <Icon className={`w-4 h-4 ${isSelected ? 'text-amber-400' : 'text-zinc-400'}`} />
                       <span className={`font-semibold text-xs ${isSelected ? 'text-amber-200' : 'text-zinc-200'}`}>
-                        {tmpl.name}
+                        {name}
                       </span>
                     </div>
                     <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">
-                      {tmpl.desc}
+                      {desc}
                     </p>
                   </div>
                 );
@@ -287,7 +437,7 @@ export const WBTemplateModal: React.FC<WBTemplateModalProps> = ({ isOpen, onClos
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-xs font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
           >
-            Отмена
+            {t('wb.cancel')}
           </button>
           <button
             type="button"
@@ -295,7 +445,7 @@ export const WBTemplateModal: React.FC<WBTemplateModalProps> = ({ isOpen, onClos
             className="px-4 py-2 rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white shadow-lg transition-colors flex items-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Создать заметку</span>
+            <span>{t('wb.createNoteButton')}</span>
           </button>
         </div>
       </div>

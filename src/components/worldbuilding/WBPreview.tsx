@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from '../../i18n';
 import {
   WBAstNode,
   WBAstInlineNode,
@@ -37,6 +38,7 @@ interface WBPreviewProps {
 }
 
 export const WBPreview: React.FC<WBPreviewProps> = ({ content, className = '' }) => {
+  const { t } = useTranslation();
   const storeBody = useWBStore((s) => s.activeNoteBody);
   const notes = useWBStore((s) => s.notes);
   const selectNote = useWBStore((s) => s.selectNote);
@@ -117,7 +119,7 @@ export const WBPreview: React.FC<WBPreviewProps> = ({ content, className = '' })
               type="button"
               onClick={() => selectNote(resolvedId)}
               className="inline-flex items-center gap-1 font-medium text-amber-400 hover:text-amber-300 underline underline-offset-2 hover:bg-amber-500/10 px-1 py-0.5 rounded transition-colors cursor-pointer"
-              title={`Перейти к заметке: ${linkNode.target}`}
+              title={t('wb.navigateToNote', { target: linkNode.target })}
             >
               <LinkIcon className="w-3 h-3 text-amber-500/80 inline" />
               <span>{displayText}</span>
@@ -128,7 +130,7 @@ export const WBPreview: React.FC<WBPreviewProps> = ({ content, className = '' })
             <span
               key={index}
               className="inline-flex items-center gap-1 font-medium text-red-400/80 line-through decoration-dotted px-1 py-0.5 rounded bg-red-950/20"
-              title={`Заметка "${linkNode.target}" пока не создана`}
+              title={t('wb.noteNotFoundYet', { target: linkNode.target })}
             >
               <span>{displayText}</span>
               <span className="text-[10px] text-red-500">?</span>
@@ -203,7 +205,7 @@ export const WBPreview: React.FC<WBPreviewProps> = ({ content, className = '' })
             type="button"
             onClick={() => setActiveTagFilter(tagNode.tag)}
             className="inline-block px-1.5 py-0.5 mx-0.5 text-[11px] font-mono rounded bg-zinc-800 text-zinc-300 hover:text-amber-300 hover:bg-zinc-700 transition-colors border border-zinc-700/50"
-            title={`Фильтровать по тегу #${tagNode.tag}`}
+            title={t('wb.filterByTag', { tag: tagNode.tag })}
           >
             #{tagNode.tag}
           </button>
@@ -216,7 +218,7 @@ export const WBPreview: React.FC<WBPreviewProps> = ({ content, className = '' })
           <img
             key={index}
             src={imgNode.url}
-            alt={imgNode.alt || 'Изображение'}
+            alt={imgNode.alt || t('wb.imageAlt')}
             className="my-3 max-w-full max-h-96 rounded-lg border border-zinc-700 shadow-md object-contain"
           />
         );
@@ -298,12 +300,12 @@ export const WBPreview: React.FC<WBPreviewProps> = ({ content, className = '' })
           >
             <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 mb-2 border-b border-zinc-800 pb-1">
               <CornerDownRight className="w-3.5 h-3.5 text-amber-500" />
-              <span>{insNode.title || `Вставка: ${insNode.target}`}</span>
+              <span>{insNode.title || t('wb.embedInsert', { target: insNode.target })}</span>
             </div>
             {targetNote ? (
               <WBPreview content={targetNote.body} />
             ) : (
-              <p className="text-xs text-zinc-500 italic">Заметка "{insNode.target}" не найдена.</p>
+              <p className="text-xs text-zinc-500 italic">{t('wb.embedNotFound', { target: insNode.target })}</p>
             )}
           </div>
         );

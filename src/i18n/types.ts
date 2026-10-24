@@ -407,6 +407,168 @@ export interface CyberpunkTranslations {
   criticalInjuries: Record<string, string>;
 }
 
+export interface WorldbuildingTranslations {
+  // Navigation / View modes
+  notes: string;
+  worldGraph: string;
+  regionMap: string;
+  hideFileList: string;
+  showFileList: string;
+  hideInfobox: string;
+  showInfobox: string;
+  editorOnly: string;
+  splitView: string;
+  previewOnly: string;
+  templates: string;
+  broadcastToPlayers: string;
+  toPlayers: string;
+  noNoteSelected: string;
+  broadcastSuccess: string;
+
+  // File tree
+  changeVault: string;
+  changeVaultTitle: string;
+  searchPlaceholder: string;
+  tagFilter: string;
+  newNote: string;
+  newFolder: string;
+  newNotePrompt: string;
+  newNoteDefault: string;
+  newFolderPrompt: string;
+  renamePrompt: string;
+  deleteConfirm: string;
+  createInFolder: string;
+  rename: string;
+  delete: string;
+  noNotesFound: string;
+
+  // Editor
+  boldTitle: string;
+  boldDefault: string;
+  italicTitle: string;
+  italicDefault: string;
+  h1Title: string;
+  h1Default: string;
+  h2Title: string;
+  h2Default: string;
+  listTitle: string;
+  listDefault: string;
+  tableTitle: string;
+  tableDefault: string;
+  codeTitle: string;
+  codeDefault: string;
+  linkTitle: string;
+  linkButton: string;
+  linkDefault: string;
+  diceTitle: string;
+  diceButton: string;
+  monsterTitle: string;
+  monsterButton: string;
+  secretTitle: string;
+  secretButton: string;
+  secretDefaultPrefix: string;
+  secretDefaultBody: string;
+  editorPlaceholder: string;
+  wordsCount: string;
+  charsCount: string;
+  saving: string;
+  unsaved: string;
+  saved: string;
+
+  // Preview / Chips
+  navigateToNote: string;
+  noteNotFoundYet: string;
+  filterByTag: string;
+  imageAlt: string;
+  embedInsert: string;
+  embedNotFound: string;
+
+  // Infobox
+  infoboxTitle: string;
+  entityNpc: string;
+  entityLocation: string;
+  entityFaction: string;
+  entityQuest: string;
+  entityItem: string;
+  entitySession: string;
+  entityLore: string;
+  changeAvatarUrl: string;
+  avatarPlaceholder: string;
+  fieldStatus: string;
+  fieldLocation: string;
+  fieldCr: string;
+  fieldLeader: string;
+  fieldFaction: string;
+  propertiesHeader: string;
+  addProperty: string;
+  propertyKeyPlaceholder: string;
+  propertyValuePlaceholder: string;
+  cancel: string;
+  add: string;
+  deleteProperty: string;
+  noCustomProperties: string;
+  tagsHeader: string;
+  noTags: string;
+  backlinksHeader: string;
+  noBacklinks: string;
+
+  // Graph
+  backToNotes: string;
+  zoomIn: string;
+  zoomOut: string;
+  resetZoom: string;
+  legendNpc: string;
+  legendLocation: string;
+  legendFaction: string;
+  legendQuest: string;
+  legendLore: string;
+
+  // Map Pinboard
+  clickOnMap: string;
+  placePin: string;
+  changeMap: string;
+  noMapUploaded: string;
+  uploadMapPrompt: string;
+  selectMapImage: string;
+  pinSettings: string;
+  linkedNoteLabel: string;
+  selectNotePrompt: string;
+  mapLabel: string;
+  deletePin: string;
+  save: string;
+  newPinDefault: string;
+
+  // Templates
+  templateModalTitle: string;
+  templateNoteTitleLabel: string;
+  templateTypeLabel: string;
+  createNoteButton: string;
+  templateNpcName: string;
+  templateNpcDesc: string;
+  templateLocationName: string;
+  templateLocationDesc: string;
+  templateFactionName: string;
+  templateFactionDesc: string;
+  templateQuestName: string;
+  templateQuestDesc: string;
+  templateSessionName: string;
+  templateSessionDesc: string;
+
+  // Tokens (Dice, Monster, Secret, Spoiler)
+  diceRollTitle: string;
+  diceRollToast: string;
+  diceRollAction: string;
+  monsterAddedToast: string;
+  creatureLabel: string;
+  creatureDesc: string;
+  openStatblock: string;
+  toCombat: string;
+  gmSecretDefault: string;
+  hiddenFromPlayers: string;
+  revealSpoiler: string;
+  hideSpoiler: string;
+}
+
 export interface TranslationDictionary {
   header: HeaderNavTranslations;
   masterTools: MasterToolsTranslations;
@@ -429,6 +591,7 @@ export interface TranslationDictionary {
   toasts: ToastsTranslations;
   common: CommonTranslations;
   cyberpunk: CyberpunkTranslations;
+  wb: WorldbuildingTranslations;
 }
 
 export type NestedKeyOf<ObjectType extends object> = {
