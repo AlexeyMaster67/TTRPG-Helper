@@ -10,6 +10,7 @@ export interface HeaderNavTranslations {
   map: string;
   split: string;
   tokens: string;
+  worldbuilding: string;
   party: string;
   masterTools: string;
   settings: string;

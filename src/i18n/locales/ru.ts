@@ -6,6 +6,7 @@ export const ru: TranslationDictionary = {
     map: 'Карта',
     split: 'Сплит',
     tokens: 'Токены',
+    worldbuilding: 'Создание мира',
     party: 'Отряд',
     masterTools: 'Инструменты',
     settings: 'Настройки',

@@ -38,6 +38,7 @@ import { runSaveMigration } from './services/saveMigrationService';
 import { importCharacterFromTtrpgh } from './services/ttrpghFormat';
 import { useTranslation } from './i18n';
 import { openExternal } from './utils/openExternal';
+import { WBWorkspace } from './components/worldbuilding';
 
 function DiscordIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
@@ -63,6 +64,7 @@ import {
   Settings,
   AlertTriangle,
   Globe,
+  BookOpen,
 } from 'lucide-react';
 
 function MainApp() {
@@ -89,8 +91,8 @@ function MainApp() {
     dismissSavedSession,
   } = useCombatStore();
 
-  // Navigation tab: 'combat' | 'map' | 'split' | 'tokens'
-  const [activeTab, setActiveTab] = useState<'combat' | 'map' | 'split' | 'tokens'>('combat');
+  // Navigation tab: 'combat' | 'map' | 'split' | 'worldbuilding' | 'tokens'
+  const [activeTab, setActiveTab] = useState<'combat' | 'map' | 'split' | 'worldbuilding' | 'tokens'>('combat');
   const [isLootOpen, setIsLootOpen] = useState(false);
   const [isSoundboardOpen, setIsSoundboardOpen] = useState(false);
   const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
@@ -332,6 +334,25 @@ function MainApp() {
                 <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 bg-[#f5b920] rounded-full shadow-[0_0_6px_#f5b920]" />
               )}
             </button>
+
+            <button
+              onClick={() => setActiveTab('worldbuilding')}
+              role="tab"
+              aria-selected={activeTab === 'worldbuilding'}
+              title={t('header.worldbuilding')}
+              aria-label={t('header.worldbuilding')}
+              className={`relative flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                activeTab === 'worldbuilding'
+                  ? 'bg-[#1e2634] text-white font-semibold border border-[#f5b920]/60 shadow-[0_0_14px_rgba(245,185,32,0.25)]'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-[rgba(255,255,255,0.05)] border border-transparent'
+              }`}
+            >
+              <BookOpen className={`h-3.5 w-3.5 ${activeTab === 'worldbuilding' ? 'text-amber-400' : 'text-gray-400'}`} />
+              <span className="hidden sm:inline">{t('header.worldbuilding')}</span>
+              {activeTab === 'worldbuilding' && (
+                <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 bg-[#f5b920] rounded-full shadow-[0_0_6px_#f5b920]" />
+              )}
+            </button>
           </nav>
         </div>
 
@@ -514,6 +535,11 @@ function MainApp() {
           <div className="flex-1 min-w-0 h-full overflow-hidden rounded-glass-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(18,22,30,0.78)] backdrop-blur-md shadow-[0_12px_32px_-4px_rgba(0,0,0,0.65)]">
             <TacticalBattleMap isMasterView={true} />
           </div>
+        </div>
+      ) : activeTab === 'worldbuilding' ? (
+        /* WORLDBUILDING (WBmd) */
+        <div className="flex flex-1 min-h-0 overflow-hidden rounded-glass-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(18,22,30,0.78)] backdrop-blur-md shadow-[0_12px_32px_-4px_rgba(0,0,0,0.65)]">
+          <WBWorkspace />
         </div>
       ) : (
         /* ВИТРИНА ДИЗАЙН-ТОКЕНОВ */

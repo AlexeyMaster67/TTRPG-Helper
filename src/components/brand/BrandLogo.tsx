@@ -68,7 +68,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         <div className="flex flex-col justify-center">
           <div className="flex items-center gap-1.5">
             <span className="text-xs font-mono font-bold text-[var(--accent-glow-text,#fce79f)] px-1.5 py-0.5 rounded-full bg-[var(--primary-subtle,rgba(245,185,32,0.15))] border border-[var(--primary-border,rgba(245,185,32,0.4))] shadow-[0_0_8px_var(--primary-glow,rgba(245,185,32,0.2))] leading-none">
-              2.0
+              2.1
             </span>
           </div>
           <span className="text-[10px] font-medium tracking-wider text-gray-400 hidden xl:block -mt-0.5">

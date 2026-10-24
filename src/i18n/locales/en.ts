@@ -6,6 +6,7 @@ export const en: TranslationDictionary = {
     map: 'Battlemap',
     split: 'Split',
     tokens: 'Tokens',
+    worldbuilding: 'Worldbuilding',
     party: 'Party',
     masterTools: 'Tools',
     settings: 'Settings',

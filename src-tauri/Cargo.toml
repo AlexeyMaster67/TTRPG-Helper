@@ -1,6 +1,6 @@
 [package]
 name = "ttrpg-helper"
-version = "2.0.9"
+version = "2.1.0"
 description = "TTRPG Helper Desktop Companion"
 authors = ["AlexeyMaster67"]
 edition = "2021"
