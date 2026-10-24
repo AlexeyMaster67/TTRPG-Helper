@@ -350,7 +350,7 @@ flowchart TD
 Присоединяйтесь к официальному Discord-сообществу **TTRPG Helper** для общения, поиска партий, обсуждения систем (D&D 2024, Pathfinder 2e, Cyberpunk RED) и связи с разработчиком:
 
 <p align="center">
-  <a href="https://discord.gg/seESktTbXF">
+  <a href="https://discord.gg/MGnjS3ceEh">
     <img src="https://img.shields.io/badge/Discord-Присоединиться%20к%20сообществу-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Присоединиться к Discord" height="42" />
   </a>
 </p>

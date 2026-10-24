@@ -5,6 +5,16 @@ import { backupService, BackupEntry } from '../../services/backupService';
 import { SystemSelectionPanel } from './SystemSelectionPanel';
 import { useTranslation } from '../../i18n';
 import { openExternal } from '../../utils/openExternal';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import {
+  CURRENT_APP_VERSION,
+  fetchLatestRelease,
+  isAutoCheckEnabled,
+  setAutoCheckEnabled,
+  UpdateInfo,
+  ignoreVersion,
+} from '../../services/updateService';
+import { UpdateNotificationModal } from '../common/UpdateNotificationModal';
 import {
   X,
   Sliders,
@@ -27,6 +37,7 @@ import {
   Sparkles,
   Globe,
   ExternalLink,
+  RefreshCw,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -38,7 +49,7 @@ export interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-  const { language, setLanguage } = useTranslation();
+  const { t, language, setLanguage } = useTranslation();
   const {
     uiScale,
     isModalOpen: storeModalOpen,
@@ -68,6 +79,52 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [backups, setBackups] = useState<BackupEntry[]>([]);
   const [isCreatingBackup, setIsCreatingBackup] = useState(false);
   const [backupStatusMessage, setBackupStatusMessage] = useState<string | null>(null);
+
+  const isOnline = useNetworkStatus();
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [updateCheckStatus, setUpdateCheckStatus] = useState<'idle' | 'checking' | 'latest' | 'available' | 'error'>('idle');
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [isModalNotificationOpen, setIsModalNotificationOpen] = useState(false);
+  const [autoCheck, setAutoCheck] = useState<boolean>(() => isAutoCheckEnabled());
+
+  const handleCheckUpdatesManual = async () => {
+    setIsCheckingUpdate(true);
+    setUpdateCheckStatus('checking');
+    try {
+      const res = await fetchLatestRelease({ force: true });
+      if (!res.success) {
+        setUpdateCheckStatus('error');
+      } else if (res.info?.hasUpdate) {
+        setUpdateInfo(res.info);
+        setUpdateCheckStatus('available');
+      } else {
+        setUpdateCheckStatus('latest');
+      }
+    } catch {
+      setUpdateCheckStatus('error');
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
+
+  const handleToggleAutoCheck = (enabled: boolean) => {
+    setAutoCheck(enabled);
+    setAutoCheckEnabled(enabled);
+  };
+
+  const handleDownloadUpdate = () => {
+    if (updateInfo?.downloadUrl) {
+      openExternal(updateInfo.downloadUrl);
+    }
+    setIsModalNotificationOpen(false);
+  };
+
+  const handleSkipVersion = () => {
+    if (updateInfo?.latestVersion) {
+      ignoreVersion(updateInfo.latestVersion);
+    }
+    setIsModalNotificationOpen(false);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -730,12 +787,121 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <div className="pt-1">
                   <button
                     type="button"
-                    onClick={() => openExternal('https://discord.com/invite/XYQSHWVAuE')}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-xs transition-all shadow-md cursor-pointer"
+                    disabled={!isOnline}
+                    onClick={() => {
+                      if (!isOnline) return;
+                      openExternal('https://discord.gg/MGnjS3ceEh');
+                    }}
+                    title={
+                      !isOnline
+                        ? (isRu ? 'Требуется подключение к интернету' : 'Internet connection required')
+                        : (isRu ? 'Перейти в наш Дискорд' : 'Open Discord Channel')
+                    }
+                    className={clsx(
+                      "inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-white font-bold text-xs transition-all shadow-md",
+                      isOnline
+                        ? "bg-[#5865F2] hover:bg-[#4752C4] cursor-pointer"
+                        : "bg-[#5865F2] opacity-50 cursor-not-allowed"
+                    )}
                   >
                     <span>{isRu ? 'Перейти в наш Дискорд' : 'Open Discord Channel'}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </button>
+                </div>
+              </section>
+
+              {/* Updates Section */}
+              <section className="p-5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className={clsx("w-4 h-4 text-[#f5b920]", isCheckingUpdate && "animate-spin")} />
+                    <h3 className="text-sm font-bold text-white m-0">
+                      {isRu ? 'Обновления программы' : 'Application Updates'}
+                    </h3>
+                  </div>
+                  <span className="font-mono text-xs font-bold text-emerald-400 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">
+                    v{CURRENT_APP_VERSION}
+                  </span>
+                </div>
+
+                <p className="text-xs text-[#a0a0b0] leading-relaxed m-0">
+                  {isRu
+                    ? 'Проверка наличия новых версий TTRPG Helper через официальный репозиторий GitHub. Все локальные базы данных и данные сохраняются.'
+                    : 'Check for new TTRPG Helper versions via the official GitHub repository. All local databases and content are preserved.'}
+                </p>
+
+                {/* Auto-check switch */}
+                <div className="flex items-center justify-between py-2 border-t border-b border-white/[0.06]">
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-semibold text-gray-200">
+                      {t('updates.autoCheckLabel')}
+                    </div>
+                    <div className="text-[11px] text-gray-400">
+                      {isRu ? 'Проверка выполняется 1 раз в 4 часа при наличии подключения к интернету' : 'Checks once every 4 hours when connected to the internet'}
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={autoCheck}
+                      onChange={(e) => handleToggleAutoCheck(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-[#1b2230] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                  </label>
+                </div>
+
+                {/* Actions and Status */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
+                  <button
+                    type="button"
+                    disabled={isCheckingUpdate || !isOnline}
+                    onClick={handleCheckUpdatesManual}
+                    title={!isOnline ? (isRu ? 'Требуется подключение к интернету' : 'Internet connection required') : undefined}
+                    className={clsx(
+                      "inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-xs font-bold transition-all shadow-md",
+                      !isOnline
+                        ? "bg-white/10 text-gray-400 opacity-50 cursor-not-allowed"
+                        : isCheckingUpdate
+                        ? "bg-[#1b2230] text-gray-400 cursor-wait"
+                        : "bg-[#f5b920] hover:bg-[#d9a21b] text-black cursor-pointer"
+                    )}
+                  >
+                    <RefreshCw className={clsx("w-3.5 h-3.5", isCheckingUpdate && "animate-spin")} />
+                    <span>
+                      {isCheckingUpdate ? t('updates.statusChecking') : t('updates.btnCheckManual')}
+                    </span>
+                  </button>
+
+                  {/* Status display */}
+                  {updateCheckStatus === 'latest' && (
+                    <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>{t('updates.statusLatest')}</span>
+                    </div>
+                  )}
+
+                  {updateCheckStatus === 'available' && updateInfo && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="font-semibold text-amber-400">
+                        {t('updates.statusNewAvailable', { version: updateInfo.latestVersion })}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsModalNotificationOpen(true)}
+                        className="px-2.5 py-1 rounded-md bg-amber-500 hover:bg-amber-400 text-black font-bold text-[11px] transition-colors cursor-pointer"
+                      >
+                        {isRu ? 'Подробнее' : 'Details'}
+                      </button>
+                    </div>
+                  )}
+
+                  {updateCheckStatus === 'error' && (
+                    <div className="flex items-center gap-2 text-xs font-semibold text-rose-400">
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
+                      <span>{t('updates.statusServerError')}</span>
+                    </div>
+                  )}
                 </div>
               </section>
             </div>
@@ -940,6 +1106,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           )}
         </main>
       </div>
+
+      {/* Program Update Notification Modal */}
+      <UpdateNotificationModal
+        isOpen={isModalNotificationOpen}
+        updateInfo={updateInfo}
+        onClose={() => setIsModalNotificationOpen(false)}
+        onDownload={handleDownloadUpdate}
+        onSkipVersion={handleSkipVersion}
+      />
     </div>
   );
 }
