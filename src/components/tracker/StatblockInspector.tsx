@@ -12,7 +12,7 @@ import { broadcastService } from '../../services/broadcastService';
 import { audioService } from '../../services/audioService';
 import { useDice3dStore } from '../../store/dice3dStore';
 import { useDiceAnimationStore } from '../../store/diceAnimationStore';
-import { cleanRussianText, localizeStat } from '../../utils/textUtils';
+import { cleanRussianText, localizeStat, localizeTraitName, extractEnglishParenthetical } from '../../utils/textUtils';
 import { useTranslation } from '../../i18n';
 import { PlayerActionResultPanel } from './PlayerActionResultPanel';
 import { dbService } from '../../services/dbService';
@@ -622,12 +622,20 @@ export function StatblockInspector() {
                   <Sparkles className="h-2.5 w-2.5 text-gold inline" />
                 </div>
                 <div className="space-y-2.5">
-                  {sb.traits.map((trait: any, i: number) => (
-                    <div key={i} className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">
-                      <span className="font-bold text-white tracking-wide">{cleanRussianText(trait.name)}: </span>
-                      <span>{renderTextWithSpellBadges(cleanRussianText(trait.desc), handleInspectSpell)}</span>
-                    </div>
-                  ))}
+                  {sb.traits.map((trait: any, i: number) => {
+                    const traitTitle = isEn
+                      ? (trait.name_en || extractEnglishParenthetical(trait.name) || localizeTraitName(trait.name, 'en') || trait.name)
+                      : cleanRussianText(trait.name);
+                    const traitDesc = isEn
+                      ? (trait.desc_en || trait.desc)
+                      : cleanRussianText(trait.desc);
+                    return (
+                      <div key={i} className="text-xs text-gray-300 leading-relaxed break-words [overflow-wrap:anywhere]">
+                        <span className="font-bold text-white tracking-wide">{traitTitle}: </span>
+                        <span>{renderTextWithSpellBadges(traitDesc, handleInspectSpell)}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

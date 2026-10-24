@@ -123,45 +123,59 @@ export function createSampleCombatants(): Combatant[] {
         traits: [
           {
             name: 'Регенерация (Regeneration)',
-            desc: 'Вампир восстанавливает 20 хитов в начале своего хода, если у него есть хотя бы 1 хит и он не находится под солнечным светом или проточной водой.'
+            name_en: 'Regeneration',
+            desc: 'Вампир восстанавливает 20 хитов в начале своего хода, если у него есть хотя бы 1 хит и он не находится под солнечным светом или проточной водой.',
+            desc_en: "The vampire regains 20 hit points at the start of its turn if it has at least 1 hit point and isn't in sunlight or running water.",
           },
           {
             name: 'Паучье лазание (Spider Climb)',
-            desc: 'Вампир может лазать по сложным вертикальным поверхностям и потолкам без проверок.'
+            name_en: 'Spider Climb',
+            desc: 'Вампир может лазать по сложным вертикальным поверхностям и потолкам без проверок.',
+            desc_en: "The vampire can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check.",
           },
           {
             name: 'Слабости вампира (Vampire Weaknesses)',
-            desc: 'Запрет на вход в жилище без приглашения, 20 урона от проточной воды в конце хода, кол в сердце в гробу парализует, солнечный свет наносит 20 урона излучением.'
-          }
+            name_en: 'Vampire Weaknesses',
+            desc: 'Запрет на вход в жилище без приглашения, 20 урона от проточной воды в конце хода, кол в сердце в гробу парализует, солнечный свет наносит 20 урона излучением.',
+            desc_en: "Forbiddance: The vampire can't enter a residence without an invitation. Harmed by Running Water: The vampire takes 20 acid damage if it ends its turn in running water. Stake to the Heart: If a piercing weapon made of wood is driven into the vampire's heart while the vampire is incapacitated in its resting place, the vampire is paralyzed until the stake is removed. Sunlight Hypersensitivity: The vampire takes 20 radiant damage when it starts its turn in sunlight.",
+          },
         ],
         actions: [
           {
             name: 'Мультиатака (Multiattack)',
-            desc: 'Вампир совершает две атаки Ударом когтями и применяет Укус.'
+            name_en: 'Multiattack',
+            desc: 'Вампир совершает две атаки Ударом когтями и применяет Укус.',
+            desc_en: 'The vampire makes two Claw attacks and one Bite attack.',
           },
           {
             name: 'Удар когтями (Grave Strike)',
+            name_en: 'Grave Strike',
             attack_bonus: 9,
             damage_dice: '1d8+4',
             damage_bonus: 4,
             damage_type: 'Slashing',
-            desc: 'Рукопашная атака: +9 к попаданию, досягаемость 5 фт. Попадание: 8 (1d8 + 4) рубящего урона плюс 7 (2d6) некротического урона. Захват цели (escape DC 14).'
+            desc: 'Рукопашная атака: +9 к попаданию, досягаемость 5 фт. Попадание: 8 (1d8 + 4) рубящего урона плюс 7 (2d6) некротического урона. Захват цели (escape DC 14).',
+            desc_en: 'Melee Weapon Attack: +9 to hit, reach 5 ft. Hit: 8 (1d8 + 4) slashing damage plus 7 (2d6) necrotic damage. Target is grappled (escape DC 14).',
           },
           {
             name: 'Укус (Bite)',
+            name_en: 'Bite',
             attack_bonus: 9,
             damage_dice: '1d6+4',
             damage_bonus: 4,
             damage_type: 'Piercing',
-            desc: 'Спасбросок Телосложения Сл 17. Провал: 7 (1d6 + 4) колющего урона плюс 14 (4d6) некротического урона. Максимум ХП цели снижается, вампир исцеляется.'
-          }
+            desc: 'Спасбросок Телосложения Сл 17. Провал: 7 (1d6 + 4) колющего урона плюс 14 (4d6) некротического урона. Максимум ХП цели снижается, вампир исцеляется.',
+            desc_en: "Constitution Saving Throw DC 17. Failure: 7 (1d6 + 4) piercing damage plus 14 (4d6) necrotic damage. The target's maximum hit points are reduced, and the vampire regains hit points equal to that amount.",
+          },
         ],
         bonus_actions: [],
         reactions: [
           {
             name: 'Ускользание в туман (Misty Escape)',
-            desc: 'Когда вампир получает урон, он превращается в туман и перемещается до 30 фт. без провоцирования атак.'
-          }
+            name_en: 'Misty Escape',
+            desc: 'Когда вампир получает урон, он превращается в туман и перемещается до 30 фт. без провоцирования атак.',
+            desc_en: 'When the vampire takes damage, it transforms into mist and moves up to 30 ft. without provoking opportunity attacks.',
+          },
         ],
         legendary_actions: [
           {

@@ -4,7 +4,7 @@ import { ParsedMonster, ParsedSpell, ParsedItem } from '../../types/database';
 import { CONDITIONS_2024_DATA, ConditionInfo } from '../../engine/conditions';
 import { DND_2024_RULES, Dnd2024RuleItem } from '../../data/dnd2024Rules';
 import { useCombatStore } from '../../store/combatStore';
-import { cleanRussianText } from '../../utils/textUtils';
+import { cleanRussianText, localizeMonsterName } from '../../utils/textUtils';
 import {
   Search,
   Sparkles,
@@ -252,9 +252,11 @@ export function SpotlightSearchModal({ isOpen, onClose }: SpotlightSearchModalPr
   const handleAddToCombat = () => {
     if (!activeResult || activeResult.type !== 'monster') return;
     const m = activeResult.data as ParsedMonster;
+    const mNameEn = m.name_en || localizeMonsterName(m.name_ru, 'en') || m.name_ru || '';
+    const mNameRu = cleanRussianText(m.name_ru || localizeMonsterName(m.name_en, 'ru') || m.name_en || '');
     addCombatant({
-      name: cleanRussianText(m.name_ru || m.name_en),
-      nameRu: m.name_ru,
+      name: mNameEn || mNameRu,
+      nameRu: mNameRu,
       maxHp: m.hp_average || 10,
       hp: m.hp_average || 10,
       ac: m.ac || 10,

@@ -116,7 +116,7 @@ export interface ParsedMonster extends Omit<MonsterDbRow,
   'saves' | 'skills' | 'traits' | 'actions' | 'bonus_actions' | 'reactions' | 'legendary_actions' | 'spells' | 'is_srd'> {
   saves: Record<string, number>;
   skills: Record<string, number>;
-  traits: Array<{ name: string; desc: string }>;
+  traits: Array<{ name: string; desc: string; name_en?: string; desc_en?: string }>;
   actions: MonsterAction[];
   bonus_actions: MonsterAction[];
   reactions: MonsterAction[];

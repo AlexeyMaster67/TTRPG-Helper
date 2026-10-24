@@ -37,8 +37,10 @@ export function StatblockHeader({
   const subtitleText = formatCreatureSubtitle(combatant, language);
   const currentSize = combatant.size || (sb?.size as CreatureSize) || 'Medium';
   const displayName = isEn
-    ? (combatant.name || localizeMonsterName(combatant.nameRu, 'en') || combatant.nameRu)
-    : cleanRussianText(combatant.nameRu || combatant.name);
+    ? (combatant.name && !/[а-яА-ЯёЁ]/.test(combatant.name)
+        ? combatant.name
+        : (localizeMonsterName(combatant.nameRu || combatant.name, 'en') || combatant.name || ''))
+    : cleanRussianText(combatant.nameRu || combatant.name || '');
 
   return (
     <>
