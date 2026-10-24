@@ -15,6 +15,7 @@ import {
   formatCreatureSubtitle,
 } from '../components/tracker/statblock';
 import { StatblockInspector } from '../components/tracker/StatblockInspector';
+import { localizeMonsterName, localizeSceneName, localizeTraitName } from '../utils/textUtils';
 
 const clean = (h: string) => h.replace(/<!--.*?-->/g, '');
 
@@ -443,6 +444,41 @@ describe('Statblock Inspector Full Localization Suite (RU & EN)', () => {
       useSettingsStore.setState({ language: 'en' });
       const htmlEn = clean(renderToString(<StatblockInspector />));
       expect(htmlEn).toContain('TRAITS');
+    });
+
+    it('properly translates monster names with suffixes, colons, and traits in English and Russian', () => {
+      expect(localizeMonsterName('Вампир (Босс)', 'en')).toBe('Vampire (Boss)');
+      expect(localizeMonsterName('Vampire (Boss)', 'ru')).toBe('Вампир (Босс)');
+      expect(localizeMonsterName('Вампир (Босс): d20', 'en')).toBe('Vampire (Boss): d20');
+      expect(localizeMonsterName('Vampire (Boss): d20', 'ru')).toBe('Вампир (Босс): d20');
+
+      expect(localizeSceneName('Главная сцена', 'en')).toBe('Main Scene');
+      expect(localizeSceneName('Main Scene', 'ru')).toBe('Главная сцена');
+      expect(localizeSceneName('Сцена 2', 'en')).toBe('Scene 2');
+
+      expect(localizeTraitName('Регенерация (Regeneration)', 'en')).toBe('Regeneration');
+      expect(localizeTraitName('Регенерация', 'en')).toBe('Regeneration');
+      expect(localizeTraitName('Regeneration', 'ru')).toBe('Регенерация');
+    });
+
+    it('renders localized combatant name in CombatDiceLog when Russian name is provided', () => {
+      useSettingsStore.setState({ language: 'en' });
+      const entry: DiceRollLogEntry = {
+        id: 'log-1',
+        timestamp: '10:28:56',
+        combatantName: 'Вампир (Босс)',
+        actionName: 'Roll d20',
+        attackRoll: {
+          d20: 8,
+          modifier: 0,
+          total: 8,
+          isNat20: false,
+          isNat1: false,
+        },
+      };
+      const html = clean(renderToString(<CombatDiceLog diceLog={[entry]} onClearLog={() => {}} />));
+      expect(html).toContain('Vampire (Boss)');
+      expect(html).not.toContain('Вампир (Босс)');
     });
   });
 });

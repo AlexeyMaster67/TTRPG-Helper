@@ -3,7 +3,7 @@ import { Animated2dDie } from './Animated2dDie';
 import { Dices, X, Sparkles, AlertCircle, Check } from 'lucide-react';
 import { audioService } from '../../services/audioService';
 import { useTranslation } from '../../i18n';
-import { localizeMonsterName, localizeDamageType } from '../../utils/textUtils';
+import { localizeMonsterName, localizeDamageType, cleanRussianText } from '../../utils/textUtils';
 
 export interface SingleDieResult {
   id?: string;
@@ -116,7 +116,7 @@ export const Dice2dRollCard: React.FC<Dice2dRollCardProps> = ({
     : undefined;
 
   const displayTitle = title
-    ? (isEn ? (localizeMonsterName(title, 'en') || title) : title)
+    ? (isEn ? (localizeMonsterName(title, 'en') || title) : (localizeMonsterName(title, 'ru') || cleanRussianText(title)))
     : locRollerName
     ? hasDicePool
       ? `${locRollerName}: ${isEn ? 'Roll' : 'Бросок'}`

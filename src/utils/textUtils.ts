@@ -957,11 +957,154 @@ export const MONSTER_NAMES_EN: Record<string, string> = Object.entries(
   return acc;
 }, {} as Record<string, string>);
 
+function localizeMonsterSuffix(inner: string, lang: 'en' | 'ru'): string {
+  const SUFFIX_MAP_EN: Record<string, string> = {
+    'босс': 'Boss',
+    'миньон': 'Minion',
+    'лидер': 'Leader',
+    'капитан': 'Captain',
+    'маг': 'Mage',
+    'воин': 'Warrior',
+    'владыка склепа': 'Crypt Lord',
+    'главарь': 'Chief',
+    'альфа': 'Alpha',
+    'страж': 'Guard',
+    'вечерник': 'Nightbringer',
+  };
+  const SUFFIX_MAP_RU: Record<string, string> = {
+    'boss': 'Босс',
+    'minion': 'Миньон',
+    'leader': 'Лидер',
+    'captain': 'Капитан',
+    'mage': 'Маг',
+    'warrior': 'Воин',
+    'crypt lord': 'Владыка склепа',
+    'chief': 'Главарь',
+    'alpha': 'Альфа',
+    'guard': 'Страж',
+    'nightbringer': 'Вечерник',
+  };
+  const lower = inner.trim().toLowerCase();
+  if (lang === 'en') {
+    if (SUFFIX_MAP_EN[lower]) return SUFFIX_MAP_EN[lower];
+    const lvlMatch = inner.match(/^(?:ур\.?|уровень)\s*(\d+)$/i);
+    if (lvlMatch) return `Lvl ${lvlMatch[1]}`;
+    return inner;
+  } else {
+    if (SUFFIX_MAP_RU[lower]) return SUFFIX_MAP_RU[lower];
+    const lvlMatch = inner.match(/^(?:lvl|level)\.?\s*(\d+)$/i);
+    if (lvlMatch) return `Ур. ${lvlMatch[1]}`;
+    return cleanRussianText(inner);
+  }
+}
+
+export function localizeSceneName(name?: string | null, lang: 'en' | 'ru' = 'ru'): string {
+  if (!name) return lang === 'en' ? 'Main Scene' : 'Главная сцена';
+  const trimmed = name.trim();
+  if (lang === 'en') {
+    if (trimmed === 'Главная сцена' || trimmed === 'Главная Сцена') return 'Main Scene';
+    return trimmed.replace(/^Сцена\s+(\d+)$/i, 'Scene $1');
+  } else {
+    if (trimmed === 'Main Scene' || trimmed === 'main scene') return 'Главная сцена';
+    return trimmed.replace(/^Scene\s+(\d+)$/i, 'Сцена $1');
+  }
+}
+
+export function extractEnglishParenthetical(text?: string | null): string | null {
+  if (!text) return null;
+  const match = text.match(/\(([^)]+)\)/);
+  if (match) {
+    const candidate = match[1].trim();
+    if (!/[а-яА-ЯёЁ]/.test(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+const TRAIT_NAMES_MAP: Record<string, string> = {
+  'регенерация': 'Regeneration',
+  'паучье лазание': 'Spider Climb',
+  'слабости вампира': 'Vampire Weaknesses',
+  'туманный побег': 'Misty Escape',
+  'амфибия': 'Amphibious',
+  'сопротивление магии': 'Magic Resistance',
+  'легендарное сопротивление': 'Legendary Resistance',
+  'острое обоняние': 'Keen Smell',
+  'острый слух': 'Keen Hearing',
+  'острое зрение': 'Keen Sight',
+  'острые чувства': 'Keen Senses',
+  'скрытная атака': 'Sneak Attack',
+  'пахтание': 'Pounce',
+  'наскок': 'Pounce',
+  'свирепость': 'Relentless',
+  'безупречный побег': 'Nimble Escape',
+  'тактика стаи': 'Pack Tactics',
+  'агрессивный': 'Aggressive',
+  'хамелеон': 'Chameleon',
+  'огненное тело': 'Fire Form',
+  'водная форма': 'Water Form',
+  'освещение': 'Illumination',
+  'неизменный облик': 'Immutable Form',
+  'обманчивая внешность': 'False Appearance',
+  'ужасающий вид': 'Horrific Appearance',
+  'врожденное колдовство': 'Innate Spellcasting',
+  'колдовство': 'Spellcasting',
+};
+
+const TRAIT_NAMES_RU_MAP: Record<string, string> = Object.entries(TRAIT_NAMES_MAP).reduce((acc, [ru, en]) => {
+  acc[en.toLowerCase()] = ru.charAt(0).toUpperCase() + ru.slice(1);
+  return acc;
+}, {} as Record<string, string>);
+
+export function localizeTraitName(name?: string | null, lang: 'en' | 'ru' = 'ru'): string {
+  if (!name) return '';
+  const trimmed = name.trim();
+  const lower = trimmed.toLowerCase();
+  if (lang === 'en') {
+    const enParenthetical = extractEnglishParenthetical(trimmed);
+    if (enParenthetical) return enParenthetical;
+    if (TRAIT_NAMES_MAP[lower]) return TRAIT_NAMES_MAP[lower];
+    return trimmed;
+  } else {
+    if (TRAIT_NAMES_RU_MAP[lower]) return TRAIT_NAMES_RU_MAP[lower];
+    return cleanRussianText(trimmed);
+  }
+}
+
 export function localizeMonsterName(name?: string | null, lang?: 'en' | 'ru'): string {
   if (!name) return '';
   const trimmed = name.trim();
   if (!trimmed) return '';
   const effectiveLang = resolveLanguage(lang);
+
+  // Colon match e.g. "Вампир (Босс): d20" or "Vampire (Boss): d20"
+  const colonMatch = trimmed.match(/^(.+?)\s*:\s*(.+)$/);
+  if (colonMatch) {
+    const left = colonMatch[1].trim();
+    const right = colonMatch[2].trim();
+    const locLeft = localizeMonsterName(left, effectiveLang);
+    return `${locLeft}: ${right}`;
+  }
+
+  // Numbered copies e.g. "Стражник #1" or "Guard #2"
+  const numMatch = trimmed.match(/^(.+?)\s*([#№]\s*\d+)$/);
+  if (numMatch) {
+    const baseName = numMatch[1].trim();
+    const numSuffix = numMatch[2].trim();
+    const locBase = localizeMonsterName(baseName, effectiveLang);
+    return `${locBase} ${numSuffix}`;
+  }
+
+  // Handle parentheticals e.g. "Вампир (Босс)" or "Wolf (Alpha)"
+  const parenMatch = trimmed.match(/^([^(]+)\s*\(([^)]+)\)$/);
+  if (parenMatch) {
+    const baseName = parenMatch[1].trim();
+    const inner = parenMatch[2].trim();
+    const locBase = localizeMonsterName(baseName, effectiveLang);
+    const locInner = localizeMonsterSuffix(inner, effectiveLang);
+    return `${locBase} (${locInner})`;
+  }
 
   if (effectiveLang === 'en') {
     if (MONSTER_NAMES_EN[trimmed]) {
@@ -981,21 +1124,6 @@ export function localizeMonsterName(name?: string | null, lang?: 'en' | 'ru'): s
         return en;
       }
     }
-    // Numbered copies e.g. "Стражник #1" or "Guard #2"
-    const numMatch = trimmed.match(/^(.+?)\s*([#№]\s*\d+)$/);
-    if (numMatch) {
-      const baseName = numMatch[1].trim();
-      const numSuffix = numMatch[2].trim();
-      const locBase = localizeMonsterName(baseName, 'en');
-      return `${locBase} ${numSuffix}`;
-    }
-    const parenMatch = trimmed.match(/^([^(]+)\s*\(([^)]+)\)$/);
-    if (parenMatch) {
-      const baseName = parenMatch[1].trim();
-      const inner = parenMatch[2].trim();
-      const locBase = localizeMonsterName(baseName, 'en');
-      return `${locBase} (${inner})`;
-    }
     return trimmed;
   }
 
@@ -1008,27 +1136,6 @@ export function localizeMonsterName(name?: string | null, lang?: 'en' | 'ru'): s
   for (const [en, ru] of Object.entries(MONSTER_NAMES_RU)) {
     if (en.toLowerCase() === lower) {
       return ru;
-    }
-  }
-
-  // Numbered copies e.g. "Guard #1"
-  const numMatch = trimmed.match(/^(.+?)\s*([#№]\s*\d+)$/);
-  if (numMatch) {
-    const baseName = numMatch[1].trim();
-    const numSuffix = numMatch[2].trim();
-    const locBase = localizeMonsterName(baseName, 'ru');
-    return `${locBase} ${numSuffix}`;
-  }
-
-  // Handle parentheticals e.g. "Wolf (Alpha)"
-  const parenMatch = trimmed.match(/^([^(]+)\s*\(([^)]+)\)$/);
-  if (parenMatch) {
-    const baseName = parenMatch[1].trim();
-    const inner = parenMatch[2].trim();
-    const locBase = localizeMonsterName(baseName, 'ru');
-    const locInner = cleanRussianText(inner);
-    if (locBase !== baseName) {
-      return `${locBase} (${locInner})`;
     }
   }
 

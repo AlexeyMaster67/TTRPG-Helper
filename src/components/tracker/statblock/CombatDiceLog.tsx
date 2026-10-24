@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { Dices, Shield, Zap } from 'lucide-react';
 import { DiceRollLogEntry } from '../../../types/combat';
 import { MASTERY_SPECS } from '../../ui/MasteryBadge';
-import { cleanRussianText } from '../../../utils/textUtils';
+import { cleanRussianText, localizeMonsterName } from '../../../utils/textUtils';
 import { useTranslation } from '../../../i18n';
 
 export interface CombatDiceLogProps {
@@ -48,19 +48,27 @@ export function CombatDiceLog({
             {isEn ? 'Click an attack or action to roll hit and damage' : 'Нажмите на атаку или действие для броска попадания и урона'}
           </div>
         ) : (
-          diceLog.map((entry) => (
-            <div
-              key={entry.id}
-              className="p-2 rounded-glass-sm bg-card/85 border border-white/10 text-xs flex flex-col gap-1 overflow-hidden shadow-sm"
-            >
-              <div className="flex items-center justify-between gap-1.5 text-gray-400 text-xs min-w-0">
-                <span className="font-semibold text-gray-200 truncate min-w-0" title={cleanRussianText(entry.combatantName)}>
-                  {cleanRussianText(entry.combatantName)}
-                </span>
-                <span className="text-gray-400 truncate flex-shrink-0 text-right font-mono tabular-nums" title={`${entry.actionName} • ${entry.timestamp}`}>
-                  {entry.actionName} • {entry.timestamp}
-                </span>
-              </div>
+          diceLog.map((entry) => {
+            const combatantDisplayName = isEn
+              ? (localizeMonsterName(entry.combatantName, 'en') || entry.combatantName)
+              : cleanRussianText(entry.combatantName);
+            const actionDisplayName = isEn
+              ? (entry.actionName?.replace(/^Бросок\s+/i, 'Roll ') || entry.actionName)
+              : (entry.actionName?.replace(/^Roll\s+/i, 'Бросок ') || entry.actionName);
+
+            return (
+              <div
+                key={entry.id}
+                className="p-2 rounded-glass-sm bg-card/85 border border-white/10 text-xs flex flex-col gap-1 overflow-hidden shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-1.5 text-gray-400 text-xs min-w-0">
+                  <span className="font-semibold text-gray-200 truncate min-w-0" title={combatantDisplayName}>
+                    {combatantDisplayName}
+                  </span>
+                  <span className="text-gray-400 truncate flex-shrink-0 text-right font-mono tabular-nums" title={`${actionDisplayName} • ${entry.timestamp}`}>
+                    {actionDisplayName} • {entry.timestamp}
+                  </span>
+                </div>
 
               <div className="flex items-center flex-wrap gap-x-2 gap-y-1 font-mono tabular-nums min-w-0 text-xs">
                 {/* Attack roll */}
@@ -124,9 +132,9 @@ export function CombatDiceLog({
                   <span className="text-gray-400 flex-shrink-0">{isEn ? 'Target:' : 'Цель:'}</span>
                   <strong
                     className="text-gray-100 truncate max-w-[140px]"
-                    title={cleanRussianText(entry.targetName)}
+                    title={isEn ? (localizeMonsterName(entry.targetName, 'en') || entry.targetName) : cleanRussianText(entry.targetName)}
                   >
-                    {cleanRussianText(entry.targetName)}
+                    {isEn ? (localizeMonsterName(entry.targetName, 'en') || entry.targetName) : cleanRussianText(entry.targetName)}
                   </strong>
                   {entry.isHit !== undefined && (
                     <span
@@ -189,7 +197,8 @@ export function CombatDiceLog({
                 </div>
               )}
             </div>
-          ))
+          );
+        })
         )}
       </div>
     </div>

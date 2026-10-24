@@ -16,6 +16,7 @@ import {
   Wand2,
 } from 'lucide-react';
 import { useMapStore } from '../../store/mapStore';
+import { localizeSceneName } from '../../utils/textUtils';
 
 export function SceneDirectorBar() {
   const language = useSettingsStore((s) => s.language);
@@ -84,7 +85,7 @@ export function SceneDirectorBar() {
 
   const handleOpenRename = (scene: VttScene) => {
     setRenameSceneTarget(scene);
-    setRenameText(scene.name);
+    setRenameText(localizeSceneName(scene.name, isEn ? 'en' : 'ru'));
     setActiveMenuSceneId(null);
   };
 
@@ -138,7 +139,7 @@ export function SceneDirectorBar() {
                     ? 'bg-gold/20 text-gold-light border-gold/70 shadow-[0_0_10px_rgba(245,185,32,0.25)] ring-1 ring-gold/30'
                     : 'bg-[#18202b]/80 text-gray-300 border-[rgba(255,255,255,0.08)] hover:bg-[#1e2837] hover:border-gold/40 hover:text-white'
                 }`}
-                title={isEn ? `Scene: ${scene.name} (click to switch)` : `Сцена: ${scene.name} (клик для переключения)`}
+                title={isEn ? `Scene: ${localizeSceneName(scene.name, 'en')} (click to switch)` : `Сцена: ${localizeSceneName(scene.name, 'ru')} (клик для переключения)`}
               >
                 {/* Thumbnail / Icon */}
                 <div className="w-4 h-4 rounded overflow-hidden bg-black/40 flex items-center justify-center flex-shrink-0 border border-white/10">
@@ -157,7 +158,7 @@ export function SceneDirectorBar() {
 
                 {/* Scene Name */}
                 <span className="truncate max-w-[120px] sm:max-w-[160px] text-[11px]">
-                  {scene.name}
+                  {localizeSceneName(scene.name, isEn ? 'en' : 'ru')}
                 </span>
 
                 {/* Three-dots menu trigger */}

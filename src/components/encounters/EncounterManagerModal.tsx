@@ -167,7 +167,7 @@ export function EncounterManagerModal() {
         if (isCancelled) return;
         if (dbMonsters.length > 0) {
           const mapped: QuickMonster[] = dbMonsters.map((m) => ({
-            name: m.name_ru || m.name_en,
+            name: m.name_en || m.name_ru,
             nameRu: m.name_ru || m.name_en,
             cr: m.cr || '1/4',
             ac: m.ac || 10,
