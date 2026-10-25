@@ -95,6 +95,7 @@ export interface MapSyncData {
   isLightingEnabled?: boolean;
   ambientLightMode?: AmbientLightMode;
   ambientDarkness?: number;
+  backgroundTexture?: string;
 }
 
 export type BroadcastMessage =

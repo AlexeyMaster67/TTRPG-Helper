@@ -241,7 +241,6 @@ async function render() {
   console.log('Saved V3:', p3);
 
   // Copy to root & brain
-  const brainDir = 'C:\\Users\\alexeymaster67\\.gemini\\antigravity\\brain\\61e94732-df6b-4044-8891-bc4361d60d8a';
   fs.copyFileSync(p1, path.resolve('AlexeyMaster67_Hex_A67_V1_SolidBlue.png'));
   fs.copyFileSync(p2, path.resolve('AlexeyMaster67_Hex_A67_V2_Cutout.png'));
   fs.copyFileSync(p3, path.resolve('AlexeyMaster67_Hex_A67_V3_RoyalBlue.png'));

@@ -69,6 +69,7 @@ import {
   Flame,
   Link as LinkIcon,
   Unlink as UnlinkIcon,
+  Grid,
 } from 'lucide-react';
 
 export {
@@ -1210,6 +1211,8 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
     gridType,
     isVideoMap,
     setImageUrl,
+    backgroundTexture,
+    setBackgroundTexture,
     activeTool,
     setActiveTool,
     aoeTemplates,
@@ -1458,6 +1461,24 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
     };
   }, [imageUrl]);
 
+  // Stock background texture image element (grass, water, wood, stone)
+  const [textureImage, setTextureImage] = useState<HTMLImageElement | null>(null);
+  useEffect(() => {
+    if (!backgroundTexture || backgroundTexture === 'none') {
+      setTextureImage(null);
+      return;
+    }
+    const img = new window.Image();
+    img.crossOrigin = 'Anonymous';
+    img.src = `/textures/${backgroundTexture}.jpg`;
+    img.onload = () => {
+      setTextureImage(img);
+    };
+    img.onerror = () => {
+      setTextureImage(null);
+    };
+  }, [backgroundTexture]);
+
   // Video map element support (.mp4, .webm)
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -1506,6 +1527,9 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
       anim.stop();
     };
   }, [videoLoaded]);
+
+  // Dismiss empty map prompt to play on blank canvas / surface without uploading an image
+  const [isDismissEmptyPrompt, setIsDismissEmptyPrompt] = useState(false);
 
   // Active wall drawing preview state
   const [drawingWall, setDrawingWall] = useState<{
@@ -2339,8 +2363,13 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
     const width = Math.max(containerSize.width * 2, imageWidth || 1600);
     const height = Math.max(containerSize.height * 2, imageHeight || 1200);
     const size = gridCellSize > 0 ? gridCellSize : 50;
-    const strokeColor = isWhiteBackground ? '#334155' : 'rgba(197, 160, 89, 0.18)';
-    const strokeW = isWhiteBackground ? 1.5 : 1;
+    const isTexturedOrImage = Boolean(imageUrl) || (backgroundTexture && backgroundTexture !== 'none');
+    const strokeColor = isWhiteBackground
+      ? '#334155'
+      : isTexturedOrImage
+      ? 'rgba(255, 255, 255, 0.48)'
+      : 'rgba(245, 185, 32, 0.42)';
+    const strokeW = isWhiteBackground ? 1.5 : isTexturedOrImage ? 1.4 : 1.25;
 
     if (gridType === 'hex-pointy') {
       const R = size / 1.732;
@@ -2419,7 +2448,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
     }
 
     return lines;
-  }, [isGridVisible, containerSize, imageWidth, imageHeight, gridCellSize, isWhiteBackground, gridType]);
+  }, [isGridVisible, containerSize, imageWidth, imageHeight, gridCellSize, isWhiteBackground, gridType, backgroundTexture, imageUrl]);
 
   return (
     <div className={clsx("flex flex-col w-full h-full overflow-hidden select-none relative", isWhiteBackground ? "bg-[#f8fafc]" : "bg-canvas")}>
@@ -2454,9 +2483,18 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
         }`}
       >
         {/* Empty State: Load Map Prompt when no map is loaded */}
-        {!imageUrl && isMasterView && (
+        {!imageUrl && (!backgroundTexture || backgroundTexture === 'none') && !isDismissEmptyPrompt && isMasterView && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 pointer-events-none">
-            <div className="bg-[#0f141c]/95 border border-gold/40 rounded-2xl p-6 sm:p-8 max-w-md text-center shadow-2xl backdrop-blur-md pointer-events-auto flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-[#0f141c]/95 border border-gold/40 rounded-2xl p-6 sm:p-8 max-w-md text-center shadow-2xl backdrop-blur-md pointer-events-auto flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-200 relative">
+              {/* Close / Dismiss button to play directly on blank grid */}
+              <button
+                type="button"
+                onClick={() => setIsDismissEmptyPrompt(true)}
+                title={language === 'en' ? 'Close prompt and play on blank tactical grid' : 'Закрыть и играть на чистом поле'}
+                className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
               <div className="w-16 h-16 rounded-2xl bg-gold/15 border border-gold/40 flex items-center justify-center text-gold shadow-[0_0_24px_rgba(245,185,32,0.25)]">
                 <Upload className="w-8 h-8" />
               </div>
@@ -2477,7 +2515,62 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                   className="px-4 py-2.5 rounded-xl bg-[#f5b920] hover:bg-[#fac742] text-[#0c0d12] font-black text-xs flex items-center gap-2 shadow-[0_0_16px_rgba(245,185,32,0.35)] transition-all cursor-pointer"
                 >
                   <Upload className="w-4 h-4" />
-                  <span>{language === 'en' ? 'Load Map from Device' : 'Загрузить карту с устройства'}</span>
+                  <span>{language === 'en' ? 'Load from Device' : 'Загрузить карту'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsDismissEmptyPrompt(true)}
+                  className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-gray-200 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Grid className="w-3.5 h-3.5 text-gray-300" />
+                  <span>{language === 'en' ? 'Blank Grid' : 'Играть без карты'}</span>
+                </button>
+              </div>
+              <div className="w-full pt-3 border-t border-white/10 flex flex-col items-center gap-2">
+                <span className="text-[11px] font-semibold text-gray-400">
+                  {language === 'en' ? 'Or choose a tactical battlemap surface:' : 'Или выберите тактическую поверхность:'}
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full">
+                  <button
+                    type="button"
+                    onClick={() => { setBackgroundTexture('grass'); setIsDismissEmptyPrompt(true); }}
+                    className="px-2 py-1.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>🌿</span>
+                    <span>{language === 'en' ? 'Grass' : 'Трава'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setBackgroundTexture('water'); setIsDismissEmptyPrompt(true); }}
+                    className="px-2 py-1.5 rounded-lg bg-sky-950/40 hover:bg-sky-900/60 border border-sky-500/30 text-sky-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>💧</span>
+                    <span>{language === 'en' ? 'Water' : 'Вода'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setBackgroundTexture('wood'); setIsDismissEmptyPrompt(true); }}
+                    className="px-2 py-1.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-600/30 text-amber-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>🪵</span>
+                    <span>{language === 'en' ? 'Planks' : 'Доски'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setBackgroundTexture('stone'); setIsDismissEmptyPrompt(true); }}
+                    className="px-2 py-1.5 rounded-lg bg-slate-900/60 hover:bg-slate-800/80 border border-slate-500/30 text-slate-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>🧱</span>
+                    <span>{language === 'en' ? 'Stone' : 'Камень'}</span>
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => useMapStore.getState().openProceduralModal()}
+                  className="w-full mt-1 px-3 py-2 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                >
+                  <ToyBrick className="w-4 h-4 text-purple-400" />
+                  <span>{language === 'en' ? 'Procedural Dungeon Architect' : 'Архитектор подземелий (Генератор)'}</span>
                 </button>
               </div>
               <span className="text-[10px] text-gray-500 font-mono">
@@ -2556,6 +2649,26 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
         >
           {/* Layer 1: Background and Grid */}
           <Layer>
+            {/* Background Texture Surface (Grass, Water, Wood, Stone) stretched/tiled across full canvas */}
+            {backgroundTexture && backgroundTexture !== 'none' && textureImage && (
+              <KonvaRect
+                x={0}
+                y={0}
+                width={Math.max(imageWidth || 0, containerSize.width * 3, 4000)}
+                height={Math.max(imageHeight || 0, containerSize.height * 3, 3000)}
+                fillPatternImage={textureImage}
+                fillPatternRepeat="repeat"
+                fillPatternScale={
+                  backgroundTexture === 'water'
+                    ? { x: 0.9, y: 0.9 }
+                    : backgroundTexture === 'wood'
+                    ? { x: 0.5, y: 0.5 }
+                    : { x: 0.65, y: 0.65 }
+                }
+                listening={false}
+              />
+            )}
+
             {/* Background image, animated video map, or default tactical surface */}
             {isVideoMap && videoRef.current ? (
               <KonvaImage
@@ -2571,7 +2684,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                 height={imageHeight}
                 listening={false}
               />
-            ) : (
+            ) : (!textureImage || backgroundTexture === 'none') ? (
               <KonvaRect
                 x={0}
                 y={0}
@@ -2580,7 +2693,7 @@ export function TacticalBattleMap({ isMasterView = true }: TacticalBattleMapProp
                 fill={isWhiteBackground ? '#FFFFFF' : '#141722'}
                 listening={false}
               />
-            )}
+            ) : null}
 
             {/* Tactical Grid */}
             {gridLines}

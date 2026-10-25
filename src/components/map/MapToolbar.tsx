@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { useRef, useState, useEffect } from 'react';
 import { useMapStore } from '../../store/mapStore';
 import { broadcastService } from '../../services/broadcastService';
@@ -35,6 +36,7 @@ import {
   Plus,
   Flame,
   Wand2,
+  Layers,
   Check,
 } from 'lucide-react';
 import { useCombatStore } from '../../store/combatStore';
@@ -171,6 +173,7 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
     gridType,
     pins,
     walls,
+    imageUrl,
     setImageUrl,
     setGridCellSize,
     toggleGrid,
@@ -216,7 +219,12 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
     clearLights,
     addLight,
     openProceduralModal,
+    backgroundTexture,
+    setBackgroundTexture,
   } = useMapStore();
+
+  const [isTextureMenuOpen, setIsTextureMenuOpen] = useState(false);
+  const textureMenuRef = useRef<HTMLDivElement>(null);
 
   const [isWeatherOpen, setIsWeatherOpen] = useState(false);
   const weatherDropdownRef = useRef<HTMLDivElement>(null);
@@ -237,6 +245,10 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
       if (weatherDropdownRef.current && !weatherDropdownRef.current.contains(e.target as Node)) {
         setIsWeatherOpen(false);
       }
+      if (textureMenuRef.current && !textureMenuRef.current.contains(e.target as Node)) {
+        setIsTextureMenuOpen(false);
+      }
+      
       if (aoeDropdownRef.current && !aoeDropdownRef.current.contains(e.target as Node)) {
         setIsAoeOpen(false);
       }
@@ -1587,6 +1599,82 @@ export function MapToolbar({ onFitToViewport, isMasterView = true }: MapToolbarP
                   <span className="hidden xl:inline">{isEn ? 'Map Generator' : 'Генератор карт'}</span>
                   <span className="hidden sm:inline xl:hidden">{isEn ? 'Generator' : 'Генератор'}</span>
                 </button>
+
+                {/* Surface Texture Picker */}
+                <div className="relative" ref={textureMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsTextureMenuOpen(!isTextureMenuOpen)}
+                    title={isEn ? "BattleMap Surface Texture" : "Стоковая текстура поверхности карты"}
+                    className={clsx(
+                      "px-1.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all border cursor-pointer",
+                      backgroundTexture && backgroundTexture !== 'none'
+                        ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                        : "text-gray-300 hover:text-white hover:bg-white/10 border-white/10"
+                    )}
+                  >
+                    <Layers className="h-3.5 w-3.5 text-amber-400" />
+                    <span className="hidden xl:inline">
+                      {backgroundTexture === 'grass' ? (isEn ? 'Grass' : 'Трава') :
+                       backgroundTexture === 'water' ? (isEn ? 'Water' : 'Вода') :
+                       backgroundTexture === 'wood' ? (isEn ? 'Wood' : 'Доски') :
+                       backgroundTexture === 'stone' ? (isEn ? 'Stone' : 'Камень') :
+                       (isEn ? 'Surface' : 'Текстура')}
+                    </span>
+                    <ChevronDown className="h-3 w-3 opacity-60" />
+                  </button>
+                  {isTextureMenuOpen && (
+                    <div className="absolute right-0 bottom-full mb-1 sm:bottom-auto sm:top-full sm:mt-1 w-44 bg-[#12161f] border border-gold/30 rounded-xl shadow-2xl p-1.5 z-50 flex flex-col gap-1 backdrop-blur-md">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 px-2 py-1">
+                        {isEn ? 'Surface Texture' : 'Текстура поверхности'}
+                      </div>
+                      {[
+                        { id: 'none', label: isEn ? '⬛ Default Blank Grid' : '⬛ Чистая сетка (Без фона)' },
+                        { id: 'grass', label: isEn ? '🌿 Lush Grass' : '🌿 Трава' },
+                        { id: 'water', label: isEn ? '💧 Deep Water' : '💧 Вода' },
+                        { id: 'wood', label: isEn ? '🪵 Tavern Planks' : '🪵 Доски (Дерево)' },
+                        { id: 'stone', label: isEn ? '🧱 Dungeon Stone' : '🧱 Камень' },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            setBackgroundTexture(item.id as any);
+                            if (item.id !== 'none' && imageUrl) {
+                              setImageUrl('');
+                            }
+                            setIsTextureMenuOpen(false);
+                          }}
+                          className={clsx(
+                            "px-2.5 py-1.5 rounded-lg text-xs font-medium text-left flex items-center justify-between transition-colors cursor-pointer",
+                            (backgroundTexture || 'none') === item.id
+                              ? "bg-gold/20 text-gold font-bold"
+                              : "text-gray-300 hover:bg-white/5 hover:text-white"
+                          )}
+                        >
+                          <span>{item.label}</span>
+                          {(backgroundTexture || 'none') === item.id && <Check className="h-3 w-3 text-gold" />}
+                        </button>
+                      ))}
+                      {imageUrl && (
+                        <div className="pt-1 mt-1 border-t border-white/10">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setImageUrl('');
+                              setIsTextureMenuOpen(false);
+                            }}
+                            className="w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold text-left text-red-400 hover:bg-red-500/15 hover:text-red-300 transition-colors cursor-pointer flex items-center justify-between"
+                            title={isEn ? "Remove uploaded map image and keep background" : "Убрать картинку карты и оставить только фон"}
+                          >
+                            <span>{isEn ? '❌ Clear Map Image' : '❌ Очистить картинку карты'}</span>
+                            <Trash2 className="h-3 w-3 text-red-400" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 <input
                   type="file"

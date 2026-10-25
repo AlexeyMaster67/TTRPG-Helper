@@ -19,7 +19,7 @@ console.log('  TTRPG Helper - Build & Duplicate Setup Installer');
 console.log('========================================================\n');
 
 // 1. Setup PATH with node, cargo and mingw if needed
-const userProfile = process.env.USERPROFILE || 'C:\\Users\\alexeymaster67';
+const userProfile = process.env.USERPROFILE || '';
 const cargoBin = path.join(userProfile, '.cargo', 'bin');
 const nodeBin = 'C:\\Program Files\\nodejs';
 const mingwBin = path.join(

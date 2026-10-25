@@ -45,7 +45,7 @@ npm.cmd run build
 
 ```powershell
 # 1. Настройка окружения компилятора MinGW, Cargo и Node
-$env:PATH = "C:\Users\alexeymaster67\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin;$env:USERPROFILE\.cargo\bin;C:\Program Files\nodejs;$env:PATH"
+$env:PATH = "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin;$env:USERPROFILE\.cargo\bin;C:\Program Files\nodejs;$env:PATH"
 
 cd D:\TTRPG-Helper
 

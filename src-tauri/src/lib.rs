@@ -331,8 +331,7 @@ pub fn perform_app_migration(app: &tauri::AppHandle) -> MigrationReport {
     // Candidate source legacy directories (checked in order of priority)
     let candidate_sources = [
         appdata_root.join("dnd-ait"),
-        appdata_root.join("com.alexeymaster67.dndait"),
-        appdata_root.join("DnD_AIT"),
+                appdata_root.join("DnD_AIT"),
     ];
 
     let found_source = candidate_sources.iter().find(|p| p.exists() && p.is_dir());

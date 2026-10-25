@@ -20,6 +20,7 @@ import {
   StandaloneToken,
   LightSource,
   AmbientLightMode,
+  MapBackgroundTexture,
 } from '../types/map';
 import { AMBIENT_LIGHT_CONFIG } from '../engine/lightingEngine';
 import { broadcastService } from '../services/broadcastService';
@@ -111,6 +112,7 @@ interface MapStoreActions {
   detachLightFromToken: (lightId: string) => void;
   syncTokenAttachedLights: (tokenId: string, x: number, y: number) => void;
   broadcastMapState: () => void;
+  setBackgroundTexture: (texture: MapBackgroundTexture) => void;
 }
 
 export type MapStore = TacticalMapState & MapStoreActions;
@@ -156,6 +158,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
   selectedLightId: null,
   activeLightPresetId: 'torch',
   isProceduralModalOpen: false,
+  backgroundTexture: 'none',
 
   setImageUrl: (url, width = 1600, height = 1200, isVideo = false) => {
     set({ imageUrl: url, imageWidth: width, imageHeight: height, isVideoMap: isVideo });
@@ -552,6 +555,11 @@ export const useMapStore = create<MapStore>((set, get) => ({
     set({ isProceduralModalOpen: false });
   },
 
+  setBackgroundTexture: (texture) => {
+    set({ backgroundTexture: texture });
+    get().broadcastMapState();
+  },
+
   // Fog of War actions
   toggleFog: () => {
     set((state) => ({ isFogEnabled: !state.isFogEnabled }));
@@ -840,6 +848,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
         isLightingEnabled: state.isLightingEnabled,
         ambientLightMode: state.ambientLightMode,
         ambientDarkness: state.ambientDarkness,
+        backgroundTexture: state.backgroundTexture,
       },
     });
   },

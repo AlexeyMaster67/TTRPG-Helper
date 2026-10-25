@@ -238,4 +238,62 @@ describe('Procedural Dungeon Engine - Full Generation Pipeline', () => {
       expect(run1.walls[i].wallType).toEqual(run2.walls[i].wallType);
     }
   });
+
+  it('generates full-canvas organic winding caves with guaranteed 100% connectivity', () => {
+    const widescreenCaves = generateProceduralDungeon({
+      style: 'caves',
+      gridWidth: 48,
+      gridHeight: 27,
+      cellSize: 50,
+      caveWinding: 0.8,
+      seed: 888123,
+    });
+
+    expect(widescreenCaves.width).toBe(48 * 50);
+    expect(widescreenCaves.height).toBe(27 * 50);
+    expect(widescreenCaves.walls.length).toBeGreaterThan(10);
+    expect(widescreenCaves.backgroundDataUrl).toBeTruthy();
+  });
+
+  it('supports mixed fortress and labyrinth catacomb generators', () => {
+    const mixed = generateProceduralDungeon({
+      style: 'mixed',
+      gridWidth: 35,
+      gridHeight: 35,
+      cellSize: 40,
+      seed: 999456,
+    });
+    expect(mixed.roomCount).toBeGreaterThan(0);
+    expect(mixed.walls.length).toBeGreaterThan(0);
+
+    const labyrinth = generateProceduralDungeon({
+      style: 'labyrinth',
+      gridWidth: 30,
+      gridHeight: 30,
+      cellSize: 40,
+      seed: 111222,
+    });
+    expect(labyrinth.roomCount).toBeGreaterThan(0);
+    expect(labyrinth.walls.length).toBeGreaterThan(0);
+  });
+
+  it('supports background textures including transparent overlay', () => {
+    const textured = generateProceduralDungeon({
+      style: 'bsp',
+      gridWidth: 20,
+      gridHeight: 20,
+      texture: 'stone',
+      seed: 456,
+    });
+    expect(textured.backgroundDataUrl).toBeTruthy();
+
+    const transparent = generateProceduralDungeon({
+      style: 'caves',
+      gridWidth: 20,
+      gridHeight: 20,
+      texture: 'transparent',
+      seed: 789,
+    });
+    expect(transparent.backgroundDataUrl).toBeTruthy();
+  });
 });

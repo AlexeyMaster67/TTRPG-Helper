@@ -20,6 +20,7 @@ import {
   GeneratedDungeonResult,
   DungeonGeneratorStyle,
   DungeonPaletteId,
+  DungeonTextureId,
   DUNGEON_PALETTES,
 } from '../../engine/proceduralDungeon';
 
@@ -27,6 +28,9 @@ const GRID_PRESETS = [
   { label: '20x20', w: 20, h: 20 },
   { label: '30x30', w: 30, h: 30 },
   { label: '40x40', w: 40, h: 40 },
+  { label: '40x22 (16:9)', w: 40, h: 22 },
+  { label: '48x27 (FHD)', w: 48, h: 27 },
+  { label: '60x60 (Mega)', w: 60, h: 60 },
 ];
 
 export function ProceduralMapModal() {
@@ -35,6 +39,7 @@ export function ProceduralMapModal() {
   const setImageUrl = useMapStore((s) => s.setImageUrl);
   const setGridCellSize = useMapStore((s) => s.setGridCellSize);
   const setWalls = useMapStore((s) => s.setWalls);
+  const setBackgroundTexture = useMapStore((s) => s.setBackgroundTexture);
 
   const createScene = useSceneStore((s) => s.createScene);
   const updateScene = useSceneStore((s) => s.updateScene);
@@ -45,25 +50,30 @@ export function ProceduralMapModal() {
   const isEn = language === 'en';
 
   // Settings State
-  const [style, setStyle] = useState<DungeonGeneratorStyle>('bsp');
+  const [style, setStyle] = useState<DungeonGeneratorStyle>('caves');
   const [gridWidth, setGridWidth] = useState<number>(30);
   const [gridHeight, setGridHeight] = useState<number>(30);
   const [palette, setPalette] = useState<DungeonPaletteId>('granite');
+  const [texture, setTexture] = useState<DungeonTextureId>('none');
   const [roomDensity, setRoomDensity] = useState<'low' | 'medium' | 'high'>('medium');
-  const [corridorWidth, setCorridorWidth] = useState<1 | 2>(1);
-  const [doorFrequency, setDoorFrequency] = useState<'none' | 'some' | 'all'>('some');
+  const [corridorWidth, setCorridorWidth] = useState<1 | 2>(2);
+  const [caveWinding, setCaveWinding] = useState<number>(0.75);
+  const [doorFrequency, setDoorFrequency] = useState<'none' | 'some' | 'all'>('none');
   const [includeSecretRooms, setIncludeSecretRooms] = useState<boolean>(true);
   const [initialFillRate, setInitialFillRate] = useState<number>(0.46);
   const [smoothIterations, setSmoothIterations] = useState<number>(4);
-  const [sceneTitle, setSceneTitle] = useState<string>(isEn ? 'Crypt Dungeon' : 'Подземелье склепа');
+  const [seed, setSeed] = useState<number>(() => Math.floor(Math.random() * 1000000));
+  const [sceneTitle, setSceneTitle] = useState<string>(isEn ? 'Underground Winding Caves' : 'Извилистые подземные пещеры');
 
   // Preview Generation State
   const [generationResult, setGenerationResult] = useState<GeneratedDungeonResult | null>(null);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
+  const debounceTimerRef = useRef<any>(null);
 
-  const handleGenerate = useCallback(() => {
+  const handleGenerate = useCallback((customSeed?: number) => {
     setIsGenerating(true);
+    const activeSeed = customSeed !== undefined ? customSeed : seed;
     // Allow UI to update before synchronous generation
     setTimeout(() => {
       try {
@@ -73,13 +83,15 @@ export function ProceduralMapModal() {
           gridHeight,
           cellSize: 50,
           palette,
+          texture,
           roomDensity,
           corridorWidth,
+          caveWinding,
           doorFrequency,
           includeSecretRooms,
           initialFillRate,
           smoothIterations,
-          seed: Math.floor(Math.random() * 1000000),
+          seed: activeSeed,
         });
         setGenerationResult(result);
       } catch (err) {
@@ -93,25 +105,66 @@ export function ProceduralMapModal() {
     gridWidth,
     gridHeight,
     palette,
+    texture,
     roomDensity,
     corridorWidth,
+    caveWinding,
     doorFrequency,
     includeSecretRooms,
     initialFillRate,
     smoothIterations,
+    seed,
   ]);
 
-  // Initial generation when opened
+  // Debounced auto-generation when parameters change
   useEffect(() => {
-    if (isProceduralModalOpen && !generationResult) {
-      handleGenerate();
+    if (!isProceduralModalOpen) return;
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
-  }, [isProceduralModalOpen, generationResult, handleGenerate]);
+    debounceTimerRef.current = setTimeout(() => {
+      handleGenerate();
+    }, 90);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [
+    isProceduralModalOpen,
+    style,
+    gridWidth,
+    gridHeight,
+    palette,
+    texture,
+    roomDensity,
+    corridorWidth,
+    caveWinding,
+    doorFrequency,
+    includeSecretRooms,
+    initialFillRate,
+    smoothIterations,
+    seed,
+    handleGenerate,
+  ]);
+
+  const handleRandomizeSeed = () => {
+    const newSeed = Math.floor(Math.random() * 1000000);
+    setSeed(newSeed);
+    handleGenerate(newSeed);
+  };
 
   // Update default scene title when style changes
   useEffect(() => {
-    if (style === 'bsp') {
+    if (style === 'caves') {
+      setSceneTitle(isEn ? 'Winding Caves' : 'Извилистые пещеры');
+    } else if (style === 'bsp') {
       setSceneTitle(isEn ? 'Catacombs & Crypts' : 'Катакомбы и склепы');
+    } else if (style === 'mixed') {
+      setSceneTitle(isEn ? 'Cavern Fortress' : 'Пещерный комплекс');
+    } else if (style === 'labyrinth') {
+      setSceneTitle(isEn ? 'Ancient Labyrinth' : 'Древний лабиринт');
     } else {
       setSceneTitle(isEn ? 'Underground Caves' : 'Подземные пещеры');
     }
@@ -126,6 +179,9 @@ export function ProceduralMapModal() {
     setImageUrl(generationResult.backgroundDataUrl, generationResult.width, generationResult.height, false);
     setGridCellSize(generationResult.gridSize);
     setWalls(generationResult.walls);
+    if (texture !== 'none' && texture !== 'transparent') {
+      setBackgroundTexture(texture as any);
+    }
     syncCurrentMapToActiveScene();
     closeProceduralModal();
     if (showToast) {
@@ -147,6 +203,9 @@ export function ProceduralMapModal() {
       gridCellSize: generationResult.gridSize,
       walls: generationResult.walls,
     });
+    if (texture !== 'none' && texture !== 'transparent') {
+      setBackgroundTexture(texture as any);
+    }
     switchScene(newSceneId);
     closeProceduralModal();
     if (showToast) {
@@ -160,7 +219,7 @@ export function ProceduralMapModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 animate-in fade-in">
-      <div className="w-full max-w-5xl max-h-[92vh] bg-[#10151d] border border-gold/50 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-gray-200">
+      <div className="w-full max-w-5xl max-h-[94vh] bg-[#10151d] border border-gold/50 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-gray-200">
         {/* Header */}
         <div className="h-12 px-4 sm:px-6 bg-[#161d27] border-b border-white/10 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2.5">
@@ -173,8 +232,8 @@ export function ProceduralMapModal() {
               </h2>
               <p className="text-[10px] text-gray-400 hidden sm:block">
                 {isEn
-                  ? 'Procedural BSP and cellular cave generation with automatic walls and doors placement'
-                  : 'Процедурная генерация BSP и клеточных пещер с авто-расстановкой стен и дверей'}
+                  ? 'Procedural organic winding caves, BSP rooms and catacombs with auto barriers'
+                  : 'Процедурная генерация извилистых пещер, комнат и данжей с авто-барьерами'}
               </p>
             </div>
           </div>
@@ -182,18 +241,18 @@ export function ProceduralMapModal() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleGenerate}
+              onClick={handleRandomizeSeed}
               disabled={isGenerating}
-              className="px-2.5 py-1 rounded-lg bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/60 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+              className="px-2.5 py-1 rounded-lg bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/60 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
               title={isEn ? 'Regenerate map with random seed' : 'Перегенерировать карту со случайным зерном'}
             >
               <Dices className={`h-3.5 w-3.5 text-gold ${isGenerating ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">{isEn ? 'Regenerate' : 'Перегенерировать'}</span>
+              <span className="hidden sm:inline">{isEn ? 'Randomize' : 'Случайный сид'}</span>
             </button>
             <button
               type="button"
               onClick={closeProceduralModal}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
               title={isEn ? 'Close' : 'Закрыть'}
             >
               <X className="h-4 w-4" />
@@ -204,47 +263,128 @@ export function ProceduralMapModal() {
         {/* Content body: Grid 2 Columns on desktop */}
         <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-4 p-3 sm:p-5">
           {/* Left Column: Settings (5 cols) */}
-          <div className="lg:col-span-5 space-y-4">
+          <div className="lg:col-span-5 space-y-3.5">
             {/* Style Selector */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Layers className="h-3.5 w-3.5 text-gold" />
                 <span>{isEn ? 'Generator Type' : 'Тип генератора'}</span>
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setStyle('caves')}
+                  className={`p-2 rounded-xl border text-left flex flex-col gap-0.5 transition-all cursor-pointer ${
+                    style === 'caves'
+                      ? 'bg-gold/20 border-gold text-gold-light shadow-md ring-1 ring-gold/40'
+                      : 'bg-[#151c27] border-white/10 text-gray-400 hover:text-gray-200 hover:border-white/20'
+                  }`}
+                >
+                  <span className="text-xs font-bold font-serif">
+                    {isEn ? 'Winding Caves' : 'Извилистые пещеры'}
+                  </span>
+                  <span className="text-[9px] text-gray-400">
+                    {isEn ? 'Twisting organic tunnels' : 'Живые изгибы и ходы'}
+                  </span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setStyle('bsp')}
-                  className={`p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all ${
+                  className={`p-2 rounded-xl border text-left flex flex-col gap-0.5 transition-all cursor-pointer ${
                     style === 'bsp'
                       ? 'bg-gold/20 border-gold text-gold-light shadow-md ring-1 ring-gold/40'
                       : 'bg-[#151c27] border-white/10 text-gray-400 hover:text-gray-200 hover:border-white/20'
                   }`}
                 >
                   <span className="text-xs font-bold font-serif">
-                    {isEn ? 'Catacombs & Crypts' : 'Катакомбы и склепы'}
+                    {isEn ? 'Rooms & Halls' : 'Комнаты и залы'}
                   </span>
-                  <span className="text-[10px] text-gray-400">
-                    {isEn ? 'BSP: rooms & corridors' : 'BSP: комнаты и коридоры'}
+                  <span className="text-[9px] text-gray-400">
+                    {isEn ? 'BSP dungeon layout' : 'Классический данж'}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStyle('mixed')}
+                  className={`p-2 rounded-xl border text-left flex flex-col gap-0.5 transition-all cursor-pointer ${
+                    style === 'mixed'
+                      ? 'bg-gold/20 border-gold text-gold-light shadow-md ring-1 ring-gold/40'
+                      : 'bg-[#151c27] border-white/10 text-gray-400 hover:text-gray-200 hover:border-white/20'
+                  }`}
+                >
+                  <span className="text-xs font-bold font-serif">
+                    {isEn ? 'Cavern Fortress' : 'Пещерный замок'}
+                  </span>
+                  <span className="text-[9px] text-gray-400">
+                    {isEn ? 'Rooms inside caves' : 'Залы среди гротов'}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStyle('labyrinth')}
+                  className={`p-2 rounded-xl border text-left flex flex-col gap-0.5 transition-all cursor-pointer ${
+                    style === 'labyrinth'
+                      ? 'bg-gold/20 border-gold text-gold-light shadow-md ring-1 ring-gold/40'
+                      : 'bg-[#151c27] border-white/10 text-gray-400 hover:text-gray-200 hover:border-white/20'
+                  }`}
+                >
+                  <span className="text-xs font-bold font-serif">
+                    {isEn ? 'Catacombs' : 'Катакомбы'}
+                  </span>
+                  <span className="text-[9px] text-gray-400">
+                    {isEn ? 'Dense labyrinth' : 'Лабиринт и гробницы'}
                   </span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setStyle('cellular')}
-                  className={`p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all ${
+                  className={`p-2 rounded-xl border text-left flex flex-col gap-0.5 transition-all cursor-pointer ${
                     style === 'cellular'
                       ? 'bg-gold/20 border-gold text-gold-light shadow-md ring-1 ring-gold/40'
                       : 'bg-[#151c27] border-white/10 text-gray-400 hover:text-gray-200 hover:border-white/20'
                   }`}
                 >
                   <span className="text-xs font-bold font-serif">
-                    {isEn ? 'Organic Caves' : 'Органические пещеры'}
+                    {isEn ? 'Grotto Pockets' : 'Клеточный грот'}
                   </span>
-                  <span className="text-[10px] text-gray-400">
-                    {isEn ? 'Cellular automata' : 'Клеточные автоматы'}
+                  <span className="text-[9px] text-gray-400">
+                    {isEn ? 'Cellular automata' : 'Природные полости'}
                   </span>
                 </button>
+              </div>
+            </div>
+
+            {/* Surface Texture Selector */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider block">
+                {isEn ? 'Floor Surface & Texture' : 'Поверхность и текстура пола'}
+              </label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { id: 'none', label: isEn ? 'Dungeon Palette' : 'Палитра' },
+                  { id: 'wood', label: isEn ? '🪵 Dark Planks' : '🪵 Доски' },
+                  { id: 'stone', label: isEn ? '🧱 Stone' : '🧱 Камень' },
+                  { id: 'grass', label: isEn ? '🌿 Grass' : '🌿 Трава' },
+                  { id: 'water', label: isEn ? '💧 Water' : '💧 Вода' },
+                  { id: 'transparent', label: isEn ? '🪟 Transparent' : '🪟 Прозрачный' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setTexture(item.id as DungeonTextureId)}
+                    className={`px-2 py-1.5 rounded-lg border text-xs font-medium text-center transition-all cursor-pointer ${
+                      texture === item.id
+                        ? 'bg-gold/25 text-gold-light border-gold font-bold shadow-sm'
+                        : 'bg-[#151c27] border-white/10 text-gray-400 hover:text-gray-200'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -255,7 +395,7 @@ export function ProceduralMapModal() {
                   <Grid className="h-3.5 w-3.5 text-gold" />
                   <span>{isEn ? 'Grid Size (cells)' : 'Размер сетки (клеток)'}</span>
                 </label>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 flex-wrap justify-end">
                   {GRID_PRESETS.map((p) => (
                     <button
                       key={p.label}
@@ -264,7 +404,7 @@ export function ProceduralMapModal() {
                         setGridWidth(p.w);
                         setGridHeight(p.h);
                       }}
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-mono border transition-all ${
+                      className={`px-1.5 py-0.5 rounded text-[9px] font-mono border transition-all cursor-pointer ${
                         gridWidth === p.w && gridHeight === p.h
                           ? 'bg-gold text-black font-bold border-gold'
                           : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
@@ -309,47 +449,121 @@ export function ProceduralMapModal() {
             </div>
 
             {/* Palette */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider block">
-                {isEn ? 'Color Palette' : 'Цветовая палитра'}
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {(Object.keys(DUNGEON_PALETTES) as DungeonPaletteId[]).map((pid) => {
-                  const p = DUNGEON_PALETTES[pid];
-                  const isSelected = palette === pid;
-                  return (
-                    <button
-                      key={pid}
-                      type="button"
-                      onClick={() => setPalette(pid)}
-                      className={`p-2 rounded-xl border flex items-center justify-between transition-all ${
-                        isSelected
-                          ? 'bg-gold/20 border-gold text-gold-light font-bold ring-1 ring-gold/40'
-                          : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
-                      }`}
-                    >
-                      <span className="text-xs">{isEn ? (p.nameEn || p.name) : p.name}</span>
-                      <div className="flex items-center gap-1">
-                        <div
-                          className="w-3.5 h-3.5 rounded border border-white/20"
-                          style={{ backgroundColor: p.wallFill }}
-                          title={isEn ? 'Wall' : 'Стена'}
-                        />
-                        <div
-                          className="w-3.5 h-3.5 rounded border border-white/20"
-                          style={{ backgroundColor: p.floorBg }}
-                          title={isEn ? 'Floor' : 'Пол'}
-                        />
-                      </div>
-                    </button>
-                  );
-                })}
+            {texture === 'none' && (
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider block">
+                  {isEn ? 'Color Palette' : 'Цветовая палитра'}
+                </label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {(Object.keys(DUNGEON_PALETTES) as DungeonPaletteId[]).map((pid) => {
+                    const p = DUNGEON_PALETTES[pid];
+                    const isSelected = palette === pid;
+                    return (
+                      <button
+                        key={pid}
+                        type="button"
+                        onClick={() => setPalette(pid)}
+                        className={`p-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-gold/20 border-gold text-gold-light font-bold ring-1 ring-gold/40'
+                            : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
+                        }`}
+                      >
+                        <span className="text-xs">{isEn ? (p.nameEn || p.name) : p.name}</span>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="w-3.5 h-3.5 rounded border border-white/20"
+                            style={{ backgroundColor: p.wallFill }}
+                            title={isEn ? 'Wall' : 'Стена'}
+                          />
+                          <div
+                            className="w-3.5 h-3.5 rounded border border-white/20"
+                            style={{ backgroundColor: p.floorBg }}
+                            title={isEn ? 'Floor' : 'Пол'}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Algorithm Specific Settings */}
-            <div className="space-y-3 pt-2 border-t border-white/10">
-              {style === 'bsp' ? (
+            <div className="space-y-2.5 pt-2 border-t border-white/10">
+              {style === 'caves' ? (
+                <>
+                  {/* Winding Caves Settings */}
+                  <div className="space-y-2">
+                    <div>
+                      <div className="flex justify-between text-[10px] text-gray-400 mb-0.5">
+                        <span className="uppercase font-semibold">
+                          {isEn ? 'Winding & Twists' : 'Извилистость и изгибы'}
+                        </span>
+                        <span className="font-mono text-gold">{Math.round(caveWinding * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.3"
+                        max="0.95"
+                        step="0.05"
+                        value={caveWinding}
+                        onChange={(e) => setCaveWinding(Number(e.target.value))}
+                        className="w-full accent-gold h-1.5 bg-gray-700 rounded cursor-pointer"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
+                          {isEn ? 'Tunnel Width' : 'Ширина проходов'}
+                        </label>
+                        <div className="grid grid-cols-2 gap-1">
+                          {[1, 2].map((cw) => (
+                            <button
+                              key={cw}
+                              type="button"
+                              onClick={() => setCorridorWidth(cw as 1 | 2)}
+                              className={`py-1 rounded text-[10px] border transition-all cursor-pointer ${
+                                corridorWidth === cw
+                                  ? 'bg-gold/25 text-gold-light border-gold font-bold'
+                                  : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
+                              }`}
+                            >
+                              {cw === 1 ? (isEn ? '1 cell' : '1 клетка') : (isEn ? '2 cells' : '2 клетки')}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
+                          {isEn ? 'Gates & Barricades' : 'Ворота в проходах'}
+                        </label>
+                        <div className="grid grid-cols-2 gap-1">
+                          {[
+                            { id: 'none', label: isEn ? 'None' : 'Нет' },
+                            { id: 'some', label: isEn ? 'Yes' : 'Есть' },
+                          ].map((df) => (
+                            <button
+                              key={df.id}
+                              type="button"
+                              onClick={() => setDoorFrequency(df.id as 'none' | 'some')}
+                              className={`py-1 rounded text-[10px] border transition-all cursor-pointer ${
+                                doorFrequency === df.id
+                                  ? 'bg-gold/25 text-gold-light border-gold font-bold'
+                                  : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
+                              }`}
+                            >
+                              {df.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : style === 'bsp' ? (
                 <>
                   {/* BSP Settings */}
                   <div className="grid grid-cols-2 gap-2">
@@ -363,7 +577,7 @@ export function ProceduralMapModal() {
                             key={density}
                             type="button"
                             onClick={() => setRoomDensity(density)}
-                            className={`py-1 rounded text-[10px] border transition-all ${
+                            className={`py-1 rounded text-[10px] border transition-all cursor-pointer ${
                               roomDensity === density
                                 ? 'bg-gold/25 text-gold-light border-gold font-bold'
                                 : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
@@ -372,8 +586,8 @@ export function ProceduralMapModal() {
                             {density === 'low'
                               ? (isEn ? 'Low' : 'Низкая')
                               : density === 'medium'
-                              ? (isEn ? 'Medium' : 'Средняя')
-                              : (isEn ? 'High' : 'Высокая')}
+                              ? (isEn ? 'Med' : 'Сред.')
+                              : (isEn ? 'High' : 'Высок.')}
                           </button>
                         ))}
                       </div>
@@ -389,15 +603,13 @@ export function ProceduralMapModal() {
                             key={cw}
                             type="button"
                             onClick={() => setCorridorWidth(cw as 1 | 2)}
-                            className={`py-1 rounded text-[10px] border transition-all ${
+                            className={`py-1 rounded text-[10px] border transition-all cursor-pointer ${
                               corridorWidth === cw
                                 ? 'bg-gold/25 text-gold-light border-gold font-bold'
                                 : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
                             }`}
                           >
-                            {cw === 1
-                              ? (isEn ? '1 cell' : '1 клетка')
-                              : (isEn ? '2 cells' : '2 клетки')}
+                            {cw === 1 ? (isEn ? '1 cell' : '1 клетка') : (isEn ? '2 cells' : '2 клетки')}
                           </button>
                         ))}
                       </div>
@@ -414,7 +626,7 @@ export function ProceduralMapModal() {
                           key={freq}
                           type="button"
                           onClick={() => setDoorFrequency(freq)}
-                          className={`py-1 rounded text-[10px] border transition-all ${
+                          className={`py-1 rounded text-[10px] border transition-all cursor-pointer ${
                             doorFrequency === freq
                               ? 'bg-gold/25 text-gold-light border-gold font-bold'
                               : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
@@ -441,6 +653,118 @@ export function ProceduralMapModal() {
                     <label htmlFor="includeSecretRooms" className="text-xs text-gray-300 cursor-pointer select-none">
                       {isEn ? 'Secret rooms & hidden doors' : 'Тайники и секретные двери'}
                     </label>
+                  </div>
+                </>
+              ) : style === 'mixed' ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
+                        {isEn ? 'Passage Width' : 'Ширина проходов'}
+                      </label>
+                      <div className="grid grid-cols-2 gap-1">
+                        {[1, 2].map((cw) => (
+                          <button
+                            key={cw}
+                            type="button"
+                            onClick={() => setCorridorWidth(cw as 1 | 2)}
+                            className={`py-1 rounded text-[10px] border transition-all cursor-pointer ${
+                              corridorWidth === cw
+                                ? 'bg-gold/25 text-gold-light border-gold font-bold'
+                                : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
+                            }`}
+                          >
+                            {cw === 1 ? (isEn ? '1 cell' : '1 клетка') : (isEn ? '2 cells' : '2 клетки')}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
+                        {isEn ? 'Doors' : 'Двери'}
+                      </label>
+                      <div className="grid grid-cols-2 gap-1">
+                        {[
+                          { id: 'none', label: isEn ? 'None' : 'Нет' },
+                          { id: 'some', label: isEn ? 'Standard' : 'Обычные' },
+                        ].map((df) => (
+                          <button
+                            key={df.id}
+                            type="button"
+                            onClick={() => setDoorFrequency(df.id as 'none' | 'some')}
+                            className={`py-1 rounded text-[10px] border transition-all cursor-pointer ${
+                              doorFrequency === df.id
+                                ? 'bg-gold/25 text-gold-light border-gold font-bold'
+                                : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
+                            }`}
+                          >
+                            {df.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="checkbox"
+                      id="mixedSecret"
+                      checked={includeSecretRooms}
+                      onChange={(e) => setIncludeSecretRooms(e.target.checked)}
+                      className="rounded border-white/20 bg-[#151c27] text-gold focus:ring-gold"
+                    />
+                    <label htmlFor="mixedSecret" className="text-xs text-gray-300 cursor-pointer select-none">
+                      {isEn ? 'Secret rooms & hidden passages' : 'Тайники и секретные проходы'}
+                    </label>
+                  </div>
+                </>
+              ) : style === 'labyrinth' ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
+                        {isEn ? 'Corridor Width' : 'Ширина коридоров'}
+                      </label>
+                      <div className="grid grid-cols-2 gap-1">
+                        {[1, 2].map((cw) => (
+                          <button
+                            key={cw}
+                            type="button"
+                            onClick={() => setCorridorWidth(cw as 1 | 2)}
+                            className={`py-1 rounded text-[10px] border transition-all cursor-pointer ${
+                              corridorWidth === cw
+                                ? 'bg-gold/25 text-gold-light border-gold font-bold'
+                                : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
+                            }`}
+                          >
+                            {cw === 1 ? (isEn ? '1 cell' : '1 клетка') : (isEn ? '2 cells' : '2 клетки')}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 block mb-1 uppercase font-semibold">
+                        {isEn ? 'Portals & Gates' : 'Врата и решетки'}
+                      </label>
+                      <div className="grid grid-cols-2 gap-1">
+                        {[
+                          { id: 'none', label: isEn ? 'None' : 'Нет' },
+                          { id: 'some', label: isEn ? 'Standard' : 'Обычные' },
+                        ].map((df) => (
+                          <button
+                            key={df.id}
+                            type="button"
+                            onClick={() => setDoorFrequency(df.id as 'none' | 'some')}
+                            className={`py-1 rounded text-[10px] border transition-all cursor-pointer ${
+                              doorFrequency === df.id
+                                ? 'bg-gold/25 text-gold-light border-gold font-bold'
+                                : 'bg-[#151c27] border-white/10 text-gray-300 hover:text-white'
+                            }`}
+                          >
+                            {df.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -482,19 +806,6 @@ export function ProceduralMapModal() {
                         className="w-full accent-gold h-1.5 bg-gray-700 rounded cursor-pointer"
                       />
                     </div>
-
-                    <div className="flex items-center gap-2 pt-1">
-                      <input
-                        type="checkbox"
-                        id="caveDoors"
-                        checked={doorFrequency !== 'none'}
-                        onChange={(e) => setDoorFrequency(e.target.checked ? 'some' : 'none')}
-                        className="rounded border-white/20 bg-[#151c27] text-gold focus:ring-gold"
-                      />
-                      <label htmlFor="caveDoors" className="text-xs text-gray-300 cursor-pointer select-none">
-                        {isEn ? 'Barricades & gates in narrow passages' : 'Баррикады и ворота в узких проходах'}
-                      </label>
-                    </div>
                   </div>
                 </>
               )}
@@ -523,7 +834,7 @@ export function ProceduralMapModal() {
               </span>
 
               {generationResult && (
-                <div className="flex items-center gap-2 text-[10px] font-mono text-gray-400">
+                <div className="flex items-center gap-2 text-[10px] font-mono text-gray-400 flex-wrap justify-end">
                   <span className="bg-surface/70 px-1.5 py-0.5 rounded border border-white/10">
                     {gridWidth}x{gridHeight} {isEn ? 'cells' : 'кл.'}
                   </span>
@@ -535,7 +846,7 @@ export function ProceduralMapModal() {
                   <span className="bg-surface/70 px-1.5 py-0.5 rounded border border-white/10">
                     {isEn ? `Doors: ${generationResult.doorCount}` : `Дверей: ${generationResult.doorCount}`}
                   </span>
-                  <span className="bg-surface/70 px-1.5 py-0.5 rounded border border-white/10 text-gold-light">
+                  <span className="bg-surface/70 px-1.5 py-0.5 rounded border border-white/10 text-gold-light font-bold">
                     {isEn ? `Walls: ${generationResult.walls.length}` : `Стен: ${generationResult.walls.length}`}
                   </span>
                 </div>
@@ -545,7 +856,7 @@ export function ProceduralMapModal() {
             {/* Preview Box */}
             <div
               ref={previewContainerRef}
-              className="flex-1 min-h-[300px] lg:min-h-[380px] bg-[#090d13] border border-white/10 rounded-xl relative overflow-hidden flex items-center justify-center p-2 shadow-inner"
+              className="flex-1 min-h-[320px] lg:min-h-[400px] bg-[#090d13] border border-white/10 rounded-xl relative overflow-hidden flex items-center justify-center p-2 shadow-inner"
             >
               {isGenerating ? (
                 <div className="flex flex-col items-center gap-2 text-gold">
@@ -559,12 +870,12 @@ export function ProceduralMapModal() {
                   <img
                     src={generationResult.backgroundDataUrl}
                     alt={isEn ? 'Dungeon preview' : 'Предпросмотр подземелья'}
-                    className="max-w-full max-h-[380px] object-contain rounded border border-white/10 shadow-2xl"
+                    className="max-w-full max-h-[390px] object-contain rounded border border-white/10 shadow-2xl"
                   />
                 </div>
               ) : (
                 <span className="text-xs text-gray-500">
-                  {isEn ? 'Click "Regenerate" to create a map' : 'Нажмите "Сгенерировать" для создания карты'}
+                  {isEn ? 'Click "Randomize" to create a map' : 'Нажмите "Случайный сид" для создания карты'}
                 </span>
               )}
             </div>
@@ -573,8 +884,8 @@ export function ProceduralMapModal() {
               <Sparkles className="h-4 w-4 text-gold flex-shrink-0" />
               <span>
                 {isEn
-                  ? 'Walls and doors are automatically vectorized and exported into the tactical engine. Players cannot see through walls, and doors can be interactively opened or locked.'
-                  : 'Стены и двери автоматически векторизуются и экспортируются в тактическую систему. Игроки не смогут видеть сквозь стены, а двери можно интерактивно открывать и запирать.'}
+                  ? 'Walls and doors are automatically vectorized and exported into the tactical engine. Dynamic vision blocking and interactive doors work out of the box.'
+                  : 'Стены и двери автоматически векторизуются и экспортируются в тактическую систему. Динамический свет, блокировка зрения и двери работают сразу.'}
               </span>
             </div>
           </div>
@@ -585,7 +896,7 @@ export function ProceduralMapModal() {
           <button
             type="button"
             onClick={closeProceduralModal}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
           >
             {isEn ? 'Cancel' : 'Отмена'}
           </button>
@@ -595,7 +906,7 @@ export function ProceduralMapModal() {
               type="button"
               onClick={handleApplyToCurrentMap}
               disabled={!generationResult || isGenerating}
-              className="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-surface/80 border border-white/15 text-gray-200 text-xs font-semibold flex items-center gap-1.5 transition-all disabled:opacity-50"
+              className="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-surface/80 border border-white/15 text-gray-200 text-xs font-semibold flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
               title={
                 isEn
                   ? 'Replace background and barriers on current active map'
@@ -610,7 +921,7 @@ export function ProceduralMapModal() {
               type="button"
               onClick={handleCreateNewScene}
               disabled={!generationResult || isGenerating}
-              className="px-4 py-1.5 rounded-lg bg-gold/25 hover:bg-gold/35 border border-gold/70 text-gold-light text-xs font-bold flex items-center gap-1.5 transition-all shadow-md active:scale-95 disabled:opacity-50"
+              className="px-4 py-1.5 rounded-lg bg-gold/25 hover:bg-gold/35 border border-gold/70 text-gold-light text-xs font-bold flex items-center gap-1.5 transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
               title={
                 isEn
                   ? 'Create a new separate scene with generated dungeon'

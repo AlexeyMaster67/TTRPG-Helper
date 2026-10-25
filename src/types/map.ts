@@ -206,7 +206,10 @@ export interface TacticalMapState {
   selectedLightId: string | null;
   activeLightPresetId: string;
   isProceduralModalOpen?: boolean;
+  backgroundTexture?: MapBackgroundTexture;
 }
+
+export type MapBackgroundTexture = 'none' | 'grass' | 'water' | 'wood' | 'stone';
 
 export function getTokenScale(c: any): number {
   if (c?.size) {
